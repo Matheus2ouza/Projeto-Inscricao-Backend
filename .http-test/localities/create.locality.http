@@ -1,0 +1,26 @@
+###
+POST http://localhost:3000/localities
+Content-Type: application/json
+
+{
+  "locality": "SALINAS",
+  "password": "1qwe2asd"
+}
+
+###
+POST http://localhost:3000/localities
+Content-Type: application/json
+
+{
+  "locality": "BELÉM",
+  "password": "123"
+}
+
+###
+POST http://localhost:3000/localities
+Content-Type: application/json
+
+{
+  "locality": "B",
+  "password": "1qwe2asd"
+}

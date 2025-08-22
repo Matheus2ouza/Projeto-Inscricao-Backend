@@ -1,8 +1,9 @@
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 
 export class Utils {
   public static generateUUID(): string {
-    return crypto.randomUUID();
+    return randomUUID();
   }
 
   public static encryptPassword(password: string): string {
