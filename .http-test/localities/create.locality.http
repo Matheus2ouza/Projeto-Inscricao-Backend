@@ -1,5 +1,7 @@
 //Rotas de teste para a criação da localidade
 
+
+//Rota para testar a criação da localidade
 ###
 POST http://localhost:3000/localities
 Content-Type: application/json
@@ -9,6 +11,7 @@ Content-Type: application/json
   "password": "1qwe2asd"
 }
 
+//Rota para testar o erro quando senha não cumprir os requisitos
 ###
 POST http://localhost:3000/localities
 Content-Type: application/json
@@ -18,6 +21,7 @@ Content-Type: application/json
   "password": "123"
 }
 
+//Rota para testar quando a localidade não cumprir os requisitos
 ###
 POST http://localhost:3000/localities
 Content-Type: application/json
