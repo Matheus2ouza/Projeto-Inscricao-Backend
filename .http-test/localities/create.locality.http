@@ -1,3 +1,5 @@
+//Rotas de teste para a criação da localidade
+
 ###
 POST http://localhost:3000/localities
 Content-Type: application/json
