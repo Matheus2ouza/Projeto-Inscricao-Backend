@@ -89,6 +89,27 @@ docker run -p 3000:3000 api-inscricao-nest:optimized
 ./build-docker.sh
 ```
 
+### 🐳 Docker Compose (Heroku Eco Dyno)
+
+Para simular um ambiente Heroku Eco Dyno com limites de recursos:
+
+```bash
+# Usando o script automatizado (recomendado)
+./docker-compose.sh build    # Constrói a imagem
+./docker-compose.sh up       # Inicia a aplicação
+./docker-compose.sh status   # Verifica status
+./docker-compose.sh logs     # Mostra logs
+
+# Ou usando docker-compose diretamente
+docker-compose up -d
+```
+
+#### 📊 Recursos Limitados (Heroku Eco Dyno)
+- **Memória**: 512MB máximo
+- **CPU**: 0.5 cores (50% de um core)
+- **Restart**: Automático em caso de falha
+- **Segurança**: Modo não privilegiado
+
 ### 📖 Documentação Completa
 
 Para informações detalhadas sobre as otimizações Docker, consulte [DOCKER_OPTIMIZATION.md](./DOCKER_OPTIMIZATION.md).

@@ -41,6 +41,13 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+
+# Arquivos de exemplo de variáveis (opcional - remover se quiser manter no repo)
+# env.example
 
 # temp directory
 .temp
@@ -55,4 +62,255 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+# Prisma generated files
 /generated/prisma
+
+# Docker related files (opcional - remover se quiser manter no repo)
+# docker-compose.override.yml
+# docker-compose.prod.yml
+# docker-compose.dev.yml
+
+# Logs do Docker Compose
+logs/
+*.log
+
+# Arquivos de backup e temporários
+*.bak
+*.backup
+*.tmp
+*.temp
+*~
+
+# Arquivos de configuração local
+config.local.js
+config.local.json
+config.local.yml
+config.local.yaml
+
+# Arquivos de certificados e chaves
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+*.jks
+
+# Arquivos de senha e credenciais
+passwords.txt
+credentials.txt
+secrets.txt
+*.secret
+*.password
+
+# Arquivos de cache e sessão
+.cache/
+.sessions/
+*.session
+
+# Arquivos de dump e backup de banco
+*.sql
+*.dump
+*.backup
+*.bak
+
+# Arquivos de monitoramento e métricas
+metrics/
+monitoring/
+*.metrics
+
+# Arquivos de deploy e CI/CD local
+.deploy/
+.ci/
+.cd/
+
+# Arquivos de IDE específicos
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
+.vscode/workspace.json
+
+# Arquivos de sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Arquivos de compressão
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Arquivos de mídia (caso tenha)
+*.mp3
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+
+# Arquivos de imagem (caso tenha)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+
+# Arquivos de documento (caso tenha)
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.odt
+*.ods
+*.odp
+
+# Arquivos de código compilado e binários
+*.exe
+*.dll
+*.so
+*.dylib
+*.class
+*.o
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+
+# Arquivos de configuração de servidor
+.htaccess
+.htpasswd
+nginx.conf
+apache.conf
+*.conf
+
+# Arquivos de firewall e segurança
+firewall.rules
+security.conf
+*.rules
+
+# Arquivos de backup automático
+*_backup_*
+*_bak_*
+*_old_*
+*_archive_*
+
+# Arquivos de teste local
+test-local.js
+test-local.json
+test-local.yml
+test-local.yaml
+
+# Arquivos de debug
+debug.log
+debug.txt
+*.debug
+
+# Arquivos de erro
+error.log
+error.txt
+*.error
+
+# Arquivos de performance
+performance.log
+performance.txt
+*.perf
+
+# Arquivos de auditoria
+audit.log
+audit.txt
+*.audit
+
+# Arquivos de compliance
+compliance.log
+compliance.txt
+*.compliance
+
+# Arquivos de segurança
+security.log
+security.txt
+*.security
+
+# Arquivos de monitoramento de aplicação
+app.log
+app.txt
+*.app.log
+
+# Arquivos de monitoramento de sistema
+system.log
+system.txt
+*.system.log
+
+# Arquivos de monitoramento de rede
+network.log
+network.txt
+*.network.log
+
+# Arquivos de monitoramento de banco de dados
+database.log
+database.txt
+*.database.log
+
+# Arquivos de monitoramento de cache
+cache.log
+cache.txt
+*.cache.log
+
+# Arquivos de monitoramento de sessão
+session.log
+session.txt
+*.session.log
+
+# Arquivos de monitoramento de usuário
+user.log
+user.txt
+*.user.log
+
+# Arquivos de monitoramento de API
+api.log
+api.txt
+*.api.log
+
+# Arquivos de monitoramento de erro
+error-api.log
+error-api.txt
+*.error.api.log
+
+# Arquivos de monitoramento de performance
+perf-api.log
+perf-api.txt
+*.perf.api.log
+
+# Arquivos de monitoramento de segurança
+sec-api.log
+sec-api.txt
+*.sec.api.log
+
+# Arquivos de monitoramento de compliance
+comp-api.log
+comp-api.txt
+*.comp.api.log
+
+# Arquivos de monitoramento de auditoria
+audit-api.log
+audit-api.txt
+*.audit.api.log
