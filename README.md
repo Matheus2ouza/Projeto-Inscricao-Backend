@@ -57,6 +57,42 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Docker
+
+Este projeto inclui configurações Docker otimizadas para reduzir significativamente o tamanho das imagens.
+
+### 📊 Comparação de Tamanhos
+
+| Versão | Tamanho | Redução |
+|--------|---------|---------|
+| Original | 750MB | - |
+| Distroless | 546MB | 27% menor |
+| Alpine | 558MB | 26% menor |
+
+### 🚀 Build e Execução
+
+```bash
+# Build da versão otimizada (recomendada)
+docker build -f Dockerfile.optimized -t api-inscricao-nest:optimized .
+
+# Build da versão Alpine
+docker build -f Dockerfile.alpine -t api-inscricao-nest:alpine .
+
+# Executar container
+docker run -p 3000:3000 api-inscricao-nest:optimized
+```
+
+### 📋 Script Automatizado
+
+```bash
+# Executa todos os builds e mostra comparação
+./build-docker.sh
+```
+
+### 📖 Documentação Completa
+
+Para informações detalhadas sobre as otimizações Docker, consulte [DOCKER_OPTIMIZATION.md](./DOCKER_OPTIMIZATION.md).
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
