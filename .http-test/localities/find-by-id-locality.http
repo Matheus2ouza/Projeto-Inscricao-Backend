@@ -1,0 +1,21 @@
+@userId = 05cc1a31-4466-44b6-ad74-0fcb90c1f659
+@invalidUserId = 00000000-0000-0000-0000-000000000000
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhbGl0eUlkIjoiMDVjYzFhMzEtNDQ2Ni00NGI2LWFkNzQtMGZjYjkwYzFmNjU5IiwiaWF0IjoxNzU2MjI1MTUwLCJleHAiOjE3NTYyMjg3NTB9.6tT0ZvcIWlbGLBcdAAHwddkJKpBf8zw8RHVoQVGxLL0
+
+###
+# Teste: ID válido (deve retornar os dados da localidade)
+GET http://localhost:3000/localities/me
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET http://localhost:3000/localities/me
+Content-Type: application/json
+
+
+# ###
+# # Teste: ID válido, mas não existente (deve retornar um erro de Localidade não encontrada)
+# GET http://localhost:3000/localities/{{invalidUserId}}
+# Content-Type: application/json
+# Authorization: Bearer {{authToken}}

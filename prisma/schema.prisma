@@ -14,17 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Locality {
-  id                  String   @id
-  locality            String   @unique
-  role                roleType
-  outstanding_balance Decimal  @default(0.00) @db.Decimal(10, 2)
-  password            String
-  createdAt           DateTime
-  updatedAt           DateTime
+model User {
+  id                 String   @id
+  username           String   @unique
+  role               roleType
+  outstandingBalance Decimal  @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
+  password           String
+  createdAt          DateTime @map("created_at")
+  updatedAt          DateTime @map("updated_at")
+
+  @@map("user")
 }
 
 enum roleType {
   USER
+  MANAGER
   ADMIN
 }

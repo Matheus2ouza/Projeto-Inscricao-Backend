@@ -1,24 +1,24 @@
-import { Module } from "@nestjs/common";
-import { CreateLocalityUsecase } from "./locality/create/create-locality.usecase";
-import { FindLocalityUsecase } from "./locality/find-by-id/find-locality.usecase";
-import { LoginLocalityUsecase } from "./locality/login/login-locality.usecase";
-import { RefreshAuthTokenLocalityUsecase } from "./locality/refresh-auth-token/refresh-auth-token-locality.usecase";
-import { DataBaseModule } from "src/infra/repositories/database.module";
-import { ServiceModule } from "src/infra/services/service.module";
+import { Module } from '@nestjs/common';
+import { CreateUserUsecase } from './user/create/create-user.usecase';
+import { FindUserUsecase } from './user/find-by-id/find-user.usecase';
+import { LoginUserUsecase } from './user/login/login-user.usecase';
+import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-auth-token-user.usecase';
+import { DataBaseModule } from 'src/infra/repositories/database.module';
+import { ServiceModule } from 'src/infra/services/service.module';
 
 @Module({
   imports: [DataBaseModule, ServiceModule],
   providers: [
-    CreateLocalityUsecase, 
-    FindLocalityUsecase, 
-    LoginLocalityUsecase, 
-    RefreshAuthTokenLocalityUsecase
+    CreateUserUsecase,
+    FindUserUsecase,
+    LoginUserUsecase,
+    RefreshAuthTokenUserUsecase,
   ],
   exports: [
-    CreateLocalityUsecase, 
-    FindLocalityUsecase, 
-    LoginLocalityUsecase, 
-    RefreshAuthTokenLocalityUsecase
-  ]
+    CreateUserUsecase,
+    FindUserUsecase,
+    LoginUserUsecase,
+    RefreshAuthTokenUserUsecase,
+  ],
 })
 export class UsecaseModule {}

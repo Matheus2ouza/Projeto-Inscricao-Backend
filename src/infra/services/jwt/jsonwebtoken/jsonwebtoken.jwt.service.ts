@@ -8,6 +8,7 @@ import {
 } from '../jwt.service';
 import { RefreshTokenNotValidServiceException } from '../../exceptions/refresh-token-not-valid.service.exception';
 import { Injectable } from '@nestjs/common';
+import { AuthTokenNotValidServiceException } from '../../exceptions/auth-token-not-valid.service.exception';
 
 @Injectable()
 export class JsonWebTokenService extends JwtService {
@@ -29,8 +30,8 @@ export class JsonWebTokenService extends JwtService {
     this.refreshSecret = process.env.JWT_REFRESH_SECRET;
   }
 
-  public generateAuthToken(localityId: string): string {
-    const payload = this.generateAuthTokenPayload(localityId);
+  public generateAuthToken(userId: string): string {
+    const payload = this.generateAuthTokenPayload(userId);
 
     const token = jsonwebToken.sign(payload, this.authSecret, {
       expiresIn: '1h',
@@ -39,16 +40,16 @@ export class JsonWebTokenService extends JwtService {
     return token;
   }
 
-  private generateAuthTokenPayload(localityId: string): JwtAuthPayload {
+  private generateAuthTokenPayload(userId: string): JwtAuthPayload {
     const payload: JwtAuthPayload = {
-      localityId,
+      userId,
     };
 
     return payload;
   }
 
-  public genereteRefreshToken(localityId: string): string {
-    const payload = this.generateRefreshTokenPayload(localityId);
+  public genereteRefreshToken(userId: string): string {
+    const payload = this.generateRefreshTokenPayload(userId);
 
     const token = jsonwebToken.sign(payload, this.refreshSecret, {
       expiresIn: '1d',
@@ -57,9 +58,9 @@ export class JsonWebTokenService extends JwtService {
     return token;
   }
 
-  private generateRefreshTokenPayload(localityId: string): JwtRefreshPayload {
+  private generateRefreshTokenPayload(userId: string): JwtRefreshPayload {
     const payload: JwtRefreshPayload = {
-      localityId,
+      userId,
     };
 
     return payload;
@@ -74,13 +75,13 @@ export class JsonWebTokenService extends JwtService {
         this.refreshSecret,
       ) as JwtRefreshPayload;
 
-      const localityId = payload.localityId;
+      const userId = payload.userId;
 
-      const authToken = this.generateAuthToken(localityId);
+      const authToken = this.generateAuthToken(userId);
 
       const output: GenerateAuthTokenWithRefreshTokenOutput = {
         authToken,
-        localityId,
+        userId,
       };
 
       return output;
@@ -96,6 +97,23 @@ export class JsonWebTokenService extends JwtService {
       throw new RefreshTokenNotValidServiceException(
         `Refresh token ${refreshToken} not valid while refresh auth token in ${JsonWebTokenService.name}`,
         `Credenciais inválidas`,
+        JsonWebTokenService.name,
+      );
+    }
+  }
+
+  public verifyAuthToken(token: string): JwtAuthPayload {
+    try {
+      const payload = jsonwebToken.verify(
+        token,
+        this.authSecret,
+      ) as JwtAuthPayload;
+
+      return payload;
+    } catch (error) {
+      throw new AuthTokenNotValidServiceException(
+        `Auth token ${token} not valid while verifying in ${JsonWebTokenService.name}`,
+        `Credenciais inválidas. Faça o login novamente`,
         JsonWebTokenService.name,
       );
     }

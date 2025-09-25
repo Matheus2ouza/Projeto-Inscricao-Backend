@@ -1,0 +1,21 @@
+//Arquivo para teste da rota para recriação do authToken
+
+#Teste para a recriação do authToken passando um refreshToken valido (Deve retornar um novo authToken valido)
+###
+POST http://localhost:3000/localities/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhbGl0eUlkIjoiMDVjYzFhMzEtNDQ2Ni00NGI2LWFkNzQtMGZjYjkwYzFmNjU5IiwiaWF0IjoxNzU2MDEzNDY0LCJleHAiOjE3NTYwOTk4NjR9.mHXa2tPahnxGw2jju7ABdh84AxQvQC7ugped7DN1h1s"
+}
+
+
+#Teste para a criação de authToken passando um refreshToken invalido (Deve retornar um erro de credenciais invalidas)
+###
+POST http://localhost:3000/localities/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "invalid-refreshToken"
+}
+

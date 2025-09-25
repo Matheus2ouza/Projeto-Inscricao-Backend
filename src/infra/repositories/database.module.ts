@@ -1,8 +1,8 @@
-import { Module } from "@nestjs/common";
-import { LocalityPrismaRepositoryProvider } from "./prisma/locality/model/locality.prisma.repository.provider";
+import { Module } from '@nestjs/common';
+import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
 
 @Module({
-  providers: [LocalityPrismaRepositoryProvider],
-  exports: [LocalityPrismaRepositoryProvider],
+  providers: [UserPrismaRepositoryProvider],
+  exports: [UserPrismaRepositoryProvider],
 })
 export class DataBaseModule {}
