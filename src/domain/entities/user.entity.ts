@@ -8,6 +8,7 @@ export type UserCreateDto = {
   username: string;
   password: string;
   role: roleType;
+  regionId?: string;
 };
 
 export type UserwithDto = {
@@ -34,7 +35,12 @@ export class User extends Entity {
     this.validate();
   }
 
-  public static create({ username, password, role }: UserCreateDto): User {
+  public static create({
+    username,
+    password,
+    role,
+    regionId,
+  }: UserCreateDto): User {
     const id = Utils.generateUUID();
 
     UserPasswordZodValidatorFactory.create().validate(password);
@@ -50,6 +56,7 @@ export class User extends Entity {
       role,
       createdAt,
       updatedAt,
+      regionId,
     );
   }
 

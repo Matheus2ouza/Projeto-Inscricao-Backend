@@ -36,8 +36,22 @@ export class UserPrismaRepository extends UserGateway {
 
     return anUser;
   }
+
+  public async findRegionById(id: string): Promise<any | null> {
+    const region = await prismaClient.regions.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!region) return null;
+
+    return region;
+  }
+
   public async create(user: User): Promise<void> {
     const aModel = UserEntityToUserPrismaModelMapper.map(user);
+    console.log('model to create', aModel);
     await prismaClient.accounts.create({
       data: aModel,
     });
