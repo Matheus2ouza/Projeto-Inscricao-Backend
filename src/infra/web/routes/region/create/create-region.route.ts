@@ -1,28 +1,34 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { CreateRegionUseCase } from 'src/usecases/region/create/create-region.usecase';
-import { CreateRegionDto } from './create-region.dto';
+import {
+  CreateRegionInput,
+  CreateRegionOutput,
+  CreateRegionUseCase,
+} from 'src/usecases/region/create/create-region.usecase';
 import { CreateRegionPresenter } from './create-region.presenter';
-import { AuthGuard } from 'src/infra/web/authenticator/guards/auth.guard';
-import { RoleGuard } from 'src/infra/web/authenticator/guards/role.guard';
-import { UserRole } from 'src/infra/web/authenticator/decorators/user-role.decorator';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
+import type {
+  CreateRegionRequest,
+  CreateRegionResponse,
+} from './create-region.dto';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 
 @Controller('regions')
 export class CreateRegionRoute {
-  constructor(private readonly createRegionUseCase: CreateRegionUseCase) {}
+  public constructor(
+    private readonly createRegionUseCase: CreateRegionUseCase,
+  ) {}
 
-  @UseGuards(AuthGuard, RoleGuard)
-  @Roles('SUPER')
+  @Roles(RoleTypeHierarchy.SUPER)
   @Post('create')
-  async create(@Body() dto: CreateRegionDto, @UserRole() user: any) {
-    // id, createdAt, updatedAt gerados aqui
-    const now = new Date();
-    const region = await this.createRegionUseCase.execute({
-      id: crypto.randomUUID(),
-      name: dto.name,
-      createdAt: now,
-      updatedAt: now,
-    });
-    return new CreateRegionPresenter(region);
+  async handle(
+    @Body() request: CreateRegionRequest,
+  ): Promise<CreateRegionResponse> {
+    const input: CreateRegionInput = {
+      name: request.name,
+    };
+    const region: CreateRegionOutput =
+      await this.createRegionUseCase.execute(input);
+    const response = CreateRegionPresenter.toHttp(region);
+    return response;
   }
 }

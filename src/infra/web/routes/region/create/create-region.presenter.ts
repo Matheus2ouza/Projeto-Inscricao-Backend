@@ -1,15 +1,11 @@
-import { Region } from 'src/domain/entities/region.entity';
+import { CreateRegionOutput } from 'src/usecases/region/create/create-region.usecase';
+import { CreateRegionResponse } from './create-region.dto';
 
 export class CreateRegionPresenter {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-
-  constructor(region: Region) {
-    this.id = region.getId();
-    this.name = region.getName();
-    this.createdAt = region.getCreatedAt();
-    this.updatedAt = region.getUpdatedAt();
+  public static toHttp(input: CreateRegionOutput): CreateRegionResponse {
+    const response: CreateRegionResponse = {
+      id: input.id,
+    };
+    return response;
   }
 }

@@ -3,7 +3,7 @@ import EventPrismaModel from '../event.prisma.model';
 
 export class EventPrismaModelToEventEntityMapper {
   public static map(event: EventPrismaModel): Event {
-    return Event.create({
+    return Event.with({
       id: event.id,
       name: event.name,
       date: event.date,

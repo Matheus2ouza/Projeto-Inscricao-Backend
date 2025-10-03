@@ -1,6 +1,7 @@
-import { IsString } from 'class-validator';
-
-export class CreateRegionDto {
-  @IsString()
+export type CreateRegionRequest = {
   name: string;
-}
+};
+
+export type CreateRegionResponse = {
+  id: string;
+};

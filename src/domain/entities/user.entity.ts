@@ -14,7 +14,6 @@ export type UserwithDto = {
   id: string;
   username: string;
   password: string;
-  outstandingBalance: number;
   role: roleType;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +25,6 @@ export class User extends Entity {
     id: string,
     private username: string,
     private password: string,
-    private outstandingBalance: number,
     private role: roleType,
     createdAt: Date,
     updatedAt: Date,
@@ -42,7 +40,6 @@ export class User extends Entity {
     UserPasswordZodValidatorFactory.create().validate(password);
 
     const encryptedPassword = Utils.encryptPassword(password);
-    const outstandingBalance = 0;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -50,7 +47,6 @@ export class User extends Entity {
       id,
       username,
       encryptedPassword,
-      outstandingBalance,
       role,
       createdAt,
       updatedAt,
@@ -61,7 +57,6 @@ export class User extends Entity {
     id,
     username,
     password,
-    outstandingBalance,
     role,
     createdAt,
     updatedAt,
@@ -71,7 +66,6 @@ export class User extends Entity {
       id,
       username,
       password,
-      outstandingBalance,
       role,
       createdAt,
       updatedAt,
@@ -89,10 +83,6 @@ export class User extends Entity {
 
   public getPassword(): string {
     return this.password;
-  }
-
-  public getOutstandingBalance(): number {
-    return this.outstandingBalance;
   }
 
   public getRole(): roleType {

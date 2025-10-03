@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
-import { UserNotFoundUsecaseException } from 'src/usecases/exceptions/user-not-found.usecase.exception';
+import { UserNotFoundUsecaseException } from 'src/usecases/exceptions/users/user-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindUserInput = {
@@ -11,9 +11,9 @@ export type FindUserOutput = {
   id: string;
   username: string;
   role: string;
-  outstanding_balance: number;
   createdAt: Date;
   updatedAt: Date;
+  regionId: string | undefined;
 };
 
 @Injectable()
@@ -34,9 +34,9 @@ export class FindUserUsecase implements Usecase<FindUserInput, FindUserOutput> {
       id: anUser.getId(),
       username: anUser.getUsername(),
       role: anUser.getRole(),
-      outstanding_balance: anUser.getOutstandingBalance(),
       createdAt: anUser.getCreatedAt(),
       updatedAt: anUser.getUpdatedAt(),
+      regionId: anUser.getRegionId(),
     };
 
     return output;

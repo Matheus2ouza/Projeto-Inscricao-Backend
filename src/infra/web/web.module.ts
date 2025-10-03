@@ -1,3 +1,4 @@
+import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { Module } from '@nestjs/common';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { UsecaseModule } from 'src/usecases/usecase.module';
@@ -16,9 +17,11 @@ import { RefreshAuthTokenRoute } from './routes/user/refresh-auth-token/refresh-
 import { FindByIdUserRoute } from './routes/user/find-by-id/find-by-id-user.route';
 import { UserProfileRoute } from './routes/user/profile/user-profile.route';
 import { AuthGuardProvider } from './authenticator/guards/auth.guard';
+import { RoleGuardProvider } from './authenticator/guards/role.guard';
 import { ServiceModule } from '../services/service.module';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
+import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -31,15 +34,18 @@ import { CreateRegionRoute } from './routes/region/create/create-region.route';
     UserProfileRoute,
     CreateEventRoute,
     CreateRegionRoute,
+    FindAllRegionsRoute,
   ],
   providers: [
     AuthGuardProvider,
+    RoleGuardProvider,
     ValidatorDomainExceptionFilterProvider,
     DomainExceptionFilterProvider,
     UsecaseExceptionFilterProvider,
     CredentialsNotValidUsecaseExcepitonFilterProvider,
     UserAlreadyExistsUsecaseExceptionFilterProvider,
     UserNotFoundUsecaseExceptionFilterProvider,
+    UserNotAllowedToCreateUserUsecaseExceptionFilterProvider,
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,

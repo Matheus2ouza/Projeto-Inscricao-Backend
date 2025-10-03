@@ -7,6 +7,7 @@ import { DataBaseModule } from 'src/infra/repositories/database.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
+import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
 
 @Module({
   imports: [DataBaseModule, ServiceModule],
@@ -17,6 +18,7 @@ import { CreateRegionUseCase } from './region/create/create-region.usecase';
     RefreshAuthTokenUserUsecase,
     CreateEventUseCase,
     CreateRegionUseCase,
+    FindAllRegionNamesUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -25,6 +27,7 @@ import { CreateRegionUseCase } from './region/create/create-region.usecase';
     RefreshAuthTokenUserUsecase,
     CreateEventUseCase,
     CreateRegionUseCase,
+    FindAllRegionNamesUsecase,
   ],
 })
 export class UsecaseModule {}

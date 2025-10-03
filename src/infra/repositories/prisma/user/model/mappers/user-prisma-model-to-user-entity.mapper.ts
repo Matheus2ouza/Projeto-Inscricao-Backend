@@ -8,7 +8,6 @@ export class UserPrismaModelToUserEntityMapper {
       id: user.id,
       username: user.username,
       password: user.password,
-      outstandingBalance: Number(user.outstandingBalance),
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

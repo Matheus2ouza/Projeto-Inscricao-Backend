@@ -1,7 +1,8 @@
 import { Region } from '../entities/region.entity';
 
-export interface RegionGateway {
-  create(region: Region): Promise<Region>;
-  findById(id: string): Promise<Region | null>;
-  findByName(name: string): Promise<Region | null>;
+export abstract class RegionGateway {
+  abstract create(region: Region): Promise<Region>;
+  abstract findById(id: string): Promise<Region | null>;
+  abstract findByName(name: string): Promise<Region | null>;
+  abstract findAllNames(): Promise<Region[]>;
 }

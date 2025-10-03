@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
-import { CredentialsNoValidUsecaseException } from 'src/usecases/exceptions/credentials-no-valid.usecase.exception';
+import { CredentialsNoValidUsecaseException } from 'src/usecases/exceptions/users/credentials-no-valid.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
 
 export type loginUserInput = {

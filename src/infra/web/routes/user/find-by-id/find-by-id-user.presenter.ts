@@ -7,7 +7,6 @@ export class FindByIdUserPresenter {
       id: input.id,
       username: input.username,
       role: input.role,
-      outstanding_balance: input.outstanding_balance,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
     };

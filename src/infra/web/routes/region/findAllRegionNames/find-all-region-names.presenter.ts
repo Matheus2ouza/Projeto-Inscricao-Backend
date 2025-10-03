@@ -1,0 +1,12 @@
+import { FindAllRegionsOutput } from 'src/usecases/region/findAllRegionNames/find-all-region-names.usecase';
+import { FindAllRegionNamesResponse } from './find-all-region-names.dto';
+
+export class FindAllRegionsNamesPresenter {
+  public static toHttp(
+    input: FindAllRegionsOutput,
+  ): FindAllRegionNamesResponse {
+    return input.map((region) => ({
+      name: region.name,
+    }));
+  }
+}

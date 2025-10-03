@@ -9,12 +9,9 @@ export class CreateEventUseCase {
   ) {}
 
   async execute(input: {
-    id: string;
     name: string;
     date: Date;
     regionId: string;
-    createdAt: Date;
-    updatedAt: Date;
   }): Promise<Event> {
     // Regra: apenas ADMIN da region pode criar (validar no controller/guard)
     const event = Event.create(input);

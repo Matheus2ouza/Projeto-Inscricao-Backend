@@ -1,47 +1,74 @@
-export class Event {
-  constructor(
-    private readonly id: string,
-    private readonly name: string,
-    private readonly date: Date,
-    private readonly regionId: string,
-    private readonly createdAt: Date,
-    private readonly updatedAt: Date,
-  ) {}
+import { Utils } from 'src/shared/utils/utils';
+import { Entity } from '../shared/entities/entity';
 
-  public getId(): string {
-    return this.id;
-  }
-  public getName(): string {
-    return this.name;
-  }
-  public getDate(): Date {
-    return this.date;
-  }
-  public getRegionId(): string {
-    return this.regionId;
-  }
-  public getCreatedAt(): Date {
-    return this.createdAt;
-  }
-  public getUpdatedAt(): Date {
-    return this.updatedAt;
+export type EventCreateDto = {
+  name: string;
+  date: Date;
+  regionId: string;
+};
+
+export type EventWithDto = {
+  id: string;
+  name: string;
+  date: Date;
+  regionId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export class Event extends Entity {
+  private constructor(
+    id: string,
+    private name: string,
+    private date: Date,
+    private regionId: string,
+    createdAt: Date,
+    updatedAt: Date,
+  ) {
+    super(id, createdAt, updatedAt);
+    this.validate();
   }
 
-  static create({
+  public static create({ name, date, regionId }: EventCreateDto): Event {
+    const id = Utils.generateUUID();
+    const createdAt = new Date();
+    const updatedAt = new Date();
+
+    return new Event(id, name, date, regionId, createdAt, updatedAt);
+  }
+
+  public static with({
     id,
     name,
     date,
     regionId,
     createdAt,
     updatedAt,
-  }: {
-    id: string;
-    name: string;
-    date: Date;
-    regionId: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }): Event {
+  }: EventWithDto): Event {
     return new Event(id, name, date, regionId, createdAt, updatedAt);
+  }
+
+  protected validate(): void {
+    if (!this.name || this.name.trim().length === 0) {
+      throw new Error('Nome do evento é obrigatório');
+    }
+    if (!this.date) {
+      throw new Error('Data do evento é obrigatória');
+    }
+    if (!this.regionId || this.regionId.trim().length === 0) {
+      throw new Error('ID da região é obrigatório');
+    }
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public getDate(): Date {
+    return this.date;
+  }
+
+  public getRegionId(): string {
+    return this.regionId;
   }
 }

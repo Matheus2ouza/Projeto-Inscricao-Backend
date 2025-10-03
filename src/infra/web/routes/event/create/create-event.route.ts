@@ -16,14 +16,10 @@ export class CreateEventRoute {
   @Post('create')
   async create(@Body() dto: CreateEventDto, @UserRole() user: any) {
     // Regra: só ADMIN pode criar, regionId vem do DTO
-    const now = new Date();
     const event = await this.createEventUseCase.execute({
-      id: crypto.randomUUID(),
       name: dto.name,
       date: new Date(dto.date),
       regionId: dto.regionId,
-      createdAt: now,
-      updatedAt: now,
     });
     return new CreateEventPresenter(event);
   }

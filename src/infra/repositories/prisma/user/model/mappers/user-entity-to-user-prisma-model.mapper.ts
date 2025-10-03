@@ -1,4 +1,3 @@
-import Decimal from 'decimal.js';
 import { User } from 'src/domain/entities/user.entity';
 import UserPrismaModel from '../user.prisma.model';
 
@@ -8,7 +7,6 @@ export class UserEntityToUserPrismaModelMapper {
     const aModel: UserPrismaModel = {
       id: user.getId(),
       username: user.getUsername(),
-      outstandingBalance: new Decimal(user.getOutstandingBalance()),
       password: user.getPassword(),
       role: user.getRole(),
       createdAt: user.getCreatedAt(),

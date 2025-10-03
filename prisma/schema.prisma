@@ -9,13 +9,12 @@ datasource db {
 }
 
 model Accounts {
-  id                 String   @id @default(uuid())
-  username           String   @unique
-  role               roleType
-  outstandingBalance Decimal  @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
-  password           String
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  username  String   @unique
+  role      roleType
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   regionId String?
   region   Regions? @relation(fields: [regionId], references: [id])
@@ -24,10 +23,11 @@ model Accounts {
 }
 
 model Regions {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  name               String   @unique
+  outstandingBalance Decimal  @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   accounts Accounts[]
   events   Events[]
