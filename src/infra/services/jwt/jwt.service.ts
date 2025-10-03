@@ -1,20 +1,23 @@
 export type GenerateAuthTokenWithRefreshTokenOutput = {
   authToken: string;
-  localityId: string;
-}
+  userId: string;
+  role: string;
+};
 
 export type JwtAuthPayload = {
-  localityId: string;
-}
+  userId: string;
+  role: string;
+};
 
 export type JwtRefreshPayload = {
-  localityId: string;
-}
+  userId: string;
+};
 
 export abstract class JwtService {
-  public abstract generateAuthToken(localityId: string): string;
-  public abstract genereteRefreshToken(localityId: string): string;
+  public abstract generateAuthToken(userId: string, role: string): string;
+  public abstract genereteRefreshToken(userId: string): string;
   public abstract generateAuthTokenWithRefreshToken(
-    refreshAuthToken: string
-  ): GenerateAuthTokenWithRefreshTokenOutput;
+    refreshAuthToken: string,
+  ): Promise<GenerateAuthTokenWithRefreshTokenOutput>;
+  public abstract verifyAuthToken(token: string): JwtAuthPayload;
 }

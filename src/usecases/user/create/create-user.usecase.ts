@@ -1,0 +1,66 @@
+import { Injectable } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
+import { User } from 'src/domain/entities/user.entity';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { canActOn, RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
+import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/exceptions/users/user-not-allowed-to-create-user.usecase.exception';
+import { UserAlreadyExistsUsecaseException } from 'src/usecases/exceptions/users/user-already-exists.usecase.exception';
+import { Usecase } from 'src/usecases/usecase';
+
+export type CreateUserInput = {
+  username: string;
+  password: string;
+  role: roleType;
+  requesterRole?: string;
+};
+
+export type CreateUserOutput = {
+  id: string;
+};
+
+@Injectable()
+export class CreateUserUsecase
+  implements Usecase<CreateUserInput, CreateUserOutput>
+{
+  public constructor(private readonly userGateway: UserGateway) {}
+
+  public async execute({
+    username,
+    password,
+    role,
+    requesterRole,
+  }: CreateUserInput): Promise<CreateUserOutput> {
+    // Verifica se o usuário que está tentando criar tem permissão para criar um usuário com a role desejada
+    if (
+      !requesterRole ||
+      !canActOn(requesterRole as RoleTypeHierarchy, role as RoleTypeHierarchy)
+    ) {
+      throw new UserNotAllowedToCreateUserUsecaseException(
+        `User with role ${requesterRole || 'undefined'} is not allowed to create user with role ${role}`,
+        `Você não tem permissão suficiente para criar um usuario com o permissão nivel ${role}`,
+        CreateUserUsecase.name,
+      );
+    }
+
+    // Verifica se o usuário já existe
+    const userExists = await this.userGateway.findByUser(username);
+
+    if (userExists) {
+      throw new UserAlreadyExistsUsecaseException(
+        `User already exists while creating user with user: ${username}`,
+        `A usuario ${username} já existe`,
+        CreateUserUsecase.name,
+      );
+    }
+
+    const anUser = User.create({ username, password, role });
+
+    await this.userGateway.create(anUser);
+
+    const output: CreateUserOutput = {
+      id: anUser.getId(),
+    };
+
+    return output;
+  }
+}

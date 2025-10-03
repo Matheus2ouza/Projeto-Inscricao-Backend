@@ -63,11 +63,11 @@ Este projeto inclui configurações Docker otimizadas para reduzir significativa
 
 ### 📊 Comparação de Tamanhos
 
-| Versão | Tamanho | Redução |
-|--------|---------|---------|
-| Original | 750MB | - |
-| Distroless | 546MB | 27% menor |
-| Alpine | 558MB | 26% menor |
+| Versão     | Tamanho | Redução   |
+| ---------- | ------- | --------- |
+| Original   | 750MB   | -         |
+| Distroless | 546MB   | 27% menor |
+| Alpine     | 558MB   | 26% menor |
 
 ### 🚀 Build e Execução
 
@@ -105,6 +105,7 @@ docker-compose up -d
 ```
 
 #### 📊 Recursos Limitados (Heroku Eco Dyno)
+
 - **Memória**: 512MB máximo
 - **CPU**: 0.5 cores (50% de um core)
 - **Restart**: Automático em caso de falha

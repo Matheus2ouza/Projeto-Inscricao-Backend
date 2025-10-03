@@ -1,0 +1,10 @@
+@authToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzZjYzhhYi01MmMwLTQ1YmEtOTQ5OC1iOTEzYWJhYWY3YjAiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1OTMwMTczMCwiZXhwIjoxNzU5MzA1MzMwfQ.agwNcF3-tgFkIlDkpiYJLwpcqBUn2VdAXpSVJ9Ua0xk"
+
+###
+POST http://localhost:3001/region/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "regiao 2",
+}

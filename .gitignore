@@ -314,3 +314,6 @@ comp-api.txt
 audit-api.log
 audit-api.txt
 *.audit.api.log
+
+# Arquivo de estrutura de pastas e arquivos
+estrutura.txt
