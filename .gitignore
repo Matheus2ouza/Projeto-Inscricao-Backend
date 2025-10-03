@@ -319,4 +319,4 @@ audit-api.txt
 estrutura.txt
 
 # Arquivos de testes HTTP-test
-http-test/
+.http-test/
