@@ -35,7 +35,7 @@ export class JsonWebTokenService extends JwtService {
     const payload = this.generateAuthTokenPayload(userId, role);
 
     const token = jsonwebToken.sign(payload, this.authSecret, {
-      expiresIn: '1m',
+      expiresIn: '1h',
     });
 
     return token;
