@@ -28,7 +28,7 @@ export class RegionPrismaRepository implements RegionGateway {
 
   async findAllNames(): Promise<Region[]> {
     const found = await this.prisma.regions.findMany({
-      select: { name: true },
+      select: { id: true, name: true },
     });
     return found.map(RegionPrismaModelToRegionEntityMapper.map);
   }
