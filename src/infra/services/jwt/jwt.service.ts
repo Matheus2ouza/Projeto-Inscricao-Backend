@@ -1,10 +1,12 @@
 export type GenerateAuthTokenWithRefreshTokenOutput = {
   authToken: string;
   userId: string;
+  role: string;
 };
 
 export type JwtAuthPayload = {
   userId: string;
+  role: string;
 };
 
 export type JwtRefreshPayload = {
@@ -12,10 +14,10 @@ export type JwtRefreshPayload = {
 };
 
 export abstract class JwtService {
-  public abstract generateAuthToken(userId: string): string;
+  public abstract generateAuthToken(userId: string, role: string): string;
   public abstract genereteRefreshToken(userId: string): string;
   public abstract generateAuthTokenWithRefreshToken(
     refreshAuthToken: string,
-  ): GenerateAuthTokenWithRefreshTokenOutput;
+  ): Promise<GenerateAuthTokenWithRefreshTokenOutput>;
   public abstract verifyAuthToken(token: string): JwtAuthPayload;
 }

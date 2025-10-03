@@ -10,11 +10,15 @@ import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/useca
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
+import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/auth-token-not-valid-service-exception.filter';
 import { LoginUserRoute } from './routes/user/login/login-user.route';
 import { RefreshAuthTokenRoute } from './routes/user/refresh-auth-token/refresh-auth-token.route';
 import { FindByIdUserRoute } from './routes/user/find-by-id/find-by-id-user.route';
-import { AuthGuardProvider } from './authenticator/auth.guard';
+import { UserProfileRoute } from './routes/user/profile/user-profile.route';
+import { AuthGuardProvider } from './authenticator/guards/auth.guard';
 import { ServiceModule } from '../services/service.module';
+import { CreateEventRoute } from './routes/event/create/create-event.route';
+import { CreateRegionRoute } from './routes/region/create/create-region.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -24,6 +28,9 @@ import { ServiceModule } from '../services/service.module';
     LoginUserRoute,
     RefreshAuthTokenRoute,
     FindByIdUserRoute,
+    UserProfileRoute,
+    CreateEventRoute,
+    CreateRegionRoute,
   ],
   providers: [
     AuthGuardProvider,
@@ -33,8 +40,9 @@ import { ServiceModule } from '../services/service.module';
     CredentialsNotValidUsecaseExcepitonFilterProvider,
     UserAlreadyExistsUsecaseExceptionFilterProvider,
     UserNotFoundUsecaseExceptionFilterProvider,
+    AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
   ],
 })
-export class WebMoudule {}
+export class WebModule {}

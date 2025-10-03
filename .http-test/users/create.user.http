@@ -3,18 +3,18 @@
 
 # Teste para a criação válida (Deve retornar o id da localidade)
 ###
-POST http://localhost:3000/localities/create
+POST http://localhost:3001/users/create
 Content-Type: application/json
 
 {
-  "username": "BELÉM",
+  "username": "super",
   "password": "1qwe2asd"
 }
 
 
 # Teste para quando se passar uma senha inválida (Deve retornar erro de validação referente a senha)
 ###
-POST http://localhost:3000/localities/create
+POST http://localhost:3001/users/create
 Content-Type: application/json
 
 {
@@ -25,7 +25,7 @@ Content-Type: application/json
 
 # Teste para quando se passar uma localidede invalida (Deve retornar erro de validação refenrete a localide)
 ###
-POST http://localhost:3000/localities/create
+POST http://localhost:3001/users/create
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 #Teste para quando não se passar algum dos dados (Deve retornar erro de validação referente ao campo que não foi passado)
 ###
-POST http://localhost:3000/localities/create
+POST http://localhost:3000/users/create
 Content-Type: application/json
 
 {

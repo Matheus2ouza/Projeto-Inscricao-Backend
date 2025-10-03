@@ -6,4 +6,5 @@ export type LoginUserRequest = {
 export type LoginUserResponse = {
   authToken: string;
   refreshToken: string;
+  role: string;
 };

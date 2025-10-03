@@ -1,30 +1,36 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   loginUserInput,
   LoginUserUsecase,
 } from 'src/usecases/user/login/login-user.usecase';
-import { LoginUserRequest, LoginUserResponse } from './login-user.dto';
+import type { LoginUserRequest, LoginUserResponse } from './login-user.dto';
 import { LoginUserPresenter } from './login-user.presenter';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 
-@Controller('user')
+@Controller('users')
 export class LoginUserRoute {
   public constructor(private readonly loginUserUsecase: LoginUserUsecase) {}
 
   @IsPublic()
-  @Post('login')
+  @Post('/')
   public async handle(
     @Body() request: LoginUserRequest,
-  ): Promise<LoginUserResponse> {
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ role: string; authToken: string; refreshToken: string }> {
     const input: loginUserInput = {
-      username: request.username,
-      password: request.password,
+      username: request.username.trim(),
+      password: request.password.trim(),
     };
 
     const result = await this.loginUserUsecase.execute(input);
-
     const response = LoginUserPresenter.toHttp(result);
 
-    return response;
+    // Retorne role, authToken e refreshToken no body
+    return {
+      role: response.role,
+      authToken: response.authToken,
+      refreshToken: response.refreshToken,
+    };
   }
 }

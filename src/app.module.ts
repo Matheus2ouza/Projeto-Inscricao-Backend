@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { WebMoudule } from './infra/web/web.module';
+import { WebModule } from './infra/web/web.module';
 
 @Module({
-  imports: [WebMoudule],
+  imports: [WebModule],
   controllers: [],
   providers: [],
 })

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,20 +8,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                 String   @id
+model Accounts {
+  id                 String   @id @default(uuid())
   username           String   @unique
   role               roleType
   outstandingBalance Decimal  @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
   password           String
-  createdAt          DateTime @map("created_at")
-  updatedAt          DateTime @map("updated_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
-  @@map("user")
+  regionId String?
+  region   Regions? @relation(fields: [regionId], references: [id])
+
+  @@map("accounts")
+}
+
+model Regions {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Accounts[]
+  events   Events[]
+
+  @@map("regions")
+}
+
+model Events {
+  id        String   @id @default(uuid())
+  name      String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  regionId String
+  region   Regions @relation(fields: [regionId], references: [id])
+
+  @@map("events")
 }
 
 enum roleType {
-  USER
-  MANAGER
+  SUPER
   ADMIN
+  MANAGER
+  USER
 }

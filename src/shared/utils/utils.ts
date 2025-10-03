@@ -12,13 +12,16 @@ export class Utils {
     return hashedPassword;
   }
 
-  public static comparePassword(password: string, hashedPassword: string): boolean {
+  public static comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): boolean {
     return bcrypt.compareSync(password, hashedPassword);
   }
 
   private static generateSalt(): string {
-    const saltRounds = 10; 
+    const saltRounds = 12;
     const salt = bcrypt.genSaltSync(saltRounds);
-    return salt
+    return salt;
   }
 }

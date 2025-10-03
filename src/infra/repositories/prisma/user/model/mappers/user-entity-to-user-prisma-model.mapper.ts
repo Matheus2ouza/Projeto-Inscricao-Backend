@@ -1,10 +1,11 @@
 import Decimal from 'decimal.js';
 import { User } from 'src/domain/entities/user.entity';
-import UserPrismaModal from '../user.prisma.model';
+import UserPrismaModel from '../user.prisma.model';
 
-export class UserEntityToUserPrismaModalMapper {
-  public static map(user: User): UserPrismaModal {
-    const aModal: UserPrismaModal = {
+//Conversão de entity para model do prisma
+export class UserEntityToUserPrismaModelMapper {
+  public static map(user: User): UserPrismaModel {
+    const aModel: UserPrismaModel = {
       id: user.getId(),
       username: user.getUsername(),
       outstandingBalance: new Decimal(user.getOutstandingBalance()),
@@ -12,8 +13,9 @@ export class UserEntityToUserPrismaModalMapper {
       role: user.getRole(),
       createdAt: user.getCreatedAt(),
       updatedAt: user.getUpdatedAt(),
+      regionId: user.getRegionId() ?? null,
     };
 
-    return aModal;
+    return aModel;
   }
 }

@@ -9,16 +9,17 @@ import {
 import { RefreshTokenNotValidServiceException } from '../../exceptions/refresh-token-not-valid.service.exception';
 import { Injectable } from '@nestjs/common';
 import { AuthTokenNotValidServiceException } from '../../exceptions/auth-token-not-valid.service.exception';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 
 @Injectable()
 export class JsonWebTokenService extends JwtService {
   private authSecret: string;
   private refreshSecret: string;
 
-  public constructor() {
+  public constructor(private readonly userGateway: UserGateway) {
     super();
 
-    if (!process.env.JWT_AUTH_SECRECT || !process.env.JWT_REFRESH_SECRET) {
+    if (!process.env.JWT_AUTH_SECRET || !process.env.JWT_REFRESH_SECRET) {
       throw new ServiceException(
         `JWT_AUTH_SECRECT or JWT_REFRESH_SECRET not set in environment variables while initializing ${JsonWebTokenService.name}`,
         `Erro interno do servidor, Tente novamente mais tarde`,
@@ -26,23 +27,27 @@ export class JsonWebTokenService extends JwtService {
       );
     }
 
-    this.authSecret = process.env.JWT_AUTH_SECRECT;
+    this.authSecret = process.env.JWT_AUTH_SECRET;
     this.refreshSecret = process.env.JWT_REFRESH_SECRET;
   }
 
-  public generateAuthToken(userId: string): string {
-    const payload = this.generateAuthTokenPayload(userId);
+  public generateAuthToken(userId: string, role: string): string {
+    const payload = this.generateAuthTokenPayload(userId, role);
 
     const token = jsonwebToken.sign(payload, this.authSecret, {
-      expiresIn: '1h',
+      expiresIn: '1m',
     });
 
     return token;
   }
 
-  private generateAuthTokenPayload(userId: string): JwtAuthPayload {
+  private generateAuthTokenPayload(
+    userId: string,
+    role: string,
+  ): JwtAuthPayload {
     const payload: JwtAuthPayload = {
       userId,
+      role,
     };
 
     return payload;
@@ -66,9 +71,9 @@ export class JsonWebTokenService extends JwtService {
     return payload;
   }
 
-  public generateAuthTokenWithRefreshToken(
+  public async generateAuthTokenWithRefreshToken(
     refreshToken: string,
-  ): GenerateAuthTokenWithRefreshTokenOutput {
+  ): Promise<GenerateAuthTokenWithRefreshTokenOutput> {
     try {
       const payload = jsonwebToken.verify(
         refreshToken,
@@ -77,11 +82,22 @@ export class JsonWebTokenService extends JwtService {
 
       const userId = payload.userId;
 
-      const authToken = this.generateAuthToken(userId);
+      // Buscar o role do usuário para incluir no novo authToken
+      const user = await this.userGateway.findById(userId);
+      if (!user) {
+        throw new RefreshTokenNotValidServiceException(
+          `User with id ${userId} not found while refreshing auth token in ${JsonWebTokenService.name}`,
+          `Credenciais inválidas. Faça o login novamente`,
+          JsonWebTokenService.name,
+        );
+      }
+
+      const authToken = this.generateAuthToken(userId, user.getRole());
 
       const output: GenerateAuthTokenWithRefreshTokenOutput = {
         authToken,
         userId,
+        role: user.getRole(),
       };
 
       return output;

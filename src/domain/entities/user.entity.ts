@@ -7,6 +7,7 @@ import { roleType } from 'generated/prisma';
 export type UserCreateDto = {
   username: string;
   password: string;
+  role: roleType;
 };
 
 export type UserwithDto = {
@@ -17,6 +18,7 @@ export type UserwithDto = {
   role: roleType;
   createdAt: Date;
   updatedAt: Date;
+  regionId?: string;
 };
 
 export class User extends Entity {
@@ -28,19 +30,19 @@ export class User extends Entity {
     private role: roleType,
     createdAt: Date,
     updatedAt: Date,
+    private regionId?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
   }
 
-  public static create({ username, password }: UserCreateDto): User {
+  public static create({ username, password, role }: UserCreateDto): User {
     const id = Utils.generateUUID();
 
     UserPasswordZodValidatorFactory.create().validate(password);
 
     const encryptedPassword = Utils.encryptPassword(password);
     const outstandingBalance = 0;
-    const role: roleType = roleType.USER;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -63,6 +65,7 @@ export class User extends Entity {
     role,
     createdAt,
     updatedAt,
+    regionId,
   }: UserwithDto): User {
     return new User(
       id,
@@ -72,6 +75,7 @@ export class User extends Entity {
       role,
       createdAt,
       updatedAt,
+      regionId,
     );
   }
 
@@ -93,6 +97,10 @@ export class User extends Entity {
 
   public getRole(): roleType {
     return this.role;
+  }
+
+  public getRegionId(): string | undefined {
+    return this.regionId;
   }
 
   public comparePassword(password: string): boolean {

@@ -3,11 +3,11 @@
 
 #Teste para o login valido (deve fazer o login e retornar o id)
 ###
-POST http://localhost:3000/localities/login
+POST http://localhost:3001/users
 Content-Type: application/json
 
 {
-  "username": "FORTALEZA",
+  "username": "teste",
   "password": "1qwe2asd"
 }
 

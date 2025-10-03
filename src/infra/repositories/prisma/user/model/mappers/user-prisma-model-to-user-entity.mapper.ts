@@ -1,8 +1,9 @@
 import { User } from 'src/domain/entities/user.entity';
-import UserPrismaModal from '../user.prisma.model';
+import UserPrismaModel from '../user.prisma.model';
 
-export class USerPrismaModalToUserEntityMapper {
-  public static map(user: UserPrismaModal): User {
+//Conversão de model do prisma para entity
+export class UserPrismaModelToUserEntityMapper {
+  public static map(user: UserPrismaModel): User {
     const anUser = User.with({
       id: user.id,
       username: user.username,
@@ -11,6 +12,7 @@ export class USerPrismaModalToUserEntityMapper {
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      regionId: user.regionId ?? undefined,
     });
 
     return anUser;

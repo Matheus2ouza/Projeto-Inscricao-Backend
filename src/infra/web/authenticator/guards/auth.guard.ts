@@ -7,7 +7,7 @@ import {
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
-import { IS_PUBLIC } from './decorators/is-public.decorator';
+import { IS_PUBLIC } from '../decorators/is-public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -30,25 +30,36 @@ export class AuthGuard implements CanActivate {
     const token = this.exctractTokenFromRequest(request);
 
     if (!token) {
+      console.log('No auth token found in request');
       throw new UnauthorizedException('User not authenticated');
     }
 
     const payload = this.jwtService.verifyAuthToken(token);
+    console.log('Auth token payload:', payload);
 
     if (!payload) {
+      console.log('Invalid auth token');
       throw new UnauthorizedException('User not authenticated');
     }
 
     request['userId'] = payload.userId;
-
+    request['userRole'] = payload.role;
+    console.log('Authenticated user:', {
+      userId: payload.userId,
+      role: payload.role,
+    });
     return true;
   }
 
   // authorization: Bearer <token>
 
   private exctractTokenFromRequest(request: Request): string | undefined {
+    // Primeiro tenta pelo header Authorization
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'Bearer' && token) {
+      return token;
+    }
+    return undefined;
   }
 }
 

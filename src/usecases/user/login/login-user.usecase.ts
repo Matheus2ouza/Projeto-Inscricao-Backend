@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { USerGateway } from 'src/domain/repositories/user.geteway';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
 import { CredentialsNoValidUsecaseException } from 'src/usecases/exceptions/credentials-no-valid.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
@@ -12,6 +12,7 @@ export type loginUserInput = {
 export type loginUserOutput = {
   authToken: string;
   refreshToken: string;
+  role: string;
 };
 
 @Injectable()
@@ -19,7 +20,7 @@ export class LoginUserUsecase
   implements Usecase<loginUserInput, loginUserOutput>
 {
   public constructor(
-    private readonly UserGateway: USerGateway,
+    private readonly UserGateway: UserGateway,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -32,7 +33,7 @@ export class LoginUserUsecase
     if (!anUser) {
       throw new CredentialsNoValidUsecaseException(
         `User not found with login user with User: ${username} in ${LoginUserUsecase.name}`,
-        `Credenciais inválidas`,
+        `Nenhum usuário encontrado`,
         LoginUserUsecase.name,
       );
     }
@@ -42,17 +43,21 @@ export class LoginUserUsecase
     if (!isValidPassword) {
       throw new CredentialsNoValidUsecaseException(
         `Password ${password} is not valid for user with user: ${username} and id ${anUser.getId()} in ${LoginUserUsecase.name}`,
-        `Credenciais inválidas`,
+        `Usuario ou senha inválidos`,
         LoginUserUsecase.name,
       );
     }
 
-    const authToken = this.jwtService.generateAuthToken(anUser.getId());
+    const authToken = this.jwtService.generateAuthToken(
+      anUser.getId(),
+      anUser.getRole(),
+    );
     const refreshToken = this.jwtService.genereteRefreshToken(anUser.getId());
 
     const Output: loginUserOutput = {
       authToken,
       refreshToken,
+      role: anUser.getRole(),
     };
 
     return Output;

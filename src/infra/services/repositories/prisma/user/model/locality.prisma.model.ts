@@ -1,3 +1,3 @@
-import { User as USerPrismaModal } from 'generated/prisma';
+import type { Accounts as UserPrismaModal } from 'generated/prisma';
 
-export default USerPrismaModal;
+export type { UserPrismaModal as default };

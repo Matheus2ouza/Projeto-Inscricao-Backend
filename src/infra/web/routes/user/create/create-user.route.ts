@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { CreateUserUsecase } from 'src/usecases/user/create/create-user.usecase';
 import type { CreateUserInput } from 'src/usecases/user/create/create-user.usecase';
 import type {
@@ -18,6 +18,7 @@ export class CreateUserRoute {
     const input: CreateUserInput = {
       username: request.username,
       password: request.password,
+      role: request.role,
     };
 
     const result = await this.createUserUseCase.execute(input);
