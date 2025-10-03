@@ -317,3 +317,6 @@ audit-api.txt
 
 # Arquivo de estrutura de pastas e arquivos
 estrutura.txt
+
+# Arquivos de testes HTTP-test
+.http-test/
