@@ -19,6 +19,7 @@ export type UserwithDto = {
   createdAt: Date;
   updatedAt: Date;
   regionId?: string;
+  regionName?: string;
 };
 
 export class User extends Entity {
@@ -30,6 +31,7 @@ export class User extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private regionId?: string,
+    private regionName?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -68,6 +70,7 @@ export class User extends Entity {
     createdAt,
     updatedAt,
     regionId,
+    regionName,
   }: UserwithDto): User {
     return new User(
       id,
@@ -77,6 +80,7 @@ export class User extends Entity {
       createdAt,
       updatedAt,
       regionId,
+      regionName,
     );
   }
 
@@ -98,6 +102,10 @@ export class User extends Entity {
 
   public getRegionId(): string | undefined {
     return this.regionId;
+  }
+
+  public getRegionName(): string | undefined {
+    return this.regionName;
   }
 
   public comparePassword(password: string): boolean {

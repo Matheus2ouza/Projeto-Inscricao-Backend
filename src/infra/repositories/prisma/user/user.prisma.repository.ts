@@ -56,4 +56,38 @@ export class UserPrismaRepository extends UserGateway {
       data: aModel,
     });
   }
+
+  public async findManyPaginated(
+    page: number,
+    pageSize: number,
+  ): Promise<User[]> {
+    const skip = (page - 1) * pageSize;
+
+    const models = await prismaClient.accounts.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        regionId: true,
+        region: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return models.map(UserPrismaModelToUserEntityMapper.map);
+  }
+
+  public async countAll(): Promise<number> {
+    const total = await prismaClient.accounts.count();
+    return total;
+  }
 }

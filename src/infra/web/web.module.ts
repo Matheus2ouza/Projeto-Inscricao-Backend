@@ -22,6 +22,7 @@ import { ServiceModule } from '../services/service.module';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
+import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -35,6 +36,7 @@ import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all
     CreateEventRoute,
     CreateRegionRoute,
     FindAllRegionsRoute,
+    FindAllPaginatedUsersRoute,
   ],
   providers: [
     AuthGuardProvider,

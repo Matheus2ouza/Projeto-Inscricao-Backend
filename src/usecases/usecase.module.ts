@@ -8,6 +8,7 @@ import { ServiceModule } from 'src/infra/services/service.module';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
+import { FindAllPaginatedUsersUsecase } from './user/find-all-paginated/find-all-paginated.usecase';
 
 @Module({
   imports: [DataBaseModule, ServiceModule],
@@ -19,6 +20,7 @@ import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-
     CreateEventUseCase,
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
+    FindAllPaginatedUsersUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -28,6 +30,7 @@ import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-
     CreateEventUseCase,
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
+    FindAllPaginatedUsersUsecase,
   ],
 })
 export class UsecaseModule {}
