@@ -111,4 +111,8 @@ export class User extends Entity {
   public comparePassword(password: string): boolean {
     return Utils.comparePassword(password, this.password);
   }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
 }
