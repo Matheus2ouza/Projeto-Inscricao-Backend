@@ -23,6 +23,7 @@ import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
+import { UploadEventImageRoute } from './routes/event/upload-image/upload-event-image.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -37,6 +38,7 @@ import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/fin
     CreateRegionRoute,
     FindAllRegionsRoute,
     FindAllPaginatedUsersRoute,
+    UploadEventImageRoute,
   ],
   providers: [
     AuthGuardProvider,
