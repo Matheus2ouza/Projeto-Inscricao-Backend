@@ -36,14 +36,17 @@ model Regions {
 }
 
 model Events {
-  id        String   @id @default(uuid())
-  name      String
-  date      DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  regionId String
-  region   Regions @relation(fields: [regionId], references: [id])
+  id                   String   @id @default(uuid())
+  name                 String
+  quantityParticipants Int      @default(0) @map("quantity_participants")
+  amountCollected      Decimal  @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  startDate            DateTime @map("start_date")
+  endDate              DateTime @map("end_date")
+  imageUrl             String?  @map("image_url")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  regionId             String
+  region               Regions  @relation(fields: [regionId], references: [id])
 
   @@map("events")
 }
