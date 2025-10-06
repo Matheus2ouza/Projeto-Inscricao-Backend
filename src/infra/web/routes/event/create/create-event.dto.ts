@@ -1,12 +1,11 @@
-import { IsString, IsDateString } from 'class-validator';
-
-export class CreateEventDto {
-  @IsString()
+export type CreateEventRequest = {
   name: string;
-
-  @IsDateString()
-  date: string;
-
-  @IsString()
+  startDate: Date;
+  endDate: Date;
   regionId: string;
-}
+  image?: string;
+};
+
+export type CreateEventRouteResponse = {
+  id: string;
+};

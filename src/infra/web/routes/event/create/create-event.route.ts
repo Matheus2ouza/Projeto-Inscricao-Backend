@@ -1,26 +1,36 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { CreateEventUseCase } from 'src/usecases/event/create/create-event.usecase';
-import { CreateEventDto } from './create-event.dto';
+import type { CreateEventInput } from 'src/usecases/event/create/create-event.usecase';
+import type {
+  CreateEventRequest,
+  CreateEventRouteResponse,
+} from './create-event.dto';
 import { CreateEventPresenter } from './create-event.presenter';
-import { AuthGuard } from 'src/infra/web/authenticator/guards/auth.guard';
-import { RoleGuard } from 'src/infra/web/authenticator/guards/role.guard';
-import { UserRole } from 'src/infra/web/authenticator/decorators/user-role.decorator';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 
-@Controller('event')
+@Controller('events')
 export class CreateEventRoute {
-  constructor(private readonly createEventUseCase: CreateEventUseCase) {}
+  public constructor(private readonly createEventUseCase: CreateEventUseCase) {}
 
-  @UseGuards(AuthGuard, RoleGuard)
-  @Roles('ADMIN')
+  @Roles(RoleTypeHierarchy.ADMIN)
   @Post('create')
-  async create(@Body() dto: CreateEventDto, @UserRole() user: any) {
-    // Regra: só ADMIN pode criar, regionId vem do DTO
-    const event = await this.createEventUseCase.execute({
-      name: dto.name,
-      date: new Date(dto.date),
-      regionId: dto.regionId,
-    });
-    return new CreateEventPresenter(event);
+  public async handle(
+    @Body() request: CreateEventRequest,
+    @Req() req,
+  ): Promise<CreateEventRouteResponse> {
+    const input: CreateEventInput = {
+      name: request.name,
+      startDate: request.startDate,
+      endDate: request.endDate,
+      regionId: request.regionId,
+      image: request.image, // imagem pode ser enviada como base64 ou url, depende do frontend
+    };
+
+    const result = await this.createEventUseCase.execute(input);
+
+    const response = CreateEventPresenter.toHttp(result);
+    console.log(response);
+    return response;
   }
 }
