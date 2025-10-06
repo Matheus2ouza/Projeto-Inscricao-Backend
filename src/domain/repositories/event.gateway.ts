@@ -1,7 +1,12 @@
 import { Event } from '../entities/event.entity';
 
-export interface EventGateway {
-  create(event: Event): Promise<Event>;
-  findById(id: string): Promise<Event | null>;
-  findByRegion(regionId: string): Promise<Event[]>;
+export abstract class EventGateway {
+  abstract create(event: Event): Promise<Event>;
+  abstract findById(id: string): Promise<Event | null>;
+  abstract findByRegion(regionId: string): Promise<Event[]>;
+  abstract findByNameAndRegionId(
+    name: string,
+    regionId: string,
+  ): Promise<Event | null>;
+  abstract update(event: Event): Promise<Event>;
 }

@@ -6,7 +6,11 @@ export class EventPrismaModelToEventEntityMapper {
     return Event.with({
       id: event.id,
       name: event.name,
-      date: event.date,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      quantityParticipants: event.quantityParticipants,
+      amountCollected: Number(event.amountCollected),
+      imageUrl: event.imageUrl ?? undefined,
       regionId: event.regionId,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,

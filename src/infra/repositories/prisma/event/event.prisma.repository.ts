@@ -5,6 +5,8 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import EventPrismaModel from './model/event.prisma.model';
 import { EventEntityToEventPrismaModelMapper } from './model/mappers/event-entity-to-event-prisma-model.mapper';
 import { EventPrismaModelToEventEntityMapper } from './model/mappers/event-prisma-model-to-event-entity.mapper';
+import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
+import { Region } from 'src/domain/entities/region.entity';
 
 @Injectable()
 export class EventPrismaRepository implements EventGateway {
@@ -24,5 +26,31 @@ export class EventPrismaRepository implements EventGateway {
   async findByRegion(regionId: string): Promise<Event[]> {
     const found = await this.prisma.events.findMany({ where: { regionId } });
     return found.map(EventPrismaModelToEventEntityMapper.map);
+  }
+
+  async findRegionById(regionId: string): Promise<Region | null> {
+    const found = await this.prisma.regions.findUnique({
+      where: { id: regionId },
+    });
+    return found ? RegionPrismaModelToRegionEntityMapper.map(found) : null;
+  }
+
+  async findByNameAndRegionId(
+    name: string,
+    regionId: string,
+  ): Promise<Event | null> {
+    const found = await this.prisma.events.findFirst({
+      where: { name, regionId },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+  }
+
+  async update(event: Event): Promise<Event> {
+    const data = EventEntityToEventPrismaModelMapper.map(event);
+    const updated = await this.prisma.events.update({
+      where: { id: event.getId() },
+      data,
+    });
+    return EventPrismaModelToEventEntityMapper.map(updated);
   }
 }
