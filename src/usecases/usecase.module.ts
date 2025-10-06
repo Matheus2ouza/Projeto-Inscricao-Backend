@@ -9,9 +9,17 @@ import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
 import { FindAllPaginatedUsersUsecase } from './user/find-all-paginated/find-all-paginated.usecase';
+import { UploadEventImageUsecase } from './event/upload-image/upload-event-image.usecase';
+import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
+import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-optimizer.module';
 
 @Module({
-  imports: [DataBaseModule, ServiceModule],
+  imports: [
+    DataBaseModule,
+    ServiceModule,
+    SupabaseModule,
+    ImageOptimizerModule,
+  ],
   providers: [
     CreateUserUsecase,
     FindUserUsecase,
@@ -21,6 +29,7 @@ import { FindAllPaginatedUsersUsecase } from './user/find-all-paginated/find-all
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
     FindAllPaginatedUsersUsecase,
+    UploadEventImageUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -31,6 +40,7 @@ import { FindAllPaginatedUsersUsecase } from './user/find-all-paginated/find-all
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
     FindAllPaginatedUsersUsecase,
+    UploadEventImageUsecase,
   ],
 })
 export class UsecaseModule {}
