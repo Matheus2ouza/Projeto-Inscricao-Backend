@@ -1,26 +1,12 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  private readonly client: Redis;
+  private readonly memoryStore = new Map<string, string>();
 
   constructor() {
-    // Configuração direta sem URL
-    this.client = new Redis({
-      host: 'redis-15305.c114.us-east-1-4.ec2.redns.redis-cloud.com',
-      port: 15305,
-      username: 'default',
-      password: 'LmfyRscCnUfXGS2nuZBX62fTUSFKqSKN',
-      tls: {}, // TLS necessário para Redis Cloud
-      maxRetriesPerRequest: 3,
-    });
-
-    this.client.on('connect', () => this.logger.log('Redis conectado'));
-    this.client.on('error', (err) =>
-      this.logger.error(`Erro no Redis: ${err.message}`),
-    );
+    this.logger.log('Redis desativado: usando armazenamento em memória');
   }
 
   async setJson(
@@ -29,15 +15,17 @@ export class RedisService implements OnModuleDestroy {
     ttlSeconds?: number,
   ): Promise<void> {
     const payload = JSON.stringify(value);
+    this.memoryStore.set(key, payload);
     if (ttlSeconds && ttlSeconds > 0) {
-      await this.client.set(key, payload, 'EX', ttlSeconds);
-    } else {
-      await this.client.set(key, payload);
+      setTimeout(
+        () => this.memoryStore.delete(key),
+        ttlSeconds * 1000,
+      ).unref?.();
     }
   }
 
   async getJson<T = unknown>(key: string): Promise<T | null> {
-    const data = await this.client.get(key);
+    const data = this.memoryStore.get(key);
     if (!data) return null;
     try {
       return JSON.parse(data) as T;
@@ -47,10 +35,10 @@ export class RedisService implements OnModuleDestroy {
   }
 
   async del(key: string): Promise<void> {
-    await this.client.del(key);
+    this.memoryStore.delete(key);
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
+    this.memoryStore.clear();
   }
 }
