@@ -41,7 +41,9 @@ export class FindByIdEventUsecase
     input: FindByIdEventInput,
   ): Promise<FindByIdEventOutput> {
     const id = input.id.trim();
+    console.log(id);
     const event = await this.eventGateway.findById(id);
+    console.log(event);
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Event not found with finding event with id ${input.id} in ${FindByIdEventUsecase.name}`,

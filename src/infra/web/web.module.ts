@@ -28,6 +28,8 @@ import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
+import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
+import { InscriptionGroupController } from './routes/inscription/inscriptionGroup/group.controller';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -47,6 +49,8 @@ import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/crea
     UploadEventImageRoute,
     FindByIdEventRoute,
     CreateTypeInscriptionRoute,
+    FindByEventId,
+    InscriptionGroupController,
   ],
   providers: [
     AuthGuardProvider,

@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { FindTypeInscriptionByEventIdUsecase } from 'src/usecases/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-id.usecase';
+import { FindTypeInscriptionByEventIdUsecase } from 'src/usecases/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
 import type {
   FindTypeInscriptionByEventIdRequest,
   FindTypeInscriptionByEventIdResponse,
@@ -12,14 +12,14 @@ export class FindByEventId {
     private readonly findTypeInscriptionByEventIdUsecase: FindTypeInscriptionByEventIdUsecase,
   ) {}
 
-  @Get('event')
+  @Get('event/:eventId')
   public async handle(
-    @Query() query: FindTypeInscriptionByEventIdRequest,
+    @Param() query: FindTypeInscriptionByEventIdRequest,
   ): Promise<FindTypeInscriptionByEventIdResponse> {
     const eventId = String(query.eventId);
 
     const result = await this.findTypeInscriptionByEventIdUsecase.execute({
-      eventId,
+      eventId: eventId,
     });
 
     const response = FindTypeInscriptionByEventIdPresenter.toHttp(result);

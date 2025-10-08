@@ -34,7 +34,6 @@ export class CreateEventRoute {
     const result = await this.createEventUseCase.execute(input);
 
     const response = CreateEventPresenter.toHttp(result);
-    console.log(response);
     return response;
   }
 }

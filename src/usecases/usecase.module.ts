@@ -16,7 +16,9 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
 import { CreateTypeInscriptionUseCase } from './typeInscription/create/create-type-inscription.usecase';
-import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-id.usecase';
+import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
+import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
+import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type
     FindByIdEventUsecase,
     CreateTypeInscriptionUseCase,
     FindTypeInscriptionByEventIdUsecase,
+    UploadValidateGroupUsecase,
+    ConfirmGroupUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -56,6 +60,8 @@ import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type
     FindByIdEventUsecase,
     CreateTypeInscriptionUseCase,
     FindTypeInscriptionByEventIdUsecase,
+    UploadValidateGroupUsecase,
+    ConfirmGroupUsecase,
   ],
 })
 export class UsecaseModule {}

@@ -20,11 +20,10 @@ export class CreateTypeInscriptionRoute {
     @Body() request: CreateTypeInscriptionRequest,
   ): Promise<CreateTypeInscriptionResponse> {
     const input: CreateTypeInscriptionInput = {
-      description: request.desription,
+      description: request.description,
       value: request.value,
       eventId: request.eventId,
     };
-
     const result = await this.createTypeInscriptionUseCase.execute(input);
 
     const response = CreateTypeInscriptionPresenter.toHttp(result);

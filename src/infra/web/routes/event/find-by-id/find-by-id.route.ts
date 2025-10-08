@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { FindByIdEventUsecase } from 'src/usecases/event/findById/find-by-id.usecase';
 import type {
   FindByIdEventOutput,
@@ -14,11 +14,13 @@ export class FindByIdEventRoute {
   ) {}
 
   @IsPublic()
-  @Get('me')
+  @Get(':id') // Mude de 'me' para ':id' como parâmetro de rota
   public async handle(
-    @Query() query: FindByIdEventRequest,
+    @Param() params: FindByIdEventRequest, // Mude de @Query para @Param
   ): Promise<FindByIdEventOutput> {
-    const id = String(query.id);
+    const id = String(params.id);
+    console.log('O ID do evento');
+    console.log(id);
     const result = await this.findByIdEventUsecase.execute({ id });
 
     const response = FindByEventPresenter.toHttp(result);
