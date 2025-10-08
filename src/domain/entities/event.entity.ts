@@ -7,6 +7,10 @@ export type EventCreateDto = {
   endDate: Date;
   regionId: string;
   imageUrl?: string;
+  location?: string;
+  longitude?: number;
+  latitude?: number;
+  isOpen?: boolean;
 };
 
 export type EventWithDto = {
@@ -18,6 +22,10 @@ export type EventWithDto = {
   amountCollected: number;
   regionId: string;
   imageUrl?: string;
+  location?: string;
+  longitude?: number;
+  latitude?: number;
+  isOpen: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -31,9 +39,13 @@ export class Event extends Entity {
     private quantityParticipants: number,
     private amountCollected: number,
     private regionId: string,
-    private imageUrl: string | undefined,
     createdAt: Date,
     updatedAt: Date,
+    private imageUrl?: string,
+    private location?: string,
+    private longitude?: number | null,
+    private latitude?: number | null,
+    private isOpen: boolean = false,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -45,6 +57,10 @@ export class Event extends Entity {
     endDate,
     regionId,
     imageUrl,
+    location,
+    longitude,
+    latitude,
+    isOpen,
   }: EventCreateDto): Event {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -60,9 +76,13 @@ export class Event extends Entity {
       quantityParticipants,
       amountCollected,
       regionId,
-      imageUrl,
       createdAt,
       updatedAt,
+      imageUrl,
+      location,
+      longitude,
+      latitude,
+      isOpen,
     );
   }
 
@@ -75,6 +95,10 @@ export class Event extends Entity {
     amountCollected,
     regionId,
     imageUrl,
+    location,
+    longitude,
+    latitude,
+    isOpen,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -86,9 +110,13 @@ export class Event extends Entity {
       quantityParticipants,
       amountCollected,
       regionId,
-      imageUrl,
       createdAt,
       updatedAt,
+      imageUrl,
+      location,
+      longitude,
+      latitude,
+      isOpen,
     );
   }
 
@@ -141,5 +169,41 @@ export class Event extends Entity {
 
   public getUpdatedAt(): Date {
     return this.updatedAt;
+  }
+
+  public getLocation(): string | undefined {
+    return this.location;
+  }
+
+  public getLongitude(): number | undefined | null {
+    return this.longitude;
+  }
+
+  public getLatitude(): number | undefined | null {
+    return this.latitude;
+  }
+
+  public getIsOpen(): boolean {
+    return this.isOpen;
+  }
+
+  public openEvent(): void {
+    this.isOpen = true;
+    this.updatedAt = new Date();
+  }
+
+  public closeEvent(): void {
+    this.isOpen = false;
+    this.updatedAt = new Date();
+  }
+
+  public incrementParticipantsCount(): void {
+    this.quantityParticipants += 1;
+    this.updatedAt = new Date();
+  }
+
+  public incrementAmountCollected(amount: number): void {
+    this.amountCollected += amount;
+    this.updatedAt = new Date();
   }
 }

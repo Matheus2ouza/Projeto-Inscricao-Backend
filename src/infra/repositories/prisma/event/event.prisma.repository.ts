@@ -19,7 +19,10 @@ export class EventPrismaRepository implements EventGateway {
   }
 
   async findById(id: string): Promise<Event | null> {
-    const found = await this.prisma.events.findUnique({ where: { id } });
+    const found = await this.prisma.events.findUnique({
+      where: { id },
+      include: { region: { select: { name: true } } },
+    });
     return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
   }
 
@@ -52,5 +55,16 @@ export class EventPrismaRepository implements EventGateway {
       data,
     });
     return EventPrismaModelToEventEntityMapper.map(updated);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.events.delete({ where: { id } });
+  }
+
+  async findAll(): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({
+      include: { region: { select: { name: true } } },
+    });
+    return found.map(EventPrismaModelToEventEntityMapper.map);
   }
 }

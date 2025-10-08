@@ -24,7 +24,11 @@ export class CreateEventRoute {
       startDate: request.startDate,
       endDate: request.endDate,
       regionId: request.regionId,
-      image: request.image, // imagem pode ser enviada como base64 ou url, depende do frontend
+      image: request.image,
+      location: request.location,
+      longitude: request.longitude,
+      latitude: request.latitude,
+      isOpen: request.isOpen,
     };
 
     const result = await this.createEventUseCase.execute(input);

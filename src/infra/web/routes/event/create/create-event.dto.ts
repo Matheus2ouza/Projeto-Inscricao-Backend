@@ -4,6 +4,10 @@ export type CreateEventRequest = {
   endDate: Date;
   regionId: string;
   image?: string;
+  location?: string;
+  longitude?: number;
+  latitude?: number;
+  isOpen?: boolean;
 };
 
 export type CreateEventRouteResponse = {

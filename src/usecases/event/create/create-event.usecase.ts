@@ -17,12 +17,11 @@ export type CreateEventInput = {
   startDate: Date;
   endDate: Date;
   regionId: string;
-  /**
-   * Imagem pode ser:
-   * - string (data URL base64)
-   * - undefined
-   */
   image?: string;
+  location?: string;
+  longitude?: number;
+  latitude?: number;
+  isOpen?: boolean;
 };
 
 export type CreateEventOutput = {
@@ -48,6 +47,10 @@ export class CreateEventUseCase
     endDate,
     regionId,
     image,
+    location,
+    longitude,
+    latitude,
+    isOpen,
   }: CreateEventInput): Promise<CreateEventOutput> {
     if (!regionId) {
       throw new MissingRegionIdUsecaseException(
@@ -107,6 +110,10 @@ export class CreateEventUseCase
       endDate: endDate,
       regionId: regionId,
       imageUrl: imageUrl,
+      location: location,
+      longitude: longitude,
+      latitude: latitude,
+      isOpen: isOpen ?? true,
     });
 
     await this.eventGateway.create(event);

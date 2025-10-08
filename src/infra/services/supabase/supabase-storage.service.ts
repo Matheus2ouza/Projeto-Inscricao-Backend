@@ -71,7 +71,7 @@ export class SupabaseStorageService {
         `Iniciando upload do arquivo: ${filePath} (${fileBuffer.length} bytes)`,
       );
 
-      const { data, error } = await this.supabase.storage
+      const { error } = await this.supabase.storage
         .from(this.bucketName)
         .upload(filePath, fileBuffer, {
           contentType,
@@ -83,11 +83,9 @@ export class SupabaseStorageService {
         throw new Error(`Falha no upload do arquivo: ${error.message}`);
       }
 
-      // Obtém a URL pública do arquivo
-      const publicUrl = await this.getPublicUrl(folderName, fileName);
-
-      this.logger.log(`Upload concluído com sucesso: ${publicUrl}`);
-      return publicUrl;
+      this.logger.log(`Upload concluído com sucesso: ${filePath}`);
+      // Retorna apenas o caminho relativo do arquivo, para ser usado depois na geração da URL assinada
+      return filePath;
     } catch (error) {
       this.logger.error(`Erro no upload do arquivo: ${error.message}`);
       throw error;
@@ -123,24 +121,28 @@ export class SupabaseStorageService {
 
   /**
    * Obtém a URL pública de um arquivo
-   * @param folderName - Nome da pasta
    * @param fileName - Nome do arquivo
    * @returns URL pública do arquivo
    */
-  async getPublicUrl(folderName: string, fileName: string): Promise<string> {
+  async getPublicUrl(fileName: string): Promise<string> {
     try {
-      const filePath = `${folderName}/${fileName}`;
-
-      const { data } = this.supabase.storage
+      const { data } = await this.supabase.storage
         .from(this.bucketName)
-        .getPublicUrl(filePath);
+        .createSignedUrl(fileName, 60 * 60 * 7, {
+          transform: {
+            width: 1200,
+            height: 800,
+            quality: 100,
+          },
+        });
 
-      if (!data.publicUrl) {
+      if (!data?.signedUrl) {
         throw new Error('Não foi possível obter a URL pública do arquivo');
       }
 
-      return data.publicUrl;
+      return data.signedUrl;
     } catch (error) {
+      console.log(error);
       this.logger.error(`Erro ao obter URL pública: ${error.message}`);
       throw error;
     }

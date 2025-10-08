@@ -9,4 +9,6 @@ export abstract class EventGateway {
     regionId: string,
   ): Promise<Event | null>;
   abstract update(event: Event): Promise<Event>;
+  abstract delete(id: string): Promise<void>;
+  abstract findAll(): Promise<Event[]>;
 }
