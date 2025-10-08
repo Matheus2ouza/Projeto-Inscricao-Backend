@@ -36,16 +36,37 @@ model Regions {
 }
 
 model Events {
-  id        String   @id @default(uuid())
-  name      String
-  date      DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  regionId String
-  region   Regions @relation(fields: [regionId], references: [id])
+  id                   String             @id @default(uuid())
+  name                 String
+  quantityParticipants Int                @default(0) @map("quantity_participants")
+  amountCollected      Decimal            @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  startDate            DateTime           @map("start_date")
+  endDate              DateTime           @map("end_date")
+  imageUrl             String?            @map("image_url")
+  location             String?
+  latitude             Float?
+  longitude            Float?
+  isOpen               Boolean            @default(false) @map("is_open")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  regionId             String
+  region               Regions            @relation(fields: [regionId], references: [id])
+  typeInscriptions     TypeInscriptions[]
 
   @@map("events")
+}
+
+model TypeInscriptions {
+  id          String   @id @default(uuid())
+  description String
+  value       Decimal  @db.Decimal(10, 2)
+  eventId     String   @map("event_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  event Events @relation(fields: [eventId], references: [id])
+
+  @@map("type_inscriptions")
 }
 
 enum roleType {

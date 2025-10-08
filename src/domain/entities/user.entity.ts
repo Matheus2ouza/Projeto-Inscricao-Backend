@@ -8,6 +8,7 @@ export type UserCreateDto = {
   username: string;
   password: string;
   role: roleType;
+  regionId?: string;
 };
 
 export type UserwithDto = {
@@ -18,6 +19,7 @@ export type UserwithDto = {
   createdAt: Date;
   updatedAt: Date;
   regionId?: string;
+  regionName?: string;
 };
 
 export class User extends Entity {
@@ -29,12 +31,18 @@ export class User extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private regionId?: string,
+    private regionName?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
   }
 
-  public static create({ username, password, role }: UserCreateDto): User {
+  public static create({
+    username,
+    password,
+    role,
+    regionId,
+  }: UserCreateDto): User {
     const id = Utils.generateUUID();
 
     UserPasswordZodValidatorFactory.create().validate(password);
@@ -50,6 +58,7 @@ export class User extends Entity {
       role,
       createdAt,
       updatedAt,
+      regionId,
     );
   }
 
@@ -61,6 +70,7 @@ export class User extends Entity {
     createdAt,
     updatedAt,
     regionId,
+    regionName,
   }: UserwithDto): User {
     return new User(
       id,
@@ -70,6 +80,7 @@ export class User extends Entity {
       createdAt,
       updatedAt,
       regionId,
+      regionName,
     );
   }
 
@@ -93,7 +104,15 @@ export class User extends Entity {
     return this.regionId;
   }
 
+  public getRegionName(): string | undefined {
+    return this.regionName;
+  }
+
   public comparePassword(password: string): boolean {
     return Utils.comparePassword(password, this.password);
+  }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
   }
 }

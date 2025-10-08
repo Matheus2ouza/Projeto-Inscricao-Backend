@@ -23,6 +23,7 @@ export class CreateUserRoute {
       username: request.username,
       password: request.password,
       role: request.role,
+      regionId: request.regionId,
       requesterRole: req['userRole'],
     };
 

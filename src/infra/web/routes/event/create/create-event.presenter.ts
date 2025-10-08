@@ -1,19 +1,11 @@
-import { Event } from 'src/domain/entities/event.entity';
+import { CreateEventOutput } from 'src/usecases/event/create/create-event.usecase';
+import { CreateEventRouteResponse } from './create-event.dto';
 
 export class CreateEventPresenter {
-  id: string;
-  name: string;
-  date: Date;
-  regionId: string;
-  createdAt: Date;
-  updatedAt: Date;
-
-  constructor(event: Event) {
-    this.id = event.getId();
-    this.name = event.getName();
-    this.date = event.getDate();
-    this.regionId = event.getRegionId();
-    this.createdAt = event.getCreatedAt();
-    this.updatedAt = event.getUpdatedAt();
+  public static toHttp(input: CreateEventOutput): CreateEventRouteResponse {
+    const response: CreateEventRouteResponse = {
+      id: input.id,
+    };
+    return response;
   }
 }

@@ -4,6 +4,10 @@ import { Region } from 'src/domain/entities/region.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { RegionEntityToRegionPrismaModelMapper } from './model/mappers/region-entity-to-region-prisma-model.mapper';
 import { RegionPrismaModelToRegionEntityMapper } from './model/mappers/region-prisma-model-to-region-entity.mapper';
+import { EventPrismaModelToEventEntityMapper } from '../event/model/mappers/event-prisma-model-to-event-entity.mapper';
+import { Event } from 'src/domain/entities/event.entity';
+import { UserPrismaModelToUserEntityMapper } from '../user/model/mappers/user-prisma-model-to-user-entity.mapper';
+import { User } from 'src/domain/entities/user.entity';
 
 @Injectable()
 export class RegionPrismaRepository implements RegionGateway {
@@ -28,8 +32,51 @@ export class RegionPrismaRepository implements RegionGateway {
 
   async findAllNames(): Promise<Region[]> {
     const found = await this.prisma.regions.findMany({
-      select: { name: true },
+      select: { id: true, name: true },
     });
     return found.map(RegionPrismaModelToRegionEntityMapper.map);
+  }
+
+  async findAll(): Promise<Region[]> {
+    const found = await this.prisma.regions.findMany({
+      select: {
+        id: true,
+        name: true,
+        outstandingBalance: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            events: true,
+            accounts: true,
+          },
+        },
+      },
+    });
+    return found.map(RegionPrismaModelToRegionEntityMapper.map);
+  }
+
+  async lastEventAt(regionId: string): Promise<Event | null> {
+    const found = await this.prisma.events.findFirst({
+      where: { regionId },
+      orderBy: { createdAt: 'desc' },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+  }
+
+  async nextEventAt(regionId: string): Promise<Event | null> {
+    const found = await this.prisma.events.findFirst({
+      where: { regionId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+  }
+
+  async lastAccountAt(regionId: string): Promise<User | null> {
+    const found = await this.prisma.accounts.findFirst({
+      where: { regionId },
+      orderBy: { createdAt: 'desc' },
+    });
+    return found ? UserPrismaModelToUserEntityMapper.map(found) : null;
   }
 }

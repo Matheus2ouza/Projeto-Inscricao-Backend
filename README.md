@@ -57,6 +57,76 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Tela de Criação de Eventos
+
+### Endpoint
+
+```
+POST /event/create
+```
+
+### Permissão
+
+Somente usuários com papel **ADMIN** podem criar eventos.
+
+### Payload esperado
+
+O corpo da requisição deve ser enviado em JSON:
+
+```
+{
+  "name": "Nome do evento",
+  "eventDate": "2025-10-05T00:00:00.000Z",
+  "regionId": "id-da-regiao",
+  "image": "<opcional: base64 ou url da imagem>"
+}
+```
+
+- `name` (string): Nome do evento (obrigatório)
+- `eventDate` (string, formato ISO): Data do evento (obrigatório)
+- `regionId` (string): ID da região associada (obrigatório)
+- `image` (string, opcional): Imagem do evento (pode ser base64, url, ou omitido)
+
+### Resposta de sucesso
+
+Status: `201 Created`
+
+```json
+{
+  "id": "id-do-evento-criado"
+}
+```
+
+### Respostas de erro
+
+- `400 Bad Request`: Dados inválidos ou falta de permissão.
+
+### Observações para o Frontend
+
+- O campo `image` é opcional. Caso deseje enviar uma imagem, envie como string (base64 ou url, conforme combinado com o backend).
+- O campo `eventDate` deve estar em formato ISO (exemplo: `2025-10-05T00:00:00.000Z`).
+- O usuário autenticado deve possuir permissão de ADMIN.
+
+### Exemplo de requisição
+
+```json
+{
+  "name": "Festa de Lançamento",
+  "startDate": "2025-10-10T20:00:00.000Z",
+  "endDate": "2025-10-15T20:00:00.000Z",
+  "regionId": "cln1x2y3z4",
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+}
+```
+
+### Fluxo resumido da tela
+
+1. Usuário preenche nome, data e região do evento.
+2. (Opcional) Seleciona uma imagem para o evento.
+3. Ao submeter, a tela faz um POST para `/event/create` com os dados acima.
+4. Se sucesso, exibe mensagem de sucesso e ID do evento criado.
+5. Se erro, exibe mensagem de erro retornada pela API.
+
 ## Docker
 
 Este projeto inclui configurações Docker otimizadas para reduzir significativamente o tamanho das imagens.

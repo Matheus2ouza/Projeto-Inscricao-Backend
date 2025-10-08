@@ -6,6 +6,7 @@ export class FindAllRegionsNamesPresenter {
     input: FindAllRegionsOutput,
   ): FindAllRegionNamesResponse {
     return input.map((region) => ({
+      id: region.id,
       name: region.name,
     }));
   }

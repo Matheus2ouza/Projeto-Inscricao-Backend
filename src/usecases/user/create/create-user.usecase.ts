@@ -6,11 +6,13 @@ import { canActOn, RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/exceptions/users/user-not-allowed-to-create-user.usecase.exception';
 import { UserAlreadyExistsUsecaseException } from 'src/usecases/exceptions/users/user-already-exists.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
+import { RegionNotFoundUsecaseException } from 'src/usecases/exceptions/users/region-not-found.usecase.exception';
 
 export type CreateUserInput = {
   username: string;
   password: string;
   role: roleType;
+  regionId?: string;
   requesterRole?: string;
 };
 
@@ -28,6 +30,7 @@ export class CreateUserUsecase
     username,
     password,
     role,
+    regionId,
     requesterRole,
   }: CreateUserInput): Promise<CreateUserOutput> {
     // Verifica se o usuário que está tentando criar tem permissão para criar um usuário com a role desejada
@@ -42,6 +45,17 @@ export class CreateUserUsecase
       );
     }
 
+    if (regionId) {
+      const regionExists = await this.userGateway.findRegionById(regionId);
+      if (!regionExists) {
+        throw new RegionNotFoundUsecaseException(
+          `Region with id ${regionId} does not exist`,
+          `A região com id ${regionId} não existe`,
+          CreateUserUsecase.name,
+        );
+      }
+    }
+
     // Verifica se o usuário já existe
     const userExists = await this.userGateway.findByUser(username);
 
@@ -53,7 +67,7 @@ export class CreateUserUsecase
       );
     }
 
-    const anUser = User.create({ username, password, role });
+    const anUser = User.create({ username, password, role, regionId });
 
     await this.userGateway.create(anUser);
 

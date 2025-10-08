@@ -3,6 +3,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
 import { EventPrismaRepositoryProvider } from './prisma/event/event.prisma.repository.provider';
 import { RegionPrismaRepositoryProvider } from './prisma/region/region.prisma.repository.provider';
 import { PrismaService } from './prisma/prisma.service';
+import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/type-inscription.prisma.repository.provider';
 
 @Module({
   providers: [
@@ -10,12 +11,14 @@ import { PrismaService } from './prisma/prisma.service';
     UserPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
+    TypeInscriptionPrismaRepositoryProvider,
   ],
   exports: [
     PrismaService,
     UserPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
+    TypeInscriptionPrismaRepositoryProvider,
   ],
 })
 export class DataBaseModule {}

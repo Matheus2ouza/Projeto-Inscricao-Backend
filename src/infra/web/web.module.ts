@@ -22,6 +22,12 @@ import { ServiceModule } from '../services/service.module';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
+import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
+import { UploadEventImageRoute } from './routes/event/upload-image/upload-event-image.route';
+import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
+import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
+import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
+import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -33,8 +39,14 @@ import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all
     FindByIdUserRoute,
     UserProfileRoute,
     CreateEventRoute,
+    FindAllPaginatedEventsRoute,
     CreateRegionRoute,
     FindAllRegionsRoute,
+    FindAllPaginatedRegionsRoute,
+    FindAllPaginatedUsersRoute,
+    UploadEventImageRoute,
+    FindByIdEventRoute,
+    CreateTypeInscriptionRoute,
   ],
   providers: [
     AuthGuardProvider,
