@@ -7,14 +7,14 @@ export class RedisService implements OnModuleDestroy {
   private readonly client: Redis;
 
   constructor() {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-
-    // Se a URL começa com "rediss://", habilita TLS
-    const isTls = redisUrl.startsWith('rediss://');
-
-    this.client = new Redis(redisUrl, {
+    // Configuração direta sem URL
+    this.client = new Redis({
+      host: 'redis-15305.c114.us-east-1-4.ec2.redns.redis-cloud.com',
+      port: 15305,
+      username: 'default',
+      password: 'LmfyRscCnUfXGS2nuZBX62fTUSFKqSKN',
+      tls: {}, // TLS necessário para Redis Cloud
       maxRetriesPerRequest: 3,
-      tls: isTls ? {} : undefined, // ativa TLS se necessário
     });
 
     this.client.on('connect', () => this.logger.log('Redis conectado'));
