@@ -34,16 +34,6 @@ export class CreateUserUsecase
     requesterRole,
   }: CreateUserInput): Promise<CreateUserOutput> {
     // Verifica se o usuário que está tentando criar tem permissão para criar um usuário com a role desejada
-    if (
-      !requesterRole ||
-      !canActOn(requesterRole as RoleTypeHierarchy, role as RoleTypeHierarchy)
-    ) {
-      throw new UserNotAllowedToCreateUserUsecaseException(
-        `User with role ${requesterRole || 'undefined'} is not allowed to create user with role ${role}`,
-        `Você não tem permissão suficiente para criar um usuario com o permissão nivel ${role}`,
-        CreateUserUsecase.name,
-      );
-    }
 
     if (regionId) {
       const regionExists = await this.userGateway.findRegionById(regionId);
