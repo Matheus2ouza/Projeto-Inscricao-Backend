@@ -11,6 +11,7 @@ import { Usecase } from 'src/usecases/usecase';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/exceptions/events/event-name-already-exists.usecase.exception';
+import { statusEvent } from 'generated/prisma';
 
 export type CreateEventInput = {
   name: string;
@@ -21,7 +22,7 @@ export type CreateEventInput = {
   location?: string;
   longitude?: number;
   latitude?: number;
-  isOpen?: boolean;
+  status: statusEvent;
 };
 
 export type CreateEventOutput = {
@@ -50,7 +51,7 @@ export class CreateEventUseCase
     location,
     longitude,
     latitude,
-    isOpen,
+    status,
   }: CreateEventInput): Promise<CreateEventOutput> {
     if (!regionId) {
       throw new MissingRegionIdUsecaseException(
@@ -113,7 +114,7 @@ export class CreateEventUseCase
       location: location,
       longitude: longitude,
       latitude: latitude,
-      isOpen: isOpen ?? true,
+      status: status,
     });
 
     await this.eventGateway.create(event);

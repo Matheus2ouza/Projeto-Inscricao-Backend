@@ -46,7 +46,7 @@ model Events {
   location             String?
   latitude             Float?
   longitude            Float?
-  isOpen               Boolean            @default(false) @map("is_open")
+  status               statusEvent
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   regionId             String
@@ -74,4 +74,10 @@ enum roleType {
   ADMIN
   MANAGER
   USER
+}
+
+enum statusEvent {
+  OPEN
+  CLOSE
+  FINALIZED
 }
