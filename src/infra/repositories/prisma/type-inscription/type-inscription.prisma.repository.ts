@@ -44,4 +44,13 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
       TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
     );
   }
+
+  async findByEventId(eventId: string): Promise<TypesInscription[]> {
+    const found = await this.prisma.typeInscriptions.findMany({
+      where: { eventId: eventId },
+    });
+    return found.map(
+      TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
+    );
+  }
 }

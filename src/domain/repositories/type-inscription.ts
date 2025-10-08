@@ -7,4 +7,5 @@ export abstract class TypeInscriptionGateway {
     description: string,
   ): Promise<TypesInscription | null>;
   abstract findAll(): Promise<TypesInscription[]>;
+  abstract findByEventId(eventId: string): Promise<TypesInscription[]>;
 }
