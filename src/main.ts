@@ -9,7 +9,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: ['https://sistema-inscricao-five.vercel.app'],
+    origin: [
+      'https://sistema-inscricao-five.vercel.app',
+      'http://localhost:3333',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
@@ -25,8 +28,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.use(bodyParser.json({ limit: '6mb' }));
-  app.use(bodyParser.urlencoded({ limit: '6mb', extended: true }));
+  app.use(bodyParser.json({ limit: '15mb' }));
+  app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
   // Rota GET / para teste mais rebuscada
   app.getHttpAdapter().get('/', (req, res) => {
