@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Event } from 'src/domain/entities/event.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import EventPrismaModel from './model/event.prisma.model';
 import { EventEntityToEventPrismaModelMapper } from './model/mappers/event-entity-to-event-prisma-model.mapper';
 import { EventPrismaModelToEventEntityMapper } from './model/mappers/event-prisma-model-to-event-entity.mapper';
 import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
@@ -66,5 +65,13 @@ export class EventPrismaRepository implements EventGateway {
       include: { region: { select: { name: true } } },
     });
     return found.map(EventPrismaModelToEventEntityMapper.map);
+  }
+
+  async countTypesInscriptions(id: string): Promise<number> {
+    const count = await this.prisma.typeInscriptions.count({
+      where: { eventId: id },
+    });
+
+    return count;
   }
 }

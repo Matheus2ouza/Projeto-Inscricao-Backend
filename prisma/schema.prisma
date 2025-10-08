@@ -16,8 +16,9 @@ model Accounts {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  regionId String?
-  region   Regions? @relation(fields: [regionId], references: [id])
+  regionId    String?
+  region      Regions?      @relation(fields: [regionId], references: [id])
+  Inscription Inscription[]
 
   @@map("accounts")
 }
@@ -46,12 +47,13 @@ model Events {
   location             String?
   latitude             Float?
   longitude            Float?
-  isOpen               Boolean            @default(false) @map("is_open")
+  status               statusEvent
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   regionId             String
   region               Regions            @relation(fields: [regionId], references: [id])
   typeInscriptions     TypeInscriptions[]
+  Inscription          Inscription[]
 
   @@map("events")
 }
@@ -64,9 +66,51 @@ model TypeInscriptions {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  event Events @relation(fields: [eventId], references: [id])
+  event       Events        @relation(fields: [eventId], references: [id])
+  Participant Participant[]
 
   @@map("type_inscriptions")
+}
+
+model Inscription {
+  id          String            @id @default(uuid())
+  accountId   String            @map("account_id")
+  eventId     String            @map("event_id")
+  responsible String
+  phone       String
+  totalValue  Decimal           @db.Decimal(10, 2)
+  status      InscriptionStatus @default(PENDING)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  account      Accounts      @relation(fields: [accountId], references: [id])
+  event        Events        @relation(fields: [eventId], references: [id])
+  participants Participant[]
+
+  @@map("inscriptions")
+}
+
+model Participant {
+  id                String   @id @default(uuid())
+  inscriptionId     String   @map("inscription_id")
+  typeInscriptionId String   @map("type_inscription_id")
+  name              String
+  birthDate         DateTime @map("birth_date")
+  gender            String
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  inscription     Inscription      @relation(fields: [inscriptionId], references: [id])
+  typeInscription TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
+
+  @@map("participants")
+}
+
+enum InscriptionStatus {
+  PENDING
+  UNDER_REVIEW
+  PAID
+  CANCELLED
 }
 
 enum roleType {
@@ -74,4 +118,10 @@ enum roleType {
   ADMIN
   MANAGER
   USER
+}
+
+enum statusEvent {
+  OPEN
+  CLOSE
+  FINALIZED
 }

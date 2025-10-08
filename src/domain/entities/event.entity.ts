@@ -1,5 +1,6 @@
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
+import { statusEvent } from 'generated/prisma';
 
 export type EventCreateDto = {
   name: string;
@@ -10,7 +11,7 @@ export type EventCreateDto = {
   location?: string;
   longitude?: number;
   latitude?: number;
-  isOpen?: boolean;
+  status: statusEvent;
 };
 
 export type EventWithDto = {
@@ -25,7 +26,7 @@ export type EventWithDto = {
   location?: string;
   longitude?: number;
   latitude?: number;
-  isOpen: boolean;
+  status: statusEvent;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -41,11 +42,11 @@ export class Event extends Entity {
     private regionId: string,
     createdAt: Date,
     updatedAt: Date,
+    private status: statusEvent,
     private imageUrl?: string,
     private location?: string,
     private longitude?: number | null,
     private latitude?: number | null,
-    private isOpen: boolean = false,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -60,7 +61,7 @@ export class Event extends Entity {
     location,
     longitude,
     latitude,
-    isOpen,
+    status,
   }: EventCreateDto): Event {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -78,11 +79,11 @@ export class Event extends Entity {
       regionId,
       createdAt,
       updatedAt,
+      status,
       imageUrl,
       location,
       longitude,
       latitude,
-      isOpen,
     );
   }
 
@@ -98,7 +99,7 @@ export class Event extends Entity {
     location,
     longitude,
     latitude,
-    isOpen,
+    status,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -112,11 +113,11 @@ export class Event extends Entity {
       regionId,
       createdAt,
       updatedAt,
+      status,
       imageUrl,
       location,
       longitude,
       latitude,
-      isOpen,
     );
   }
 
@@ -183,17 +184,17 @@ export class Event extends Entity {
     return this.latitude;
   }
 
-  public getIsOpen(): boolean {
-    return this.isOpen;
+  public getStatus(): statusEvent {
+    return this.status;
   }
 
-  public openEvent(): void {
-    this.isOpen = true;
+  public openEvent(): any {
+    this.status = 'OPEN';
     this.updatedAt = new Date();
   }
 
   public closeEvent(): void {
-    this.isOpen = false;
+    this.status = 'CLOSE';
     this.updatedAt = new Date();
   }
 

@@ -1,3 +1,5 @@
+import { statusEvent } from 'generated/prisma';
+
 export type CreateEventRequest = {
   name: string;
   startDate: Date;
@@ -7,7 +9,7 @@ export type CreateEventRequest = {
   location?: string;
   longitude?: number;
   latitude?: number;
-  isOpen?: boolean;
+  status: statusEvent;
 };
 
 export type CreateEventRouteResponse = {

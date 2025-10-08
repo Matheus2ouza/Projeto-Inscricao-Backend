@@ -1,3 +1,5 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindByIdEventRequest = {
   id: string;
 };
@@ -13,7 +15,7 @@ export type FindByIdEventOutput = {
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
-  isOpen: boolean;
+  status: statusEvent;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;

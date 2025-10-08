@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -20,7 +21,7 @@ export type FindByIdEventOutput = {
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
-  isOpen: boolean;
+  status: statusEvent;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
@@ -40,7 +41,9 @@ export class FindByIdEventUsecase
     input: FindByIdEventInput,
   ): Promise<FindByIdEventOutput> {
     const id = input.id.trim();
+    console.log(id);
     const event = await this.eventGateway.findById(id);
+    console.log(event);
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Event not found with finding event with id ${input.id} in ${FindByIdEventUsecase.name}`,
@@ -71,7 +74,7 @@ export class FindByIdEventUsecase
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
-      isOpen: event.getIsOpen(),
+      status: event.getStatus(),
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
       regionName: region?.getName() || '',

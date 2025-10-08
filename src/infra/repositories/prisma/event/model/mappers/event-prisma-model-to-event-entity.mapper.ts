@@ -14,7 +14,7 @@ export class EventPrismaModelToEventEntityMapper {
       location: event.location ?? undefined,
       longitude: event.longitude ?? undefined,
       latitude: event.latitude ?? undefined,
-      isOpen: event.isOpen,
+      status: event.status,
       regionId: event.regionId,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,

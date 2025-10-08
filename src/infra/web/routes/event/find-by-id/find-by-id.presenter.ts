@@ -13,7 +13,7 @@ export class FindByEventPresenter {
       location: input.location,
       longitude: input.longitude,
       latitude: input.latitude,
-      isOpen: input.isOpen,
+      status: input.status,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
       regionName: input.regionName,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -20,10 +21,11 @@ export type FindAllPaginatedEventsOutput = {
     location: string;
     longitude?: number | null;
     latitude?: number | null;
-    isOpen: boolean;
+    status: statusEvent;
     createdAt: Date;
     updatedAt: Date;
     regionName: string;
+    countTypeInscriptions: number;
   }[];
   total: number;
   page: number;
@@ -69,6 +71,11 @@ export class FindAllPaginatedEventsUsecase
             publicImageUrl = undefined;
           }
         }
+
+        const countTypeIncriptions =
+          await this.eventGateway.countTypesInscriptions(event.getId());
+
+        console.log(countTypeIncriptions);
         return {
           id: event.getId(),
           name: event.getName(),
@@ -80,10 +87,11 @@ export class FindAllPaginatedEventsUsecase
           location: event.getLocation() || event.location || '',
           longitude: event.getLongitude?.() ?? event.longitude ?? null,
           latitude: event.getLatitude?.() ?? event.latitude ?? null,
-          isOpen: event.isOpen ?? event.getIsOpen?.(),
+          status: event.getStatus(),
           createdAt: event.getCreatedAt(),
           updatedAt: event.getUpdatedAt(),
           regionName: event.region?.name || '',
+          countTypeInscriptions: countTypeIncriptions,
         };
       }),
     );

@@ -1,5 +1,5 @@
 export type CreateTypeInscriptionRequest = {
-  desription: string;
+  description: string;
   value: number;
   eventId: string;
 };

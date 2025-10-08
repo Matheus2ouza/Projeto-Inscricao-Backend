@@ -70,9 +70,6 @@ export class TypesInscription extends Entity {
     if (!this.description || this.description.trim().length === 0) {
       throw new Error('Description is required');
     }
-    if (this.value < 0) {
-      throw new Error('Value must be greater than or equal to zero');
-    }
   }
 
   public getDescription(): string {

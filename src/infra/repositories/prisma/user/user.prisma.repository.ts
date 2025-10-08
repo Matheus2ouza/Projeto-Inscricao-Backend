@@ -51,7 +51,6 @@ export class UserPrismaRepository extends UserGateway {
 
   public async create(user: User): Promise<void> {
     const aModel = UserEntityToUserPrismaModelMapper.map(user);
-    console.log('model to create', aModel);
     await prismaClient.accounts.create({
       data: aModel,
     });

@@ -1,3 +1,5 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindAllPaginatedEventsRequest = {
   page?: number;
   pageSize?: number;
@@ -15,7 +17,7 @@ export type FindAllPaginatedEventResponse = {
     location: string;
     longitude?: number | null;
     latitude?: number | null;
-    isOpen: boolean;
+    status: statusEvent;
     createdAt: Date;
     updatedAt: Date;
     regionName: string;
