@@ -8,6 +8,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
+  app.enableCors({
+    origin: ['https://sistema-inscricao-five.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
+
   // Swagger config com autenticação por cookie
   const config = new DocumentBuilder()
     .setTitle('API Inscrição')
