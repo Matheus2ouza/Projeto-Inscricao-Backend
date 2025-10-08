@@ -8,12 +8,13 @@ import type {
 import { CreateUserPresenter } from './create-user.presenter';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 
 @Controller('users')
 export class CreateUserRoute {
   public constructor(private readonly createUserUseCase: CreateUserUsecase) {}
 
-  @Roles(RoleTypeHierarchy.MANAGER)
+  @IsPublic()
   @Post('create')
   public async handle(
     @Body() request: CreateUserRequest,
