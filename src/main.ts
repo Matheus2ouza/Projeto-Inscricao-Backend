@@ -7,10 +7,6 @@ import * as bodyParser from 'body-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
-  app.enableCors({
-    origin: 'http://localhost:3333',
-    credentials: true,
-  });
 
   // Swagger config com autenticação por cookie
   const config = new DocumentBuilder()
