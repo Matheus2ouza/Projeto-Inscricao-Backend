@@ -8,8 +8,13 @@ export class RedisService implements OnModuleDestroy {
 
   constructor() {
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+
+    // Se a URL começa com "rediss://", habilita TLS
+    const isTls = redisUrl.startsWith('rediss://');
+
     this.client = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
+      tls: isTls ? {} : undefined, // ativa TLS se necessário
     });
 
     this.client.on('connect', () => this.logger.log('Redis conectado'));
