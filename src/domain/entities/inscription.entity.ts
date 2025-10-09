@@ -163,10 +163,6 @@ export class Inscription extends Entity {
       throw new Error('O telefone do responsavel pela inscrição é obrigatorio');
     }
 
-    if (!this.totalValue || this.totalValue <= 0) {
-      throw new Error('O valor total tem que ser um valor maior que zero');
-    }
-
     if (!this.status) {
       throw new Error('O Status é obrigatório');
     }

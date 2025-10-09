@@ -101,4 +101,15 @@ export class EventPrismaRepository implements EventGateway {
 
     return count;
   }
+
+  async updateQuantityParticipants(
+    id: string,
+    quantity: number,
+  ): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: { quantityParticipants: { increment: quantity } },
+    });
+    return EventPrismaModelToEventEntityMapper.map(data);
+  }
 }

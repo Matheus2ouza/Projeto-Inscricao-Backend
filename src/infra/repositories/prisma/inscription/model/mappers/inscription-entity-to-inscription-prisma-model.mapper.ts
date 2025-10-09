@@ -1,6 +1,6 @@
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import InscriptionPrismaModel from '../inscription.prisma.model';
-import { Decimal } from '@prisma/client/runtime/library';
+import Decimal from 'decimal.js';
 
 export class InscriptionEntityToInscriptionPrismaModelMapper {
   public static map(inscription: Inscription): InscriptionPrismaModel {

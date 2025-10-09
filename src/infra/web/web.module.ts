@@ -34,6 +34,7 @@ import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm
 import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-cache/group-find-cache.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/indiv-upload.route';
+import { IndivConfirmRoute } from './routes/inscription/inscriptionIndiv/confirm/indiv-confirm.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -59,6 +60,7 @@ import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/i
     GroupFindCacheRoute,
     FindAllInscriptionRoute,
     IndivUploadRoute,
+    IndivConfirmRoute,
   ],
   providers: [
     AuthGuardProvider,

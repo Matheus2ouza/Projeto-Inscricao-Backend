@@ -3,9 +3,7 @@ import { CacheRecord } from 'src/domain/entities/cache-record.entity';
 import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { RedisService } from 'src/infra/services/redis/redis.service';
-import { ParticipantMissingNameLastnameUsecaseException } from 'src/usecases/exceptions/inscription/indiv/participant-missing-name-lastname.usecase.exception';
-import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
-import { uuidv4 } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 
 export type UploadValidateIndivInput = {
   responsible: string;
@@ -16,7 +14,7 @@ export type UploadValidateIndivInput = {
     name: string;
     birthDateStr: string;
     gender: string;
-    typeDescription: string;
+    typeDescriptionId: string;
   };
 };
 
@@ -64,11 +62,7 @@ export class UploadValidateIndivUsecase {
     const hasTwoNames =
       participant.name && participant.name.trim().split(/\s+/).length >= 2;
     if (!hasTwoNames) {
-      throw new ParticipantMissingNameLastnameUsecaseException(
-        `attempted registration but the participant did not have a first and last name`,
-        `O participante tem que ter nome e sobrenome`,
-        UploadValidateIndivUsecase.name,
-      );
+      throw new Error('O participante tem que ter nome e sobrenome');
     }
 
     // valida data nascimento formato DD/MM/AAAA
@@ -93,7 +87,7 @@ export class UploadValidateIndivUsecase {
     if (!participant.gender) {
       throw new Error('Gênero é obrigatório');
     }
-    if (!['MASCULINO', 'FEMININO'].includes(participant.gender)) {
+    if (!['MASCULINO', 'FEMININO'].includes(participant.gender.toUpperCase())) {
       throw new Error(
         `Gênero inválido: ${participant.gender}. Deve ser MASCULINO ou FEMININO`,
       );
@@ -104,22 +98,25 @@ export class UploadValidateIndivUsecase {
       input.eventId,
     );
 
+    console.log('Os types encontrados');
+    console.log(types);
+
     const found = types.find(
       (t) =>
-        t.getDescription().toLowerCase().trim() ===
-        participant.typeDescription.toLowerCase().trim(),
+        t.getId().toLowerCase().trim() ===
+        participant.typeDescriptionId.toLowerCase().trim(),
     );
 
     if (!found) {
-      throw new TypeInscriptionNotFoundUsecaseException(
-        `Type inscription not found: ${participant.typeDescription}`,
-        `Tipo de inscrição não encontrado: ${participant.typeDescription}`,
-        UploadValidateIndivUsecase.name,
+      throw new Error(
+        `Tipo de inscrição não encontrado: ${participant.typeDescriptionId}`,
       );
     }
 
     const typeInscriptionId = found.getId();
     const typeValue = Number(found.getValue());
+    const anTypeDescription = found.getDescription();
+    console.log('o anTypeDescription', anTypeDescription);
 
     // cria cache e registro
     const cacheKey = `indiv:inscription:${uuidv4()}`;
@@ -132,7 +129,7 @@ export class UploadValidateIndivUsecase {
         birthDateISO,
         gender: participant.gender,
         typeInscriptionId,
-        typeDescription: participant.typeDescription.trim(),
+        typeDescription: anTypeDescription,
         value: typeValue,
       },
     };
@@ -163,7 +160,7 @@ export class UploadValidateIndivUsecase {
         name: participant.name.trim(),
         birthDate: new Date(birthDateISO).toLocaleDateString('pt-BR'),
         gender: participant.gender,
-        typeDescription: participant.typeDescription.trim(),
+        typeDescription: anTypeDescription,
         value: typeValue,
       },
     };

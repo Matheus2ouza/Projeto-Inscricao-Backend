@@ -1,4 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
   UploadValidateIndivInput,
@@ -21,6 +27,7 @@ export class IndivUploadRoute {
     @Body() request: IndivUploadRequest,
     @UserId() accountId: string,
   ): Promise<IndivUploadRouteResponse> {
+    console.log('o que veio do front: ', request);
     const { participant } = request;
     const input: UploadValidateIndivInput = {
       responsible: request.responsible,
@@ -31,12 +38,18 @@ export class IndivUploadRoute {
         name: participant.name,
         birthDateStr: participant.birthDateStr,
         gender: participant.gender,
-        typeDescription: participant.typeDescription,
+        typeDescriptionId: participant.typeDescriptionId,
       },
     };
 
-    const result = await this.uploadValidateIndivUsecase.execute(input);
-    const response = IndivUploadPresenter.toHttp(result);
-    return response;
+    try {
+      const result = await this.uploadValidateIndivUsecase.execute(input);
+      const response = IndivUploadPresenter.toHttp(result);
+      return response;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.log(e);
+      throw new BadRequestException(msg);
+    }
   }
 }

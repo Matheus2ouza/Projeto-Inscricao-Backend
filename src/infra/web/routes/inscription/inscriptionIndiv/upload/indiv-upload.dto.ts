@@ -6,7 +6,7 @@ export type IndivUploadRequest = {
     name: string;
     birthDateStr: string;
     gender: string;
-    typeDescription: string;
+    typeDescriptionId: string;
   };
 };
 

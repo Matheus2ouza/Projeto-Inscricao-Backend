@@ -15,4 +15,8 @@ export abstract class EventGateway {
   abstract delete(id: string): Promise<void>;
   abstract findAll(): Promise<Event[]>;
   abstract countTypesInscriptions(id: string): Promise<number>;
+  abstract updateQuantityParticipants(
+    id: string,
+    quantity: number,
+  ): Promise<Event>;
 }
