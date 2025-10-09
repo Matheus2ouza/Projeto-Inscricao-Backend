@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
-import { ExcelDateUtil } from '../utils/excel-date.util';
-import { GenderConverterUtil } from '../utils/gender-converter.util';
+import { ExcelDateUtil } from 'src/shared/utils/excel-date.util';
+import { GenderConverterUtil } from 'src/shared/utils/gender-converter.util';
 
 export type ParsedRow = {
   line: number;

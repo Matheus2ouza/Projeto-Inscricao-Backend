@@ -1,0 +1,22 @@
+export type IndivUploadRequest = {
+  responsible: string;
+  phone: string;
+  eventId: string;
+  participant: {
+    name: string;
+    birthDateStr: string;
+    gender: string;
+    typeDescription: string;
+  };
+};
+
+export type IndivUploadRouteResponse = {
+  cacheKey: string;
+  participant: {
+    name: string;
+    birthDate: string;
+    gender: string;
+    typeDescription: string;
+    value: number;
+  };
+};

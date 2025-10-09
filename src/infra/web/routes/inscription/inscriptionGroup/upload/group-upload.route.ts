@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { XlsxGroupParserUtil } from '../shared/parser/xlsx-group-parser.util';
+import { XlsxGroupParserUtil } from 'src/shared/parser/xlsx-group-parser.util';
 import { UploadValidateGroupUsecase } from 'src/usecases/inscription/group/upload-validate-group.usecase';
 import type { UploadValidateGroupInput } from 'src/usecases/inscription/group/upload-validate-group.usecase';
 import type {
@@ -38,7 +38,6 @@ export class GroupUploadRoute {
 
     const rows = XlsxGroupParserUtil.parse(file.buffer);
 
-    console.log(rows);
     const input: UploadValidateGroupInput = {
       responsible: request.responsible,
       phone: request.phone,
@@ -49,7 +48,6 @@ export class GroupUploadRoute {
 
     try {
       const result = await this.uploadValidateGroup.execute(input);
-      console.log('A key do cache', result.cacheKey);
       const response = GroupUploadPresenter.toHttp(result);
       return response;
     } catch (e) {

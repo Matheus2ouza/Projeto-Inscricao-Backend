@@ -48,7 +48,7 @@ type CachePayload = {
 
 @Injectable()
 export class UploadValidateGroupUsecase {
-  private static readonly CACHE_TTL_SECONDS = 60 * 30; // 30min
+  private static readonly CACHE_TTL_SECONDS = 60 * 60; // 60min
 
   constructor(
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
@@ -114,18 +114,14 @@ export class UploadValidateGroupUsecase {
       if (!row.typeDescription) {
         errors.push({ line: row.line, reason: 'Tipo de inscrição vazio' });
       } else {
-        console.log(input.eventId);
         const types = await this.typeInscriptionGateway.findByEventId(
           input.eventId,
         );
-        console.log(types);
         const found = types.find(
           (t) =>
             t.getDescription().toLowerCase().trim() ===
             row.typeDescription.toLowerCase().trim(),
         );
-
-        console.log('o found', found);
         if (!found) {
           errors.push({
             line: row.line,

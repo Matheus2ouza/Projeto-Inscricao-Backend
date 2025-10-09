@@ -21,6 +21,7 @@ import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
 import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usecase';
 import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscriptio
     ConfirmGroupUsecase,
     FindCacheGroupUsecase,
     FindAllInscriptionUsecase,
+    UploadValidateIndivUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -68,6 +70,7 @@ import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscriptio
     ConfirmGroupUsecase,
     FindCacheGroupUsecase,
     FindAllInscriptionUsecase,
+    UploadValidateIndivUsecase,
   ],
 })
 export class UsecaseModule {}
