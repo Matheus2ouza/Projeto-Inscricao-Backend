@@ -1,6 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
-
 export type GroupUploadRequest = {
   responsible: string;
   phone: string;
@@ -14,6 +11,7 @@ export type GroupUploadRouteResponse = {
   items: {
     name: string;
     birthDate: string;
+    gender: string;
     typeDescription: string;
     value: number;
   }[];

@@ -11,6 +11,7 @@ export type UploadValidateGroupInput = {
     line: number;
     name: string;
     birthDateStr: string;
+    gender: string;
     typeDescription: string;
   }[];
 };
@@ -21,6 +22,7 @@ export type UploadValidateGroupOutput = {
   items: {
     name: string;
     birthDate: string;
+    gender: string;
     typeDescription: string;
     value: number;
   }[];
@@ -33,6 +35,7 @@ type CachePayload = {
   items: {
     name: string;
     birthDateISO: string;
+    gender: string;
     typeInscriptionId: string;
     typeDescription: string;
     value: number;
@@ -88,20 +91,37 @@ export class UploadValidateGroupUsecase {
         }
       }
 
+      // valida gênero
+      let gender = '';
+      if (!row.gender) {
+        errors.push({ line: row.line, reason: 'Gênero vazio' });
+      } else if (!['MASCULINO', 'FEMININO'].includes(row.gender)) {
+        errors.push({
+          line: row.line,
+          reason: `Gênero inválido: ${row.gender}. Deve ser MASCULINO ou FEMININO`,
+        });
+      } else {
+        gender = row.gender;
+      }
+
       // valida tipo de inscrição existente para o evento
       let typeInscriptionId: string | null = null;
       let typeValue = 0;
       if (!row.typeDescription) {
         errors.push({ line: row.line, reason: 'Tipo de inscrição vazio' });
       } else {
+        console.log(input.eventId);
         const types = await this.typeInscriptionGateway.findByEventId(
           input.eventId,
         );
+        console.log(types);
         const found = types.find(
           (t) =>
             t.getDescription().toLowerCase().trim() ===
             row.typeDescription.toLowerCase().trim(),
         );
+
+        console.log('o found', found);
         if (!found) {
           errors.push({
             line: row.line,
@@ -113,10 +133,11 @@ export class UploadValidateGroupUsecase {
         }
       }
 
-      if (hasTwoNames && birthDateISO && typeInscriptionId) {
+      if (hasTwoNames && birthDateISO && gender && typeInscriptionId) {
         normalized.push({
           name: row.name.trim(),
           birthDateISO,
+          gender,
           typeInscriptionId,
           typeDescription: row.typeDescription.trim(),
           value: typeValue,
@@ -157,6 +178,7 @@ export class UploadValidateGroupUsecase {
       items: normalized.map((i) => ({
         name: i.name,
         birthDate: new Date(i.birthDateISO).toLocaleDateString('pt-BR'),
+        gender: i.gender,
         typeDescription: i.typeDescription,
         value: i.value,
       })),

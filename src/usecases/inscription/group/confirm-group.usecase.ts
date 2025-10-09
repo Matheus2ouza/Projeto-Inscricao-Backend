@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from 'src/infra/services/redis/redis.service';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { Inscription, InscriptionStatus } from 'generated/prisma';
+import { genderType, Inscription, InscriptionStatus } from 'generated/prisma';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
 import { Participant as ParticipantEntity } from 'src/domain/entities/participant.entity';
 
@@ -13,6 +13,7 @@ type CachePayload = {
   items: {
     name: string;
     birthDateISO: string;
+    gender: string;
     typeInscriptionId: string;
     value: number;
   }[];
@@ -38,7 +39,9 @@ export class ConfirmGroupUsecase {
   ) {}
 
   async execute(input: ConfirmGroupInput): Promise<ConfirmGroupOutput> {
+    console.log(input.cacheKey);
     const cached = await this.redis.getJson<CachePayload>(input.cacheKey);
+    console.log(cached);
     if (!cached) {
       throw new Error('Dados expiraram ou não foram encontrados');
     }
@@ -61,7 +64,7 @@ export class ConfirmGroupUsecase {
         typeInscriptionId: item.typeInscriptionId,
         name: item.name,
         birthDate: new Date(item.birthDateISO),
-        gender: 'N/A',
+        gender: item.gender as genderType,
       });
       await this.participantGateway.create(participant);
     }

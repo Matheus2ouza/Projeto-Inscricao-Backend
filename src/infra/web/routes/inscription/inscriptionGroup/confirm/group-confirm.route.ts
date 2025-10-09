@@ -20,6 +20,9 @@ export class GroupConfirmRoute {
     @Body() request: GroupConfirmRequest,
     @UserId() accountId: string,
   ): Promise<GroupConfirmRouteResponse> {
+    console.log(request);
+    console.log(accountId);
+
     const input: ConfirmGroupInput = {
       cacheKey: request.cacheKey,
       accountId,

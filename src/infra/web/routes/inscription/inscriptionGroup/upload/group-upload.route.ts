@@ -36,6 +36,7 @@ export class GroupUploadRoute {
 
     const rows = XlsxGroupParserUtil.parse(file.buffer);
 
+    console.log(rows);
     const input: UploadValidateGroupInput = {
       responsible: request.responsible,
       phone: request.phone,
@@ -45,6 +46,7 @@ export class GroupUploadRoute {
 
     try {
       const result = await this.uploadValidateGroup.execute(input);
+      console.log('A key do cache', result.cacheKey);
       const response = GroupUploadPresenter.toHttp(result);
       return response;
     } catch (e) {

@@ -14,7 +14,6 @@ import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decor
 export class CreateUserRoute {
   public constructor(private readonly createUserUseCase: CreateUserUsecase) {}
 
-  @IsPublic()
   @Post('create')
   public async handle(
     @Body() request: CreateUserRequest,
@@ -28,6 +27,7 @@ export class CreateUserRoute {
       requesterRole: req['userRole'],
     };
 
+    console.log('input: ', input);
     const result = await this.createUserUseCase.execute(input);
 
     const response = CreateUserPresenter.toHttp(result);
