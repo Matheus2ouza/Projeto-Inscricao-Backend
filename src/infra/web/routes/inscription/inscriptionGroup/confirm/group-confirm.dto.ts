@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GroupConfirmDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+export type GroupConfirmRequest = {
   cacheKey: string;
-}
+};
 
-export type GroupConfirmResponse = {
+export type GroupConfirmRouteResponse = {
   inscriptionId: string;
   totalParticipants: number;
 };

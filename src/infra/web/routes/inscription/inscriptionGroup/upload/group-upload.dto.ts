@@ -1,26 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GroupUploadDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+export type GroupUploadRequest = {
   responsible: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   phone: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   eventId: string;
-}
+};
 
-export type GroupUploadResponse = {
+export type GroupUploadRouteResponse = {
   cacheKey: string;
   total: number;
+  unitValue: number;
   items: {
     name: string;
     birthDate: string;
