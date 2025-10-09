@@ -12,6 +12,7 @@ export type EventCreateDto = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  paymentEnabled: boolean;
 };
 
 export type EventWithDto = {
@@ -27,6 +28,7 @@ export type EventWithDto = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  paymentEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -43,6 +45,7 @@ export class Event extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private status: statusEvent,
+    private paymentEnabled: boolean,
     private imageUrl?: string,
     private location?: string,
     private longitude?: number | null,
@@ -62,6 +65,7 @@ export class Event extends Entity {
     longitude,
     latitude,
     status,
+    paymentEnabled,
   }: EventCreateDto): Event {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -80,6 +84,7 @@ export class Event extends Entity {
       createdAt,
       updatedAt,
       status,
+      paymentEnabled,
       imageUrl,
       location,
       longitude,
@@ -100,6 +105,7 @@ export class Event extends Entity {
     longitude,
     latitude,
     status,
+    paymentEnabled,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -114,6 +120,7 @@ export class Event extends Entity {
       createdAt,
       updatedAt,
       status,
+      paymentEnabled,
       imageUrl,
       location,
       longitude,
@@ -186,6 +193,10 @@ export class Event extends Entity {
 
   public getStatus(): statusEvent {
     return this.status;
+  }
+
+  public getPaymentEnabled(): boolean {
+    return this.paymentEnabled;
   }
 
   public openEvent(): any {

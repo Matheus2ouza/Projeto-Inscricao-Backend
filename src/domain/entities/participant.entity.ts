@@ -1,12 +1,13 @@
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
+import { genderType } from 'generated/prisma';
 
 export type ParticipantCreateDto = {
   inscriptionId: string;
   typeInscriptionId: string;
   name: string;
   birthDate: Date;
-  gender: string;
+  gender: genderType;
 };
 
 export type ParticipantWithDto = {
@@ -15,7 +16,7 @@ export type ParticipantWithDto = {
   typeInscriptionId: string;
   name: string;
   birthDate: Date;
-  gender: string;
+  gender: genderType;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -27,7 +28,7 @@ export class Participant extends Entity {
     private typeInscriptionId: string,
     private name: string,
     private birthDate: Date,
-    private gender: string,
+    private gender: genderType,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -96,7 +97,7 @@ export class Participant extends Entity {
     return this.birthDate;
   }
 
-  public getGender(): string {
+  public getGender(): genderType {
     return this.gender;
   }
 

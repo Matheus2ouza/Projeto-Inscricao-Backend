@@ -8,8 +8,15 @@ export abstract class EventGateway {
     name: string,
     regionId: string,
   ): Promise<Event | null>;
+  abstract paymentEnabled(eventId: string): Promise<void>;
+  abstract paymentDisabled(eventId: string): Promise<void>;
+  abstract paymentCheck(eventId: string): Promise<boolean>;
   abstract update(event: Event): Promise<Event>;
   abstract delete(id: string): Promise<void>;
   abstract findAll(): Promise<Event[]>;
   abstract countTypesInscriptions(id: string): Promise<number>;
+  abstract updateQuantityParticipants(
+    id: string,
+    quantity: number,
+  ): Promise<Event>;
 }

@@ -29,7 +29,12 @@ import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/f
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
-import { InscriptionGroupController } from './routes/inscription/inscriptionGroup/group.controller';
+import { GroupUploadRoute } from './routes/inscription/inscriptionGroup/upload/group-upload.route';
+import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
+import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-cache/group-find-cache.route';
+import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
+import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/indiv-upload.route';
+import { IndivConfirmRoute } from './routes/inscription/inscriptionIndiv/confirm/indiv-confirm.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -50,7 +55,12 @@ import { InscriptionGroupController } from './routes/inscription/inscriptionGrou
     FindByIdEventRoute,
     CreateTypeInscriptionRoute,
     FindByEventId,
-    InscriptionGroupController,
+    GroupUploadRoute,
+    GroupConfirmRoute,
+    GroupFindCacheRoute,
+    FindAllInscriptionRoute,
+    IndivUploadRoute,
+    IndivConfirmRoute,
   ],
   providers: [
     AuthGuardProvider,

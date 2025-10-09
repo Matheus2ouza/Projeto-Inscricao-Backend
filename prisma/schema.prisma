@@ -16,9 +16,10 @@ model Accounts {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  regionId    String?
-  region      Regions?      @relation(fields: [regionId], references: [id])
-  Inscription Inscription[]
+  regionId     String?
+  region       Regions?       @relation(fields: [regionId], references: [id])
+  Inscription  Inscription[]
+  CacheRecords CacheRecords[]
 
   @@map("accounts")
 }
@@ -48,6 +49,7 @@ model Events {
   latitude             Float?
   longitude            Float?
   status               statusEvent
+  paymentEnabled       Boolean            @default(false) @map("payment_enabled")
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   regionId             String
@@ -91,19 +93,32 @@ model Inscription {
 }
 
 model Participant {
-  id                String   @id @default(uuid())
-  inscriptionId     String   @map("inscription_id")
-  typeInscriptionId String   @map("type_inscription_id")
+  id                String     @id @default(uuid())
+  inscriptionId     String     @map("inscription_id")
+  typeInscriptionId String     @map("type_inscription_id")
   name              String
-  birthDate         DateTime @map("birth_date")
-  gender            String
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  birthDate         DateTime   @map("birth_date")
+  gender            genderType
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
 
   inscription     Inscription      @relation(fields: [inscriptionId], references: [id])
   typeInscription TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
 
   @@map("participants")
+}
+
+model CacheRecords {
+  id        String    @id @default(uuid())
+  cacheKey  String    @unique
+  payload   Json
+  accountId String    @map("account_id")
+  expiresAt DateTime?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  account   Accounts  @relation(fields: [accountId], references: [id])
+
+  @@map("cache_records")
 }
 
 enum InscriptionStatus {
@@ -124,4 +139,9 @@ enum statusEvent {
   OPEN
   CLOSE
   FINALIZED
+}
+
+enum genderType {
+  MASCULINO
+  FEMININO
 }
