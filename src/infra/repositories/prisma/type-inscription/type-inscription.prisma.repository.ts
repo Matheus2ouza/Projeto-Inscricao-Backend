@@ -58,4 +58,14 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
       TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
     );
   }
+
+  async findAllDescription(): Promise<TypesInscription[]> {
+    const found = await this.prisma.typeInscriptions.findMany({
+      select: { id: true, description: true, value: true },
+    });
+
+    return found.map(
+      TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
+    );
+  }
 }
