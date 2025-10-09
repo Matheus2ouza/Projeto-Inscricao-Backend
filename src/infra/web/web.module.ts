@@ -31,6 +31,7 @@ import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/crea
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
 import { GroupUploadRoute } from './routes/inscription/inscriptionGroup/upload/group-upload.route';
 import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
+import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-cache/group-find-cache.route';
 
 @Module({
   imports: [ServiceModule, UsecaseModule],
@@ -53,6 +54,7 @@ import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm
     FindByEventId,
     GroupUploadRoute,
     GroupConfirmRoute,
+    GroupFindCacheRoute,
   ],
   providers: [
     AuthGuardProvider,

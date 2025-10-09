@@ -16,6 +16,7 @@ import type {
   GroupUploadRouteResponse,
 } from './group-upload.dto';
 import { GroupUploadPresenter } from './group-upload.presenter';
+import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 
 @ApiTags('Inscription Group')
 @Controller('inscriptions/group')
@@ -31,6 +32,7 @@ export class GroupUploadRoute {
   public async handle(
     @UploadedFile() file: Express.Multer.File,
     @Body() request: GroupUploadRequest,
+    @UserId() accountId: string,
   ): Promise<GroupUploadRouteResponse> {
     if (!file) throw new BadRequestException('Arquivo não enviado');
 
@@ -41,6 +43,7 @@ export class GroupUploadRoute {
       responsible: request.responsible,
       phone: request.phone,
       eventId: request.eventId,
+      accountId,
       rows,
     };
 

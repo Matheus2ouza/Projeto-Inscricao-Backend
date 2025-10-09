@@ -23,6 +23,7 @@ export type CreateEventInput = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  paymentEnabled: boolean;
 };
 
 export type CreateEventOutput = {
@@ -52,6 +53,7 @@ export class CreateEventUseCase
     longitude,
     latitude,
     status,
+    paymentEnabled,
   }: CreateEventInput): Promise<CreateEventOutput> {
     if (!regionId) {
       throw new MissingRegionIdUsecaseException(
@@ -115,6 +117,7 @@ export class CreateEventUseCase
       longitude: longitude,
       latitude: latitude,
       status: status,
+      paymentEnabled: paymentEnabled,
     });
 
     await this.eventGateway.create(event);

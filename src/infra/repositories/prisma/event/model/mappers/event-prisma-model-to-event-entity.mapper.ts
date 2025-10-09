@@ -15,6 +15,7 @@ export class EventPrismaModelToEventEntityMapper {
       longitude: event.longitude ?? undefined,
       latitude: event.latitude ?? undefined,
       status: event.status,
+      paymentEnabled: event.paymentEnabled,
       regionId: event.regionId,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,

@@ -7,5 +7,5 @@ export type GroupConfirmRequest = {
 
 export type GroupConfirmRouteResponse = {
   inscriptionId: string;
-  totalParticipants: number;
+  paymentEnabled: boolean;
 };

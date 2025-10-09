@@ -6,6 +6,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/type-inscription.prisma.repository.provider';
 import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/inscription.prisma.repository.provider';
 import { ParticipantPrismaRepositoryProvider } from './prisma/participant/participant.prisma.repository.provider';
+import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-record.prisma.repository.provider';
 
 @Module({
   providers: [
@@ -16,6 +17,7 @@ import { ParticipantPrismaRepositoryProvider } from './prisma/participant/partic
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
+    CacheRecordRepositoryProvider,
   ],
   exports: [
     PrismaService,
@@ -25,6 +27,7 @@ import { ParticipantPrismaRepositoryProvider } from './prisma/participant/partic
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
+    CacheRecordRepositoryProvider,
   ],
 })
 export class DataBaseModule {}

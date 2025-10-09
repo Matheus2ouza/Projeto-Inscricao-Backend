@@ -56,6 +56,33 @@ export class EventPrismaRepository implements EventGateway {
     return EventPrismaModelToEventEntityMapper.map(updated);
   }
 
+  async paymentEnabled(eventId: string): Promise<void> {
+    await this.prisma.events.update({
+      where: { id: eventId },
+      data: { paymentEnabled: true },
+    });
+  }
+
+  async paymentDisabled(eventId: string): Promise<void> {
+    await this.prisma.events.update({
+      where: { id: eventId },
+      data: { paymentEnabled: false },
+    });
+  }
+
+  async paymentCheck(eventId: string): Promise<boolean> {
+    const event = await this.prisma.events.findUnique({
+      where: { id: eventId },
+      select: { paymentEnabled: true },
+    });
+
+    if (!event) {
+      return false;
+    }
+
+    return event.paymentEnabled;
+  }
+
   async delete(id: string): Promise<void> {
     await this.prisma.events.delete({ where: { id } });
   }

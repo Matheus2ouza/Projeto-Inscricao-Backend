@@ -5,7 +5,7 @@ export class GroupConfirmPresenter {
   public static toHttp(input: ConfirmGroupOutput): GroupConfirmRouteResponse {
     const response: GroupConfirmRouteResponse = {
       inscriptionId: input.inscriptionId,
-      totalParticipants: input.totalParticipants,
+      paymentEnabled: input.paymentEnabled,
     };
     return response;
   }

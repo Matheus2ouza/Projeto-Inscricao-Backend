@@ -19,6 +19,7 @@ import { CreateTypeInscriptionUseCase } from './typeInscription/create/create-ty
 import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
+import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usecase';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
     FindTypeInscriptionByEventIdUsecase,
     UploadValidateGroupUsecase,
     ConfirmGroupUsecase,
+    FindCacheGroupUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -62,6 +64,7 @@ import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
     FindTypeInscriptionByEventIdUsecase,
     UploadValidateGroupUsecase,
     ConfirmGroupUsecase,
+    FindCacheGroupUsecase,
   ],
 })
 export class UsecaseModule {}

@@ -10,6 +10,7 @@ export type CreateEventRequest = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  paymentEnabled: boolean;
 };
 
 export type CreateEventRouteResponse = {
