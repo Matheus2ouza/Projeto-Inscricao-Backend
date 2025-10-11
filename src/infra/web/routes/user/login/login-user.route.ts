@@ -17,7 +17,7 @@ export class LoginUserRoute {
   public async handle(
     @Body() request: LoginUserRequest,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ role: string; authToken: string; refreshToken: string }> {
+  ): Promise<LoginUserResponse> {
     const input: loginUserInput = {
       username: request.username.trim(),
       password: request.password.trim(),
@@ -28,9 +28,9 @@ export class LoginUserRoute {
 
     // Retorne role, authToken e refreshToken no body
     return {
-      role: response.role,
       authToken: response.authToken,
       refreshToken: response.refreshToken,
+      user: response.user,
     };
   }
 }

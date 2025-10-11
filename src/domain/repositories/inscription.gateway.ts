@@ -7,6 +7,25 @@ export abstract class InscriptionGateway {
   abstract findManyPaginated(
     page: number,
     pageSize: number,
+    filters: {
+      userId: string; // obrigatório
+      eventId?: string; // opcional
+      limitTime?: string; // opcional
+    },
   ): Promise<Inscription[]>;
-  abstract countAll(): Promise<number>;
+  abstract countAll(filters: {
+    userId: string; // obrigatório
+    eventId?: string; // opcional
+    limitTime?: string; // opcional
+  }): Promise<number>;
+  abstract sumTotalDebt(filters: {
+    userId: string; // obrigatório
+    eventId?: string; // opcional
+    limitTime?: string; // opcional
+  }): Promise<number>;
+  abstract countParticipants(filters: {
+    userId: string; // obrigatório
+    eventId?: string; // opcional
+    limitTime?: string; // opcional
+  }): Promise<number>;
 }

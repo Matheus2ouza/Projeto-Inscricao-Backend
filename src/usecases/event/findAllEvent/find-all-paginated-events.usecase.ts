@@ -75,7 +75,6 @@ export class FindAllPaginatedEventsUsecase
         const countTypeIncriptions =
           await this.eventGateway.countTypesInscriptions(event.getId());
 
-        console.log(countTypeIncriptions);
         return {
           id: event.getId(),
           name: event.getName(),
