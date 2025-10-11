@@ -14,6 +14,7 @@ import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/useca
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
+import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { UploadEventImageRoute } from './routes/event/upload-image/upload-event-image.route';
@@ -63,6 +64,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     IndivUploadRoute,
     IndivConfirmRoute,
     FindAllPaginatedInscriptionsRoute,
+    FindAllNamesEventRoute,
   ],
   providers: [
     AuthGuardProvider,

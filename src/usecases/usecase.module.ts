@@ -4,6 +4,7 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
+import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
 import { UploadEventImageUsecase } from './event/upload-image/upload-event-image.usecase';
@@ -54,6 +55,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     UploadValidateIndivUsecase,
     IndivConfirmUsecase,
     FindAllPaginatedInscriptionsUsecase,
+    FindAllnamesEventUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -77,6 +79,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     UploadValidateIndivUsecase,
     IndivConfirmUsecase,
     FindAllPaginatedInscriptionsUsecase,
+    FindAllnamesEventUsecase,
   ],
 })
 export class UsecaseModule {}
