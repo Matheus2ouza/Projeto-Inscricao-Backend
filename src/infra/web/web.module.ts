@@ -17,13 +17,16 @@ import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
+import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
 import { UploadEventImageRoute } from './routes/event/upload-image/upload-event-image.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
+import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
 import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-cache/group-find-cache.route';
 import { GroupUploadRoute } from './routes/inscription/inscriptionGroup/upload/group-upload.route';
 import { IndivConfirmRoute } from './routes/inscription/inscriptionIndiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/indiv-upload.route';
+import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -54,6 +57,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedRegionsRoute,
     FindAllPaginatedUsersRoute,
     UploadEventImageRoute,
+    FindEventCarouselRoute, // Mover para antes de FindByIdEventRoute
     FindByIdEventRoute,
     CreateTypeInscriptionRoute,
     FindByEventId,
@@ -65,6 +69,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     IndivConfirmRoute,
     FindAllPaginatedInscriptionsRoute,
     FindAllNamesEventRoute,
+    FindDetailsInscriptionRoute,
+    CreatePaymentInscriptionRoute,
   ],
   providers: [
     AuthGuardProvider,

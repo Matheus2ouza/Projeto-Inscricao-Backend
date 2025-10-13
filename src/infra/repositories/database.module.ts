@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
-import { EventPrismaRepositoryProvider } from './prisma/event/event.prisma.repository.provider';
-import { RegionPrismaRepositoryProvider } from './prisma/region/region.prisma.repository.provider';
-import { PrismaService } from './prisma/prisma.service';
-import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/type-inscription.prisma.repository.provider';
-import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/inscription.prisma.repository.provider';
-import { ParticipantPrismaRepositoryProvider } from './prisma/participant/participant.prisma.repository.provider';
 import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-record.prisma.repository.provider';
+import { EventPrismaRepositoryProvider } from './prisma/event/model/event.prisma.repository.provider';
+import { FinancialMovementPrismaRepositoryProvider } from './prisma/financial-movement/model/financial-movement.repository.provider';
+import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/model/inscription.prisma.repository.provider';
+import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/participant.prisma.repository.provider';
+import { PaymentInscriptionRepositoryProvider } from './prisma/payment-inscription/model/payment-inscription.prisma.repository.provider';
+import { PrismaService } from './prisma/prisma.service';
+import { RegionPrismaRepositoryProvider } from './prisma/region/region.prisma.repository.provider';
+import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/type-inscription.prisma.repository.provider';
+import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
 
 @Module({
   providers: [
@@ -18,6 +20,8 @@ import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-recor
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
     CacheRecordRepositoryProvider,
+    PaymentInscriptionRepositoryProvider,
+    FinancialMovementPrismaRepositoryProvider,
   ],
   exports: [
     PrismaService,
@@ -28,6 +32,8 @@ import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-recor
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
     CacheRecordRepositoryProvider,
+    PaymentInscriptionRepositoryProvider,
+    FinancialMovementPrismaRepositoryProvider,
   ],
 })
 export class DataBaseModule {}

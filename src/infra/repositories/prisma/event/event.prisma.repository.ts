@@ -112,4 +112,30 @@ export class EventPrismaRepository implements EventGateway {
     });
     return EventPrismaModelToEventEntityMapper.map(data);
   }
+
+  async findAllCarousel(): Promise<
+    { id: string; name: string; location: string; imageUrl: string }[]
+  > {
+    const data = await this.prisma.events.findMany({
+      take: 8,
+      orderBy: { createdAt: 'desc' }, // <- ordena do mais novo para o mais antigo
+      select: { id: true, name: true, location: true, imageUrl: true },
+    });
+
+    return data.map((event) => ({
+      id: event.id,
+      name: event.name,
+      location: event.location || '',
+      imageUrl: event.imageUrl || '',
+    }));
+  }
+
+  async incrementValue(id: string, value: number): Promise<Event> {
+    const aModel = await this.prisma.events.update({
+      where: { id },
+      data: { amountCollected: { increment: value } },
+    });
+
+    return EventPrismaModelToEventEntityMapper.map(aModel);
+  }
 }

@@ -1,3 +1,4 @@
+import { InscriptionStatus } from 'generated/prisma';
 import { Inscription } from '../entities/inscription.entity';
 
 export abstract class InscriptionGateway {
@@ -28,4 +29,12 @@ export abstract class InscriptionGateway {
     eventId?: string; // opcional
     limitTime?: string; // opcional
   }): Promise<number>;
+
+  //Update do saldo devedor
+  abstract decrementValue(id: string, value: number): Promise<Inscription>;
+  abstract updateStatus(
+    id: string,
+    status: InscriptionStatus,
+  ): Promise<Inscription>;
+  abstract paidRegistration(id: string): Promise<Inscription>;
 }

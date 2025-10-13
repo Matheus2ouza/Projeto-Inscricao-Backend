@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InscriptionStatus } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PrismaService } from '../prisma.service';
@@ -16,6 +17,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   async findById(id: string): Promise<Inscription | null> {
+    console.log('o id que chegou: ', id);
     const found = await this.prisma.inscription.findUnique({ where: { id } });
     return found ? PrismaToEntity.map(found) : null;
   }
@@ -61,7 +63,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countAll(filters: {
     userId: string;
     eventId?: string;
-    limitTime?: string;
   }): Promise<number> {
     const where = this.buildWhereClause(filters);
     return this.prisma.inscription.count({ where });
@@ -90,7 +91,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countParticipants(filters: {
     userId: string;
     eventId?: string;
-    limitTime?: string;
   }): Promise<number> {
     const where = this.buildWhereClause(filters);
 
@@ -122,10 +122,40 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     if (filters.limitTime) {
       const limitDate = new Date(filters.limitTime);
       where.createdAt = {
-        lte: limitDate,
+        gte: limitDate,
       };
     }
 
     return where;
+  }
+
+  async decrementValue(id: string, value: number): Promise<Inscription> {
+    const aModel = await this.prisma.inscription.update({
+      where: { id },
+      data: { totalValue: { decrement: value } },
+    });
+
+    return PrismaToEntity.map(aModel);
+  }
+
+  async updateStatus(
+    id: string,
+    status: InscriptionStatus,
+  ): Promise<Inscription> {
+    const aModel = await this.prisma.inscription.update({
+      where: { id },
+      data: { status: status },
+    });
+
+    return PrismaToEntity.map(aModel);
+  }
+
+  async paidRegistration(id: string): Promise<Inscription> {
+    const aModel = await this.prisma.inscription.update({
+      where: { id },
+      data: { status: 'PAID' },
+    });
+
+    return PrismaToEntity.map(aModel);
   }
 }

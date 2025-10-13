@@ -20,6 +20,7 @@ export type UploadValidateIndivInput = {
 
 export type UploadValidateIndivOutput = {
   cacheKey: string;
+  status: 'PENDING' | 'UNDER_REVIEW';
   participant: {
     name: string;
     birthDate: string;
@@ -116,6 +117,29 @@ export class UploadValidateIndivUsecase {
     const typeInscriptionId = found.getId();
     const typeValue = Number(found.getValue());
     const anTypeDescription = found.getDescription();
+    const isExemptType = anTypeDescription.toLowerCase().trim() === 'isento';
+
+    // Se for tipo isento, verifica a idade
+    if (isExemptType) {
+      const birthDate = new Date(birthDateISO);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      // Ajusta a idade se ainda não fez aniversário este ano
+      const actualAge =
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+          ? age - 1
+          : age;
+
+      if (actualAge > 8) {
+        throw new Error(
+          `Tipo de inscrição 'isento' não permitido para idade maior que 8 anos. Idade atual: ${actualAge} anos`,
+        );
+      }
+    }
+
     console.log('o anTypeDescription', anTypeDescription);
 
     // cria cache e registro
@@ -156,6 +180,7 @@ export class UploadValidateIndivUsecase {
 
     return {
       cacheKey,
+      status: isExemptType ? 'UNDER_REVIEW' : 'PENDING',
       participant: {
         name: participant.name.trim(),
         birthDate: new Date(birthDateISO).toLocaleDateString('pt-BR'),

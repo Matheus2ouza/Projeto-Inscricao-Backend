@@ -13,7 +13,7 @@ export class FindAllPaginatedInscriptionsRoute {
     private readonly findAllPaginatedInscriptionsUsecase: FindAllPaginatedInscriptionsUsecase,
   ) {}
 
-  @Get('list')
+  @Get()
   public async handle(
     @Query() query: FindAllPaginatedInscriptionRequest,
     @UserId() accountId: string,
@@ -22,7 +22,7 @@ export class FindAllPaginatedInscriptionsRoute {
     const pageSize = Number(query.pageSize ?? '10');
 
     const data = {
-      userId: accountId, // ← AQUI: Passa o accountId como userId
+      userId: accountId,
       page,
       pageSize,
       limitTime: query.limitTime,

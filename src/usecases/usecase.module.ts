@@ -5,15 +5,18 @@ import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
+import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
 import { UploadEventImageUsecase } from './event/upload-image/upload-event-image.usecase';
+import { FindDetailsInscriptionUsecase } from './inscription/find-details-inscription/find-details-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './inscription/findAllInscription/find-all-paginated-inscription.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
 import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usecase';
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
+import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
@@ -56,6 +59,9 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     IndivConfirmUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindAllnamesEventUsecase,
+    FindEventCarouselUsecase,
+    FindDetailsInscriptionUsecase,
+    CreatePaymentInscriptionUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -80,6 +86,9 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     IndivConfirmUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindAllnamesEventUsecase,
+    FindEventCarouselUsecase,
+    FindDetailsInscriptionUsecase,
+    CreatePaymentInscriptionUsecase,
   ],
 })
 export class UsecaseModule {}

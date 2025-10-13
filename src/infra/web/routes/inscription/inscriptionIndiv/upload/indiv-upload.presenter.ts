@@ -7,6 +7,7 @@ export class IndivUploadPresenter {
   ): IndivUploadRouteResponse {
     const response: IndivUploadRouteResponse = {
       cacheKey: input.cacheKey,
+      status: input.status,
       participant: input.participant,
     };
 
