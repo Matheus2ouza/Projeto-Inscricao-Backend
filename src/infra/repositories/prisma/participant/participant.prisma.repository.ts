@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { Participant } from 'src/domain/entities/participant.entity';
+import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { PrismaService } from '../prisma.service';
 import { ParticipantEntityToParticipantPrismaModelMapper as PrismaToEntity } from './model/mapper/participant-prisma-model-to-participant-entity.mapper';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
   async findByInscriptionId(inscriptionId: string): Promise<Participant[]> {
     const found = await this.prisma.participant.findMany({
       where: { inscriptionId },
+      include: { typeInscription: { select: { description: true } } },
     });
     return found.map(PrismaToEntity.map);
   }

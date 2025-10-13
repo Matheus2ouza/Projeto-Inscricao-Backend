@@ -2,7 +2,11 @@ import { Participant } from 'src/domain/entities/participant.entity';
 import ParticipantPrismaModel from '../participant.prisma.model';
 
 export class ParticipantEntityToParticipantPrismaModelMapper {
-  public static map(participantPrisma: ParticipantPrismaModel): Participant {
+  public static map(
+    participantPrisma: ParticipantPrismaModel & {
+      typeInscription?: { description?: string } | null;
+    },
+  ): Participant {
     return Participant.with({
       id: participantPrisma.id,
       inscriptionId: participantPrisma.inscriptionId,
@@ -12,6 +16,8 @@ export class ParticipantEntityToParticipantPrismaModelMapper {
       gender: participantPrisma.gender,
       createdAt: participantPrisma.createdAt,
       updatedAt: participantPrisma.updatedAt,
+      typeInscriptionDescription:
+        participantPrisma.typeInscription?.description,
     });
   }
 }

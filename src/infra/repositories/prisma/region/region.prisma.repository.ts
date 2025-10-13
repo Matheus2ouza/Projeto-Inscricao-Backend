@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { Event } from 'src/domain/entities/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
+import { User } from 'src/domain/entities/user.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
+import { EventPrismaModelToEventEntityMapper } from '../event/model/mappers/event-prisma-model-to-event-entity.mapper';
+import { PrismaService } from '../prisma.service';
+import { UserPrismaModelToUserEntityMapper } from '../user/model/mappers/user-prisma-model-to-user-entity.mapper';
 import { RegionEntityToRegionPrismaModelMapper } from './model/mappers/region-entity-to-region-prisma-model.mapper';
 import { RegionPrismaModelToRegionEntityMapper } from './model/mappers/region-prisma-model-to-region-entity.mapper';
-import { EventPrismaModelToEventEntityMapper } from '../event/model/mappers/event-prisma-model-to-event-entity.mapper';
-import { Event } from 'src/domain/entities/event.entity';
-import { UserPrismaModelToUserEntityMapper } from '../user/model/mappers/user-prisma-model-to-user-entity.mapper';
-import { User } from 'src/domain/entities/user.entity';
 
 @Injectable()
 export class RegionPrismaRepository implements RegionGateway {

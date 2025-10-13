@@ -1,6 +1,6 @@
+import { genderType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
-import { genderType } from 'generated/prisma';
 
 export type ParticipantCreateDto = {
   inscriptionId: string;
@@ -19,9 +19,11 @@ export type ParticipantWithDto = {
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
+  typeInscriptionDescription?: string;
 };
 
 export class Participant extends Entity {
+  private typeInscriptionDescription?: string;
   private constructor(
     id: string,
     private inscriptionId: string,
@@ -31,8 +33,10 @@ export class Participant extends Entity {
     private gender: genderType,
     createdAt: Date,
     updatedAt: Date,
+    typeInscriptionDescription?: string,
   ) {
     super(id, createdAt, updatedAt);
+    this.typeInscriptionDescription = typeInscriptionDescription;
     this.validate();
   }
 
@@ -68,6 +72,7 @@ export class Participant extends Entity {
     gender,
     createdAt,
     updatedAt,
+    typeInscriptionDescription,
   }: ParticipantWithDto): Participant {
     return new Participant(
       id,
@@ -78,9 +83,14 @@ export class Participant extends Entity {
       gender,
       createdAt,
       updatedAt,
+      typeInscriptionDescription,
     );
   }
   // Getters
+  public getTypeInscriptionDescription(): string | undefined {
+    return this.typeInscriptionDescription;
+  }
+
   public getInscriptionId(): string {
     return this.inscriptionId;
   }

@@ -16,10 +16,12 @@ model Accounts {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  regionId     String?
-  region       Regions?       @relation(fields: [regionId], references: [id])
-  Inscription  Inscription[]
-  CacheRecords CacheRecords[]
+  regionId           String?
+  region             Regions?             @relation(fields: [regionId], references: [id])
+  Inscription        Inscription[]
+  CacheRecords       CacheRecords[]
+  PaymentInscription PaymentInscription[]
+  FinancialMovement  FinancialMovement[]
 
   @@map("accounts")
 }
@@ -38,24 +40,26 @@ model Regions {
 }
 
 model Events {
-  id                   String             @id @default(uuid())
+  id                   String               @id @default(uuid())
   name                 String
-  quantityParticipants Int                @default(0) @map("quantity_participants")
-  amountCollected      Decimal            @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
-  startDate            DateTime           @map("start_date")
-  endDate              DateTime           @map("end_date")
-  imageUrl             String?            @map("image_url")
+  quantityParticipants Int                  @default(0) @map("quantity_participants")
+  amountCollected      Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  startDate            DateTime             @map("start_date")
+  endDate              DateTime             @map("end_date")
+  imageUrl             String?              @map("image_url")
   location             String?
   latitude             Float?
   longitude            Float?
   status               statusEvent
-  paymentEnabled       Boolean            @default(false) @map("payment_enabled")
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  paymentEnabled       Boolean              @default(false) @map("payment_enabled")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
   regionId             String
-  region               Regions            @relation(fields: [regionId], references: [id])
+  region               Regions              @relation(fields: [regionId], references: [id])
   typeInscriptions     TypeInscriptions[]
   Inscription          Inscription[]
+  PaymentInscription   PaymentInscription[]
+  FinancialMovement    FinancialMovement[]
 
   @@map("events")
 }
@@ -85,9 +89,10 @@ model Inscription {
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")
 
-  account      Accounts      @relation(fields: [accountId], references: [id])
-  event        Events        @relation(fields: [eventId], references: [id])
-  participants Participant[]
+  account            Accounts             @relation(fields: [accountId], references: [id])
+  event              Events               @relation(fields: [eventId], references: [id])
+  participants       Participant[]
+  PaymentInscription PaymentInscription[]
 
   @@map("inscriptions")
 }
@@ -121,6 +126,38 @@ model CacheRecords {
   @@map("cache_records")
 }
 
+model PaymentInscription {
+  id              String        @id @default(uuid())
+  inscriptionId   String        @map("inscription_id")
+  eventId         String        @map("event_id")
+  accountId       String        @map("account_id")
+  status          StatusPayment
+  value           Decimal       @db.Decimal(10, 2)
+  imageUrl        String        @map("image_url")
+  rejectionReason String?       @map("rejection_reason")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  inscription     Inscription   @relation(fields: [inscriptionId], references: [id])
+  account         Accounts      @relation(fields: [accountId], references: [id])
+  event           Events        @relation(fields: [eventId], references: [id])
+
+  @@map("payment_inscription")
+}
+
+model FinancialMovement {
+  id        String          @id @default(uuid())
+  eventId   String          @map("event_id")
+  accountId String          @map("account_id")
+  type      TransactionType
+  value     Decimal         @db.Decimal(10, 2)
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  account   Accounts        @relation(fields: [accountId], references: [id])
+  event     Events          @relation(fields: [eventId], references: [id])
+
+  @@map("financial_movement")
+}
+
 enum InscriptionStatus {
   PENDING
   UNDER_REVIEW
@@ -144,4 +181,15 @@ enum statusEvent {
 enum genderType {
   MASCULINO
   FEMININO
+}
+
+enum StatusPayment {
+  APPROVED // Aprovado
+  UNDER_REVIEW //Em Analise
+  REFUSED // Recusado
+}
+
+enum TransactionType {
+  INCOME // Entrada
+  EXPENSE // Saída
 }

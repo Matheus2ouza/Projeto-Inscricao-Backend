@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
 import { Event } from 'src/domain/entities/event.entity';
+import { Region } from 'src/domain/entities/region.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { PrismaService } from '../prisma.service';
+import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
 import { EventEntityToEventPrismaModelMapper } from './model/mappers/event-entity-to-event-prisma-model.mapper';
 import { EventPrismaModelToEventEntityMapper } from './model/mappers/event-prisma-model-to-event-entity.mapper';
-import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
-import { Region } from 'src/domain/entities/region.entity';
 
 @Injectable()
 export class EventPrismaRepository implements EventGateway {
@@ -111,5 +111,31 @@ export class EventPrismaRepository implements EventGateway {
       data: { quantityParticipants: { increment: quantity } },
     });
     return EventPrismaModelToEventEntityMapper.map(data);
+  }
+
+  async findAllCarousel(): Promise<
+    { id: string; name: string; location: string; imageUrl: string }[]
+  > {
+    const data = await this.prisma.events.findMany({
+      take: 8,
+      orderBy: { createdAt: 'desc' }, // <- ordena do mais novo para o mais antigo
+      select: { id: true, name: true, location: true, imageUrl: true },
+    });
+
+    return data.map((event) => ({
+      id: event.id,
+      name: event.name,
+      location: event.location || '',
+      imageUrl: event.imageUrl || '',
+    }));
+  }
+
+  async incrementValue(id: string, value: number): Promise<Event> {
+    const aModel = await this.prisma.events.update({
+      where: { id },
+      data: { amountCollected: { increment: value } },
+    });
+
+    return EventPrismaModelToEventEntityMapper.map(aModel);
   }
 }

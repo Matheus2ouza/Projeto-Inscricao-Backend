@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import { CreateEventUseCase } from 'src/usecases/event/create/create-event.usecase';
+import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import type { CreateEventInput } from 'src/usecases/event/create/create-event.usecase';
+import { CreateEventUseCase } from 'src/usecases/event/create/create-event.usecase';
 import type {
   CreateEventRequest,
   CreateEventRouteResponse,
 } from './create-event.dto';
 import { CreateEventPresenter } from './create-event.presenter';
-import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
-import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 
 @Controller('events')
 export class CreateEventRoute {

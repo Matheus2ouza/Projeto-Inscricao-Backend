@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from 'src/infra/services/redis/redis.service';
-import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { genderType, Inscription, InscriptionStatus } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
 import { Participant as ParticipantEntity } from 'src/domain/entities/participant.entity';
+import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { RedisService } from 'src/infra/services/redis/redis.service';
 
 type CachePayload = {
   responsible: string;
@@ -17,6 +17,7 @@ type CachePayload = {
     birthDateISO: string;
     gender: string;
     typeInscriptionId: string;
+    typeDescription: string;
     value: number;
   }[];
   total: number;
@@ -71,13 +72,21 @@ export class ConfirmGroupUsecase {
       throw new Error('Dados expiraram ou não foram encontrados');
     }
 
+    // Verifica se há algum tipo de inscrição "isento" para definir o status
+    const hasExemptType = cached.items.some(
+      (item) => item.typeDescription.toLowerCase().trim() === 'isento',
+    );
+    const status = hasExemptType
+      ? InscriptionStatus.UNDER_REVIEW
+      : InscriptionStatus.PENDING;
+
     const inscription = InscriptionEntity.create({
       accountId: input.accountId,
       eventId: cached.eventId,
       responsible: cached.responsible,
       phone: cached.phone,
       totalValue: cached.total,
-      status: InscriptionStatus.PENDING,
+      status,
     });
 
     const createdInscription =

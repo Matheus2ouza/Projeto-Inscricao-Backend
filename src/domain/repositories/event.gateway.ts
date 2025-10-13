@@ -19,4 +19,13 @@ export abstract class EventGateway {
     id: string,
     quantity: number,
   ): Promise<Event>;
+  abstract findAllCarousel(): Promise<
+    {
+      id: string;
+      name: string;
+      location: string;
+      imageUrl: string;
+    }[]
+  >;
+  abstract incrementValue(id: string, value: number): Promise<Event>;
 }

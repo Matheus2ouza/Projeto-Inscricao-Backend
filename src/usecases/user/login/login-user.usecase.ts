@@ -12,6 +12,11 @@ export type loginUserInput = {
 export type loginUserOutput = {
   authToken: string;
   refreshToken: string;
+  user: User;
+};
+
+export type User = {
+  id: string;
   role: string;
 };
 
@@ -57,7 +62,10 @@ export class LoginUserUsecase
     const Output: loginUserOutput = {
       authToken,
       refreshToken,
-      role: anUser.getRole(),
+      user: {
+        id: anUser.getId(),
+        role: anUser.getRole(),
+      },
     };
 
     return Output;

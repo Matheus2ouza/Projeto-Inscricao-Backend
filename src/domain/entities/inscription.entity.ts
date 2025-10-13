@@ -1,6 +1,6 @@
 import { InscriptionStatus } from 'generated/prisma';
-import { Entity } from '../shared/entities/entity';
 import { Utils } from 'src/shared/utils/utils';
+import { Entity } from '../shared/entities/entity';
 
 export type InscriptionCreateDto = {
   accountId: string;

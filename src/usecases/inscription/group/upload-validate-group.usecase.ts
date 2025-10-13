@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
-import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
-import { RedisService } from 'src/infra/services/redis/redis.service';
 import { CacheRecord } from 'src/domain/entities/cache-record.entity';
+import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { RedisService } from 'src/infra/services/redis/redis.service';
+import { v4 as uuidv4 } from 'uuid';
 
 export type UploadValidateGroupInput = {
   responsible: string;
@@ -22,6 +22,7 @@ export type UploadValidateGroupInput = {
 export type UploadValidateGroupOutput = {
   cacheKey: string;
   total: number;
+  status: 'PENDING' | 'UNDER_REVIEW';
   items: {
     name: string;
     birthDate: string;
@@ -61,6 +62,7 @@ export class UploadValidateGroupUsecase {
   ): Promise<UploadValidateGroupOutput> {
     const errors: { line: number; reason: string }[] = [];
     const normalized: CachePayload['items'] = [];
+    let hasExemptType = false;
 
     for (const row of input.rows) {
       // valida nome: nome e sobrenome
@@ -111,6 +113,7 @@ export class UploadValidateGroupUsecase {
       // valida tipo de inscrição existente para o evento
       let typeInscriptionId: string | null = null;
       let typeValue = 0;
+      let isExemptType = false;
       if (!row.typeDescription) {
         errors.push({ line: row.line, reason: 'Tipo de inscrição vazio' });
       } else {
@@ -130,6 +133,33 @@ export class UploadValidateGroupUsecase {
         } else {
           typeInscriptionId = found.getId();
           typeValue = Number(found.getValue());
+          isExemptType = row.typeDescription.toLowerCase().trim() === 'isento';
+
+          // Se for tipo isento, verifica a idade
+          if (isExemptType && birthDateISO) {
+            const birthDate = new Date(birthDateISO);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            // Ajusta a idade se ainda não fez aniversário este ano
+            const actualAge =
+              monthDiff < 0 ||
+              (monthDiff === 0 && today.getDate() < birthDate.getDate())
+                ? age - 1
+                : age;
+
+            if (actualAge > 8) {
+              errors.push({
+                line: row.line,
+                reason: `Tipo de inscrição 'isento' não permitido para idade maior que 8 anos. Idade atual: ${actualAge} anos`,
+              });
+            }
+          }
+
+          if (isExemptType) {
+            hasExemptType = true;
+          }
         }
       }
 
@@ -192,6 +222,7 @@ export class UploadValidateGroupUsecase {
     return {
       cacheKey,
       total,
+      status: hasExemptType ? 'UNDER_REVIEW' : 'PENDING',
       items: normalized.map((i) => ({
         name: i.name,
         birthDate: new Date(i.birthDateISO).toLocaleDateString('pt-BR'),

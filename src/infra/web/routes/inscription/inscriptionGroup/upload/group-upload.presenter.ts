@@ -11,6 +11,7 @@ export class GroupUploadPresenter {
       cacheKey: input.cacheKey,
       total: input.total,
       unitValue,
+      status: input.status,
       items: input.items,
     };
     return response;

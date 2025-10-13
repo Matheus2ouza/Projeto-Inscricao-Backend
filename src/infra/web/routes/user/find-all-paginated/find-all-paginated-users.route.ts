@@ -1,10 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { FindAllPaginatedUsersUsecase } from 'src/usecases/user/find-all-paginated/find-all-paginated.usecase';
-import { FindAllPaginatedUsersPresenter } from './find-all-paginated-users.presenter';
 import type {
   FindAllPaginatedUsersRequest,
   FindAllPaginatedUsersResponse,
 } from './find-all-paginated-users.dto';
+import { FindAllPaginatedUsersPresenter } from './find-all-paginated-users.presenter';
 
 @Controller('users')
 export class FindAllPaginatedUsersRoute {

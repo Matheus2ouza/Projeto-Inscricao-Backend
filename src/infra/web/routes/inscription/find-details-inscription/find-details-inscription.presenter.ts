@@ -1,0 +1,24 @@
+import { FindDetailsInscriptionOutput } from 'src/usecases/inscription/find-details-inscription/find-details-inscription.usecase';
+import { FindDetailsInscriptionResponse } from './find-details-inscription.dto';
+
+export class FindDetailsInscriptionPresenter {
+  public static toHttp(
+    input: FindDetailsInscriptionOutput,
+  ): FindDetailsInscriptionResponse {
+    const aInscription: FindDetailsInscriptionResponse = {
+      id: input.id,
+      accountId: input.accountId,
+      eventId: input.eventId,
+      responsible: input.responsible,
+      phone: input.phone,
+      totalValue: input.totalValue,
+      status: input.status,
+      createdAt: input.createdAt,
+      updatedAt: input.updatedAt,
+      payments: input.payments,
+      participants: input.participants,
+      countParticipants: input.countParticipants,
+    };
+    return aInscription;
+  }
+}

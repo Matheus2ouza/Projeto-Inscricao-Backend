@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Event } from 'src/domain/entities/event.entity';
-import { EventWithImageUrl } from 'src/infra/web/routes/region/find-all-paginated/find-all-paginated-regions.dto';
 import { User } from 'src/domain/entities/user.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { EventWithImageUrl } from 'src/infra/web/routes/region/find-all-paginated/find-all-paginated-regions.dto';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedRegionsInput = {

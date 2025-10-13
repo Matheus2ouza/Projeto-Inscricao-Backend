@@ -1,17 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { Event } from 'src/domain/entities/event.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
-import { missingStartDateOrEndDateUsecaseException } from 'src/usecases/exceptions/events/missing-start-date-or-end-date.usecase.exception';
+import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { generateSlug } from 'src/shared/utils/event-image.util';
+import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/exceptions/events/event-name-already-exists.usecase.exception';
 import { InvalidEventDateRangeUsecaseException } from 'src/usecases/exceptions/events/invalid-event-date-range.usecase.exception';
-import { MissingRegionIdUsecaseException } from 'src/usecases/exceptions/events/missing-region-id.usecase.exception';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/exceptions/events/invalid-image-format.usecase.exception';
+import { MissingRegionIdUsecaseException } from 'src/usecases/exceptions/events/missing-region-id.usecase.exception';
+import { missingStartDateOrEndDateUsecaseException } from 'src/usecases/exceptions/events/missing-start-date-or-end-date.usecase.exception';
 import { RegionNotFoundUsecaseException } from 'src/usecases/exceptions/users/region-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
-import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/exceptions/events/event-name-already-exists.usecase.exception';
-import { statusEvent } from 'generated/prisma';
 
 export type CreateEventInput = {
   name: string;
@@ -147,7 +148,7 @@ export class CreateEventUseCase
         await this.imageOptimizerService.processBase64Image(image);
 
       // Gera nome baseado no evento
-      const slug = this.generateSlug(eventName);
+      const slug = generateSlug(eventName);
       const fileName = `${slug}_${Date.now()}.${extension}`;
 
       // Valida a imagem
@@ -216,19 +217,5 @@ export class CreateEventUseCase
         CreateEventUseCase.name,
       );
     }
-  }
-
-  /**
-   * Gera um slug a partir do nome do evento
-   * @param name - Nome do evento
-   * @returns Slug gerado
-   */
-  private generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
   }
 }
