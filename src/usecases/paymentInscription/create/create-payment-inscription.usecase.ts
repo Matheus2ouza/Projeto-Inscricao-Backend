@@ -7,9 +7,10 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { generateUniqueFileName } from 'src/shared/utils/file-name.util';
+import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/exceptions/events/invalid-image-format.usecase.exception';
 import { InvalidInscriptionIdUsecaseException } from 'src/usecases/exceptions/paymentInscription/invalid-inscription-id.usecase.exception ';
 import { MissingInscriptionIdUsecaseException } from 'src/usecases/exceptions/paymentInscription/missing-inscription-id.usecase.exception';
@@ -33,6 +34,7 @@ export class CreatePaymentInscriptionUsecase
 {
   private readonly logger = new Logger(CreatePaymentInscriptionUsecase.name);
   public constructor(
+    private readonly userGateway: UserGateway,
     private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -86,7 +88,7 @@ export class CreatePaymentInscriptionUsecase
 
     let status: StatusPayment = 'UNDER_REVIEW';
     const eventId = inscription.getEventId();
-    const imageUrl = await this.processEventImage(image, eventId);
+    const imageUrl = await this.processEventImage(image, eventId, value);
 
     const paymentInscription = PaymentInscription.create({
       inscriptionId: inscriptionId,
@@ -122,19 +124,17 @@ export class CreatePaymentInscriptionUsecase
   private async processEventImage(
     image: string,
     eventId: string,
+    value: number,
   ): Promise<string> {
     this.logger.log('Processando imagem do evento');
 
     const { buffer, extension } =
       await this.imageOptimizerService.processBase64Image(image);
 
-    // Cria nome único de arquivo
-    const fileName = generateUniqueFileName(`payment_${eventId}`, extension);
-
     // Valida a imagem
     const isValidImage = await this.imageOptimizerService.validateImage(
       buffer,
-      fileName,
+      `payment_${value}.${extension}`,
     );
     if (!isValidImage) {
       throw new InvalidImageFormatUsecaseException(
@@ -156,15 +156,28 @@ export class CreatePaymentInscriptionUsecase
       },
     );
 
-    // Nome final do arquivo
-    const finalFileName = this.imageOptimizerService.generateUniqueFileName(
-      fileName,
-      optimizedImage.format,
+    const eventName = await this.eventGateway.findById(eventId);
+
+    // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
+    const sanitizedEventName = sanitizeFileName(
+      eventName?.getName() || 'evento',
     );
+
+    // Cria nome do arquivo: payment+valor+hora formatada
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
+    const fileName = `payment_${value}_${formattedDateTime}.${optimizedImage.format}`;
+
     // Faz upload no Supabase
     const imageUrl = await this.supabaseStorageService.uploadFile({
-      folderName: 'payments',
-      fileName: finalFileName,
+      folderName: `payments/${sanitizedEventName}`,
+      fileName: fileName,
       fileBuffer: optimizedImage.buffer,
       contentType: this.imageOptimizerService.getMimeType(
         optimizedImage.format,
