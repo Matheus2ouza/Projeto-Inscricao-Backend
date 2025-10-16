@@ -8,7 +8,8 @@ import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.
 import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
-import { UploadEventImageUsecase } from './event/upload-image/upload-event-image.usecase';
+import { UpdateInscriptionEventUsecase } from './event/update-inscription/update-inscription-event.usecase';
+import { UpdatePaymentEventUsecase } from './event/update-payment/update-payment.usecase';
 import { FindDetailsInscriptionUsecase } from './inscription/find-details-inscription/find-details-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './inscription/findAllInscription/find-all-paginated-inscription.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
@@ -47,7 +48,6 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindAllRegionNamesUsecase,
     FindAllPaginatedRegionsUsecase,
     FindAllPaginatedUsersUsecase,
-    UploadEventImageUsecase,
     FindByIdEventUsecase,
     CreateTypeInscriptionUseCase,
     FindTypeInscriptionByEventIdUsecase,
@@ -62,6 +62,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     FindDetailsInscriptionUsecase,
     CreatePaymentInscriptionUsecase,
+    UpdatePaymentEventUsecase,
+    UpdateInscriptionEventUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -74,7 +76,6 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindAllPaginatedRegionsUsecase,
     FindAllPaginatedUsersUsecase,
     FindAllPaginatedEventsUsecase,
-    UploadEventImageUsecase,
     FindByIdEventUsecase,
     CreateTypeInscriptionUseCase,
     FindTypeInscriptionByEventIdUsecase,
@@ -89,6 +90,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     FindDetailsInscriptionUsecase,
     CreatePaymentInscriptionUsecase,
+    UpdatePaymentEventUsecase,
+    UpdateInscriptionEventUsecase,
   ],
 })
 export class UsecaseModule {}
