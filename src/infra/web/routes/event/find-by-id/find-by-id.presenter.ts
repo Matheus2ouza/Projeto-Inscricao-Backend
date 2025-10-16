@@ -14,6 +14,7 @@ export class FindByEventPresenter {
       longitude: input.longitude,
       latitude: input.latitude,
       status: input.status,
+      paymentEneble: input.paymentEneble,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
       regionName: input.regionName,

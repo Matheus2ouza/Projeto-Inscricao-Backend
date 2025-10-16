@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { Event } from 'src/domain/entities/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -17,34 +18,22 @@ export class EventPrismaRepository implements EventGateway {
     return EventPrismaModelToEventEntityMapper.map(created);
   }
 
-  async findById(id: string): Promise<Event | null> {
-    const found = await this.prisma.events.findUnique({
+  async updatePayment(id: string, status: boolean): Promise<Event> {
+    const data = await this.prisma.events.update({
       where: { id },
-      include: { region: { select: { name: true } } },
+      data: {
+        paymentEnabled: status,
+      },
     });
-    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+    return EventPrismaModelToEventEntityMapper.map(data);
   }
 
-  async findByRegion(regionId: string): Promise<Event[]> {
-    const found = await this.prisma.events.findMany({ where: { regionId } });
-    return found.map(EventPrismaModelToEventEntityMapper.map);
-  }
-
-  async findRegionById(regionId: string): Promise<Region | null> {
-    const found = await this.prisma.regions.findUnique({
-      where: { id: regionId },
+  async updateInscription(id: string, status: statusEvent): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: { status },
     });
-    return found ? RegionPrismaModelToRegionEntityMapper.map(found) : null;
-  }
-
-  async findByNameAndRegionId(
-    name: string,
-    regionId: string,
-  ): Promise<Event | null> {
-    const found = await this.prisma.events.findFirst({
-      where: { name, regionId },
-    });
-    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+    return EventPrismaModelToEventEntityMapper.map(data);
   }
 
   async update(event: Event): Promise<Event> {
@@ -85,6 +74,36 @@ export class EventPrismaRepository implements EventGateway {
 
   async delete(id: string): Promise<void> {
     await this.prisma.events.delete({ where: { id } });
+  }
+
+  async findById(id: string): Promise<Event | null> {
+    const found = await this.prisma.events.findUnique({
+      where: { id },
+      include: { region: { select: { name: true } } },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+  }
+
+  async findByRegion(regionId: string): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({ where: { regionId } });
+    return found.map(EventPrismaModelToEventEntityMapper.map);
+  }
+
+  async findRegionById(regionId: string): Promise<Region | null> {
+    const found = await this.prisma.regions.findUnique({
+      where: { id: regionId },
+    });
+    return found ? RegionPrismaModelToRegionEntityMapper.map(found) : null;
+  }
+
+  async findByNameAndRegionId(
+    name: string,
+    regionId: string,
+  ): Promise<Event | null> {
+    const found = await this.prisma.events.findFirst({
+      where: { name, regionId },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
   }
 
   async findAll(): Promise<Event[]> {

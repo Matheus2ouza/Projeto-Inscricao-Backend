@@ -16,6 +16,7 @@ export type FindByIdEventOutput = {
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
+  paymentEneble: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;

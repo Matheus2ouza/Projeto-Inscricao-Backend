@@ -84,7 +84,8 @@ export class SupabaseStorageService {
       }
 
       this.logger.log(`Upload concluído com sucesso: ${filePath}`);
-      // Retorna apenas o caminho relativo do arquivo, para ser usado depois na geração da URL assinada
+
+      // Retorna apenas o caminho do arquivo para salvar no banco
       return filePath;
     } catch (error) {
       this.logger.error(`Erro no upload do arquivo: ${error.message}`);
