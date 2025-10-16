@@ -22,6 +22,7 @@ export type FindByIdEventOutput = {
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
+  paymentEneble: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
@@ -75,6 +76,7 @@ export class FindByIdEventUsecase
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
+      paymentEneble: event.getPaymentEnabled(),
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
       regionName: region?.getName() || '',
