@@ -18,7 +18,8 @@ import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-n
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
-import { UploadEventImageRoute } from './routes/event/upload-image/upload-event-image.route';
+import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
+import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
@@ -44,32 +45,50 @@ import { WelcomeRoute } from './routes/welcome.route';
 @Module({
   imports: [ServiceModule, UsecaseModule],
   controllers: [
+    //Rota bem vindo
     WelcomeRoute,
+
+    //User
     CreateUserRoute,
     LoginUserRoute,
     RefreshAuthTokenRoute,
     FindByIdUserRoute,
     UserProfileRoute,
+    FindAllPaginatedUsersRoute,
+
+    //Event
     CreateEventRoute,
+    UpdatePaymentEventRoute,
+    UpdateInscriptionEventRoute,
     FindAllPaginatedEventsRoute,
+    FindEventCarouselRoute,
+    FindByIdEventRoute,
+    FindByEventId,
+    FindAllNamesEventRoute,
+
+    //Region
     CreateRegionRoute,
     FindAllRegionsRoute,
     FindAllPaginatedRegionsRoute,
-    FindAllPaginatedUsersRoute,
-    UploadEventImageRoute,
-    FindEventCarouselRoute, // Mover para antes de FindByIdEventRoute
-    FindByIdEventRoute,
+
+    //TypeInscription
     CreateTypeInscriptionRoute,
-    FindByEventId,
+    FindDetailsInscriptionRoute,
+
+    //Inscription
+    FindAllInscriptionRoute,
+    FindAllPaginatedInscriptionsRoute,
+
+    //InscriptionGrup
     GroupUploadRoute,
     GroupConfirmRoute,
     GroupFindCacheRoute,
-    FindAllInscriptionRoute,
+
+    //InscriptionIndiv
     IndivUploadRoute,
     IndivConfirmRoute,
-    FindAllPaginatedInscriptionsRoute,
-    FindAllNamesEventRoute,
-    FindDetailsInscriptionRoute,
+
+    //PaymentInscription
     CreatePaymentInscriptionRoute,
   ],
   providers: [
