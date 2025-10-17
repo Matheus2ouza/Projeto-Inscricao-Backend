@@ -18,8 +18,10 @@ import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-n
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
+import { ListInscriptionRoute } from './routes/event/list-inscription/list-Inscription.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
+import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
@@ -27,10 +29,14 @@ import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-
 import { GroupUploadRoute } from './routes/inscription/inscriptionGroup/upload/group-upload.route';
 import { IndivConfirmRoute } from './routes/inscription/inscriptionIndiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/indiv-upload.route';
+import { CreateInscriptionAvulRoute } from './routes/inscriptionAvul/create/create-inscription-avul.route';
+import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscriptionAvul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
+import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
+import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
@@ -57,6 +63,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedUsersRoute,
 
     //Event
+    ListInscriptionRoute,
     CreateEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
@@ -78,6 +85,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Inscription
     FindAllInscriptionRoute,
     FindAllPaginatedInscriptionsRoute,
+    AnalysisInscriptionRoute,
 
     //InscriptionGrup
     GroupUploadRoute,
@@ -88,8 +96,16 @@ import { WelcomeRoute } from './routes/welcome.route';
     IndivUploadRoute,
     IndivConfirmRoute,
 
+    //InscrpitonAvul
+    CreateInscriptionAvulRoute,
+    FindAllPaginatedOnSiteRegistrationRoute,
+
     //PaymentInscription
     CreatePaymentInscriptionRoute,
+
+    //Ticket
+    CreateTicketRoute,
+    FindAllTicketRoute,
   ],
   providers: [
     AuthGuardProvider,

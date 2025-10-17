@@ -8,8 +8,10 @@ import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.
 import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
+import { ListInscriptionUsecase } from './event/list-inscription/list-Inscription.usecase';
 import { UpdateInscriptionEventUsecase } from './event/update-inscription/update-inscription-event.usecase';
 import { UpdatePaymentEventUsecase } from './event/update-payment/update-payment.usecase';
+import { AnalysisInscriptionUsecase } from './inscription/analysis-inscription/analysis-inscription.usecase';
 import { FindDetailsInscriptionUsecase } from './inscription/find-details-inscription/find-details-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './inscription/findAllInscription/find-all-paginated-inscription.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
@@ -17,10 +19,14 @@ import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usec
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
+import { CreateInscriptionAvulUsecase } from './inscriptionAvul/create/create-inscription-avul.usecase';
+import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscriptionAvul/findAll/find-all-paginated-onsite-registration.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
+import { CreateTicketUsecase } from './tickets/create/create-ticket.usecase';
+import { FindAllTicketsUsecase } from './tickets/findAll/find-all-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
@@ -64,6 +70,12 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     CreatePaymentInscriptionUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    ListInscriptionUsecase,
+    AnalysisInscriptionUsecase,
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
+    CreateInscriptionAvulUsecase,
+    FindAllPaginatedOnSiteRegistrationUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -92,6 +104,12 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     CreatePaymentInscriptionUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    ListInscriptionUsecase,
+    AnalysisInscriptionUsecase,
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
+    CreateInscriptionAvulUsecase,
+    FindAllPaginatedOnSiteRegistrationUsecase,
   ],
 })
 export class UsecaseModule {}

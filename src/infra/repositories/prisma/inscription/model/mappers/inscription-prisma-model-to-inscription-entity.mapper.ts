@@ -1,7 +1,7 @@
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import InscriptionPrismaModel from '../inscription.prisma.model';
 
-export class InscriptionEntityToInscriptionPrismaModelMapper {
+export class InscriptionPrismaModalToInscriptionEntityMapper {
   public static map(inscription: InscriptionPrismaModel): Inscription {
     return Inscription.with({
       id: inscription.id,

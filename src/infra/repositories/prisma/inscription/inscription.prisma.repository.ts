@@ -4,7 +4,7 @@ import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PrismaService } from '../prisma.service';
 import { InscriptionEntityToInscriptionPrismaModelMapper as EntityToPrisma } from './model/mappers/inscription-entity-to-inscription-prisma-model.mapper';
-import { InscriptionEntityToInscriptionPrismaModelMapper as PrismaToEntity } from './model/mappers/inscription-prisma-model-to-inscription-entity.mapper';
+import { InscriptionPrismaModalToInscriptionEntityMapper as PrismaToEntity } from './model/mappers/inscription-prisma-model-to-inscription-entity.mapper';
 
 @Injectable()
 export class InscriptionPrismaRepository implements InscriptionGateway {
@@ -157,5 +157,29 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
 
     return PrismaToEntity.map(aModel);
+  }
+
+  async findManyPaginatedByEvent(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Inscription[]> {
+    const skip = (page - 1) * pageSize;
+
+    const modals = await this.prisma.inscription.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      where: { eventId: eventId },
+    });
+
+    return modals.map(PrismaToEntity.map);
+  }
+
+  async countAllByEvent(eventId: string): Promise<number> {
+    const total = await this.prisma.inscription.count({
+      where: { eventId },
+    });
+    return total;
   }
 }

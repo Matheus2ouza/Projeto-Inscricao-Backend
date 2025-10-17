@@ -62,7 +62,7 @@ export class UploadValidateGroupUsecase {
   ): Promise<UploadValidateGroupOutput> {
     const errors: { line: number; reason: string }[] = [];
     const normalized: CachePayload['items'] = [];
-    let hasExemptType = false;
+    let hasReviewType = false;
 
     for (const row of input.rows) {
       // valida nome: nome e sobrenome
@@ -114,6 +114,8 @@ export class UploadValidateGroupUsecase {
       let typeInscriptionId: string | null = null;
       let typeValue = 0;
       let isExemptType = false;
+      let isServiceType = false;
+
       if (!row.typeDescription) {
         errors.push({ line: row.line, reason: 'Tipo de inscrição vazio' });
       } else {
@@ -133,7 +135,10 @@ export class UploadValidateGroupUsecase {
         } else {
           typeInscriptionId = found.getId();
           typeValue = Number(found.getValue());
-          isExemptType = row.typeDescription.toLowerCase().trim() === 'isento';
+
+          const normalizedType = row.typeDescription.toLowerCase().trim();
+          isExemptType = normalizedType === 'isento';
+          isServiceType = normalizedType === 'serviço';
 
           // Se for tipo isento, verifica a idade
           if (isExemptType && birthDateISO) {
@@ -142,7 +147,6 @@ export class UploadValidateGroupUsecase {
             const age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
 
-            // Ajusta a idade se ainda não fez aniversário este ano
             const actualAge =
               monthDiff < 0 ||
               (monthDiff === 0 && today.getDate() < birthDate.getDate())
@@ -157,8 +161,9 @@ export class UploadValidateGroupUsecase {
             }
           }
 
-          if (isExemptType) {
-            hasExemptType = true;
+          // Marca se for isento ou serviço → vai para revisão
+          if (isExemptType || isServiceType) {
+            hasReviewType = true;
           }
         }
       }
@@ -183,8 +188,7 @@ export class UploadValidateGroupUsecase {
           2,
         ),
       );
-      // lançado para ser capturado pelo controller e devolvido como 400
-      throw err;
+      throw err; // capturado pelo controller e devolvido como 400
     }
 
     const total = normalized.reduce((sum, i) => sum + i.value, 0);
@@ -222,7 +226,7 @@ export class UploadValidateGroupUsecase {
     return {
       cacheKey,
       total,
-      status: hasExemptType ? 'UNDER_REVIEW' : 'PENDING',
+      status: hasReviewType ? 'UNDER_REVIEW' : 'PENDING',
       items: normalized.map((i) => ({
         name: i.name,
         birthDate: new Date(i.birthDateISO).toLocaleDateString('pt-BR'),

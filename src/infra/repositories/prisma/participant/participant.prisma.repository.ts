@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PrismaService } from '../prisma.service';
-import { ParticipantEntityToParticipantPrismaModelMapper as PrismaToEntity } from './model/mapper/participant-prisma-model-to-participant-entity.mapper';
+import { ParticipantPrismaModelToParticipantEntityMapper as PrismaToEntity } from './model/mapper/participant-prisma-model-to-participant-entity.mapper';
 
 @Injectable()
 export class ParticipantPrismaRepository implements ParticipantGateway {
@@ -81,5 +81,30 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
 
   async countByInscriptionId(inscriptionId: string): Promise<number> {
     return this.prisma.participant.count({ where: { inscriptionId } });
+  }
+
+  async findManyPaginatedByInscriptionId(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Participant[]> {
+    const skip = (page - 1) * pageSize;
+
+    const modals = await this.prisma.participant.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      where: { inscriptionId },
+    });
+
+    return modals.map(PrismaToEntity.map);
+  }
+
+  async countAllByInscriptionId(inscriptionId: string): Promise<number> {
+    const total = await this.prisma.participant.count({
+      where: { inscriptionId: inscriptionId },
+    });
+
+    return total;
   }
 }

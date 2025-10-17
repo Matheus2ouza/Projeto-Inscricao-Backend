@@ -22,6 +22,8 @@ model Accounts {
   CacheRecords       CacheRecords[]
   PaymentInscription PaymentInscription[]
   FinancialMovement  FinancialMovement[]
+  OnSiteRegistration OnSiteRegistration[]
+  TicketSale         TicketSale[]
 
   @@map("accounts")
 }
@@ -60,6 +62,8 @@ model Events {
   Inscription          Inscription[]
   PaymentInscription   PaymentInscription[]
   FinancialMovement    FinancialMovement[]
+  OnSiteRegistration   OnSiteRegistration[]
+  EventTickets         EventTickets[]
 
   @@map("events")
 }
@@ -126,6 +130,40 @@ model CacheRecords {
   @@map("cache_records")
 }
 
+model OnSiteRegistration {
+  id            String            @id @default(uuid())
+  eventId       String            @map("event_id")
+  accountId     String            @map("account_id")
+  responsible   String
+  phone         String
+  paymentMethod PaymentMethod
+  totalValue    Decimal           @db.Decimal(10, 2)
+  status        InscriptionStatus @default(PAID)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  event             Events              @relation(fields: [eventId], references: [id])
+  account           Accounts            @relation(fields: [accountId], references: [id])
+  OnSiteParticipant OnSiteParticipant[]
+
+  @@map("on_site_registrations")
+}
+
+model OnSiteParticipant {
+  id                   String     @id @default(uuid())
+  onSiteRegistrationId String     @map("on_site_registration_id")
+  value                Decimal    @db.Decimal(10, 2)
+  name                 String
+  birthDate            DateTime   @map("birth_date")
+  gender               genderType
+  createdAt            DateTime   @default(now()) @map("created_at")
+  updatedAt            DateTime   @updatedAt @map("updated_at")
+
+  onSiteRegistration OnSiteRegistration @relation(fields: [onSiteRegistrationId], references: [id])
+
+  @@map("on_site_participants")
+}
+
 model PaymentInscription {
   id              String        @id @default(uuid())
   inscriptionId   String        @map("inscription_id")
@@ -156,6 +194,40 @@ model FinancialMovement {
   event     Events          @relation(fields: [eventId], references: [id])
 
   @@map("financial_movement")
+}
+
+model EventTickets {
+  id          String   @id @default(uuid())
+  eventId     String   @map("event_id")
+  name        String
+  description String?
+  quantity    Int // quantidade total criada
+  price       Decimal  @db.Decimal(10, 2)
+  available   Int // quantidade ainda disponível
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  event Events @relation(fields: [eventId], references: [id])
+
+  TicketSales TicketSale[]
+
+  @@map("event_tickets")
+}
+
+model TicketSale {
+  id         String        @id @default(uuid())
+  ticketId   String        @map("ticket_id")
+  accountId  String        @map("account_id")
+  quantity   Int
+  totalValue Decimal       @db.Decimal(10, 2)
+  status     StatusPayment // pode reutilizar teu enum existente
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  ticket  EventTickets @relation(fields: [ticketId], references: [id])
+  account Accounts     @relation(fields: [accountId], references: [id])
+
+  @@map("ticket_sales")
 }
 
 enum InscriptionStatus {
@@ -192,4 +264,10 @@ enum StatusPayment {
 enum TransactionType {
   INCOME // Entrada
   EXPENSE // Saída
+}
+
+enum PaymentMethod {
+  DINHEIRO
+  PIX
+  CARTÃO
 }

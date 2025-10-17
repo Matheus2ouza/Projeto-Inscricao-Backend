@@ -1,14 +1,11 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
-import { CreateUserUsecase } from 'src/usecases/user/create/create-user.usecase';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import type { CreateUserInput } from 'src/usecases/user/create/create-user.usecase';
+import { CreateUserUsecase } from 'src/usecases/user/create/create-user.usecase';
 import type {
   CreateUserRequest,
   CreateUserRouteResponse,
 } from './create-user.dto';
 import { CreateUserPresenter } from './create-user.presenter';
-import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
-import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 
 @Controller('users')
 export class CreateUserRoute {
@@ -27,7 +24,6 @@ export class CreateUserRoute {
       requesterRole: req['userRole'],
     };
 
-    console.log('input: ', input);
     const result = await this.createUserUseCase.execute(input);
 
     const response = CreateUserPresenter.toHttp(result);
