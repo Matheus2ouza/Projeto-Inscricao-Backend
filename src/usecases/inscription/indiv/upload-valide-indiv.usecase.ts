@@ -99,9 +99,6 @@ export class UploadValidateIndivUsecase {
       input.eventId,
     );
 
-    console.log('Os types encontrados');
-    console.log(types);
-
     const found = types.find(
       (t) =>
         t.getId().toLowerCase().trim() ===
@@ -117,7 +114,16 @@ export class UploadValidateIndivUsecase {
     const typeInscriptionId = found.getId();
     const typeValue = Number(found.getValue());
     const anTypeDescription = found.getDescription();
-    const isExemptType = anTypeDescription.toLowerCase().trim() === 'isento';
+
+    // normaliza e identifica tipo especial
+    const normalizedType = anTypeDescription
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    const isExemptType = normalizedType === 'isento';
+    const isServiceType = normalizedType === 'servico';
 
     // Se for tipo isento, verifica a idade
     if (isExemptType) {
@@ -126,7 +132,6 @@ export class UploadValidateIndivUsecase {
       const age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      // Ajusta a idade se ainda não fez aniversário este ano
       const actualAge =
         monthDiff < 0 ||
         (monthDiff === 0 && today.getDate() < birthDate.getDate())
@@ -139,8 +144,6 @@ export class UploadValidateIndivUsecase {
         );
       }
     }
-
-    console.log('o anTypeDescription', anTypeDescription);
 
     // cria cache e registro
     const cacheKey = `indiv:inscription:${uuidv4()}`;
@@ -178,9 +181,12 @@ export class UploadValidateIndivUsecase {
 
     await this.cacheRecordGateway.create(cacheRecord);
 
+    // status vai para UNDER_REVIEW se for isento ou serviço
+    const status = isExemptType || isServiceType ? 'UNDER_REVIEW' : 'PENDING';
+
     return {
       cacheKey,
-      status: isExemptType ? 'UNDER_REVIEW' : 'PENDING',
+      status,
       participant: {
         name: participant.name.trim(),
         birthDate: new Date(birthDateISO).toLocaleDateString('pt-BR'),
