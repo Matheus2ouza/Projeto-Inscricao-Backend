@@ -1,7 +1,7 @@
 import { Participant } from 'src/domain/entities/participant.entity';
 import ParticipantPrismaModel from '../participant.prisma.model';
 
-export class ParticipantEntityToParticipantPrismaModelMapper {
+export class ParticipantPrismaModelToParticipantEntityMapper {
   public static map(
     participantPrisma: ParticipantPrismaModel & {
       typeInscription?: { description?: string } | null;
