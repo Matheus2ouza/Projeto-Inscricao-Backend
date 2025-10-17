@@ -125,7 +125,7 @@ export class EventTicket extends Entity {
     return this.createdAt;
   }
 
-  public getUpdateAt(): Date {
+  public getUpdatedAt(): Date {
     return this.updatedAt;
   }
 }

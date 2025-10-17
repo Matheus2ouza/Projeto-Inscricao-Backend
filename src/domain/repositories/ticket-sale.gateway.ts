@@ -1,5 +1,6 @@
 import { TicketSale } from '../entities/ticket-sale.entity';
 
 export abstract class TicketSaleGateway {
-  abstract create(ticketSale: TicketSale): Promise<TicketSale | null>;
+  abstract create(ticketSale: TicketSale): Promise<TicketSale>;
+  abstract findByEventTicketId(ticketId: string): Promise<TicketSale[]>;
 }

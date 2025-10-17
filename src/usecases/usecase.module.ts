@@ -19,10 +19,14 @@ import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usec
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
+import { CreateInscriptionAvulUsecase } from './inscriptionAvul/create/create-inscription-avul.usecase';
+import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscriptionAvul/findAll/find-all-paginated-onsite-registration.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
+import { CreateTicketUsecase } from './tickets/create/create-ticket.usecase';
+import { FindAllTicketsUsecase } from './tickets/findAll/find-all-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
@@ -68,6 +72,10 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,
     AnalysisInscriptionUsecase,
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
+    CreateInscriptionAvulUsecase,
+    FindAllPaginatedOnSiteRegistrationUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -98,6 +106,10 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,
     AnalysisInscriptionUsecase,
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
+    CreateInscriptionAvulUsecase,
+    FindAllPaginatedOnSiteRegistrationUsecase,
   ],
 })
 export class UsecaseModule {}

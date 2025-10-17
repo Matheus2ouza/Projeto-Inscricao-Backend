@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { InscriptionStatus } from 'generated/prisma';
+import { InscriptionStatus, PaymentMethod } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
@@ -10,6 +10,7 @@ export type OnSiteRegistrationCreateDto = {
   phone: string;
   totalValue: Decimal;
   status: InscriptionStatus;
+  paymentMethod: PaymentMethod;
 };
 
 export type OnSiteRegistrationwithDto = {
@@ -18,6 +19,7 @@ export type OnSiteRegistrationwithDto = {
   accountId: string;
   responsible: string;
   phone: string;
+  paymentMethod: PaymentMethod;
   totalValue: Decimal;
   status: InscriptionStatus;
   createdAt: Date;
@@ -31,6 +33,7 @@ export class OnSiteRegistration extends Entity {
     private accountId: string,
     private responsible: string,
     private phone: string,
+    private paymentMethod: PaymentMethod,
     private totalValue: Decimal,
     private status: InscriptionStatus,
     createdAt: Date,
@@ -45,6 +48,7 @@ export class OnSiteRegistration extends Entity {
     accountId,
     responsible,
     phone,
+    paymentMethod,
     totalValue,
     status,
   }: OnSiteRegistrationCreateDto): OnSiteRegistration {
@@ -58,6 +62,7 @@ export class OnSiteRegistration extends Entity {
       accountId,
       responsible,
       phone,
+      paymentMethod,
       totalValue,
       status,
       createdAt,
@@ -71,6 +76,7 @@ export class OnSiteRegistration extends Entity {
     accountId,
     responsible,
     phone,
+    paymentMethod,
     totalValue,
     status,
     createdAt,
@@ -82,6 +88,7 @@ export class OnSiteRegistration extends Entity {
       accountId,
       responsible,
       phone,
+      paymentMethod,
       totalValue,
       status,
       createdAt,
@@ -91,25 +98,29 @@ export class OnSiteRegistration extends Entity {
 
   public validate(): void {
     if (!this.accountId) {
-      throw new Error('Id do Usuario é obrigatório');
+      throw new Error('Id do Usuário é obrigatório');
     }
 
     if (!this.eventId) {
       throw new Error('Id do Evento é obrigatório');
     }
 
-    if (!this.responsible) {
-      throw new Error('O nome do responsavel é obrigatório');
+    if (!this.responsible || this.responsible.trim().length === 0) {
+      throw new Error('O nome do responsável é obrigatório');
     }
 
     if (!this.phone || this.phone.trim().length === 0) {
-      throw new Error('O telefone do responsavel pela inscrição é obrigatorio');
+      throw new Error('O telefone do responsável é obrigatório');
     }
 
     if (!this.status) {
-      throw new Error('O Status é obrigatório');
+      throw new Error('O status é obrigatório');
     }
   }
+
+  // ============
+  // 🔹 GETTERS
+  // ============
 
   public getId(): string {
     return this.id;
@@ -131,7 +142,11 @@ export class OnSiteRegistration extends Entity {
     return this.phone;
   }
 
-  public getValue(): Decimal {
+  public getPaymentMethod(): PaymentMethod {
+    return this.paymentMethod;
+  }
+
+  public getTotalValue(): Decimal {
     return this.totalValue;
   }
 

@@ -13,7 +13,7 @@ export class EventTicketToEntityToEventTicketPrismaModelMapper {
       price: new Decimal(eventTicket.getPrice()),
       available: eventTicket.getAvailable(),
       createdAt: eventTicket.getCreatedAt(),
-      updatedAt: eventTicket.getUpdateAt(),
+      updatedAt: eventTicket.getUpdatedAt(),
     };
   }
 }
