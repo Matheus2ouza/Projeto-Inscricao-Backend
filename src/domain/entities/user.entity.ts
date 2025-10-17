@@ -1,8 +1,8 @@
-import { Utils } from 'src/shared/utils/utils';
-import { Entity } from '../shared/entities/entity';
-import { UserValidatorFactory } from '../factories/user.validator.factory';
-import { UserPasswordZodValidatorFactory } from '../factories/user-password.validator.factory';
 import { roleType } from 'generated/prisma';
+import { Utils } from 'src/shared/utils/utils';
+import { UserPasswordZodValidatorFactory } from '../factories/user-password.validator.factory';
+import { UserValidatorFactory } from '../factories/user.validator.factory';
+import { Entity } from '../shared/entities/entity';
 
 export type UserCreateDto = {
   username: string;
