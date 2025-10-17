@@ -13,4 +13,10 @@ export abstract class ParticipantGateway {
   ): Promise<Participant[]>;
   abstract countAll(): Promise<number>;
   abstract countByInscriptionId(inscriptionId: string): Promise<number>;
+  abstract findManyPaginatedByInscriptionId(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Participant[]>;
+  abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
 }
