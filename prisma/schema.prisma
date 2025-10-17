@@ -22,6 +22,7 @@ model Accounts {
   CacheRecords       CacheRecords[]
   PaymentInscription PaymentInscription[]
   FinancialMovement  FinancialMovement[]
+  OnSiteRegistration OnSiteRegistration[]
 
   @@map("accounts")
 }
@@ -60,6 +61,7 @@ model Events {
   Inscription          Inscription[]
   PaymentInscription   PaymentInscription[]
   FinancialMovement    FinancialMovement[]
+  OnSiteRegistration   OnSiteRegistration[]
 
   @@map("events")
 }
@@ -124,6 +126,39 @@ model CacheRecords {
   account   Accounts  @relation(fields: [accountId], references: [id])
 
   @@map("cache_records")
+}
+
+model OnSiteRegistration {
+  id          String            @id @default(uuid())
+  eventId     String            @map("event_id")
+  accountId   String            @map("account_id")
+  responsible String
+  phone       String
+  totalValue  Decimal           @db.Decimal(10, 2)
+  status      InscriptionStatus @default(PAID)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  event             Events              @relation(fields: [eventId], references: [id])
+  account           Accounts            @relation(fields: [accountId], references: [id])
+  OnSiteParticipant OnSiteParticipant[]
+
+  @@map("on_site_registrations")
+}
+
+model OnSiteParticipant {
+  id                   String     @id @default(uuid())
+  onSiteRegistrationId String     @map("on_site_registration_id")
+  value                Decimal    @db.Decimal(10, 2)
+  name                 String
+  birthDate            DateTime   @map("birth_date")
+  gender               genderType
+  createdAt            DateTime   @default(now()) @map("created_at")
+  updatedAt            DateTime   @updatedAt @map("updated_at")
+
+  onSiteRegistration OnSiteRegistration @relation(fields: [onSiteRegistrationId], references: [id])
+
+  @@map("on_site_participants")
 }
 
 model PaymentInscription {
