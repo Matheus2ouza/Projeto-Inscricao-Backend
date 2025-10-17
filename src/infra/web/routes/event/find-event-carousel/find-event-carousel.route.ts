@@ -13,7 +13,6 @@ export class FindEventCarouselRoute {
   @IsPublic()
   @Get('carousel')
   public async execute(): Promise<FindEventCarouselResponse> {
-    console.log('entrou na rota certa');
     const result = await this.findEventCarouselUsecase.execute();
 
     const response = FindEventCarousePresenter.toHttp(result);
