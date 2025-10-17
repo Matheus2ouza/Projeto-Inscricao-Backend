@@ -1,3 +1,3 @@
 export interface Usecase<Input, Output> {
-  execute(Input: Input): Promise<Output>;
+  execute(input: Input): Promise<Output>;
 }
