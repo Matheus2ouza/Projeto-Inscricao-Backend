@@ -1,6 +1,6 @@
+import Decimal from 'decimal.js';
 import { Event } from 'src/domain/entities/event.entity';
 import EventPrismaModel from '../event.prisma.model';
-import Decimal from 'decimal.js';
 
 export class EventEntityToEventPrismaModelMapper {
   public static map(event: Event): EventPrismaModel {
