@@ -18,8 +18,10 @@ import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-n
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
+import { ListInscriptionRoute } from './routes/event/list-inscription/list-Inscription.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
+import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
@@ -57,6 +59,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedUsersRoute,
 
     //Event
+    ListInscriptionRoute,
     CreateEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
@@ -78,6 +81,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Inscription
     FindAllInscriptionRoute,
     FindAllPaginatedInscriptionsRoute,
+    AnalysisInscriptionRoute,
 
     //InscriptionGrup
     GroupUploadRoute,
