@@ -37,4 +37,10 @@ export abstract class InscriptionGateway {
     status: InscriptionStatus,
   ): Promise<Inscription>;
   abstract paidRegistration(id: string): Promise<Inscription>;
+  abstract findManyPaginatedByEvent(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Inscription[]>;
+  abstract countAllByEvent(eventId: string): Promise<number>;
 }
