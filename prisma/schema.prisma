@@ -22,7 +22,6 @@ model Accounts {
   CacheRecords       CacheRecords[]
   PaymentInscription PaymentInscription[]
   FinancialMovement  FinancialMovement[]
-  OnSiteRegistration OnSiteRegistration[]
   TicketSale         TicketSale[]
 
   @@map("accounts")
@@ -131,19 +130,16 @@ model CacheRecords {
 }
 
 model OnSiteRegistration {
-  id            String            @id @default(uuid())
-  eventId       String            @map("event_id")
-  accountId     String            @map("account_id")
-  responsible   String
-  phone         String
-  paymentMethod PaymentMethod
-  totalValue    Decimal           @db.Decimal(10, 2)
-  status        InscriptionStatus @default(PAID)
-  createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @updatedAt @map("updated_at")
+  id          String            @id @default(uuid())
+  eventId     String            @map("event_id")
+  responsible String
+  phone       String?
+  totalValue  Decimal           @db.Decimal(10, 2)
+  status      InscriptionStatus @default(PAID)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
 
   event             Events              @relation(fields: [eventId], references: [id])
-  account           Accounts            @relation(fields: [accountId], references: [id])
   OnSiteParticipant OnSiteParticipant[]
 
   @@map("on_site_registrations")
@@ -152,16 +148,27 @@ model OnSiteRegistration {
 model OnSiteParticipant {
   id                   String     @id @default(uuid())
   onSiteRegistrationId String     @map("on_site_registration_id")
-  value                Decimal    @db.Decimal(10, 2)
   name                 String
-  birthDate            DateTime   @map("birth_date")
   gender               genderType
   createdAt            DateTime   @default(now()) @map("created_at")
   updatedAt            DateTime   @updatedAt @map("updated_at")
 
-  onSiteRegistration OnSiteRegistration @relation(fields: [onSiteRegistrationId], references: [id])
+  onSiteRegistration OnSiteRegistration         @relation(fields: [onSiteRegistrationId], references: [id])
+  payments           OnSiteParticipantPayment[]
 
   @@map("on_site_participants")
+}
+
+model OnSiteParticipantPayment {
+  id            String        @id @default(uuid())
+  participantId String        @map("participant_id")
+  paymentMethod PaymentMethod
+  value         Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  participant OnSiteParticipant @relation(fields: [participantId], references: [id])
+
+  @@map("on_site_participant_payments")
 }
 
 model PaymentInscription {

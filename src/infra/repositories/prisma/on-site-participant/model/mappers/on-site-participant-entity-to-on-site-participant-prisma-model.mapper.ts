@@ -8,9 +8,7 @@ export class OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper {
     const aModel: OnSiteParticipantPrismaModel = {
       id: onSiteParticipant.getId(),
       onSiteRegistrationId: onSiteParticipant.getOnSiteRegistrationId(),
-      value: onSiteParticipant.getValue(),
       name: onSiteParticipant.getName(),
-      birthDate: onSiteParticipant.getBirthDate(),
       gender: onSiteParticipant.getGender(),
       createdAt: onSiteParticipant.getCreatedAt(),
       updatedAt: onSiteParticipant.getUpdatedAt(),

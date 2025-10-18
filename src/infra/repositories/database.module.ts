@@ -4,6 +4,7 @@ import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/mode
 import { EventPrismaRepositoryProvider } from './prisma/event/model/event.prisma.repository.provider';
 import { FinancialMovementPrismaRepositoryProvider } from './prisma/financial-movement/model/financial-movement.repository.provider';
 import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/model/inscription.prisma.repository.provider';
+import { OnSiteParticipantPaymentPrismaRepositoryProvider } from './prisma/on-site-participant-payment/model/on-site-participant-payment.repository.provider';
 import { OnSiteParticipantPrismaRepositoryProvider } from './prisma/on-site-participant/model/on-site-participant.repository.provider';
 import { OnSiteRegistrationPrismaRepositoryProvider } from './prisma/on-site-registration/model/on-site-registration.prisma.repository.provider';
 import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/participant.prisma.repository.provider';
@@ -29,6 +30,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     EventTicketPrismaRepositoryProvider,
     TicketSalePrismaRepositoryProvider,
     OnSiteParticipantPrismaRepositoryProvider,
+    OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
   ],
   exports: [
@@ -45,6 +47,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     EventTicketPrismaRepositoryProvider,
     TicketSalePrismaRepositoryProvider,
     OnSiteParticipantPrismaRepositoryProvider,
+    OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
   ],
 })

@@ -7,12 +7,14 @@ export type CreateInscriptionAvulRequest = {
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
-  paymentMethod: PaymentMethod;
   participants: {
-    value: Decimal;
     name: string;
     birthDate: Date;
     gender: genderType;
+    payments: {
+      paymentMethod: PaymentMethod;
+      value: Decimal;
+    }[];
   }[];
 };
 

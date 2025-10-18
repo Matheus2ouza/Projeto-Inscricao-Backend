@@ -8,10 +8,8 @@ export class OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper {
     const anOnSiteRegistration = OnSiteRegistration.with({
       id: onSiteRegistration.id,
       eventId: onSiteRegistration.eventId,
-      accountId: onSiteRegistration.accountId,
       responsible: onSiteRegistration.responsible,
-      phone: onSiteRegistration.phone,
-      paymentMethod: onSiteRegistration.paymentMethod,
+      phone: onSiteRegistration.phone || undefined,
       totalValue: onSiteRegistration.totalValue,
       status: onSiteRegistration.status,
       createdAt: onSiteRegistration.createdAt,

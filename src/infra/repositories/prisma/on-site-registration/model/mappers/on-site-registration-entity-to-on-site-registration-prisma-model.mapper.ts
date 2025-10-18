@@ -9,10 +9,8 @@ export class OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper {
     const aModel: OnSiteRegistrationPrismaModel = {
       id: onSiteRegistration.getId(),
       eventId: onSiteRegistration.getEventId(),
-      accountId: onSiteRegistration.getAccountId(),
       responsible: onSiteRegistration.getResponsible(),
-      phone: onSiteRegistration.getPhone(),
-      paymentMethod: onSiteRegistration.getPaymentMethod(),
+      phone: onSiteRegistration.getPhone() ?? null,
       totalValue: new Decimal(onSiteRegistration.getTotalValue()),
       status: onSiteRegistration.getStatus(),
       createdAt: onSiteRegistration.getCreatedAt(),

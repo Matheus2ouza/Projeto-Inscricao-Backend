@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
+import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
+import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { PrismaService } from '../prisma.service';
+import { OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper } from '../on-site-participant/model/mappers/on-site-participant-entity-to-on-site-participant-prisma-model.mapper';
+import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from '../on-site-participant-payment/model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
 import { OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper } from './model/mappers/on-site-registration-entity-to-on-site-registration-prisma-model.mapper';
 import { OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper } from './model/mappers/on-site-registration-prisma-model-to-on-site-registration-entity.mapper';
 
@@ -19,6 +23,51 @@ export class OnSiteRegistrationPrismaRepository
         onSiteRegistration,
       );
     const created = await this.prisma.onSiteRegistration.create({ data });
+    return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
+      created,
+    );
+  }
+
+  async createWithParticipantsAndPayments(
+    onSiteRegistration: OnSiteRegistration,
+    participants: OnSiteParticipant[],
+    payments: OnSiteParticipantPayment[],
+  ): Promise<OnSiteRegistration> {
+    const registrationData =
+      OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper.map(
+        onSiteRegistration,
+      );
+    const participantsData = participants.map((participant) =>
+      OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper.map(
+        participant,
+      ),
+    );
+    const paymentsData = payments.map((payment) =>
+      OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper.map(
+        payment,
+      ),
+    );
+
+    const created = await this.prisma.$transaction(async (tx) => {
+      const createdRegistration = await tx.onSiteRegistration.create({
+        data: registrationData,
+      });
+
+      if (participantsData.length > 0) {
+        await tx.onSiteParticipant.createMany({
+          data: participantsData,
+        });
+      }
+
+      if (paymentsData.length > 0) {
+        await tx.onSiteParticipantPayment.createMany({
+          data: paymentsData,
+        });
+      }
+
+      return createdRegistration;
+    });
+
     return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
       created,
     );

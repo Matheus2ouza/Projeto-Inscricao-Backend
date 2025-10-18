@@ -13,10 +13,9 @@ export type FindAllPaginatedOnSiteRegistrationOutput = {
   registrations: {
     id: string;
     responsible: string;
-    phone: string;
+    phone?: string;
     totalValue: number;
     status: string;
-    paymentMethod: string;
     createdAt: string;
     updatedAt: string;
   }[];
@@ -63,7 +62,6 @@ export class FindAllPaginatedOnSiteRegistrationUsecase
         phone: r.getPhone(),
         totalValue: Number(r.getTotalValue()),
         status: String(r.getStatus()),
-        paymentMethod: String(r.getPaymentMethod()),
         createdAt: r.getCreatedAt().toISOString(),
         updatedAt: r.getUpdatedAt().toISOString(),
       })),

@@ -8,10 +8,9 @@ export type FindAllPaginatedOnSiteRegistrationResponse = {
   registrations: {
     id: string;
     responsible: string;
-    phone: string;
+    phone?: string;
     totalValue: number;
     status: string;
-    paymentMethod: string;
     createdAt: string;
     updatedAt: string;
   }[];
