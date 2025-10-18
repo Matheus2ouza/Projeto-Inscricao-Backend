@@ -8,8 +8,8 @@ export class TicketSaleToPrismaModelToTicketSaleEntityMapper {
       ticketId: ticketSale.ticketId,
       accountId: ticketSale.accountId,
       quantity: ticketSale.quantity,
+      paymentMethod: ticketSale.paymentMethod,
       totalValue: Number(ticketSale.totalValue),
-      status: ticketSale.status,
       createdAt: ticketSale.createdAt,
       updatedAt: ticketSale.updatedAt,
     });

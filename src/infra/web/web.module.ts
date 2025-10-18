@@ -36,7 +36,10 @@ import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
+import { FindTicketDetailsRoute } from './routes/tickets/find-ticket-details/find-ticket-details.route';
 import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.route';
+import { SaleGroupTicketRoute } from './routes/tickets/sale-group/sale-group-ticket.route';
+import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
@@ -106,6 +109,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Ticket
     CreateTicketRoute,
     FindAllTicketRoute,
+    FindTicketDetailsRoute,
+    SaleGroupTicketRoute,
+    SaleTicketRoute,
   ],
   providers: [
     AuthGuardProvider,

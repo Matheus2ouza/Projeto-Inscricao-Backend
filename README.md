@@ -1,226 +1,478 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# API de Inscrições - Documentação das Rotas
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este documento descreve as rotas disponíveis na API para gerenciamento de eventos e tickets.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Índice
 
-## Description
+- [Rotas de Eventos](#rotas-de-eventos)
+- [Rotas de Tickets](#rotas-de-tickets)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🎪 Rotas de Eventos
 
-```bash
-$ npm install
-```
+### 1. Listar Eventos Paginados
 
-## Compile and run the project
+**GET** `/events`
 
-```bash
-# development
-$ npm run start
+Lista todos os eventos com paginação.
 
-# watch mode
-$ npm run start:dev
+#### Parâmetros de Query (opcionais):
 
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Tela de Criação de Eventos
-
-### Endpoint
-
-```
-POST /event/create
-```
-
-### Permissão
-
-Somente usuários com papel **ADMIN** podem criar eventos.
-
-### Payload esperado
-
-O corpo da requisição deve ser enviado em JSON:
-
-```
+```typescript
 {
-  "name": "Nome do evento",
-  "eventDate": "2025-10-05T00:00:00.000Z",
-  "regionId": "id-da-regiao",
-  "image": "<opcional: base64 ou url da imagem>"
+  page?: number;      // Página (padrão: 1)
+  pageSize?: number;  // Tamanho da página (padrão: 10)
 }
 ```
 
-- `name` (string): Nome do evento (obrigatório)
-- `eventDate` (string, formato ISO): Data do evento (obrigatório)
-- `regionId` (string): ID da região associada (obrigatório)
-- `image` (string, opcional): Imagem do evento (pode ser base64, url, ou omitido)
+#### Resposta:
 
-### Resposta de sucesso
-
-Status: `201 Created`
-
-```json
+```typescript
 {
-  "id": "id-do-evento-criado"
+  events: {
+    id: string;
+    name: string;
+    quantityParticipants: number;
+    amountCollected: number;
+    startDate: Date;
+    endDate: Date;
+    imageUrl?: string;
+    location: string;
+    longitude?: number | null;
+    latitude?: number | null;
+    status: statusEvent;
+    createdAt: Date;
+    updatedAt: Date;
+    regionName: string;
+  }[];
+  total: number;
+  page: number;
+  pageCount: number;
 }
 ```
 
-### Respostas de erro
+---
 
-- `400 Bad Request`: Dados inválidos ou falta de permissão.
+### 2. Buscar Evento por ID
 
-### Observações para o Frontend
+**GET** `/events/:id`
 
-- O campo `image` é opcional. Caso deseje enviar uma imagem, envie como string (base64 ou url, conforme combinado com o backend).
-- O campo `eventDate` deve estar em formato ISO (exemplo: `2025-10-05T00:00:00.000Z`).
-- O usuário autenticado deve possuir permissão de ADMIN.
+Busca um evento específico pelo ID.
 
-### Exemplo de requisição
+#### Parâmetros de Rota:
 
-```json
+```typescript
 {
-  "name": "Festa de Lançamento",
-  "startDate": "2025-10-10T20:00:00.000Z",
-  "endDate": "2025-10-15T20:00:00.000Z",
-  "regionId": "cln1x2y3z4",
-  "image": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+  id: string; // ID do evento
 }
 ```
 
-### Fluxo resumido da tela
+#### Resposta:
 
-1. Usuário preenche nome, data e região do evento.
-2. (Opcional) Seleciona uma imagem para o evento.
-3. Ao submeter, a tela faz um POST para `/event/create` com os dados acima.
-4. Se sucesso, exibe mensagem de sucesso e ID do evento criado.
-5. Se erro, exibe mensagem de erro retornada pela API.
-
-## Docker
-
-Este projeto inclui configurações Docker otimizadas para reduzir significativamente o tamanho das imagens.
-
-### 📊 Comparação de Tamanhos
-
-| Versão     | Tamanho | Redução   |
-| ---------- | ------- | --------- |
-| Original   | 750MB   | -         |
-| Distroless | 546MB   | 27% menor |
-| Alpine     | 558MB   | 26% menor |
-
-### 🚀 Build e Execução
-
-```bash
-# Build da versão otimizada (recomendada)
-docker build -f Dockerfile.optimized -t api-inscricao-nest:optimized .
-
-# Build da versão Alpine
-docker build -f Dockerfile.alpine -t api-inscricao-nest:alpine .
-
-# Executar container
-docker run -p 3000:3000 api-inscricao-nest:optimized
+```typescript
+{
+  id: string;
+  name: string;
+  quantityParticipants: number;
+  amountCollected: number;
+  startDate: Date;
+  endDate: Date;
+  imageUrl?: string;
+  location?: string;
+  longitude?: number | null;
+  latitude?: number | null;
+  status: statusEvent;
+  paymentEneble: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  regionName: string;
+}
 ```
 
-### 📋 Script Automatizado
+**Nota:** Esta rota é pública (não requer autenticação).
 
-```bash
-# Executa todos os builds e mostra comparação
-./build-docker.sh
+---
+
+### 3. Criar Evento
+
+**POST** `/events/create`
+
+Cria um novo evento.
+
+#### Autenticação:
+
+- Requer role de **ADMIN**
+
+#### Corpo da Requisição:
+
+```typescript
+{
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  regionId: string;
+  image?: string;
+  location?: string;
+  longitude?: number;
+  latitude?: number;
+  status: statusEvent;
+  paymentEnabled: boolean;
+}
 ```
 
-### 🐳 Docker Compose (Heroku Eco Dyno)
+#### Resposta:
 
-Para simular um ambiente Heroku Eco Dyno com limites de recursos:
-
-```bash
-# Usando o script automatizado (recomendado)
-./docker-compose.sh build    # Constrói a imagem
-./docker-compose.sh up       # Inicia a aplicação
-./docker-compose.sh status   # Verifica status
-./docker-compose.sh logs     # Mostra logs
-
-# Ou usando docker-compose diretamente
-docker-compose up -d
+```typescript
+{
+  id: string;
+}
 ```
 
-#### 📊 Recursos Limitados (Heroku Eco Dyno)
+---
 
-- **Memória**: 512MB máximo
-- **CPU**: 0.5 cores (50% de um core)
-- **Restart**: Automático em caso de falha
-- **Segurança**: Modo não privilegiado
+### 4. Listar Nomes de Todos os Eventos
 
-### 📖 Documentação Completa
+**GET** `/events/all/names`
 
-Para informações detalhadas sobre as otimizações Docker, consulte [DOCKER_OPTIMIZATION.md](./DOCKER_OPTIMIZATION.md).
+Retorna uma lista simples com ID e nome de todos os eventos.
 
-## Deployment
+#### Resposta:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```typescript
+{
+  id: string;
+  name: string;
+}
+[];
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+### 5. Buscar Eventos para Carrossel
 
-Check out a few resources that may come in handy when working with NestJS:
+**GET** `/events/carousel`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Retorna eventos formatados para exibição em carrossel.
 
-## Support
+#### Resposta:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```typescript
+{
+  id: string;
+  name: string;
+  location: string;
+  image: string;
+}
+[];
+```
 
-## Stay in touch
+**Nota:** Esta rota é pública (não requer autenticação).
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+### 6. Listar Inscrições de um Evento
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**GET** `/events/:id/inscriptions`
+
+Lista as inscrições de um evento específico com paginação.
+
+#### Parâmetros de Rota:
+
+```typescript
+{
+  id: string; // ID do evento
+}
+```
+
+#### Parâmetros de Query:
+
+```typescript
+{
+  page: number;
+  pageSize: number;
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  name: string;
+  quantityParticipants: number;
+  inscriptions: {
+    id: string;
+    responsible: string;
+    phone: string;
+    status: string;
+  }
+  [];
+  total: number;
+  page: number;
+  pageCount: number;
+}
+```
+
+---
+
+### 7. Atualizar Status das Inscrições de um Evento
+
+**PATCH** `/events/:id/update/inscriptions`
+
+Atualiza o status das inscrições de um evento.
+
+#### Parâmetros de Rota:
+
+```typescript
+{
+  id: string; // ID do evento
+}
+```
+
+#### Corpo da Requisição:
+
+```typescript
+{
+  status: string; // Novo status das inscrições
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  InscriptionStatus: string;
+}
+```
+
+---
+
+### 8. Atualizar Status de Pagamento de um Evento
+
+**PATCH** `/events/:id/update/payment`
+
+Atualiza o status de pagamento de um evento.
+
+#### Parâmetros de Rota:
+
+```typescript
+{
+  id: string; // ID do evento
+}
+```
+
+#### Corpo da Requisição:
+
+```typescript
+{
+  paymentStatus: boolean; // Novo status de pagamento
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  paymentStatus: boolean;
+}
+```
+
+---
+
+## 🎫 Rotas de Tickets
+
+### 1. Listar Tickets de um Evento
+
+**GET** `/ticket/:eventId`
+
+Lista todos os tickets disponíveis para um evento específico.
+
+#### Parâmetros de Rota:
+
+```typescript
+{
+  eventId: string; // ID do evento
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  eventId: string;
+  name: string;
+  description: string;
+  quantity: number;
+  price: number;
+  available: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+[];
+```
+
+---
+
+### 2. Criar Ticket
+
+**POST** `/ticket/create`
+
+Cria um novo ticket para um evento.
+
+#### Corpo da Requisição:
+
+```typescript
+{
+  eventId: string;
+  name: string;
+  description?: string;
+  quantity: number;
+  price: number;
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+}
+```
+
+---
+
+### 3. Vender Ticket
+
+**POST** `/ticket/sale`
+
+Realiza a venda de um ticket.
+
+#### Corpo da Requisição:
+
+```typescript
+{
+  ticketId: string;
+  accountId: string;
+  quantity: number;
+  paymentMethod: PaymentMethod;
+  pricePerTicket: number;
+  status: StatusPayment;
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  ticketQuantity: number;
+  ticketPdfBase64: string;
+}
+```
+
+---
+
+### 4. Buscar Detalhes de um Ticket
+
+**GET** `/ticket/:eventTicketId/details`
+
+Busca os detalhes completos de um ticket específico.
+
+#### Parâmetros de Rota:
+
+```typescript
+{
+  eventTicketId: string; // ID do ticket do evento
+}
+```
+
+#### Resposta:
+
+```typescript
+{
+  id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  price: number;
+  available: number;
+  ticketSale: {
+    id: string;
+    quantity: number;
+    totalValue: number;
+  }
+  [];
+}
+```
+
+---
+
+## 📝 Notas Importantes
+
+### Tipos de Status
+
+- **statusEvent**: Enum que define os status possíveis para eventos
+- **PaymentMethod**: Enum que define os métodos de pagamento disponíveis
+- **StatusPayment**: Enum que define os status de pagamento
+
+### Autenticação
+
+- Algumas rotas requerem autenticação
+- A rota de criação de eventos requer role de **ADMIN**
+- Rotas marcadas como públicas não requerem autenticação
+
+### Paginação
+
+- As rotas que suportam paginação usam os parâmetros `page` e `pageSize`
+- Valores padrão: `page = 1` e `pageSize = 10`
+
+### Formato de Datas
+
+- Todas as datas são enviadas e retornadas no formato ISO 8601
+- Exemplo: `"2024-01-15T10:30:00.000Z"`
+
+---
+
+## 🔧 Exemplos de Uso
+
+### Criar um Evento
+
+```bash
+curl -X POST http://localhost:3000/events/create \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "name": "Conferência de Tecnologia",
+    "startDate": "2024-02-15T09:00:00.000Z",
+    "endDate": "2024-02-15T18:00:00.000Z",
+    "regionId": "region-123",
+    "location": "Centro de Convenções",
+    "status": "ACTIVE",
+    "paymentEnabled": true
+  }'
+```
+
+### Listar Tickets de um Evento
+
+```bash
+curl -X GET http://localhost:3000/ticket/event-123
+```
+
+### Vender um Ticket
+
+```bash
+curl -X POST http://localhost:3000/ticket/sale \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticketId": "ticket-123",
+    "accountId": "account-456",
+    "quantity": 2,
+    "paymentMethod": "PIX",
+    "pricePerTicket": 50.00,
+    "status": "PENDING"
+  }'
+```

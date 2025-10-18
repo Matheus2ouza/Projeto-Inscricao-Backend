@@ -1,4 +1,4 @@
-import { StatusPayment } from 'generated/prisma';
+import { PaymentMethod } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
@@ -6,8 +6,8 @@ export type TicketSaleCreateDto = {
   ticketId: string;
   accountId: string;
   quantity: number;
+  paymentMethod: PaymentMethod;
   pricePerTicket: number;
-  status: StatusPayment;
 };
 
 export type TicketSaleWithDto = {
@@ -15,8 +15,8 @@ export type TicketSaleWithDto = {
   ticketId: string;
   accountId: string;
   quantity: number;
+  paymentMethod: PaymentMethod;
   totalValue: number;
-  status: StatusPayment;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -27,8 +27,8 @@ export class TicketSale extends Entity {
     private ticketId: string,
     private accountId: string,
     private quantity: number,
+    private paymentMethod: PaymentMethod,
     private totalValue: number,
-    private status: StatusPayment,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -40,7 +40,7 @@ export class TicketSale extends Entity {
     ticketId,
     accountId,
     quantity,
-    status,
+    paymentMethod,
     pricePerTicket,
   }: TicketSaleCreateDto): TicketSale {
     const id = Utils.generateUUID();
@@ -54,8 +54,8 @@ export class TicketSale extends Entity {
       ticketId,
       accountId,
       quantity,
+      paymentMethod,
       totalValue,
-      status,
       createdAt,
       updatedAt,
     );
@@ -66,8 +66,8 @@ export class TicketSale extends Entity {
     ticketId,
     accountId,
     quantity,
+    paymentMethod,
     totalValue,
-    status,
     createdAt,
     updatedAt,
   }: TicketSaleWithDto): TicketSale {
@@ -76,8 +76,8 @@ export class TicketSale extends Entity {
       ticketId,
       accountId,
       quantity,
+      paymentMethod,
       totalValue,
-      status,
       createdAt,
       updatedAt,
     );
@@ -104,12 +104,12 @@ export class TicketSale extends Entity {
     return this.quantity;
   }
 
-  public getTotalValue(): number {
-    return this.totalValue;
+  public getPaymentMethod(): PaymentMethod {
+    return this.paymentMethod;
   }
 
-  public getStatus(): StatusPayment {
-    return this.status;
+  public getTotalValue(): number {
+    return this.totalValue;
   }
 
   public getCreatedAt(): Date {

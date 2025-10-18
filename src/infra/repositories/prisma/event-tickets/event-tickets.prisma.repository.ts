@@ -18,6 +18,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
   }
 
   async findById(id: string): Promise<EventTicket | null> {
+    console.log('dentro da busca', id);
     const data = await this.prisma.eventTickets.findUnique({
       where: { id },
     });
