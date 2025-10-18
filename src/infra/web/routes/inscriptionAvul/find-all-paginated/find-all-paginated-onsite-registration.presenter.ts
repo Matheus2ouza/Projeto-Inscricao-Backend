@@ -10,6 +10,7 @@ export class FindAllPaginatedOnSiteRegistrationPresenter {
       total: input.total,
       page: input.page,
       pageCount: input.pageCount,
+      totals: input.totals,
     };
   }
 }
