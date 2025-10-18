@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
-import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
+import {
+  OnSiteRegistrationGateway,
+  OnSiteRegistrationPaymentTotals,
+} from 'src/domain/repositories/on-site-registration.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedOnSiteRegistrationInput = {
@@ -22,6 +25,7 @@ export type FindAllPaginatedOnSiteRegistrationOutput = {
   total: number;
   page: number;
   pageCount: number;
+  totals: OnSiteRegistrationPaymentTotals;
 };
 
 @Injectable()
@@ -46,13 +50,14 @@ export class FindAllPaginatedOnSiteRegistrationUsecase
     );
     const id = input.eventId;
 
-    const [rows, total] = await Promise.all([
+    const [rows, total, totals] = await Promise.all([
       this.onSiteRegistrationGateway.findManyPaginated(
         safePage,
         safePageSize,
         id,
       ),
       this.onSiteRegistrationGateway.countAll(id),
+      this.onSiteRegistrationGateway.sumPaymentsByMethod(id),
     ]);
 
     return {
@@ -68,6 +73,7 @@ export class FindAllPaginatedOnSiteRegistrationUsecase
       total,
       page: safePage,
       pageCount: Math.max(1, Math.ceil(total / safePageSize)),
+      totals,
     };
   }
 }

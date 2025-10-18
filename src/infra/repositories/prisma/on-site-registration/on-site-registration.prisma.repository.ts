@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMethod } from 'generated/prisma';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
 import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
-import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
+import {
+  OnSiteRegistrationGateway,
+  OnSiteRegistrationPaymentTotals,
+} from 'src/domain/repositories/on-site-registration.gateway';
 import { PrismaService } from '../prisma.service';
 import { OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper } from '../on-site-participant/model/mappers/on-site-participant-entity-to-on-site-participant-prisma-model.mapper';
 import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from '../on-site-participant-payment/model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
@@ -102,5 +106,51 @@ export class OnSiteRegistrationPrismaRepository
       },
     });
     return total;
+  }
+
+  async sumPaymentsByMethod(
+    eventId: string,
+  ): Promise<OnSiteRegistrationPaymentTotals> {
+    const grouped = await this.prisma.onSiteParticipantPayment.groupBy({
+      by: ['paymentMethod'],
+      _sum: { value: true },
+      where: {
+        participant: {
+          onSiteRegistration: {
+            eventId,
+          },
+        },
+      },
+    });
+
+    const totals: OnSiteRegistrationPaymentTotals = {
+      totalDinheiro: 0,
+      totalCartao: 0,
+      totalPix: 0,
+      totalGeral: 0,
+    };
+
+    grouped.forEach((row) => {
+      const amount = Number(row._sum.value ?? 0);
+
+      switch (row.paymentMethod) {
+        case PaymentMethod.DINHEIRO:
+          totals.totalDinheiro = amount;
+          break;
+        case PaymentMethod.CARTÃO:
+          totals.totalCartao = amount;
+          break;
+        case PaymentMethod.PIX:
+          totals.totalPix = amount;
+          break;
+        default:
+          break;
+      }
+    });
+
+    totals.totalGeral =
+      totals.totalDinheiro + totals.totalCartao + totals.totalPix;
+
+    return totals;
   }
 }

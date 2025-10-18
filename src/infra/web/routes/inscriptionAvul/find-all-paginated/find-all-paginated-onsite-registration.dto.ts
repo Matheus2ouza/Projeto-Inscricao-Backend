@@ -17,4 +17,10 @@ export type FindAllPaginatedOnSiteRegistrationResponse = {
   total: number;
   page: number;
   pageCount: number;
+  totals: {
+    totalDinheiro: number;
+    totalCartao: number;
+    totalPix: number;
+    totalGeral: number;
+  };
 };
