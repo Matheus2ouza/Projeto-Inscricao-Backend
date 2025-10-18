@@ -1,6 +1,6 @@
 import type { PaymentMethod, StatusPayment } from 'generated/prisma';
 
-export type SaleTicketRequest = {
+export type SaleGroupTicketRequest = {
   ticketId: string;
   accountId: string;
   quantity: number;
@@ -9,8 +9,6 @@ export type SaleTicketRequest = {
   status: StatusPayment;
 };
 
-export type SaleTicketResponse = {
+export type SaleGroupTicketResponse = {
   id: string;
-  ticketQuantity: number;
-  ticketPdfBase64: string;
 };

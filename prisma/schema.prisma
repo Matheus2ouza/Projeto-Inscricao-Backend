@@ -222,14 +222,14 @@ model EventTickets {
 }
 
 model TicketSale {
-  id         String        @id @default(uuid())
-  ticketId   String        @map("ticket_id")
-  accountId  String        @map("account_id")
-  quantity   Int
-  totalValue Decimal       @db.Decimal(10, 2)
-  status     StatusPayment // pode reutilizar teu enum existente
-  createdAt  DateTime      @default(now()) @map("created_at")
-  updatedAt  DateTime      @updatedAt @map("updated_at")
+  id            String        @id @default(uuid())
+  ticketId      String        @map("ticket_id")
+  accountId     String        @map("account_id")
+  quantity      Int
+  paymentMethod PaymentMethod
+  totalValue    Decimal       @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   ticket  EventTickets @relation(fields: [ticketId], references: [id])
   account Accounts     @relation(fields: [accountId], references: [id])

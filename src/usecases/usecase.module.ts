@@ -26,7 +26,10 @@ import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
 import { CreateTicketUsecase } from './tickets/create/create-ticket.usecase';
+import { FindTicketDetailsUsecase } from './tickets/find-ticket-details/find-ticket-details.usecase';
 import { FindAllTicketsUsecase } from './tickets/findAll/find-all-ticket.usecase';
+import { SaleGroupTicketUsecase } from './tickets/sale-group/sale-group-ticket.usecase';
+import { SaleTicketUsecase } from './tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
@@ -74,8 +77,11 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     AnalysisInscriptionUsecase,
     CreateTicketUsecase,
     FindAllTicketsUsecase,
+    SaleGroupTicketUsecase,
+    SaleTicketUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+    FindTicketDetailsUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -108,8 +114,11 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     AnalysisInscriptionUsecase,
     CreateTicketUsecase,
     FindAllTicketsUsecase,
+    SaleGroupTicketUsecase,
+    SaleTicketUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+    FindTicketDetailsUsecase,
   ],
 })
 export class UsecaseModule {}
