@@ -8,9 +8,7 @@ export class OnSiteParticipantPrismaModelToOnSiteParticipantEntityMapper {
     const anOnSiteRegistration = OnSiteParticipant.with({
       id: onSiteParticipant.id,
       onSiteRegistrationId: onSiteParticipant.onSiteRegistrationId,
-      value: onSiteParticipant.value,
       name: onSiteParticipant.name,
-      birthDate: onSiteParticipant.birthDate,
       gender: onSiteParticipant.gender,
       createdAt: onSiteParticipant.createdAt,
       updatedAt: onSiteParticipant.updatedAt,

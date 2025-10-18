@@ -1,25 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { Decimal } from 'decimal.js';
 import { genderType, InscriptionStatus, PaymentMethod } from 'generated/prisma';
+import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
-import { OnSiteParticipantGateway } from 'src/domain/repositories/on-site-participant.gateway';
+import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
+import { EventNotFoundUsecaseException } from 'src/usecases/exceptions/events/event-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
 
 export type CreateInscriptionAvulInput = {
   eventId: string;
-  accountId: string;
   responsible: string;
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
-  paymentMethod: PaymentMethod;
   participants: {
-    value: Decimal;
     name: string;
     birthDate: Date;
     gender: genderType;
+    payments: {
+      paymentMethod: PaymentMethod;
+      value: Decimal;
+    }[];
   }[];
 };
 
@@ -32,41 +35,67 @@ export class CreateInscriptionAvulUsecase
   implements Usecase<CreateInscriptionAvulInput, CreateInscriptionAvulOutput>
 {
   public constructor(
-    private readonly onSiteParticipantGateway: OnSiteParticipantGateway,
+    private readonly eventGateway: EventGateway,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
   ) {}
 
   async execute(
     input: CreateInscriptionAvulInput,
   ): Promise<CreateInscriptionAvulOutput> {
+    console.log(input.eventId);
+    const eventExists = await this.eventGateway.findById(input.eventId);
+
+    if (!eventExists) {
+      console.log(eventExists);
+      throw new EventNotFoundUsecaseException(
+        `attempt to create on-site registration for event: ${input.eventId} but it was not found`,
+        'Evento não encontrado',
+        CreateInscriptionAvulUsecase.name,
+      );
+    }
+
     const registration = OnSiteRegistration.create({
       eventId: input.eventId,
-      accountId: input.accountId,
       responsible: input.responsible,
       phone: input.phone,
-      paymentMethod: input.paymentMethod,
       totalValue: new Decimal(input.totalValue),
       status: input.status,
     });
 
-    const createdRegistration =
-      await this.onSiteRegistrationGateway.create(registration);
+    const participantsWithPayments = input.participants.map((p) => {
+      const participantPayments = p.payments ?? [];
 
-    const participants = input.participants.map((p) =>
-      OnSiteParticipant.create({
-        onSiteRegistrationId: createdRegistration.getId(),
-        value: new Decimal(p.value),
+      const participant = OnSiteParticipant.create({
+        onSiteRegistrationId: registration.getId(),
         name: p.name,
-        birthDate: p.birthDate,
         gender: p.gender,
-      }),
+      });
+
+      const payments = participantPayments.map((payment) =>
+        OnSiteParticipantPayment.create({
+          participantId: participant.getId(),
+          paymentMethod: payment.paymentMethod,
+          value: new Decimal(payment.value),
+        }),
+      );
+
+      return { participant, payments };
+    });
+
+    const payments = participantsWithPayments.flatMap(
+      ({ payments: participantPayments }) => participantPayments,
     );
 
-    await Promise.all(
-      participants.map((participant) =>
-        this.onSiteParticipantGateway.create(participant),
-      ),
+    const participants = participantsWithPayments.map(
+      ({ participant }) => participant,
     );
+
+    const createdRegistration =
+      await this.onSiteRegistrationGateway.createWithParticipantsAndPayments(
+        registration,
+        participants,
+        payments,
+      );
 
     return { id: createdRegistration.getId() };
   }
