@@ -19,6 +19,8 @@ import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usec
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
+import { CreateEventExpensesUsecase } from './event-expenses/create/create-event-expenses.usecase';
+import { FindAllPaginatedEventExpensesUsecase } from './event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { CreateInscriptionAvulUsecase } from './inscriptionAvul/create/create-inscription-avul.usecase';
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscriptionAvul/findAll/find-all-paginated-onsite-registration.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
@@ -71,6 +73,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     FindDetailsInscriptionUsecase,
     CreatePaymentInscriptionUsecase,
+    CreateEventExpensesUsecase,
+    FindAllPaginatedEventExpensesUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,
@@ -108,6 +112,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     FindDetailsInscriptionUsecase,
     CreatePaymentInscriptionUsecase,
+    CreateEventExpensesUsecase,
+    FindAllPaginatedEventExpensesUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,

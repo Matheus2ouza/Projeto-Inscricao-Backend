@@ -13,6 +13,8 @@ import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-excep
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
+import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
+import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
@@ -112,6 +114,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindTicketDetailsRoute,
     SaleGroupTicketRoute,
     SaleTicketRoute,
+
+    //Expenses
+    CreateEventExpensesRoute,
+    FindAllPaginatedEventExpensesRoute,
   ],
   providers: [
     AuthGuardProvider,
