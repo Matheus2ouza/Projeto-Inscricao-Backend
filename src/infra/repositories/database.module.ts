@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-record.prisma.repository.provider';
+import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
 import { EventPrismaRepositoryProvider } from './prisma/event/model/event.prisma.repository.provider';
 import { FinancialMovementPrismaRepositoryProvider } from './prisma/financial-movement/model/financial-movement.repository.provider';
@@ -32,6 +33,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     OnSiteParticipantPrismaRepositoryProvider,
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
+    EventExpensesPrismaRepositoryProvider,
   ],
   exports: [
     PrismaService,
@@ -49,6 +51,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     OnSiteParticipantPrismaRepositoryProvider,
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
+    EventExpensesPrismaRepositoryProvider,
   ],
 })
 export class DataBaseModule {}

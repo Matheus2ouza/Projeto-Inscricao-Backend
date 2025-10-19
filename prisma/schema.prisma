@@ -63,6 +63,7 @@ model Events {
   FinancialMovement    FinancialMovement[]
   OnSiteRegistration   OnSiteRegistration[]
   EventTickets         EventTickets[]
+  EventExpenses        EventExpenses[]
 
   @@map("events")
 }
@@ -235,6 +236,21 @@ model TicketSale {
   account Accounts     @relation(fields: [accountId], references: [id])
 
   @@map("ticket_sales")
+}
+
+model EventExpenses {
+  id            String        @id @default(uuid())
+  eventId       String        @map("event_id")
+  description   String
+  value         Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  responsible   String
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  event Events @relation(fields: [eventId], references: [id])
+
+  @@map("event_expenses")
 }
 
 enum InscriptionStatus {
