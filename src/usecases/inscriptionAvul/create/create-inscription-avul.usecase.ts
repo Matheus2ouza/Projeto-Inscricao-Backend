@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Decimal } from 'decimal.js';
 import { genderType, InscriptionStatus, PaymentMethod } from 'generated/prisma';
+import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { EventNotFoundUsecaseException } from 'src/usecases/exceptions/events/event-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
@@ -15,6 +17,7 @@ export type CreateInscriptionAvulInput = {
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
+  accountId: string;
   participants: {
     name: string;
     birthDate: Date;
@@ -36,13 +39,13 @@ export class CreateInscriptionAvulUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
   ) {}
 
   async execute(
     input: CreateInscriptionAvulInput,
   ): Promise<CreateInscriptionAvulOutput> {
-    console.log(input.eventId);
     const eventExists = await this.eventGateway.findById(input.eventId);
 
     if (!eventExists) {
@@ -96,6 +99,31 @@ export class CreateInscriptionAvulUsecase
         participants,
         payments,
       );
+
+    const totalPaymentsValue = payments.reduce(
+      (acc, payment) => acc.plus(payment.getValue()),
+      new Decimal(0),
+    );
+
+    const financialMovements = payments.map((payment) =>
+      FinancialMovement.create({
+        eventId: eventExists.getId(),
+        accountId: input.accountId,
+        type: 'INCOME',
+        value: payment.getValue(),
+      }),
+    );
+
+    await Promise.all(
+      financialMovements.map((financialMovement) =>
+        this.financialMovementGateway.create(financialMovement),
+      ),
+    );
+
+    await this.eventGateway.incrementValue(
+      eventExists.getId(),
+      totalPaymentsValue.toNumber(),
+    );
 
     return { id: createdRegistration.getId() };
   }

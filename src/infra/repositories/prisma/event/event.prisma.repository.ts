@@ -157,4 +157,13 @@ export class EventPrismaRepository implements EventGateway {
 
     return EventPrismaModelToEventEntityMapper.map(aModel);
   }
+
+  async decrementValue(id: string, value: number): Promise<Event> {
+    const aModel = await this.prisma.events.update({
+      where: { id },
+      data: { amountCollected: { decrement: value } },
+    });
+
+    return EventPrismaModelToEventEntityMapper.map(aModel);
+  }
 }
