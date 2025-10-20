@@ -37,6 +37,8 @@ import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/creat
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
+import { RelatorioGeralRoute } from './routes/relatorio/geral/relatorio-geral.route';
+import { GerarPdfRelatorioRoute } from './routes/relatorio/pdf/gerar-pdf-relatorio.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
 import { FindTicketDetailsRoute } from './routes/tickets/find-ticket-details/find-ticket-details.route';
 import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.route';
@@ -118,6 +120,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Expenses
     CreateEventExpensesRoute,
     FindAllPaginatedEventExpensesRoute,
+
+    //Relatorio
+    RelatorioGeralRoute,
+    GerarPdfRelatorioRoute,
   ],
   providers: [
     AuthGuardProvider,

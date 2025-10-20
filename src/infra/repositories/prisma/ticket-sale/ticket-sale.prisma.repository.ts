@@ -23,4 +23,16 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
 
     return data.map(TicketSaleToPrismaModelToTicketSaleEntityMapper.map);
   }
+
+  async findByEventId(eventId: string): Promise<TicketSale[]> {
+    const data = await this.prisma.ticketSale.findMany({
+      where: {
+        ticket: {
+          eventId: eventId,
+        },
+      },
+    });
+
+    return data.map(TicketSaleToPrismaModelToTicketSaleEntityMapper.map);
+  }
 }
