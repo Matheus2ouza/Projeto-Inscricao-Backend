@@ -1,4 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import { CreateInscriptionAvulUsecase } from 'src/usecases/inscriptionAvul/create/create-inscription-avul.usecase';
 import type {
   CreateInscriptionAvulRequest,
@@ -15,6 +16,7 @@ export class CreateInscriptionAvulRoute {
   @Post('create')
   async handle(
     @Body() body: CreateInscriptionAvulRequest,
+    @UserId() accountId: string,
   ): Promise<CreateInscriptionAvulResponse> {
     // Monta o DTO de entrada para o usecase
     const data = {
@@ -23,6 +25,7 @@ export class CreateInscriptionAvulRoute {
       phone: body.phone,
       totalValue: body.totalValue,
       status: body.status,
+      accountId,
       participants: body.participants,
     };
 

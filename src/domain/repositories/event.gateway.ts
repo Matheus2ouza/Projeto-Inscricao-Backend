@@ -31,4 +31,5 @@ export abstract class EventGateway {
     }[]
   >;
   abstract incrementValue(id: string, value: number): Promise<Event>;
+  abstract decrementValue(id: string, value: number): Promise<Event>;
 }
