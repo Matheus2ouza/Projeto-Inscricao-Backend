@@ -30,6 +30,28 @@ export class ReportGeneralPdfGeneratorUtils {
     relatorioData: any,
     options: ReportGeneralPdfGeneratorOptions = {},
   ): Promise<Buffer> {
+    const totalInscricoesGrupo =
+      relatorioData.totais.totalInscricoesGrupo ??
+      relatorioData.inscricoes.inscricoes.length;
+    const totalParticipantesGrupo =
+      relatorioData.totais.totalParticipantesGrupo ??
+      relatorioData.inscricoes.totalParticipantes;
+    const totalInscricoesAvulsas =
+      relatorioData.totais.totalInscricoesAvulsas ??
+      relatorioData.inscricoesAvulsas.inscricoes.length;
+    const totalParticipantesAvulsos =
+      relatorioData.totais.totalParticipantesAvulsos ??
+      relatorioData.inscricoesAvulsas.totalParticipantes;
+    const totalParticipantesGeral =
+      relatorioData.totais.totalParticipantes ??
+      totalParticipantesGrupo + totalParticipantesAvulsos;
+    const totalVendasTickets = relatorioData.tickets.vendas.length;
+    const totalTicketsVendidos = relatorioData.tickets.vendas.reduce(
+      (sum: number, venda: any) => sum + venda.quantitySold,
+      0,
+    );
+    const totalGastosRegistrados = relatorioData.gastos.gastos.length;
+
     const eventHeaderColumns = options.eventImageDataUrl
       ? [
           {
@@ -144,68 +166,141 @@ export class ReportGeneralPdfGeneratorUtils {
           margin: [0, 0, 0, 10],
         },
         {
-          table: {
-            widths: ['25%', '25%', '25%', '25%'],
-            body: [
-              [
-                { text: 'Inscrições em Grupo', style: 'tableHeader' },
-                { text: 'Participantes', style: 'tableHeader' },
-                { text: 'Inscrições Avulsas', style: 'tableHeader' },
-                { text: 'Participantes Avulsos', style: 'tableHeader' },
-              ],
-              [
-                {
-                  text: relatorioData.inscricoes.inscricoes.length.toString(),
-                  style: 'highlight',
-                },
-                {
-                  text: relatorioData.inscricoes.totalParticipantes.toString(),
-                  style: 'highlight',
-                },
-                {
-                  text: relatorioData.inscricoesAvulsas.inscricoes.length.toString(),
-                  style: 'highlight',
-                },
-                {
-                  text: relatorioData.inscricoesAvulsas.totalParticipantes.toString(),
-                  style: 'highlight',
-                },
-              ],
-              [
-                { text: 'Vendas de Tickets', style: 'tableHeader' },
-                { text: 'Quantidade Vendida', style: 'tableHeader' },
-                { text: 'Gastos Registrados', style: 'tableHeader' },
-                { text: '', style: 'tableRow' },
-              ],
-              [
-                {
-                  text: relatorioData.tickets.vendas.length.toString(),
-                  style: 'highlight',
-                },
-                {
-                  text: relatorioData.tickets.vendas
-                    .reduce((sum, v) => sum + v.quantitySold, 0)
-                    .toString(),
-                  style: 'highlight',
-                },
-                {
-                  text: relatorioData.gastos.gastos.length.toString(),
-                  style: 'highlight',
-                },
-                { text: '', style: 'tableRow' },
-              ],
-            ],
-          },
-          layout: {
-            hLineWidth: (i, node) =>
-              i === 0 || i === node.table.body.length ? 2 : 1,
-            vLineWidth: (i, node) =>
-              i === 0 || i === node.table.widths.length ? 2 : 1,
-            hLineColor: (i, node) =>
-              i === 0 || i === node.table.body.length ? '#2d3748' : '#e2e8f0',
-            vLineColor: (i, node) =>
-              i === 0 || i === node.table.widths.length ? '#2d3748' : '#e2e8f0',
-          },
+          columns: [
+            {
+              width: '50%',
+              table: {
+                widths: ['65%', '35%'],
+                body: [
+                  [
+                    { text: 'Dado', style: 'tableHeader', alignment: 'left' },
+                    { text: 'Total', style: 'tableHeader', alignment: 'right' },
+                  ],
+                  [
+                    { text: 'Inscrições em grupo', style: 'tableRow' },
+                    {
+                      text: totalInscricoesGrupo.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Participantes em grupo', style: 'tableRow' },
+                    {
+                      text: totalParticipantesGrupo.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Inscrições avulsas', style: 'tableRow' },
+                    {
+                      text: totalInscricoesAvulsas.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Participantes avulsos', style: 'tableRow' },
+                    {
+                      text: totalParticipantesAvulsos.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Total de participantes', style: 'tableRow' },
+                    {
+                      text: totalParticipantesGeral.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                ],
+              },
+              layout: {
+                hLineWidth: (i, node) =>
+                  i === 0 || i === node.table.body.length ? 2 : 1,
+                vLineWidth: (i, node) =>
+                  i === 0 || i === node.table.widths.length ? 2 : 1,
+                hLineColor: (i, node) =>
+                  i === 0 || i === node.table.body.length
+                    ? '#2d3748'
+                    : '#e2e8f0',
+                vLineColor: (i, node) =>
+                  i === 0 || i === node.table.widths.length
+                    ? '#2d3748'
+                    : '#e2e8f0',
+              },
+            },
+            {
+              width: '45%',
+              table: {
+                widths: ['65%', '35%'],
+                body: [
+                  [
+                    { text: 'Dado', style: 'tableHeader', alignment: 'left' },
+                    { text: 'Total', style: 'tableHeader', alignment: 'right' },
+                  ],
+                  [
+                    { text: 'Vendas de tickets', style: 'tableRow' },
+                    {
+                      text: totalVendasTickets.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Tickets vendidos', style: 'tableRow' },
+                    {
+                      text: totalTicketsVendidos.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Gastos registrados', style: 'tableRow' },
+                    {
+                      text: totalGastosRegistrados.toString(),
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Valor total dos tickets', style: 'tableRow' },
+                    {
+                      text: `R$ ${relatorioData.tickets.total.toFixed(2)}`,
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                  [
+                    { text: 'Valor total dos gastos', style: 'tableRow' },
+                    {
+                      text: `R$ ${relatorioData.gastos.total.toFixed(2)}`,
+                      style: 'highlight',
+                      alignment: 'right',
+                    },
+                  ],
+                ],
+              },
+              layout: {
+                hLineWidth: (i, node) =>
+                  i === 0 || i === node.table.body.length ? 2 : 1,
+                vLineWidth: (i, node) =>
+                  i === 0 || i === node.table.widths.length ? 2 : 1,
+                hLineColor: (i, node) =>
+                  i === 0 || i === node.table.body.length
+                    ? '#2d3748'
+                    : '#e2e8f0',
+                vLineColor: (i, node) =>
+                  i === 0 || i === node.table.widths.length
+                    ? '#2d3748'
+                    : '#e2e8f0',
+              },
+            },
+          ],
+          columnGap: 10,
           margin: [0, 0, 0, 25],
         },
 
@@ -547,6 +642,7 @@ export class ReportGeneralPdfGeneratorUtils {
       },
       {
         table: {
+          headerRows: 1,
           widths: ['40%', '20%', '20%', '20%'],
           body: [
             [
@@ -598,6 +694,7 @@ export class ReportGeneralPdfGeneratorUtils {
       },
       {
         table: {
+          headerRows: 1,
           widths: ['40%', '20%', '20%', '20%'],
           body: [
             [
@@ -654,6 +751,7 @@ export class ReportGeneralPdfGeneratorUtils {
       },
       {
         table: {
+          headerRows: 1,
           widths: ['30%', '15%', '15%', '20%', '20%'],
           body: [
             [
