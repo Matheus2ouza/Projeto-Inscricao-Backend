@@ -26,7 +26,7 @@ type ReportGeneralPdfGeneratorOptions = {
 const printer = new PdfPrinter(fonts);
 
 export class ReportGeneralPdfGeneratorUtils {
-  public static gerarRelatorioPdf(
+  public static generateReportPdf(
     relatorioData: any,
     options: ReportGeneralPdfGeneratorOptions = {},
   ): Promise<Buffer> {

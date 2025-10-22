@@ -8,7 +8,7 @@ export type GeneratePdfGeneralReportInput = {
 };
 
 export type GeneratePdfGeneralReportOutput = {
-  pdfBuffer: Buffer;
+  pdfBase64: string; // 👈 alterado de Buffer para string Base64
   filename: string;
 };
 
@@ -22,33 +22,35 @@ export class GeneratePdfGeneralReportUsecase {
   public async execute({
     eventId,
   }: GeneratePdfGeneralReportInput): Promise<GeneratePdfGeneralReportOutput> {
-    // Buscar dados do relatório
-    const relatorioData = await this.reportGeneralUsecase.execute({ eventId });
-    const eventImageDataUrl = await this.carregarImagemEvento(
-      relatorioData.event.imageUrl,
+    // Fetch report data
+    const reportData = await this.reportGeneralUsecase.execute({ eventId });
+    const eventImageDataUrl = await this.loadEventImage(
+      reportData.event.imageUrl,
     );
 
-    // Gerar PDF usando pdfmake
-    const pdfBuffer = await ReportGeneralPdfGeneratorUtils.gerarRelatorioPdf(
-      relatorioData,
-      {
-        eventImageDataUrl,
-      },
+    // Generate PDF using pdfmake
+    const pdfBuffer = await ReportGeneralPdfGeneratorUtils.generateReportPdf(
+      reportData,
+      { eventImageDataUrl },
     );
-    const filename = `relatorio-${relatorioData.event.name.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    const filename = `Relatório-${reportData.event.name
+      .replace(/\s+/g, '-')
+      .toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    // 👇 convert Buffer to Base64 for frontend compatibility
+    const pdfBase64 = pdfBuffer.toString('base64');
 
     return {
-      pdfBuffer,
+      pdfBase64,
       filename,
     };
   }
 
-  private async carregarImagemEvento(
+  private async loadEventImage(
     imagePath?: string | null,
   ): Promise<string | undefined> {
-    if (!imagePath) {
-      return undefined;
-    }
+    if (!imagePath) return undefined;
 
     try {
       const signedUrl =
@@ -57,7 +59,7 @@ export class GeneratePdfGeneralReportUsecase {
 
       if (!response.ok) {
         console.warn(
-          `Falha ao carregar imagem do evento: ${response.status} ${response.statusText}`,
+          `Failed to load event image: ${response.status} ${response.statusText}`,
         );
         return undefined;
       }
@@ -68,7 +70,7 @@ export class GeneratePdfGeneralReportUsecase {
 
       return `data:${mimeType};base64,${base64}`;
     } catch (error) {
-      console.warn('Erro ao obter imagem do evento:', error);
+      console.warn('Error while loading event image:', error);
       return undefined;
     }
   }
