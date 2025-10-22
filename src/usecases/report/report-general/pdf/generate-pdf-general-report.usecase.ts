@@ -34,7 +34,7 @@ export class GeneratePdfGeneralReportUsecase {
       { eventImageDataUrl },
     );
 
-    const filename = `report-${reportData.event.name
+    const filename = `Relatório-${reportData.event.name
       .replace(/\s+/g, '-')
       .toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
 
