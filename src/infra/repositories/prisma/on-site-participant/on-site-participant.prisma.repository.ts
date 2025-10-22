@@ -40,4 +40,24 @@ export class OnSiteParticipantPrismaRepository
       skipDuplicates: true,
     });
   }
+
+  async countByOnSiteRegistrationId(
+    onSiteRegistrationId: string,
+  ): Promise<OnSiteParticipant[]> {
+    const found = await this.prisma.onSiteParticipant.findMany({
+      where: { onSiteRegistrationId },
+    });
+
+    return found.map(
+      OnSiteParticipantPrismaModelToOnSiteParticipantEntityMapper.map,
+    );
+  }
+
+  async countParticipantsByOnSiteRegistrationId(
+    onSiteRegistrationId: string,
+  ): Promise<number> {
+    return this.prisma.onSiteParticipant.count({
+      where: { onSiteRegistrationId },
+    });
+  }
 }

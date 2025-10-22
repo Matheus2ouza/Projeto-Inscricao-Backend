@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentMethod } from 'generated/prisma';
-import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
-import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
+import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
+import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
 import {
   OnSiteRegistrationGateway,
   OnSiteRegistrationPaymentTotals,
 } from 'src/domain/repositories/on-site-registration.gateway';
-import { PrismaService } from '../prisma.service';
-import { OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper } from '../on-site-participant/model/mappers/on-site-participant-entity-to-on-site-participant-prisma-model.mapper';
 import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from '../on-site-participant-payment/model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
+import { OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper } from '../on-site-participant/model/mappers/on-site-participant-entity-to-on-site-participant-prisma-model.mapper';
+import { PrismaService } from '../prisma.service';
 import { OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper } from './model/mappers/on-site-registration-entity-to-on-site-registration-prisma-model.mapper';
 import { OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper } from './model/mappers/on-site-registration-prisma-model-to-on-site-registration-entity.mapper';
 
@@ -74,6 +74,16 @@ export class OnSiteRegistrationPrismaRepository
 
     return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
       created,
+    );
+  }
+
+  async findMany(eventId: string): Promise<OnSiteRegistration[]> {
+    const aModel = await this.prisma.onSiteRegistration.findMany({
+      where: { eventId },
+    });
+
+    return aModel.map(
+      OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map,
     );
   }
 

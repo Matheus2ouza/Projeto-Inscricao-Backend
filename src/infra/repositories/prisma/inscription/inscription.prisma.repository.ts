@@ -29,6 +29,14 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findMany(eventId: string): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: { eventId },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async findManyPaginated(
     page: number,
     pageSize: number,
