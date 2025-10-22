@@ -27,8 +27,8 @@ import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/cre
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './region/findAllRegionNames/find-all-region-names.usecase';
-import { RelatorioGeralUsecase } from './relatorio/geral/relatorio-geral.usecase';
-import { GerarPdfRelatorioUsecase } from './relatorio/pdf/gerar-pdf-relatorio.usecase';
+import { ReportGeneralUsecase } from './report/report-general/general/report-general.usecase';
+import { GeneratePdfGeneralReportUsecase } from './report/report-general/pdf/generate-pdf-general-report.usecase';
 import { CreateTicketUsecase } from './tickets/create/create-ticket.usecase';
 import { FindTicketDetailsUsecase } from './tickets/find-ticket-details/find-ticket-details.usecase';
 import { FindAllTicketsUsecase } from './tickets/findAll/find-all-ticket.usecase';
@@ -88,8 +88,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindTicketDetailsUsecase,
-    RelatorioGeralUsecase,
-    GerarPdfRelatorioUsecase,
+    ReportGeneralUsecase,
+    GeneratePdfGeneralReportUsecase,
   ],
   exports: [
     CreateUserUsecase,
@@ -129,8 +129,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindTicketDetailsUsecase,
-    RelatorioGeralUsecase,
-    GerarPdfRelatorioUsecase,
+    ReportGeneralUsecase,
+    GeneratePdfGeneralReportUsecase,
   ],
 })
 export class UsecaseModule {}
