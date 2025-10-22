@@ -7,6 +7,7 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { OnSiteParticipantGateway } from 'src/domain/repositories/on-site-participant.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { EventNotFoundUsecaseException } from 'src/usecases/exceptions/events/event-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
@@ -32,6 +33,11 @@ export type ReportGeneralOutput = {
     totalPix: number;
     totalCartao: number;
     totalGastos: number;
+    totalInscricoesGrupo: number;
+    totalParticipantesGrupo: number;
+    totalInscricoesAvulsas: number;
+    totalParticipantesAvulsos: number;
+    totalParticipantes: number;
   };
   inscricoes: {
     total: number;
@@ -105,6 +111,7 @@ export class ReportGeneralUsecase
     private readonly eventTicketsGateway: EventTicketsGateway,
     private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly eventExpensesGateway: EventExpensesGateway,
+    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
   ) {}
 
   public async execute({
@@ -149,6 +156,12 @@ export class ReportGeneralUsecase
     // Calcular totais dos gastos
     const gastosTotais = this.calcularTotaisGastos(gastos);
 
+    const totalInscricoesGrupo = inscricoes.length;
+    const totalParticipantesGrupo = inscricoesTotais.totalParticipantes;
+    const totalInscricoesAvulsas = inscricoesAvulsas.length;
+    const totalParticipantesAvulsos =
+      await this.calcularTotalParticipantesAvulsas(inscricoesAvulsas);
+
     // Calcular totais gerais
     const totais = {
       totalGeral:
@@ -176,6 +189,11 @@ export class ReportGeneralUsecase
         ticketsTotais.totalCartao -
         gastosTotais.totalCartao,
       totalGastos: gastosTotais.total,
+      totalInscricoesGrupo,
+      totalParticipantesGrupo,
+      totalInscricoesAvulsas,
+      totalParticipantesAvulsos,
+      totalParticipantes: totalParticipantesGrupo + totalParticipantesAvulsos,
     };
 
     return {
@@ -193,15 +211,21 @@ export class ReportGeneralUsecase
         ...inscricoesTotais,
         inscricoes: await Promise.all(
           inscricoes.map(async (inscricao) => {
-            const countParticipants =
-              await this.participantGateway.countByInscriptionId(
+            const [countParticipants, pagamentos] = await Promise.all([
+              this.participantGateway.countByInscriptionId(inscricao.getId()),
+              this.paymentInscriptionGateway.findbyInscriptionId(
                 inscricao.getId(),
-              );
+              ),
+            ]);
+            const totalPago =
+              pagamentos?.reduce((total, pagamento) => {
+                return total + pagamento.getValue().toNumber();
+              }, 0) ?? 0;
             return {
               id: inscricao.getId(),
               responsible: inscricao.getResponsible(),
               countParticipants,
-              totalValue: Number(inscricao.getTotalValue()),
+              totalValue: totalPago,
               status: String(inscricao.getStatus()),
               createdAt: inscricao.getCreatedAt(),
             };
@@ -213,8 +237,7 @@ export class ReportGeneralUsecase
         totalDinheiro: inscricoesAvulsasTotais.totalDinheiro,
         totalPix: inscricoesAvulsasTotais.totalPix,
         totalCartao: inscricoesAvulsasTotais.totalCartao,
-        totalParticipantes:
-          await this.calcularTotalParticipantesAvulsas(inscricoesAvulsas),
+        totalParticipantes: totalParticipantesAvulsos,
         inscricoes: await Promise.all(
           inscricoesAvulsas.map(async (inscricao) => {
             const countParticipants =
@@ -260,12 +283,19 @@ export class ReportGeneralUsecase
     };
 
     for (const inscricao of inscricoes) {
-      const valor = inscricao.getTotalValue();
-      totais.total += valor;
+      const pagamentos =
+        (await this.paymentInscriptionGateway.findbyInscriptionId(
+          inscricao.getId(),
+        )) ?? [];
 
-      // Para inscrições, assumimos que são pagas via PIX por padrão
-      // Você pode ajustar isso conforme sua lógica de negócio
-      totais.totalPix += valor;
+      const valorPago = pagamentos.reduce((total, pagamento) => {
+        return total + pagamento.getValue().toNumber();
+      }, 0);
+
+      totais.total += valorPago;
+
+      // Inscrições em grupo são liquidadas via PIX
+      totais.totalPix += valorPago;
 
       // Contar participantes da inscrição
       const countParticipants =

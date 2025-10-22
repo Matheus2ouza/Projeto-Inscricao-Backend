@@ -4,9 +4,7 @@ export type ReportGeneralResponse = {
     name: string;
     startDate: Date;
     endDate: Date;
-    location: string | null;
     amountCollected: number;
-    imageUrl: string | null;
   };
   totais: {
     totalGeral: number;
@@ -15,6 +13,11 @@ export type ReportGeneralResponse = {
     totalPix: number;
     totalCartao: number;
     totalGastos: number;
+    totalInscricoesGrupo: number;
+    totalParticipantesGrupo: number;
+    totalInscricoesAvulsas: number;
+    totalParticipantesAvulsos: number;
+    totalParticipantes: number;
   };
   inscricoes: {
     total: number;
