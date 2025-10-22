@@ -3,6 +3,6 @@ export type GeneratePdfGeneralReportRequest = {
 };
 
 export type GeneratePdfGeneralReportResponse = {
-  pdfBuffer: Buffer;
+  pdfBase64: string;
   filename: string;
 };

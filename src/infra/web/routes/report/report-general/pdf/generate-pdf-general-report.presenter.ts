@@ -6,7 +6,7 @@ export class GeneratePdfGeneralReportPresenter {
     output: GeneratePdfGeneralReportOutput,
   ): GeneratePdfGeneralReportResponse {
     return {
-      pdfBuffer: output.pdfBuffer,
+      pdfBase64: output.pdfBase64,
       filename: output.filename,
     };
   }
