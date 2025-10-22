@@ -4,10 +4,10 @@ import { Buffer } from 'node:buffer';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
+import { TicketPdfGenerator } from 'src/shared/utils/pdfs/ticket-pdf-generator.util';
 import { InsufficientTicketsUsecaseException } from 'src/usecases/exceptions/tickets/insufficient-tickets.usecase.exeception';
 import { TicketNotFoundUsecaseException } from 'src/usecases/exceptions/tickets/ticket-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
-import { TicketPdfGenerator } from './ticket-pdf.generator';
 
 export type SaleTicketInput = {
   ticketId: string;

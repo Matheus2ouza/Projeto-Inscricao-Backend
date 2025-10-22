@@ -20,6 +20,8 @@ export abstract class OnSiteRegistrationGateway {
     payments: OnSiteParticipantPayment[],
   ): Promise<OnSiteRegistration>;
 
+  abstract findMany(eventId: string): Promise<OnSiteRegistration[]>;
+
   abstract findManyPaginated(
     page: number,
     pageSize: number,

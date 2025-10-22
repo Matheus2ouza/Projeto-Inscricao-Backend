@@ -1,7 +1,7 @@
-import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
-import { TicketPdfGenerator } from './ticket-pdf.generator';
+import { TicketPdfGenerator } from 'src/shared/utils/pdfs/ticket-pdf-generator.util';
 
 const OUTPUT_FILENAME = 'ticket-pdf-preview';
 
@@ -11,7 +11,8 @@ describe('TicketPdfGenerator manual preview', () => {
   it('generates a pdf file to inspect the ticket styling', async () => {
     const quantityEnv = process.env.TICKET_PDF_TEST_QUANTITY;
     const parsedQuantity = Number.parseInt(quantityEnv ?? '1', 10);
-    const quantity = Number.isNaN(parsedQuantity) || parsedQuantity < 1 ? 1 : parsedQuantity;
+    const quantity =
+      Number.isNaN(parsedQuantity) || parsedQuantity < 1 ? 1 : parsedQuantity;
 
     const pdfBytes = await TicketPdfGenerator.generate({
       ticketId: 'ticket-preview',
@@ -22,7 +23,10 @@ describe('TicketPdfGenerator manual preview', () => {
 
     const projectRoot = path.resolve(__dirname, '../../../..');
     const outputDir = path.join(projectRoot, 'generated');
-    const outputPath = path.join(outputDir, `${OUTPUT_FILENAME}-q${quantity}.pdf`);
+    const outputPath = path.join(
+      outputDir,
+      `${OUTPUT_FILENAME}-q${quantity}.pdf`,
+    );
 
     await mkdir(outputDir, { recursive: true });
     await writeFile(outputPath, pdfBytes);

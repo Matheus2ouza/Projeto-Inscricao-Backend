@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { TicketPdfGenerator } from './ticket-pdf.generator';
+import { TicketPdfGenerator } from 'src/shared/utils/pdfs/ticket-pdf-generator.util';
 
 jest.mock('qrcode', () => ({
   __esModule: true,
@@ -39,7 +39,12 @@ jest.mock('pdf-lib', () => {
     public embedFont = jest.fn(async (font: string) => {
       const fontToken = `font:${font}`;
       this.embeddedFonts.push(fontToken);
-      return fontToken;
+      return {
+        ...fontToken,
+        widthOfTextAtSize: jest.fn(
+          (text: string, size: number) => text.length * size * 0.6,
+        ),
+      };
     });
 
     public embedPng = jest.fn(async (imageBytes: Uint8Array) => {
@@ -98,12 +103,13 @@ describe('TicketPdfGenerator', () => {
 
     const [pageWidth, pageHeight] = document.pageSizes[0];
 
-    const margin = 12;
-    const textAreaHeight = 48;
-    const bottomSpacing = 12;
+    const margin = 8;
+    const textAreaHeight = 30;
+    const bottomSpacing = 6;
+    const separatorHeight = 8;
     const paperWidth = 58 * mmToPoints;
-    const qrSize = 36 * mmToPoints;
-    const ticketHeight = margin + textAreaHeight + qrSize + bottomSpacing;
+    const qrSize = 32 * mmToPoints;
+    const ticketHeight = 16 + qrSize + textAreaHeight + bottomSpacing;
     const expectedPageHeight = margin * 2 + ticketHeight;
 
     expect(pageWidth).toBeCloseTo(paperWidth, 3);
@@ -111,53 +117,35 @@ describe('TicketPdfGenerator', () => {
 
     const [page] = document.pages;
 
-    expect(page.drawRectangle).toHaveBeenCalledTimes(1);
-    const rectangleArgs = page.drawRectangle.mock.calls[0][0];
-
-    expect(rectangleArgs.x).toBe(margin);
-    expect(rectangleArgs.y).toBeCloseTo(margin, 3);
-    expect(rectangleArgs.width).toBeCloseTo(paperWidth - margin * 2, 3);
-    expect(rectangleArgs.height).toBeCloseTo(ticketHeight, 3);
-    expect(rectangleArgs.borderWidth).toBe(1);
-    expect(rectangleArgs.borderColor).toEqual({
-      type: 'RGB',
-      red: 0.6,
-      green: 0.6,
-      blue: 0.6,
-    });
-    expect(rectangleArgs.color).toEqual({
-      type: 'RGB',
-      red: 0.95,
-      green: 0.95,
-      blue: 0.95,
-    });
+    // O novo gerador não usa drawRectangle, apenas drawText e drawImage
+    expect(page.drawRectangle).toHaveBeenCalledTimes(0);
 
     const titleCall = page.drawText.mock.calls.find(
       ([text]: [string]) => text === 'Ingresso VIP',
     );
     expect(titleCall).toBeDefined();
     expect(titleCall?.[1].font).toBe('font:Helvetica-Bold');
-    expect(titleCall?.[1].size).toBe(12);
+    expect(titleCall?.[1].size).toBe(9);
 
     const dateCall = page.drawText.mock.calls.find(([text]: [string]) =>
       text.startsWith('Data:'),
     );
     expect(dateCall?.[1].font).toBe('font:Helvetica');
-    expect(dateCall?.[1].size).toBe(10);
+    expect(dateCall?.[1].size).toBe(7);
 
     const timeCall = page.drawText.mock.calls.find(([text]: [string]) =>
       text.startsWith('Hora:'),
     );
     expect(timeCall?.[1].font).toBe('font:Helvetica');
-    expect(timeCall?.[1].size).toBe(10);
+    expect(timeCall?.[1].size).toBe(7);
 
     expect(page.drawImage).toHaveBeenCalledTimes(1);
     const [qrImage, qrOptions] = page.drawImage.mock.calls[0];
     const embeddedQr = await document.embedPng.mock.results[0].value;
 
     const baseY = expectedPageHeight - margin;
-    const qrTop = baseY - margin - textAreaHeight;
-    const expectedQrY = qrTop - qrSize;
+    const qrY = baseY - 16 - qrSize - 6;
+    const expectedQrY = qrY;
     const expectedQrX = (paperWidth - qrSize) / 2;
 
     expect(qrImage).toBe(embeddedQr);
@@ -167,8 +155,12 @@ describe('TicketPdfGenerator', () => {
     expect(qrOptions.y).toBeCloseTo(expectedQrY, 3);
 
     expect(QRCode.toDataURL).toHaveBeenCalledWith('ticket-001', {
-      margin: 1,
+      margin: 0,
       scale: 4,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
     });
     expect(document.embedFont).toHaveBeenNthCalledWith(1, 'Helvetica');
     expect(document.embedFont).toHaveBeenNthCalledWith(2, 'Helvetica-Bold');
