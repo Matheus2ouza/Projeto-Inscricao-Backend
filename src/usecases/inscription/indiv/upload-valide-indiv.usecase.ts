@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type UploadValidateIndivInput = {
   responsible: string;
+  email: string;
   phone: string;
   eventId: string;
   accountId: string;
@@ -32,6 +33,7 @@ export type UploadValidateIndivOutput = {
 
 type CachePayload = {
   responsible: string;
+  email: string;
   phone: string;
   eventId: string;
   participant: {
@@ -125,30 +127,11 @@ export class UploadValidateIndivUsecase {
     const isExemptType = normalizedType === 'isento';
     const isServiceType = normalizedType === 'servico';
 
-    // Se for tipo isento, verifica a idade
-    if (isExemptType) {
-      const birthDate = new Date(birthDateISO);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      const actualAge =
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-          ? age - 1
-          : age;
-
-      if (actualAge > 8) {
-        throw new Error(
-          `Tipo de inscrição 'isento' não permitido para idade maior que 8 anos. Idade atual: ${actualAge} anos`,
-        );
-      }
-    }
-
     // cria cache e registro
     const cacheKey = `indiv:inscription:${uuidv4()}`;
     const payload: CachePayload = {
       responsible: input.responsible,
+      email: input.email,
       phone: input.phone,
       eventId: input.eventId,
       participant: {
