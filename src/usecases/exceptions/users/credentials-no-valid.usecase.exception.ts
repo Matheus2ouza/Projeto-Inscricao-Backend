@@ -1,7 +1,7 @@
-import { Exception } from "src/shared/exceptions/exception";
+import { Exception } from 'src/shared/exceptions/exception';
 
 export class CredentialsNoValidUsecaseException extends Exception {
-  public constructor (
+  public constructor(
     internalMessage: string,
     publicMessage: string,
     context: string,

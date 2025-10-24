@@ -1,4 +1,4 @@
-import { ZodError } from "zod";
+import { ZodError } from 'zod';
 
 export class ZodUtils {
   public static FormatZodError(error: ZodError): string {

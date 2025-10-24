@@ -12,6 +12,7 @@ import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/exceptions/events/invalid-image-format.usecase.exception';
+import { InscriptionNotReleasedForPaymentUsecaseException } from 'src/usecases/exceptions/paymentInscription/inscription-not-released-for-payment.usecase.exception';
 import { InvalidInscriptionIdUsecaseException } from 'src/usecases/exceptions/paymentInscription/invalid-inscription-id.usecase.exception ';
 import { MissingInscriptionIdUsecaseException } from 'src/usecases/exceptions/paymentInscription/missing-inscription-id.usecase.exception';
 import { OverpaymentNotAllowedUsecaseException } from 'src/usecases/exceptions/paymentInscription/overpayment-not-allowed.usecase.exception';
@@ -68,6 +69,14 @@ export class CreatePaymentInscriptionUsecase
       );
     }
 
+    if (inscription.getStatus() === 'UNDER_REVIEW') {
+      throw new InscriptionNotReleasedForPaymentUsecaseException(
+        `Attempted payment before inscription release id: ${inscriptionId}, status: ${inscription.getStatus()}`,
+        'O pagamento ainda não está liberado para esta inscrição.',
+        CreatePaymentInscriptionUsecase.name,
+      );
+    }
+
     const currentDebt = inscription.getTotalValue();
 
     if (new Decimal(value).greaterThan(currentDebt)) {
@@ -86,7 +95,7 @@ export class CreatePaymentInscriptionUsecase
       );
     }
 
-    let status: StatusPayment = 'UNDER_REVIEW';
+    const status: StatusPayment = 'UNDER_REVIEW';
     const eventId = inscription.getEventId();
     const imageUrl = await this.processEventImage(image, eventId, value);
 

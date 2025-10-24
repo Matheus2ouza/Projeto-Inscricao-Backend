@@ -4,9 +4,9 @@ export class Exception extends Error {
   private readonly context: string;
 
   public constructor(
-    internalMessage: string, 
-    externalMessage?: string, 
-    context?: string
+    internalMessage: string,
+    externalMessage?: string,
+    context?: string,
   ) {
     super(internalMessage);
     this.internalMessage = internalMessage;

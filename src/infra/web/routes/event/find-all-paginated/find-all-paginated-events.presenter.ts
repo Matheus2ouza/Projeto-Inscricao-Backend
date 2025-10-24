@@ -1,4 +1,4 @@
-import { FindAllPaginatedEventsOutput } from 'src/usecases/event/findAllEvent/find-all-paginated-events.usecase';
+import { FindAllPaginatedEventsOutput } from 'src/usecases/event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllPaginatedEventResponse } from './find-all-paginated-events.dto';
 
 export class FindAllPaginatedEventsPresenter {

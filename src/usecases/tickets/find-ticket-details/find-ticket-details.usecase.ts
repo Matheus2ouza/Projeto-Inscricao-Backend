@@ -34,9 +34,7 @@ export class FindTicketDetailsUsecase
   async execute(
     input: FindTicketDetailsInput,
   ): Promise<FindTicketDetailsOutput> {
-    const ticket = await this.eventTicketsGateway.findById(
-      input.eventTicketId,
-    );
+    const ticket = await this.eventTicketsGateway.findById(input.eventTicketId);
 
     if (!ticket) {
       throw new TicketNotFoundUsecaseException(

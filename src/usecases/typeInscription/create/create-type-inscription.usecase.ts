@@ -31,7 +31,7 @@ export class CreateTypeInscriptionUseCase
     eventId,
   }: CreateTypeInscriptionInput): Promise<CreateTypeInscriptionOutput> {
     const descriptionExist =
-      await this.typeInscriptionGateway.findByDescription(description);
+      await this.typeInscriptionGateway.findByDescription(eventId, description);
 
     if (descriptionExist) {
       throw new DescriptionAlreadyExistsUsecaseException(

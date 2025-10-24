@@ -22,6 +22,7 @@ export class CreateUserRoute {
       role: request.role,
       regionId: request.regionId,
       requesterRole: req['userRole'],
+      email: request.email,
     };
 
     const result = await this.createUserUseCase.execute(input);
