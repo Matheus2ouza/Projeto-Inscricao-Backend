@@ -6,6 +6,7 @@ export type InscriptionCreateDto = {
   accountId: string;
   eventId: string;
   responsible: string;
+  email?: string;
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
@@ -16,6 +17,7 @@ export type InscriptionWithDto = {
   accountId: string;
   eventId: string;
   responsible: string;
+  email?: string;
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
@@ -34,6 +36,7 @@ export class Inscription extends Entity {
     private status: InscriptionStatus,
     createdAt: Date,
     updatedAt: Date,
+    private emil?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -46,6 +49,7 @@ export class Inscription extends Entity {
     phone,
     totalValue,
     status,
+    email,
   }: InscriptionCreateDto): Inscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -61,6 +65,7 @@ export class Inscription extends Entity {
       status,
       createdAt,
       updatedAt,
+      email,
     );
   }
 
@@ -69,6 +74,7 @@ export class Inscription extends Entity {
     accountId,
     eventId,
     responsible,
+    email,
     phone,
     totalValue,
     status,
@@ -85,6 +91,7 @@ export class Inscription extends Entity {
       status,
       createdAt,
       updatedAt,
+      email,
     );
   }
 
@@ -103,6 +110,10 @@ export class Inscription extends Entity {
 
   public getResponsible(): string {
     return this.responsible;
+  }
+
+  public getEmail(): string | undefined {
+    return this.emil;
   }
 
   public getPhone(): string {
