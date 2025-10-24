@@ -1,6 +1,5 @@
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
-import { TypeInscriptionPrismaRepository } from './type-inscription.prisma.repository';
-import { Provider } from '@nestjs/common';
+import { TypeInscriptionPrismaRepository } from '../type-inscription.prisma.repository';
 
 export const TypeInscriptionPrismaRepositoryProvider = {
   provide: TypeInscriptionGateway,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { TypesInscription } from 'src/domain/entities/typesInscription.entity';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { PrismaService } from '../prisma.service';
-import { TypesInscription } from 'src/domain/entities/typesInscription.entity';
 import { TypeInscriptionEntityToTypeInscriptionPrismaModelMapper } from './model/mappers/type-inscription-entity-to-type-inscription-prisma-model.mapper';
 import { TypeInscriptionPrismaModelToTypeInscriptionEntityMapper } from './model/mappers/type-inscription-prisma-model-to-type-inscription-entity.mapper';
 
@@ -28,10 +28,11 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
   }
 
   async findByDescription(
+    eventId,
     description: string,
   ): Promise<TypesInscription | null> {
     const found = await this.prisma.typeInscriptions.findFirst({
-      where: { description },
+      where: { eventId, description },
     });
     return found
       ? TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map(found)

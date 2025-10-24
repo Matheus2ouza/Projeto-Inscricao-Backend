@@ -4,6 +4,7 @@ export abstract class TypeInscriptionGateway {
   abstract create(typeInscription: TypesInscription): Promise<TypesInscription>;
   abstract findById(id: string): Promise<TypesInscription | null>;
   abstract findByDescription(
+    eventId: string,
     description: string,
   ): Promise<TypesInscription | null>;
   abstract findAll(): Promise<TypesInscription[]>;
