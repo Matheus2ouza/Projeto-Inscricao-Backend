@@ -4,6 +4,7 @@ import { Inscription } from '../entities/inscription.entity';
 export abstract class InscriptionGateway {
   abstract findById(id: string): Promise<Inscription | null>;
   abstract findByAccountId(accountId: string): Promise<Inscription[]>;
+  abstract findByEventId(eventId: string): Promise<Inscription[]>;
   abstract create(inscription: Inscription): Promise<Inscription>;
   abstract findManyPaginated(
     page: number,
@@ -44,4 +45,5 @@ export abstract class InscriptionGateway {
     pageSize: number,
   ): Promise<Inscription[]>;
   abstract countAllByEvent(eventId: string): Promise<number>;
+  abstract countAllInAnalysis(eventId: string): Promise<number>;
 }

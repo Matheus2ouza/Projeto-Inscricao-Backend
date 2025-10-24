@@ -29,6 +29,13 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findByEventId(eventId: string): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: { eventId },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
   async findMany(eventId: string): Promise<Inscription[]> {
     const found = await this.prisma.inscription.findMany({
       where: { eventId },
@@ -188,6 +195,14 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     const total = await this.prisma.inscription.count({
       where: { eventId },
     });
+    return total;
+  }
+
+  async countAllInAnalysis(eventId: string): Promise<number> {
+    const total = await this.prisma.inscription.count({
+      where: { eventId, status: 'UNDER_REVIEW' },
+    });
+
     return total;
   }
 }
