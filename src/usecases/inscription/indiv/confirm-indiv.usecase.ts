@@ -3,13 +3,19 @@ import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
 import { Participant as ParticipantEntity } from 'src/domain/entities/participant.entity';
 import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription-email.handler';
+import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription-email.types';
 import { RedisService } from 'src/infra/services/redis/redis.service';
 
 type CachePayload = {
   responsible: string;
+  email: string;
   phone: string;
   eventId: string;
   participant: {
@@ -29,6 +35,7 @@ export type ConfirmIndivInput = {
 
 export type ConfirmIndivOutput = {
   inscriptionId: string;
+  inscriptionStatus: string;
   paymentEnabled: boolean;
 };
 
@@ -40,6 +47,10 @@ export class IndivConfirmUsecase {
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
     private readonly eventGateway: EventGateway,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
+    private readonly userGateway: UserGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
+    private readonly inscriptionEmailHandler: InscriptionEmailHandler,
   ) {}
 
   async execute(input: ConfirmIndivInput): Promise<ConfirmIndivOutput> {
@@ -74,7 +85,8 @@ export class IndivConfirmUsecase {
 
     // Verifica se o tipo de inscrição é "isento" para definir o status
     const isExemptType =
-      cached.participant.typeDescription.toLowerCase().trim() === 'isento';
+      cached.participant.typeDescription.toLowerCase().trim() === 'isento' ||
+      cached.participant.typeDescription.toLowerCase().trim() === 'serviço';
     const status = isExemptType
       ? InscriptionStatus.UNDER_REVIEW
       : InscriptionStatus.PENDING;
@@ -86,6 +98,7 @@ export class IndivConfirmUsecase {
       phone: cached.phone,
       totalValue: cached.participant.value,
       status,
+      email: cached.email,
     });
 
     const createdInscription =
@@ -107,13 +120,94 @@ export class IndivConfirmUsecase {
     );
 
     await this.eventGateway.updateQuantityParticipants(cached.eventId, 1);
+
     // Remover do cache (Redis e banco)
     await this.redis.del(input.cacheKey);
     await this.cacheRecordGateway.deleteByCacheKey(input.cacheKey);
 
+    // Enviar e-mail de notificação para os responsáveis do evento
+    await this.sendInscriptionNotificationEmail(
+      cached.eventId,
+      createdInscription,
+      cached.participant,
+    );
+
     return {
       inscriptionId: createdInscription.getId(),
+      inscriptionStatus: createdInscription.getStatus(),
       paymentEnabled: paymentEnabledEvent,
     };
+  }
+
+  /**
+   * Envia e-mail de notificação de inscrição para os responsáveis do evento
+   */
+  private async sendInscriptionNotificationEmail(
+    eventId: string,
+    inscription: InscriptionEntity,
+    participant: CachePayload['participant'],
+  ): Promise<void> {
+    try {
+      // Buscar dados do evento
+      const event = await this.eventGateway.findById(eventId);
+      if (!event) {
+        console.warn(`Evento ${eventId} não encontrado para envio de e-mail`);
+        return;
+      }
+
+      // Buscar responsáveis do evento
+      const eventResponsibles =
+        await this.eventResponsibleGateway.findByEventId(eventId);
+
+      if (eventResponsibles.length === 0) {
+        console.warn(`Evento ${eventId} não possui responsáveis cadastrados`);
+        return;
+      }
+
+      // Buscar dados dos usuários responsáveis
+      const responsibleUsers = await Promise.all(
+        eventResponsibles.map(async (responsible) => {
+          const user = await this.userGateway.findById(
+            responsible.getAccountId(),
+          );
+          return {
+            id: responsible.getAccountId(),
+            username: user?.getUsername() || 'Usuário não encontrado',
+            email: user?.getEmail(), // E-mail do responsável pelo evento
+          };
+        }),
+      );
+
+      // Buscar dados da conta que fez a inscrição
+      const accountUser = await this.userGateway.findById(
+        inscription.getAccountId(),
+      );
+
+      // Prepara dados para o e-mail
+      const emailData: InscriptionEmailData = {
+        eventName: event.getName(),
+        eventImageUrl: event.getImageUrl(),
+        responsibleName: inscription.getResponsible(),
+        responsiblePhone: inscription.getPhone(),
+        responsibleEmail: inscription.getEmail(),
+        totalValue: inscription.getTotalValue(),
+        participantCount: 1,
+        accountUsername: accountUser?.getUsername() || 'Usuário não encontrado',
+        inscriptionDate: inscription.getCreatedAt(),
+        eventStartDate: event.getStartDate(),
+        eventEndDate: event.getEndDate(),
+        eventLocation: event.getLocation(),
+      };
+
+      await this.inscriptionEmailHandler.sendInscriptionNotification(
+        emailData,
+        responsibleUsers,
+      );
+    } catch (error) {
+      console.error(
+        'Erro ao enviar e-mail de notificação de inscrição:',
+        error,
+      );
+    }
   }
 }

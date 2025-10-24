@@ -1,28 +1,31 @@
 import { Module } from '@nestjs/common';
 import { DataBaseModule } from 'src/infra/repositories/database.module';
 import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-optimizer.module';
+import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventExpensesUsecase } from './event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
+import { FindAllPaginatedEventsUsecase } from './event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
+import { FindAllPaginatedEventToInscriptionUsecase } from './event/find-all-to-analysis/inscriptions/find-all-paginated-events.usecase';
 import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
-import { FindAllPaginatedEventsUsecase } from './event/findAllEvent/find-all-paginated-events.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
 import { ListInscriptionUsecase } from './event/list-inscription/list-Inscription.usecase';
 import { UpdateInscriptionEventUsecase } from './event/update-inscription/update-inscription-event.usecase';
 import { UpdatePaymentEventUsecase } from './event/update-payment/update-payment.usecase';
 import { AnalysisInscriptionUsecase } from './inscription/analysis-inscription/analysis-inscription.usecase';
+import { CreateInscriptionAvulUsecase } from './inscription/avul/create/create-inscription-avul.usecase';
+import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
+import { FindAllPaginatedInscriptionsUsecase } from './inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindDetailsInscriptionUsecase } from './inscription/find-details-inscription/find-details-inscription.usecase';
-import { FindAllPaginatedInscriptionsUsecase } from './inscription/findAllInscription/find-all-paginated-inscription.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
 import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usecase';
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
-import { CreateInscriptionAvulUsecase } from './inscriptionAvul/create/create-inscription-avul.usecase';
-import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscriptionAvul/findAll/find-all-paginated-onsite-registration.usecase';
+import { InscriptionAnalysisUsecase } from './inscription/inscription-analysis/inscription-analysis.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
@@ -39,6 +42,7 @@ import { FindAllInscriptionUsecase } from './typeInscription/find-all-inscriptio
 import { FindTypeInscriptionByEventIdUsecase } from './typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
 import { CreateUserUsecase } from './user/create/create-user.usecase';
 import { FindAllPaginatedUsersUsecase } from './user/find-all-paginated/find-all-paginated.usecase';
+import { FindAllNamesUserUsecase } from './user/find-all-username/find-all-names-user.usecase';
 import { FindUserUsecase } from './user/find-by-id/find-user.usecase';
 import { LoginUserUsecase } from './user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-auth-token-user.usecase';
@@ -49,86 +53,139 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     ServiceModule,
     SupabaseModule,
     ImageOptimizerModule,
+    MailModule,
   ],
   providers: [
+    //Users
     CreateUserUsecase,
     FindUserUsecase,
     LoginUserUsecase,
     RefreshAuthTokenUserUsecase,
+    FindAllPaginatedUsersUsecase,
+    FindAllNamesUserUsecase,
+
+    //Events
     CreateEventUseCase,
     FindAllPaginatedEventsUsecase,
-    CreateRegionUseCase,
-    FindAllRegionNamesUsecase,
-    FindAllPaginatedRegionsUsecase,
-    FindAllPaginatedUsersUsecase,
     FindByIdEventUsecase,
-    CreateTypeInscriptionUseCase,
-    FindTypeInscriptionByEventIdUsecase,
-    UploadValidateGroupUsecase,
-    ConfirmGroupUsecase,
-    FindCacheGroupUsecase,
-    FindAllInscriptionUsecase,
-    UploadValidateIndivUsecase,
-    IndivConfirmUsecase,
-    FindAllPaginatedInscriptionsUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
-    FindDetailsInscriptionUsecase,
-    CreatePaymentInscriptionUsecase,
-    CreateEventExpensesUsecase,
-    FindAllPaginatedEventExpensesUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,
+    FindAllPaginatedEventToInscriptionUsecase,
+
+    //Regions
+    CreateRegionUseCase,
+    FindAllRegionNamesUsecase,
+    FindAllPaginatedRegionsUsecase,
+
+    //TypeInscription
+    CreateTypeInscriptionUseCase,
+    FindTypeInscriptionByEventIdUsecase,
+    FindAllInscriptionUsecase,
+
+    //Inscription
+    FindAllPaginatedInscriptionsUsecase,
+    FindDetailsInscriptionUsecase,
     AnalysisInscriptionUsecase,
-    CreateTicketUsecase,
-    FindAllTicketsUsecase,
-    SaleGroupTicketUsecase,
-    SaleTicketUsecase,
+    InscriptionAnalysisUsecase,
+
+    //InscriptionGroup
+    UploadValidateGroupUsecase,
+    ConfirmGroupUsecase,
+    FindCacheGroupUsecase,
+
+    //InscriptionIndiv
+    UploadValidateIndivUsecase,
+    IndivConfirmUsecase,
+
+    //InscriptionAvul
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+
+    //PaymentInscription
+    CreatePaymentInscriptionUsecase,
+
+    //Tickets
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
     FindTicketDetailsUsecase,
+    SaleGroupTicketUsecase,
+    SaleTicketUsecase,
+
+    //EventExpenses
+    CreateEventExpensesUsecase,
+    FindAllPaginatedEventExpensesUsecase,
+
+    //Reports
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
   ],
   exports: [
+    //Users
     CreateUserUsecase,
     FindUserUsecase,
     LoginUserUsecase,
     RefreshAuthTokenUserUsecase,
-    CreateEventUseCase,
-    CreateRegionUseCase,
-    FindAllRegionNamesUsecase,
-    FindAllPaginatedRegionsUsecase,
     FindAllPaginatedUsersUsecase,
+    FindAllNamesUserUsecase,
+
+    //Events
+    CreateEventUseCase,
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
-    CreateTypeInscriptionUseCase,
-    FindTypeInscriptionByEventIdUsecase,
-    UploadValidateGroupUsecase,
-    ConfirmGroupUsecase,
-    FindCacheGroupUsecase,
-    FindAllInscriptionUsecase,
-    UploadValidateIndivUsecase,
-    IndivConfirmUsecase,
-    FindAllPaginatedInscriptionsUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
-    FindDetailsInscriptionUsecase,
-    CreatePaymentInscriptionUsecase,
-    CreateEventExpensesUsecase,
-    FindAllPaginatedEventExpensesUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     ListInscriptionUsecase,
+    FindAllPaginatedEventToInscriptionUsecase,
+
+    //Regions
+    CreateRegionUseCase,
+    FindAllRegionNamesUsecase,
+    FindAllPaginatedRegionsUsecase,
+
+    //TypeInscription
+    CreateTypeInscriptionUseCase,
+    FindTypeInscriptionByEventIdUsecase,
+    FindAllInscriptionUsecase,
+
+    //Inscription
+    FindAllPaginatedInscriptionsUsecase,
+    FindDetailsInscriptionUsecase,
     AnalysisInscriptionUsecase,
-    CreateTicketUsecase,
-    FindAllTicketsUsecase,
-    SaleGroupTicketUsecase,
-    SaleTicketUsecase,
+    InscriptionAnalysisUsecase,
+
+    //InscriptionGroup
+    UploadValidateGroupUsecase,
+    ConfirmGroupUsecase,
+    FindCacheGroupUsecase,
+
+    //InscriptionIndiv
+    UploadValidateIndivUsecase,
+    IndivConfirmUsecase,
+
+    //InscriptionAvul
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+
+    //PaymentInscription
+    CreatePaymentInscriptionUsecase,
+
+    //Tickets
+    CreateTicketUsecase,
+    FindAllTicketsUsecase,
     FindTicketDetailsUsecase,
+    SaleGroupTicketUsecase,
+    SaleTicketUsecase,
+
+    //EventExpenses
+    CreateEventExpensesUsecase,
+    FindAllPaginatedEventExpensesUsecase,
+
+    //Reports
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
   ],

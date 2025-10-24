@@ -1,10 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { FindAllPaginatedEventsUsecase } from 'src/usecases/event/find-all-event/find-all-paginated-events.usecase';
 import type {
   FindAllPaginatedEventResponse,
   FindAllPaginatedEventsRequest,
 } from './find-all-paginated-events.dto';
 import { FindAllPaginatedEventsPresenter } from './find-all-paginated-events.presenter';
-import { FindAllPaginatedEventsUsecase } from 'src/usecases/event/findAllEvent/find-all-paginated-events.usecase';
 
 @Controller('events')
 export class FindAllPaginatedEventsRoute {

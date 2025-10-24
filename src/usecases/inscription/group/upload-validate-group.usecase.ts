@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type UploadValidateGroupInput = {
   responsible: string;
+  email: string;
   phone: string;
   eventId: string;
   accountId: string;
@@ -34,6 +35,7 @@ export type UploadValidateGroupOutput = {
 
 type CachePayload = {
   responsible: string;
+  email: string;
   phone: string;
   eventId: string;
   items: {
@@ -140,27 +142,6 @@ export class UploadValidateGroupUsecase {
           isExemptType = normalizedType === 'isento';
           isServiceType = normalizedType === 'serviço';
 
-          // Se for tipo isento, verifica a idade
-          if (isExemptType && birthDateISO) {
-            const birthDate = new Date(birthDateISO);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-
-            const actualAge =
-              monthDiff < 0 ||
-              (monthDiff === 0 && today.getDate() < birthDate.getDate())
-                ? age - 1
-                : age;
-
-            if (actualAge > 8) {
-              errors.push({
-                line: row.line,
-                reason: `Tipo de inscrição 'isento' não permitido para idade maior que 8 anos. Idade atual: ${actualAge} anos`,
-              });
-            }
-          }
-
           // Marca se for isento ou serviço → vai para revisão
           if (isExemptType || isServiceType) {
             hasReviewType = true;
@@ -195,6 +176,7 @@ export class UploadValidateGroupUsecase {
     const cacheKey = `group:inscription:${uuidv4()}`;
     const payload: CachePayload = {
       responsible: input.responsible,
+      email: input.email,
       phone: input.phone,
       eventId: input.eventId,
       items: normalized,

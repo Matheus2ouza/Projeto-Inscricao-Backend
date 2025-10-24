@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import { Workbook } from 'exceljs';
 import { ExcelDateUtil } from 'src/shared/utils/excel-date.util';
 import { GenderConverterUtil } from 'src/shared/utils/gender-converter.util';
 
@@ -12,56 +12,92 @@ export type ParsedRow = {
 };
 
 export class XlsxGroupParserUtil {
-  static parse(buffer: Buffer): ParsedRow[] {
-    const workbook = XLSX.read(buffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  static async parse(buffer: Buffer): Promise<ParsedRow[]> {
+    const workbook = new Workbook();
+    await workbook.xlsx.load(buffer as any);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) return [];
+
+    const normalizeCellValue = (
+      value: unknown,
+    ): string | number | Date | null => {
+      if (value === undefined || value === null) return null;
+
+      if (typeof value === 'object') {
+        const richText = (value as { richText?: Array<{ text?: string }> })
+          .richText;
+        if (Array.isArray(richText)) {
+          return richText.map((item) => item.text ?? '').join('');
+        }
+
+        const text = (value as { text?: string }).text;
+        if (typeof text === 'string') return text;
+
+        const result = (value as { result?: unknown }).result;
+        if (result !== undefined) return normalizeCellValue(result);
+      }
+
+      return value as string | number | Date;
+    };
 
     const parsed: ParsedRow[] = [];
-    // Começa da linha 5 (índice 4)
-    for (let i = 5; i < rows.length; i++) {
-      const row = rows[i] as (string | number | Date | null | undefined)[];
-      if (!row || row.length === 0) continue;
 
-      const index = Number(row[0] ?? '');
-      const name = String(row[1] ?? '').trim();
-      const birthDateRaw = row[2];
-      const genderRaw = String(row[3] ?? '').trim();
-      const typeDescription = String(row[4] ?? '').trim();
+    worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+      if (rowNumber <= 5) return;
 
-      if (!name && !birthDateRaw && !genderRaw && !typeDescription) continue;
+      const values = row.values as unknown[];
+      const indexRaw = normalizeCellValue(values[1]);
+      const nameRaw = normalizeCellValue(values[2]);
+      const birthDateValue = normalizeCellValue(values[3]);
+      const genderRaw = String(normalizeCellValue(values[4]) ?? '').trim();
+      const typeDescription = String(
+        normalizeCellValue(values[5]) ?? '',
+      ).trim();
 
-      // Converter data do Excel para DD/MM/AAAA
+      const hasData =
+        String(nameRaw ?? '').trim() ||
+        birthDateValue ||
+        genderRaw ||
+        typeDescription;
+      if (!hasData) return;
+
+      const index = Number(indexRaw ?? '');
+      const name = String(nameRaw ?? '').trim();
+
       let birthDateStr = '';
-      if (birthDateRaw) {
-        if (typeof birthDateRaw === 'number') {
-          birthDateStr = ExcelDateUtil.convertExcelSerialToDate(birthDateRaw);
+      if (birthDateValue) {
+        if (birthDateValue instanceof Date) {
+          const day = birthDateValue.getDate().toString().padStart(2, '0');
+          const month = (birthDateValue.getMonth() + 1)
+            .toString()
+            .padStart(2, '0');
+          const year = birthDateValue.getFullYear();
+          birthDateStr = `${day}/${month}/${year}`;
+        } else if (typeof birthDateValue === 'number') {
+          birthDateStr = ExcelDateUtil.convertExcelSerialToDate(birthDateValue);
         } else {
-          birthDateStr = String(birthDateRaw).trim();
+          birthDateStr = String(birthDateValue).trim();
         }
       }
 
-      // Converter gênero para formato completo
       let gender = '';
       if (genderRaw) {
         try {
           gender = GenderConverterUtil.convertToFullGender(genderRaw);
-        } catch (error) {
-          // Se não conseguir converter, mantém o valor original para validação posterior
+        } catch {
           gender = genderRaw;
         }
       }
 
       parsed.push({
-        line: i + 1, // lê a partir de 1
+        line: rowNumber,
         index,
         name,
         birthDateStr,
         gender,
         typeDescription,
       });
-    }
+    });
 
     return parsed;
   }

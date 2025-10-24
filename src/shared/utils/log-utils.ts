@@ -1,5 +1,5 @@
-import { Logger } from "@nestjs/common";
-import { Exception } from "../exceptions/exception";
+import { Logger } from '@nestjs/common';
+import { Exception } from '../exceptions/exception';
 
 export class LogUtils {
   public static logException(exception: Exception) {

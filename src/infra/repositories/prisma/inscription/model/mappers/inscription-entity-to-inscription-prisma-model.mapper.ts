@@ -9,6 +9,7 @@ export class InscriptionEntityToInscriptionPrismaModelMapper {
       accountId: inscription.getAccountId(),
       eventId: inscription.getEventId(),
       responsible: inscription.getResponsible(),
+      email: inscription.getEmail() ?? null,
       phone: inscription.getPhone(),
       totalValue: new Decimal(inscription.getTotalValue()),
       status: inscription.getStatus(),

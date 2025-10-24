@@ -30,6 +30,7 @@ export class CreateEventRoute {
       latitude: request.latitude,
       status: request.status,
       paymentEnabled: request.paymentEnabled,
+      responsibles: request.responsibles,
     };
 
     const result = await this.createEventUseCase.execute(input);

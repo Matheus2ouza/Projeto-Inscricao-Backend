@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/domain/entities/user.entity';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
-import { prismaClient } from '../client.prisma';
+import { PrismaService } from '../prisma.service';
 import { UserEntityToUserPrismaModelMapper } from './model/mappers/user-entity-to-user-prisma-model.mapper';
 import { UserPrismaModelToUserEntityMapper } from './model/mappers/user-prisma-model-to-user-entity.mapper';
 
 @Injectable()
-export class UserPrismaRepository extends UserGateway {
-  public constructor() {
-    super();
-  }
+export class UserPrismaRepository implements UserGateway {
+  constructor(private readonly prisma: PrismaService) {}
 
   public async findByUser(username: string): Promise<User | null> {
-    const aModel = await prismaClient.accounts.findFirst({
+    const aModel = await this.prisma.accounts.findFirst({
       where: { username },
     });
 
@@ -24,7 +22,7 @@ export class UserPrismaRepository extends UserGateway {
   }
 
   public async findById(id: string): Promise<User | null> {
-    const aModel = await prismaClient.accounts.findUnique({
+    const aModel = await this.prisma.accounts.findUnique({
       where: {
         id,
       },
@@ -38,7 +36,7 @@ export class UserPrismaRepository extends UserGateway {
   }
 
   public async findRegionById(id: string): Promise<any | null> {
-    const region = await prismaClient.regions.findUnique({
+    const region = await this.prisma.regions.findUnique({
       where: {
         id,
       },
@@ -51,7 +49,7 @@ export class UserPrismaRepository extends UserGateway {
 
   public async create(user: User): Promise<void> {
     const aModel = UserEntityToUserPrismaModelMapper.map(user);
-    await prismaClient.accounts.create({
+    await this.prisma.accounts.create({
       data: aModel,
     });
   }
@@ -62,7 +60,7 @@ export class UserPrismaRepository extends UserGateway {
   ): Promise<User[]> {
     const skip = (page - 1) * pageSize;
 
-    const models = await prismaClient.accounts.findMany({
+    const models = await this.prisma.accounts.findMany({
       skip,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
@@ -74,6 +72,7 @@ export class UserPrismaRepository extends UserGateway {
         createdAt: true,
         updatedAt: true,
         regionId: true,
+        email: true,
         region: {
           select: {
             name: true,
@@ -85,8 +84,19 @@ export class UserPrismaRepository extends UserGateway {
     return models.map(UserPrismaModelToUserEntityMapper.map);
   }
 
+  async findAll(): Promise<User[]> {
+    const found = await this.prisma.accounts.findMany({
+      where: {
+        role: {
+          in: ['ADMIN', 'SUPER', 'MANAGER'],
+        },
+      },
+    });
+    return found.map(UserPrismaModelToUserEntityMapper.map);
+  }
+
   public async countAll(): Promise<number> {
-    const total = await prismaClient.accounts.count();
+    const total = await this.prisma.accounts.count();
     return total;
   }
 }

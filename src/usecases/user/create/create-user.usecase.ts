@@ -2,11 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
 import { User } from 'src/domain/entities/user.entity';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
-import { canActOn, RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/exceptions/users/user-not-allowed-to-create-user.usecase.exception';
+import { RegionNotFoundUsecaseException } from 'src/usecases/exceptions/users/region-not-found.usecase.exception';
 import { UserAlreadyExistsUsecaseException } from 'src/usecases/exceptions/users/user-already-exists.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
-import { RegionNotFoundUsecaseException } from 'src/usecases/exceptions/users/region-not-found.usecase.exception';
 
 export type CreateUserInput = {
   username: string;
@@ -14,6 +12,7 @@ export type CreateUserInput = {
   role: roleType;
   regionId?: string;
   requesterRole?: string;
+  email: string;
 };
 
 export type CreateUserOutput = {
@@ -32,6 +31,7 @@ export class CreateUserUsecase
     role,
     regionId,
     requesterRole,
+    email,
   }: CreateUserInput): Promise<CreateUserOutput> {
     // Verifica se o usuário que está tentando criar tem permissão para criar um usuário com a role desejada
 
@@ -57,7 +57,7 @@ export class CreateUserUsecase
       );
     }
 
-    const anUser = User.create({ username, password, role, regionId });
+    const anUser = User.create({ username, password, role, regionId, email });
 
     await this.userGateway.create(anUser);
 

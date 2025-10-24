@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import { FindAllPaginatedInscriptionsUsecase } from 'src/usecases/inscription/findAllInscription/find-all-paginated-inscription.usecase';
+import { FindAllPaginatedInscriptionsUsecase } from 'src/usecases/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import type {
   FindAllPaginatedInscriptionRequest,
   FindAllPaginatedInscriptionResponse,

@@ -18,21 +18,23 @@ import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
+import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
 import { ListInscriptionRoute } from './routes/event/list-inscription/list-Inscription.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
+import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
+import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
-import { GroupConfirmRoute } from './routes/inscription/inscriptionGroup/confirm/group-confirm.route';
-import { GroupFindCacheRoute } from './routes/inscription/inscriptionGroup/find-cache/group-find-cache.route';
-import { GroupUploadRoute } from './routes/inscription/inscriptionGroup/upload/group-upload.route';
-import { IndivConfirmRoute } from './routes/inscription/inscriptionIndiv/confirm/indiv-confirm.route';
-import { IndivUploadRoute } from './routes/inscription/inscriptionIndiv/upload/indiv-upload.route';
-import { CreateInscriptionAvulRoute } from './routes/inscriptionAvul/create/create-inscription-avul.route';
-import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscriptionAvul/find-all-paginated/find-all-paginated-onsite-registration.route';
+import { InscriptionAnalysisRoute } from './routes/inscription/inscription-analysis/inscription-analysis.route';
+import { GroupConfirmRoute } from './routes/inscription/inscription-group/confirm/group-confirm.route';
+import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find-cache/group-find-cache.route';
+import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
+import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
+import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
@@ -48,6 +50,7 @@ import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/crea
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
+import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
 import { FindByIdUserRoute } from './routes/user/find-by-id/find-by-id-user.route';
 import { LoginUserRoute } from './routes/user/login/login-user.route';
@@ -68,6 +71,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindByIdUserRoute,
     UserProfileRoute,
     FindAllPaginatedUsersRoute,
+    FindAllNamesUserRoute,
 
     //Event
     ListInscriptionRoute,
@@ -79,6 +83,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindByIdEventRoute,
     FindByEventId,
     FindAllNamesEventRoute,
+
+    //Event - Analise
+    FindAllPaginatedEventToInscriptionRoute,
 
     //Region
     CreateRegionRoute,
@@ -93,6 +100,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllInscriptionRoute,
     FindAllPaginatedInscriptionsRoute,
     AnalysisInscriptionRoute,
+    InscriptionAnalysisRoute,
 
     //InscriptionGrup
     GroupUploadRoute,

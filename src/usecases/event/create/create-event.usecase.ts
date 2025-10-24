@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
+import { EventResponsible } from 'src/domain/entities/event-responsibles.entity';
 import { Event } from 'src/domain/entities/event.entity';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
@@ -25,6 +27,9 @@ export type CreateEventInput = {
   latitude?: number;
   status: statusEvent;
   paymentEnabled: boolean;
+  responsibles: {
+    accountId: string;
+  }[];
 };
 
 export type CreateEventOutput = {
@@ -40,6 +45,7 @@ export class CreateEventUseCase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly regionGateway: RegionGateway,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
   ) {}
@@ -55,6 +61,7 @@ export class CreateEventUseCase
     latitude,
     status,
     paymentEnabled,
+    responsibles,
   }: CreateEventInput): Promise<CreateEventOutput> {
     if (!regionId) {
       throw new MissingRegionIdUsecaseException(
@@ -122,6 +129,17 @@ export class CreateEventUseCase
     });
 
     await this.eventGateway.create(event);
+
+    if (responsibles && responsibles.length > 0) {
+      for (const responsible of responsibles) {
+        const responsibleEntity = EventResponsible.create({
+          eventId: event.getId(),
+          accountId: responsible.accountId,
+        });
+
+        await this.eventResponsibleGateway.create(responsibleEntity);
+      }
+    }
 
     const output: CreateEventOutput = {
       id: event.getId(),

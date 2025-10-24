@@ -12,6 +12,7 @@ export class UserEntityToUserPrismaModelMapper {
       createdAt: user.getCreatedAt(),
       updatedAt: user.getUpdatedAt(),
       regionId: user.getRegionId() ?? null,
+      email: user.getEmail() ?? null,
     };
 
     return aModel;
