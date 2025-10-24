@@ -1,12 +1,12 @@
-import { Exception } from "src/shared/exceptions/exception";
+import { Exception } from 'src/shared/exceptions/exception';
 
 export class ServiceException extends Exception {
-  public constructor (
+  public constructor(
     internalMessage: string,
     externalMessage: string,
-    context: string
+    context: string,
   ) {
-    super(internalMessage, externalMessage, context)
-    this.name = ServiceException.name
+    super(internalMessage, externalMessage, context);
+    this.name = ServiceException.name;
   }
 }
