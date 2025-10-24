@@ -28,9 +28,7 @@ export class OnSiteParticipantPaymentPrismaRepository
     );
   }
 
-  public async findById(
-    id: string,
-  ): Promise<OnSiteParticipantPayment | null> {
+  public async findById(id: string): Promise<OnSiteParticipantPayment | null> {
     const aModel = await this.prisma.onSiteParticipantPayment.findUnique({
       where: { id },
     });
