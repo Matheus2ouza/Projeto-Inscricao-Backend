@@ -8,7 +8,7 @@ export class CacheRecordEntityToCacheRecordPrismaModelMapper {
     return {
       id: cacheRecord.getId(),
       cacheKey: cacheRecord.getCacheKey(),
-      payload: cacheRecord.getPayload() as any,
+      payload: cacheRecord.getPayload(),
       accountId: cacheRecord.getAccountId(),
       expiresAt: cacheRecord.getExpiresAt() ?? null,
       createdAt: cacheRecord.getCreatedAt(),
