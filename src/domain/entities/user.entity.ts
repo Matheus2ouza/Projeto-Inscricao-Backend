@@ -9,6 +9,7 @@ export type UserCreateDto = {
   password: string;
   role: roleType;
   regionId?: string;
+  email: string;
 };
 
 export type UserwithDto = {
@@ -20,6 +21,7 @@ export type UserwithDto = {
   updatedAt: Date;
   regionId?: string;
   regionName?: string;
+  email?: string;
 };
 
 export class User extends Entity {
@@ -32,6 +34,7 @@ export class User extends Entity {
     updatedAt: Date,
     private regionId?: string,
     private regionName?: string,
+    private email?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -42,6 +45,7 @@ export class User extends Entity {
     password,
     role,
     regionId,
+    email,
   }: UserCreateDto): User {
     const id = Utils.generateUUID();
 
@@ -59,6 +63,7 @@ export class User extends Entity {
       createdAt,
       updatedAt,
       regionId,
+      email,
     );
   }
 
@@ -71,6 +76,7 @@ export class User extends Entity {
     updatedAt,
     regionId,
     regionName,
+    email,
   }: UserwithDto): User {
     return new User(
       id,
@@ -81,6 +87,7 @@ export class User extends Entity {
       updatedAt,
       regionId,
       regionName,
+      email,
     );
   }
 
@@ -106,6 +113,10 @@ export class User extends Entity {
 
   public getRegionName(): string | undefined {
     return this.regionName;
+  }
+
+  public getEmail(): string | undefined {
+    return this.email;
   }
 
   public comparePassword(password: string): boolean {
