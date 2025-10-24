@@ -11,6 +11,9 @@ export type CreateEventRequest = {
   latitude?: number;
   status: statusEvent;
   paymentEnabled: boolean;
+  responsibles: {
+    accountId: string;
+  }[];
 };
 
 export type CreateEventRouteResponse = {
