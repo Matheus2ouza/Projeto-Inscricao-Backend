@@ -5,15 +5,16 @@ import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { EventNotFoundUsecaseException } from 'src/usecases/exceptions/events/event-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
 
-export type InscriptionAnalysisInput = {
+export type ListInscriptionToAnalysisInput = {
   eventId: string;
 };
 
-export type InscriptionAnalysisOutput = {
+export type ListInscriptionToAnalysisOutput = {
   account: {
     id: string;
     username: string;
     inscriptions: {
+      id: string;
       responsible: string;
       phone: string;
       totalValue: number;
@@ -23,8 +24,9 @@ export type InscriptionAnalysisOutput = {
 };
 
 @Injectable()
-export class InscriptionAnalysisUsecase
-  implements Usecase<InscriptionAnalysisInput, InscriptionAnalysisOutput>
+export class ListInscriptionToAnalysisUsecase
+  implements
+    Usecase<ListInscriptionToAnalysisInput, ListInscriptionToAnalysisOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
@@ -33,15 +35,15 @@ export class InscriptionAnalysisUsecase
   ) {}
 
   async execute(
-    input: InscriptionAnalysisInput,
-  ): Promise<InscriptionAnalysisOutput> {
+    input: ListInscriptionToAnalysisInput,
+  ): Promise<ListInscriptionToAnalysisOutput> {
     const eventExists = await this.eventGateway.findById(input.eventId);
 
     if (!eventExists) {
       throw new EventNotFoundUsecaseException(
         `attempt to create on-site registration for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
-        InscriptionAnalysisUsecase.name,
+        ListInscriptionToAnalysisUsecase.name,
       );
     }
 
@@ -56,6 +58,7 @@ export class InscriptionAnalysisUsecase
         id: string;
         username: string;
         inscriptions: {
+          id: string;
           responsible: string;
           phone: string;
           totalValue: number;
@@ -82,6 +85,7 @@ export class InscriptionAnalysisUsecase
       const accountData = accountsMap.get(accountId);
       if (accountData) {
         accountData.inscriptions.push({
+          id: inscription.getId(),
           responsible: inscription.getResponsible(),
           phone: inscription.getPhone(),
           totalValue: Number(inscription.getTotalValue()),

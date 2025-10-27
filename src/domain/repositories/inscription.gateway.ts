@@ -46,4 +46,6 @@ export abstract class InscriptionGateway {
   ): Promise<Inscription[]>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
+
+  abstract deleteInscription(id: string): Promise<void>;
 }

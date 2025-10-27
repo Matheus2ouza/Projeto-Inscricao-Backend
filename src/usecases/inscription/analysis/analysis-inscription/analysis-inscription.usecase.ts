@@ -13,6 +13,7 @@ export type AnalysisInscriptionInput = {
 export type AnalysisInscriptionOutput = {
   id: string;
   responsible: string;
+  email?: string;
   phone: string;
   status: string;
   participants: {
@@ -78,6 +79,7 @@ export class AnalysisInscriptionUsecase
     const output: AnalysisInscriptionOutput = {
       id: inscription.getId(),
       responsible: inscription.getResponsible(),
+      email: inscription.getEmail(),
       phone: inscription.getPhone(),
       status: inscription.getStatus(),
       participants: participantsList,

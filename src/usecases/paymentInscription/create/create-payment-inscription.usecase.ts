@@ -118,7 +118,7 @@ export class CreatePaymentInscriptionUsecase
     await this.financialMovementGateway.create(transaction);
     await this.paymentInscriptionGateway.create(paymentInscription);
     await this.inscriptionGateway.decrementValue(inscriptionId, value);
-    await this.eventGateway.incrementValue(eventId, value);
+    await this.eventGateway.incrementAmountCollected(eventId, value);
 
     if (new Decimal(currentDebt).minus(value).equals(0)) {
       await this.inscriptionGateway.paidRegistration(inscriptionId);

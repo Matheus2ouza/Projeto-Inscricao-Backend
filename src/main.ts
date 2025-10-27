@@ -1,3 +1,4 @@
+import { RedocModule } from '@juicyllama/nestjs-redoc';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
@@ -17,21 +18,43 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger config com autenticação por cookie
   const config = new DocumentBuilder()
-    .setTitle('API Inscrição')
-    .setDescription('Documentação da API de Inscrição')
+    .setTitle('Sistema de Inscrição - API')
+    .setDescription('Documentação oficial da API de Inscrição')
     .setVersion('1.0')
     .addCookieAuth('authToken')
-    .addCookieAuth('refreshToken')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
+  const document = SwaggerModule.createDocument(app, config);
+
+  // Interface moderna do Scalar
+  if (process.env.NODE_ENV !== 'production') {
+    await RedocModule.setup('/api/docs', app, document, {
+      title: 'Sistema de Inscrição - Documentação da API',
+      sortPropsAlphabetically: true,
+      hideDownloadButton: false,
+      theme: {
+        colors: {
+          primary: { main: '#2563eb' },
+          text: { primary: '#1e293b' },
+          background: { default: '#ffffff' },
+        },
+        typography: {
+          fontFamily: 'Open Sans, sans-serif',
+          headings: {
+            fontWeight: '600',
+            color: '#1e293b',
+          },
+        },
+      },
+    });
+  }
+
+  // Middlewares
   app.use(bodyParser.json({ limit: '15mb' }));
   app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
-  // Rota GET / para teste mais rebuscada
+  // Health check
   app.getHttpAdapter().get('/', (req, res) => {
     res.json({
       status: 'success',
@@ -39,11 +62,14 @@ async function bootstrap() {
       version: '1.0',
       environment: process.env.NODE_ENV ?? 'development',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime().toFixed(2) + 's',
+      uptime: `${process.uptime().toFixed(2)}s`,
     });
   });
 
+  // Inicialização
   const port = Number(process.env.PORT ?? 3000);
   await app.listen(port, '0.0.0.0');
+  console.log(`Servidor rodando em: http://localhost:${port}`);
 }
+
 bootstrap();

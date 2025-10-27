@@ -1,4 +1,4 @@
-import { AnalysisInscriptionOutput } from 'src/usecases/inscription/analysis-inscription/analysis-inscription.usecase';
+import { AnalysisInscriptionOutput } from 'src/usecases/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { AnalysisInscriptionResponse } from './analysis-inscription.dto';
 
 export class AnalysisInscriptionPresenter {
@@ -8,6 +8,7 @@ export class AnalysisInscriptionPresenter {
     return {
       id: input.id,
       responsible: input.responsible,
+      email: input.email,
       phone: input.phone,
       status: input.status,
       participants: input.participants,

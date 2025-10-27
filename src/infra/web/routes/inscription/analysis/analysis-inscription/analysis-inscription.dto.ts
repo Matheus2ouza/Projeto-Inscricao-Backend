@@ -6,6 +6,7 @@ export type AnalysisInscriptionRequest = {
 export type AnalysisInscriptionResponse = {
   id: string;
   responsible: string;
+  email?: string;
   phone: string;
   status: string;
   participants: {

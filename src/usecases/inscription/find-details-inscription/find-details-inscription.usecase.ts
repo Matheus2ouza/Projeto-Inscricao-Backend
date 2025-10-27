@@ -12,14 +12,12 @@ export type FindDetailsInscriptionInput = {
 
 export type FindDetailsInscriptionOutput = {
   id: string;
-  accountId: string;
-  eventId: string;
   responsible: string;
+  email?: string;
   phone: string;
   totalValue: number;
   status: string;
   createdAt: Date;
-  updatedAt: Date;
   payments?: {
     id: string;
     status: string;
@@ -99,14 +97,12 @@ export class FindDetailsInscriptionUsecase
 
     const output: FindDetailsInscriptionOutput = {
       id: inscription.getId(),
-      accountId: inscription.getAccountId(),
-      eventId: inscription.getEventId(),
       responsible: inscription.getResponsible(),
+      email: inscription.getEmail(),
       phone: inscription.getPhone(),
       totalValue: inscription.getTotalValue(),
       status: inscription.getStatus(),
       createdAt: inscription.getCreatedAt(),
-      updatedAt: inscription.getUpdatedAt(),
       payments: enrichedPayments.length > 0 ? enrichedPayments : undefined,
       participants: participants?.map((p) => ({
         id: p.getId(),

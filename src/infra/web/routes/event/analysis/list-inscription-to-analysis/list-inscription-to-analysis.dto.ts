@@ -1,12 +1,13 @@
-export type InscriptionAnalysisRequest = {
+export type ListInscriptonToAnalysisRequest = {
   eventId: string;
 };
 
-export type InscriptionAnalysisResponse = {
+export type ListInscriptonToAnalysisResponse = {
   account: {
     id: string;
     username: string;
     inscriptions: {
+      id: string;
       responsible: string;
       phone: string;
       totalValue: number;

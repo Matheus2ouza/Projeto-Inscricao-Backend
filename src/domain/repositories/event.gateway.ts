@@ -18,7 +18,11 @@ export abstract class EventGateway {
   ): Promise<Event | null>;
   abstract findAll(): Promise<Event[]>;
   abstract countTypesInscriptions(id: string): Promise<number>;
-  abstract updateQuantityParticipants(
+  abstract incrementQuantityParticipants(
+    id: string,
+    quantity: number,
+  ): Promise<Event>;
+  abstract decremntQuantityParticipants(
     id: string,
     quantity: number,
   ): Promise<Event>;
@@ -30,6 +34,6 @@ export abstract class EventGateway {
       imageUrl: string;
     }[]
   >;
-  abstract incrementValue(id: string, value: number): Promise<Event>;
-  abstract decrementValue(id: string, value: number): Promise<Event>;
+  abstract incrementAmountCollected(id: string, value: number): Promise<Event>;
+  abstract decrementAmountCollected(id: string, value: number): Promise<Event>;
 }

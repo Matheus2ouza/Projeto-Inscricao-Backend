@@ -36,7 +36,7 @@ export class Inscription extends Entity {
     private status: InscriptionStatus,
     createdAt: Date,
     updatedAt: Date,
-    private emil?: string,
+    private email?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -74,12 +74,12 @@ export class Inscription extends Entity {
     accountId,
     eventId,
     responsible,
-    email,
     phone,
     totalValue,
     status,
     createdAt,
     updatedAt,
+    email,
   }: InscriptionWithDto): Inscription {
     return new Inscription(
       id,
@@ -113,7 +113,7 @@ export class Inscription extends Entity {
   }
 
   public getEmail(): string | undefined {
-    return this.emil;
+    return this.email;
   }
 
   public getPhone(): string {
@@ -134,27 +134,6 @@ export class Inscription extends Entity {
 
   public getUpdatedAt(): Date {
     return this.updatedAt;
-  }
-
-  // Setters/Update methods
-  public updateResponsible(responsible: string): void {
-    this.responsible = responsible;
-    this.validate();
-  }
-
-  public updatePhone(phone: string): void {
-    this.phone = phone;
-    this.validate();
-  }
-
-  public updateTotalValue(totalValue: number): void {
-    this.totalValue = totalValue;
-    this.validate();
-  }
-
-  public updateStatus(status: InscriptionStatus): void {
-    this.status = status;
-    this.validate();
   }
 
   protected validate(): void {

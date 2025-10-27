@@ -121,7 +121,7 @@ export class ConfirmGroupUsecase {
       cached.eventId,
     );
 
-    await this.eventGateway.updateQuantityParticipants(
+    await this.eventGateway.incrementQuantityParticipants(
       cached.eventId,
       cached.items.length,
     );
