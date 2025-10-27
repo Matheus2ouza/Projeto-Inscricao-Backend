@@ -121,13 +121,26 @@ export class EventPrismaRepository implements EventGateway {
     return count;
   }
 
-  async updateQuantityParticipants(
+  async incrementQuantityParticipants(
     id: string,
     quantity: number,
   ): Promise<Event> {
     const data = await this.prisma.events.update({
       where: { id },
       data: { quantityParticipants: { increment: quantity } },
+    });
+    return EventPrismaModelToEventEntityMapper.map(data);
+  }
+
+  async decremntQuantityParticipants(
+    id: string,
+    quantity: number,
+  ): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: {
+        quantityParticipants: { decrement: quantity },
+      },
     });
     return EventPrismaModelToEventEntityMapper.map(data);
   }
@@ -149,7 +162,7 @@ export class EventPrismaRepository implements EventGateway {
     }));
   }
 
-  async incrementValue(id: string, value: number): Promise<Event> {
+  async incrementAmountCollected(id: string, value: number): Promise<Event> {
     const aModel = await this.prisma.events.update({
       where: { id },
       data: { amountCollected: { increment: value } },
@@ -158,7 +171,7 @@ export class EventPrismaRepository implements EventGateway {
     return EventPrismaModelToEventEntityMapper.map(aModel);
   }
 
-  async decrementValue(id: string, value: number): Promise<Event> {
+  async decrementAmountCollected(id: string, value: number): Promise<Event> {
     const aModel = await this.prisma.events.update({
       where: { id },
       data: { amountCollected: { decrement: value } },

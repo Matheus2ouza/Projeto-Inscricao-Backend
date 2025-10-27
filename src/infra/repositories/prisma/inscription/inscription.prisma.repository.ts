@@ -17,7 +17,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   async findById(id: string): Promise<Inscription | null> {
-    console.log('o id que chegou: ', id);
     const found = await this.prisma.inscription.findUnique({ where: { id } });
     return found ? PrismaToEntity.map(found) : null;
   }
@@ -204,5 +203,11 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
 
     return total;
+  }
+
+  async deleteInscription(id: string) {
+    await this.prisma.inscription.delete({
+      where: { id },
+    });
   }
 }

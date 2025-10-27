@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CacheRecordRepositoryProvider } from './prisma/cache-record/cache-record.prisma.repository.provider';
+import { CacheRecordRepositoryProvider } from './prisma/cache-record/model/cache-record.prisma.repository.provider';
 import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
@@ -12,7 +12,7 @@ import { OnSiteRegistrationPrismaRepositoryProvider } from './prisma/on-site-reg
 import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/participant.prisma.repository.provider';
 import { PaymentInscriptionRepositoryProvider } from './prisma/payment-inscription/model/payment-inscription.prisma.repository.provider';
 import { PrismaService } from './prisma/prisma.service';
-import { RegionPrismaRepositoryProvider } from './prisma/region/region.prisma.repository.provider';
+import { RegionPrismaRepositoryProvider } from './prisma/region/model/region.prisma.repository.provider';
 import { TicketSalePrismaRepositoryProvider } from './prisma/ticket-sale/model/ticket-sale.prisma.repository.provider';
 import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/model/type-inscription.prisma.repository.provider';
 import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';

@@ -1,4 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import * as jsonwebToken from 'jsonwebtoken';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { AuthTokenNotValidServiceException } from '../../exceptions/auth-token-not-valid.service.exception';
+import { RefreshTokenNotValidServiceException } from '../../exceptions/refresh-token-not-valid.service.exception';
 import { ServiceException } from '../../exceptions/service.exception';
 import {
   GenerateAuthTokenWithRefreshTokenOutput,
@@ -6,10 +10,6 @@ import {
   JwtRefreshPayload,
   JwtService,
 } from '../jwt.service';
-import { RefreshTokenNotValidServiceException } from '../../exceptions/refresh-token-not-valid.service.exception';
-import { Injectable } from '@nestjs/common';
-import { AuthTokenNotValidServiceException } from '../../exceptions/auth-token-not-valid.service.exception';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 
 @Injectable()
 export class JsonWebTokenService extends JwtService {
