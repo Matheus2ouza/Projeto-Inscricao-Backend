@@ -119,7 +119,7 @@ export class IndivConfirmUsecase {
       cached.eventId,
     );
 
-    await this.eventGateway.updateQuantityParticipants(cached.eventId, 1);
+    await this.eventGateway.incrementQuantityParticipants(cached.eventId, 1);
 
     // Remover do cache (Redis e banco)
     await this.redis.del(input.cacheKey);

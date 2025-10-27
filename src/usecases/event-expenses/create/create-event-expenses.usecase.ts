@@ -62,7 +62,7 @@ export class CreateEventExpensesUsecase
       value: new Decimal(created.getValue()),
     });
     await this.financialMovementGateway.create(financialMovement);
-    await this.eventGateway.decrementValue(
+    await this.eventGateway.decrementAmountCollected(
       event.getId(),
       eventExpense.getValue(),
     );

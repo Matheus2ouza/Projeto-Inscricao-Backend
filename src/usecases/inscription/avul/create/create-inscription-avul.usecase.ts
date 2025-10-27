@@ -120,7 +120,7 @@ export class CreateInscriptionAvulUsecase
       ),
     );
 
-    await this.eventGateway.incrementValue(
+    await this.eventGateway.incrementAmountCollected(
       eventExists.getId(),
       totalPaymentsValue.toNumber(),
     );
