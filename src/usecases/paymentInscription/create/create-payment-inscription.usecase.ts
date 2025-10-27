@@ -97,7 +97,12 @@ export class CreatePaymentInscriptionUsecase
 
     const status: StatusPayment = 'UNDER_REVIEW';
     const eventId = inscription.getEventId();
-    const imageUrl = await this.processEventImage(image, eventId, value);
+    const imageUrl = await this.processEventImage(
+      image,
+      eventId,
+      inscription.getId(),
+      value,
+    );
 
     const paymentInscription = PaymentInscription.create({
       inscriptionId: inscriptionId,
@@ -133,6 +138,7 @@ export class CreatePaymentInscriptionUsecase
   private async processEventImage(
     image: string,
     eventId: string,
+    inscriptionId: string,
     value: number,
   ): Promise<string> {
     this.logger.log('Processando imagem do evento');
@@ -181,7 +187,7 @@ export class CreatePaymentInscriptionUsecase
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
     const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
-    const fileName = `payment_${value}_${formattedDateTime}.${optimizedImage.format}`;
+    const fileName = `payment_${inscriptionId}_${value}_${formattedDateTime}.${optimizedImage.format}`;
 
     // Faz upload no Supabase
     const imageUrl = await this.supabaseStorageService.uploadFile({
