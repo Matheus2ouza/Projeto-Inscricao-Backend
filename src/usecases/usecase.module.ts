@@ -6,18 +6,20 @@ import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventExpensesUsecase } from './event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
+import { ListInscriptionToAnalysisUsecase } from './event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventToInscriptionUsecase } from './event/find-all-to-analysis/inscriptions/find-all-paginated-events.usecase';
 import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
-import { ListInscriptionUsecase } from './event/list-inscription/list-Inscription.usecase';
 import { UpdateInscriptionEventUsecase } from './event/update-inscription/update-inscription-event.usecase';
 import { UpdatePaymentEventUsecase } from './event/update-payment/update-payment.usecase';
-import { AnalysisInscriptionUsecase } from './inscription/analysis-inscription/analysis-inscription.usecase';
+import { AnalysisInscriptionUsecase } from './inscription/analysis/analysis-inscription/analysis-inscription.usecase';
+import { UpdateStatusInscriptionUsecase } from './inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './inscription/avul/create/create-inscription-avul.usecase';
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
+import { DeleteInscriptionUsecase } from './inscription/delete-inscription/delete-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindDetailsInscriptionUsecase } from './inscription/find-details-inscription/find-details-inscription.usecase';
 import { ConfirmGroupUsecase } from './inscription/group/confirm-group.usecase';
@@ -25,7 +27,6 @@ import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usec
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
-import { InscriptionAnalysisUsecase } from './inscription/inscription-analysis/inscription-analysis.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
@@ -72,7 +73,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
-    ListInscriptionUsecase,
+    ListInscriptionToAnalysisUsecase,
     FindAllPaginatedEventToInscriptionUsecase,
 
     //Regions
@@ -88,8 +89,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //Inscription
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
-    AnalysisInscriptionUsecase,
-    InscriptionAnalysisUsecase,
+    DeleteInscriptionUsecase,
 
     //InscriptionGroup
     UploadValidateGroupUsecase,
@@ -99,6 +99,10 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //InscriptionIndiv
     UploadValidateIndivUsecase,
     IndivConfirmUsecase,
+
+    //Analysis - Inscription
+    AnalysisInscriptionUsecase,
+    UpdateStatusInscriptionUsecase,
 
     //InscriptionAvul
     CreateInscriptionAvulUsecase,
@@ -139,7 +143,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
-    ListInscriptionUsecase,
+    ListInscriptionToAnalysisUsecase,
     FindAllPaginatedEventToInscriptionUsecase,
 
     //Regions
@@ -155,8 +159,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //Inscription
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
-    AnalysisInscriptionUsecase,
-    InscriptionAnalysisUsecase,
+    DeleteInscriptionUsecase,
 
     //InscriptionGroup
     UploadValidateGroupUsecase,
@@ -166,6 +169,10 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //InscriptionIndiv
     UploadValidateIndivUsecase,
     IndivConfirmUsecase,
+
+    //Analysis - Inscription
+    AnalysisInscriptionUsecase,
+    UpdateStatusInscriptionUsecase,
 
     //InscriptionAvul
     CreateInscriptionAvulUsecase,
