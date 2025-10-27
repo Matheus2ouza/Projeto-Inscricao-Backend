@@ -127,7 +127,7 @@ model Participant {
   createdAt         DateTime   @default(now()) @map("created_at")
   updatedAt         DateTime   @updatedAt @map("updated_at")
 
-  inscription     Inscription      @relation(fields: [inscriptionId], references: [id])
+  inscription     Inscription      @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
   typeInscription TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
 
   @@map("participants")
