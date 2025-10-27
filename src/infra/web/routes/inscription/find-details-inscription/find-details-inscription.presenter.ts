@@ -7,14 +7,11 @@ export class FindDetailsInscriptionPresenter {
   ): FindDetailsInscriptionResponse {
     const aInscription: FindDetailsInscriptionResponse = {
       id: input.id,
-      accountId: input.accountId,
-      eventId: input.eventId,
       responsible: input.responsible,
       phone: input.phone,
       totalValue: input.totalValue,
       status: input.status,
       createdAt: input.createdAt,
-      updatedAt: input.updatedAt,
       payments: input.payments,
       participants: input.participants,
       countParticipants: input.countParticipants,

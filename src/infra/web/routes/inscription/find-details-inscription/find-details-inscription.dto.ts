@@ -4,14 +4,12 @@ export type FindDetailsInscriptionRequest = {
 
 export type FindDetailsInscriptionResponse = {
   id: string;
-  accountId: string;
-  eventId: string;
   responsible: string;
+  email?: string;
   phone: string;
   totalValue: number;
   status: string;
   createdAt: Date;
-  updatedAt: Date;
   payments?: {
     id: string;
     status: string;
