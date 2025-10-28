@@ -11,7 +11,7 @@ export class ListInscriptonToAnalysisRoute {
     private readonly listInscriptionToAnalysisUsecase: ListInscriptionToAnalysisUsecase,
   ) {}
 
-  @Get(':eventId/analysis')
+  @Get(':eventId/analysis/inscription')
   @ApiOperation({
     summary: 'Lista inscrições de um evento para análise',
     description:

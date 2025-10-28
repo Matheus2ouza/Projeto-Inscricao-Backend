@@ -1,4 +1,4 @@
-import { FindAllPaginatedEventToInscriptionOutput } from 'src/usecases/event/find-all-to-analysis/inscriptions/find-all-paginated-events.usecase';
+import { FindAllPaginatedEventToInscriptionOutput } from 'src/usecases/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
 import { FindAllPaginatedEventToInscriptionResponse } from './find-all-paginated-events-to-inscription.dto';
 
 export class FindAllPaginatedEventToInscriptionPresenter {

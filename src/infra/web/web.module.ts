@@ -16,10 +16,12 @@ import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/u
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
+import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
+import { FindAllPaginatedEventToPaymentRoute } from './routes/event/find-all-to-analysis/payments/find-all-paginated-events-to-payments.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
@@ -36,6 +38,7 @@ import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find
 import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
 import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
+import { ApprovePaymentRoute } from './routes/paymentInscription/analysis/approve-payment/approve-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
@@ -83,10 +86,16 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindByIdEventRoute,
     FindByEventId,
     FindAllNamesEventRoute,
+
+    //Events - ListToAnalysis
     ListInscriptonToAnalysisRoute,
+    ListPaymentToAnalysisRoute,
 
     //Event - Analise
+    //Inscriptions
     FindAllPaginatedEventToInscriptionRoute,
+    //Payments
+    FindAllPaginatedEventToPaymentRoute,
 
     //Region
     CreateRegionRoute,
@@ -121,6 +130,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //PaymentInscription
     CreatePaymentInscriptionRoute,
+    ApprovePaymentRoute,
 
     //Ticket
     CreateTicketRoute,
