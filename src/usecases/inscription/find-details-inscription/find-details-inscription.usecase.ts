@@ -69,7 +69,7 @@ export class FindDetailsInscriptionUsecase
 
     // Processar os pagamentos para obter as URLs públicas
     const enrichedPayments = await Promise.all(
-      payments?.map(async (p) => {
+      payments.map(async (p) => {
         let publicImageUrl = '';
         const imagePath = p.getImageUrl();
 
@@ -78,7 +78,7 @@ export class FindDetailsInscriptionUsecase
             publicImageUrl =
               await this.supabaseStorageService.getPublicUrl(imagePath);
           } catch (e) {
-            // Se houver erro, mantém a URL original ou string vazia
+            // Se houver erro, mantém a URL original
             publicImageUrl = imagePath;
           }
         }
@@ -103,7 +103,7 @@ export class FindDetailsInscriptionUsecase
       totalValue: inscription.getTotalValue(),
       status: inscription.getStatus(),
       createdAt: inscription.getCreatedAt(),
-      payments: enrichedPayments.length > 0 ? enrichedPayments : undefined,
+      payments: enrichedPayments,
       participants: participants?.map((p) => ({
         id: p.getId(),
         typeInscription: p.getTypeInscriptionDescription(),

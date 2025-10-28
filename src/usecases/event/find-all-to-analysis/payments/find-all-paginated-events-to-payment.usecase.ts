@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindAllPaginatedEventToInscriptionInput = {
+export type FindAllPaginatedEventToPaymentInput = {
   page: number;
   pageSize: number;
 };
 
-export type FindAllPaginatedEventToInscriptionOutput = {
+export type FindAllPaginatedEventToPaymentOutput = {
   events: {
     id: string;
     name: string;
     imageUrl?: string;
-    countInscriptions: number;
-    countInscritpionsAnalysis: number;
+    countPayments: number;
+    countPaymentsAnalysis: number;
   }[];
   total: number;
   page: number;
@@ -23,22 +23,22 @@ export type FindAllPaginatedEventToInscriptionOutput = {
 };
 
 @Injectable()
-export class FindAllPaginatedEventToInscriptionUsecase
+export class FindAllPaginatedEventToPaymentUsecase
   implements
     Usecase<
-      FindAllPaginatedEventToInscriptionInput,
-      FindAllPaginatedEventToInscriptionOutput
+      FindAllPaginatedEventToPaymentInput,
+      FindAllPaginatedEventToPaymentOutput
     >
 {
   public constructor(
     private readonly eventGateway: EventGateway,
-    private readonly inscriptionGateway: InscriptionGateway,
+    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
-    input: FindAllPaginatedEventToInscriptionInput,
-  ): Promise<FindAllPaginatedEventToInscriptionOutput> {
+    input: FindAllPaginatedEventToPaymentInput,
+  ): Promise<FindAllPaginatedEventToPaymentOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
@@ -67,19 +67,20 @@ export class FindAllPaginatedEventToInscriptionUsecase
           }
         }
 
-        const countInscriptions = await this.inscriptionGateway.countAllByEvent(
-          event.getId(),
-        );
+        const countPayments =
+          await this.paymentInscriptionGateway.countAllByEvent(event.getId());
 
-        const countInscritpionsAnalysis =
-          await this.inscriptionGateway.countAllInAnalysis(event.getId());
+        const countPaymentsAnalysis =
+          await this.paymentInscriptionGateway.countAllInAnalysis(
+            event.getId(),
+          );
 
         return {
           id: event.getId(),
           name: event.getName(),
           imageUrl: publicImageUrl,
-          countInscriptions,
-          countInscritpionsAnalysis,
+          countPayments,
+          countPaymentsAnalysis,
         };
       }),
     );

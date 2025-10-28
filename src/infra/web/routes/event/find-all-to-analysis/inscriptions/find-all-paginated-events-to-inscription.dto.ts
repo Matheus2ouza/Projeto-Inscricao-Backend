@@ -9,7 +9,7 @@ export type FindAllPaginatedEventToInscriptionResponse = {
     name: string;
     imageUrl?: string;
     countInscriptions: number;
-    countInscritpionsAnalysis: number;
+    countInscriptionsAnalysis: number;
   }[];
   total: number;
   page: number;

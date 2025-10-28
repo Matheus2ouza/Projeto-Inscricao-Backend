@@ -1,13 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { StatusPayment } from 'generated/prisma';
-import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInscription } from 'src/domain/entities/payment-inscription';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
@@ -35,11 +32,9 @@ export class CreatePaymentInscriptionUsecase
 {
   private readonly logger = new Logger(CreatePaymentInscriptionUsecase.name);
   public constructor(
-    private readonly userGateway: UserGateway,
     private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
   ) {}
@@ -113,17 +108,7 @@ export class CreatePaymentInscriptionUsecase
       imageUrl: imageUrl,
     });
 
-    const transaction = FinancialMovement.create({
-      eventId: eventId,
-      accountId: accountId,
-      type: 'INCOME',
-      value: Decimal(value),
-    });
-
-    await this.financialMovementGateway.create(transaction);
     await this.paymentInscriptionGateway.create(paymentInscription);
-    await this.inscriptionGateway.decrementValue(inscriptionId, value);
-    await this.eventGateway.incrementAmountCollected(eventId, value);
 
     if (new Decimal(currentDebt).minus(value).equals(0)) {
       await this.inscriptionGateway.paidRegistration(inscriptionId);

@@ -7,10 +7,12 @@ import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventExpensesUsecase } from './event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { ListInscriptionToAnalysisUsecase } from './event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
+import { ListPaymentToAnalysisUsecase } from './event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
-import { FindAllPaginatedEventToInscriptionUsecase } from './event/find-all-to-analysis/inscriptions/find-all-paginated-events.usecase';
+import { FindAllPaginatedEventToInscriptionUsecase } from './event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
+import { FindAllPaginatedEventToPaymentUsecase } from './event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
 import { FindEventCarouselUsecase } from './event/find-event-carousel/find-event-carousel.usecase';
 import { FindByIdEventUsecase } from './event/findById/find-by-id.usecase';
 import { UpdateInscriptionEventUsecase } from './event/update-inscription/update-inscription-event.usecase';
@@ -27,6 +29,8 @@ import { FindCacheGroupUsecase } from './inscription/group/find-cache-group.usec
 import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-group.usecase';
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
+import { AnalysisPaymentUsecase } from './paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
+import { ApprovePaymentUsecase } from './paymentInscription/analysis/update-status-payment/approve-payment.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
@@ -73,8 +77,15 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+
+    //Events - ListToAnalysis
     ListInscriptionToAnalysisUsecase,
+    ListPaymentToAnalysisUsecase,
+
+    //Events - List Inscriptions
     FindAllPaginatedEventToInscriptionUsecase,
+    //Events - List Payments
+    FindAllPaginatedEventToPaymentUsecase,
 
     //Regions
     CreateRegionUseCase,
@@ -110,6 +121,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
 
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
+    AnalysisPaymentUsecase,
+    ApprovePaymentUsecase,
 
     //Tickets
     CreateTicketUsecase,
@@ -143,8 +156,15 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindEventCarouselUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+
+    //Events - ListToAnalysis
     ListInscriptionToAnalysisUsecase,
+    ListPaymentToAnalysisUsecase,
+
+    //Events - List Inscriptions
     FindAllPaginatedEventToInscriptionUsecase,
+    //Events - List Payments
+    FindAllPaginatedEventToPaymentUsecase,
 
     //Regions
     CreateRegionUseCase,
@@ -180,6 +200,8 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
 
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
+    AnalysisPaymentUsecase,
+    ApprovePaymentUsecase,
 
     //Tickets
     CreateTicketUsecase,

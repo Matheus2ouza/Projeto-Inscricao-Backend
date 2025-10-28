@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInscription } from 'src/domain/entities/payment-inscription';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { PrismaService } from '../prisma.service';
@@ -34,15 +35,108 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       : null;
   }
 
-  public async findbyInscriptionId(
-    id: string,
-  ): Promise<PaymentInscription[] | null> {
+  public async findbyInscriptionId(id: string): Promise<PaymentInscription[]> {
     const aModel = await this.prisma.paymentInscription.findMany({
       where: { inscriptionId: id },
     });
 
     return aModel.map(
       PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map,
+    );
+  }
+
+  public async countAllByEvent(eventId: string): Promise<number> {
+    const total = await this.prisma.paymentInscription.count({
+      where: { eventId },
+    });
+
+    return total;
+  }
+
+  public async countAllInAnalysis(eventId: string): Promise<number> {
+    const total = await this.prisma.paymentInscription.count({
+      where: { eventId, status: 'UNDER_REVIEW' },
+    });
+
+    return total;
+  }
+
+  public async countAllByInscriptionId(inscriptionId: string): Promise<number> {
+    const total = await this.prisma.paymentInscription.count({
+      where: { inscriptionId },
+    });
+    return total;
+  }
+
+  public async approvedPayment(id: string): Promise<PaymentInscription> {
+    const data = await this.prisma.paymentInscription.update({
+      where: { id },
+      data: {
+        status: 'APPROVED',
+      },
+    });
+
+    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
+      data,
+    );
+  }
+
+  public async approvePaymentWithTransaction(
+    paymentId: string,
+  ): Promise<PaymentInscription> {
+    // Buscar o pagamento primeiro para obter os dados necessários
+    const payment = await this.findById(paymentId);
+
+    if (!payment) {
+      throw new Error(`Payment with id ${paymentId} not found`);
+    }
+
+    // Criar a entidade de movimento financeiro
+    const movement = FinancialMovement.create({
+      eventId: payment.getEventId(),
+      accountId: payment.getAccountId(),
+      type: 'INCOME',
+      value: payment.getValue(),
+    });
+
+    // Executar todas as operações em uma transação atômica
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Decrementar o valor total da inscrição
+      await tx.inscription.update({
+        where: { id: payment.getInscriptionId() },
+        data: { totalValue: { decrement: Number(payment.getValue()) } },
+      });
+
+      // 2. Criar movimento financeiro
+      await tx.financialMovement.create({
+        data: {
+          id: movement.getId(),
+          eventId: movement.getEventId(),
+          accountId: movement.getAccountId(),
+          type: movement.getType(),
+          value: movement.getValue(),
+          createdAt: movement.getCreatedAt(),
+          updatedAt: movement.getUpdatedAt(),
+        },
+      });
+
+      // 3. Incrementar valor arrecadado no evento
+      await tx.events.update({
+        where: { id: payment.getEventId() },
+        data: { amountCollected: { increment: Number(payment.getValue()) } },
+      });
+
+      // 4. Aprovar o pagamento
+      const approvedPayment = await tx.paymentInscription.update({
+        where: { id: paymentId },
+        data: { status: 'APPROVED' },
+      });
+
+      return approvedPayment;
+    });
+
+    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
+      result,
     );
   }
 }
