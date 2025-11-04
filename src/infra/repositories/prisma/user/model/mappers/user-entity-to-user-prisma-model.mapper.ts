@@ -13,6 +13,7 @@ export class UserEntityToUserPrismaModelMapper {
       updatedAt: user.getUpdatedAt(),
       regionId: user.getRegionId() ?? null,
       email: user.getEmail() ?? null,
+      imageUrl: user.getImage() ?? null,
     };
 
     return aModel;

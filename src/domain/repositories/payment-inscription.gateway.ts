@@ -6,6 +6,7 @@ export abstract class PaymentInscriptionGateway {
   ): Promise<PaymentInscription>;
   abstract findById(id: string): Promise<PaymentInscription | null>;
   abstract findbyInscriptionId(id: string): Promise<PaymentInscription[]>;
+  abstract findToAnalysis(id: string): Promise<PaymentInscription[]>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
@@ -23,5 +24,10 @@ export abstract class PaymentInscriptionGateway {
    */
   abstract approvePaymentWithTransaction(
     paymentId: string,
+  ): Promise<PaymentInscription>;
+
+  abstract rejectedPayment(
+    paymentId: string,
+    rejectionReason?: string,
   ): Promise<PaymentInscription>;
 }

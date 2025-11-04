@@ -73,6 +73,7 @@ export class UserPrismaRepository implements UserGateway {
         updatedAt: true,
         regionId: true,
         email: true,
+        imageUrl: true,
         region: {
           select: {
             name: true,

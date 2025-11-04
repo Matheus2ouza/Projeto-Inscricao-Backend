@@ -38,7 +38,8 @@ import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find
 import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
 import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
-import { ApprovePaymentRoute } from './routes/paymentInscription/analysis/approve-payment/approve-payment.route';
+import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
+import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
@@ -130,7 +131,8 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //PaymentInscription
     CreatePaymentInscriptionRoute,
-    ApprovePaymentRoute,
+    AnalysisPaymentRoute,
+    UpdatePaymentRoute,
 
     //Ticket
     CreateTicketRoute,

@@ -50,6 +50,14 @@ export class RedisService implements OnModuleDestroy {
     await this.client.del(key);
   }
 
+  async setex(key: string, seconds: number, value: string): Promise<void> {
+    await this.client.setex(key, seconds, value);
+  }
+
+  async get(key: string): Promise<string | null> {
+    return await this.client.get(key);
+  }
+
   async onModuleDestroy() {
     await this.client.quit();
   }

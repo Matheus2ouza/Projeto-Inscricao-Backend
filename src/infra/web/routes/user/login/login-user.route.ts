@@ -1,12 +1,12 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   loginUserInput,
   LoginUserUsecase,
 } from 'src/usecases/user/login/login-user.usecase';
 import type { LoginUserRequest, LoginUserResponse } from './login-user.dto';
 import { LoginUserPresenter } from './login-user.presenter';
-import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 
 @Controller('users')
 export class LoginUserRoute {

@@ -11,5 +11,14 @@ export type LoginUserResponse = {
 
 export type User = {
   id: string;
+  username: string;
   role: string;
+  email: string | null;
+  region: Region | null;
+  image: string | null;
+};
+
+export type Region = {
+  id: string;
+  Name: string;
 };

@@ -1,0 +1,148 @@
+import type { ComponentType } from 'react';
+import type {
+  EventResponsibleEmailData,
+  InscriptionEmailData,
+} from '../types/inscription/inscription-email.types';
+import type { PaymentEmailData } from '../types/payment/payment-email.types';
+
+export type TemplateCategory = 'payment' | 'inscription';
+
+export interface TemplateDefinition {
+  id: string;
+  category: TemplateCategory;
+  title: string;
+  description?: string;
+  previewText?: string;
+  loader: () => Promise<{ default: ComponentType<Record<string, unknown>> }>;
+  getProps: () => Record<string, unknown>;
+}
+
+const mockPaymentData = (
+  overrides: Partial<PaymentEmailData> = {},
+): PaymentEmailData => ({
+  paymentId: 'pay_123456',
+  inscriptionId: 'insc_987654',
+  eventId: 'event_001',
+  eventName: 'Congresso de Tecnologia 2025',
+  responsibleName: 'Marina Costa',
+  responsibleEmail: 'marina.costa@example.com',
+  responsiblePhone: '+55 (11) 91234-5678',
+  paymentValue: 259.9,
+  paymentDate: new Date('2025-03-18T10:30:00Z'),
+  rejectionReason: 'Transação não autorizada pelo emissor.',
+  ...overrides,
+});
+
+const mockResponsibles = (): EventResponsibleEmailData[] => [
+  {
+    id: 'resp-001',
+    username: 'Marina Costa',
+    email: 'marina.costa@example.com',
+  },
+  {
+    id: 'resp-002',
+    username: 'Eduardo Pereira',
+    email: 'eduardo.pereira@example.com',
+  },
+];
+
+const mockInscriptionData = (): InscriptionEmailData => ({
+  eventName: 'Congresso de Tecnologia 2025',
+  eventImageUrl:
+    'https://images.unsplash.com/photo-1522199991270-763bc0d49ef1?auto=format&w=600&q=80',
+  responsibleName: 'Marina Costa',
+  responsiblePhone: '+55 (11) 91234-5678',
+  responsibleEmail: 'marina.costa@example.com',
+  totalValue: 2590.5,
+  participantCount: 12,
+  accountUsername: 'tech-events-admin',
+  inscriptionDate: new Date('2025-03-16T19:42:00Z'),
+  eventStartDate: new Date('2025-04-05T08:00:00Z'),
+  eventEndDate: new Date('2025-04-07T18:00:00Z'),
+  eventLocation: 'São Paulo Expo, São Paulo - SP',
+});
+
+export const templateDefinitions: TemplateDefinition[] = [
+  {
+    id: 'payment/payment-approved',
+    category: 'payment',
+    title: 'Pagamento aprovado',
+    description: 'Confirmação de pagamento com detalhes do pedido.',
+    previewText: 'Pagamento confirmado com sucesso.',
+    loader: async () => {
+      const module = await import(
+        '../templates/payment/payment-approved/index.js'
+      );
+      return { default: module.PaymentApprovedEmail };
+    },
+    getProps: () => ({
+      paymentData: mockPaymentData({ rejectionReason: undefined }),
+      loginUrl:
+        process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'payment/payment-rejected',
+    category: 'payment',
+    title: 'Pagamento reprovado',
+    description: 'Aviso de falha no processamento do pagamento.',
+    previewText: 'Seu pagamento foi reprovado.',
+    loader: async () => {
+      const module = await import(
+        '../templates/payment/payment-rejected/index.js'
+      );
+      return { default: module.PaymentRejectedEmail };
+    },
+    getProps: () => ({
+      paymentData: mockPaymentData(),
+      loginUrl:
+        process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'inscription/inscription-notification',
+    category: 'inscription',
+    title: 'Nova inscrição registrada',
+    description: 'Resumo completo da inscrição para responsáveis do evento.',
+    previewText: 'Uma nova inscrição foi registrada no evento.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/inscription-notification/index.js'
+      );
+      return { default: module.InscriptionNotificationEmail };
+    },
+    getProps: () => ({
+      eventData: mockInscriptionData(),
+      responsibles: mockResponsibles(),
+      year: new Date().getFullYear(),
+      currentDate: new Date(),
+    }),
+  },
+];
+
+export const categories = Array.from(
+  new Set(templateDefinitions.map((template) => template.category)),
+) as TemplateCategory[];
+
+export const templatesByCategory = templateDefinitions.reduce<
+  Record<TemplateCategory, TemplateDefinition[]>
+>(
+  (accumulator, template) => {
+    if (!accumulator[template.category]) {
+      accumulator[template.category] = [];
+    }
+    accumulator[template.category].push(template);
+    return accumulator;
+  },
+  {
+    payment: [],
+    inscription: [],
+  },
+);
+
+export const findTemplate = (category: string, name: string) => {
+  const id = `${category}/${name}`;
+  return templateDefinitions.find((template) => template.id === id);
+};

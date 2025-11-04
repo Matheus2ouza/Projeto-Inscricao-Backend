@@ -11,7 +11,7 @@ export class PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper {
       id: paymentInscription.id,
       inscriptionId: paymentInscription.inscriptionId,
       eventId: paymentInscription.eventId,
-      accountId: paymentInscription.eventId,
+      accountId: paymentInscription.accountId,
       status: paymentInscription.status as unknown as StatusPayment,
       value: Decimal(paymentInscription.value),
       imageUrl: paymentInscription.imageUrl,

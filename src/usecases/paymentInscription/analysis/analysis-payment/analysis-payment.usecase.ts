@@ -17,6 +17,7 @@ export type AnalysisPaymentOutput = {
   email?: string;
   totalValue: number;
   payments: {
+    id: string;
     status: string;
     value: number;
     image: string;
@@ -55,7 +56,7 @@ export class AnalysisPaymentUsecase
       );
     }
 
-    const payments = await this.paymentInscriptionGateway.findbyInscriptionId(
+    const payments = await this.paymentInscriptionGateway.findToAnalysis(
       inscription.getId(),
     );
 
@@ -76,9 +77,10 @@ export class AnalysisPaymentUsecase
         }
 
         return {
+          id: p.getId(),
           status: p.getStatus(),
           value: Number(p.getValue()),
-          image: imagePath,
+          image: publicImageUrl,
         };
       }),
     );
