@@ -15,6 +15,7 @@ export type ListPaymentToAnalysisOutput = {
     id: string;
     username: string;
     inscriptions: {
+      id: string;
       responsible: string;
       totalValue: number;
       countPayments: number;
@@ -57,6 +58,7 @@ export class ListPaymentToAnalysisUsecase
         id: string;
         username: string;
         inscriptions: {
+          id: string;
           responsible: string;
           totalValue: number;
           countPayments: number;
@@ -88,6 +90,7 @@ export class ListPaymentToAnalysisUsecase
           );
 
         accountData.inscriptions.push({
+          id: inscription.getId(),
           responsible: inscription.getResponsible(),
           totalValue: inscription.getTotalValue(),
           countPayments: payments ? payments.length : 0,

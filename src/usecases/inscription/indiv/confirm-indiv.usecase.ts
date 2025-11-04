@@ -9,8 +9,8 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
-import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription-email.handler';
-import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription-email.types';
+import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
+import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription/inscription-email.types';
 import { RedisService } from 'src/infra/services/redis/redis.service';
 
 type CachePayload = {

@@ -30,7 +30,7 @@ import { UploadValidateGroupUsecase } from './inscription/group/upload-validate-
 import { IndivConfirmUsecase } from './inscription/indiv/confirm-indiv.usecase';
 import { UploadValidateIndivUsecase } from './inscription/indiv/upload-valide-indiv.usecase';
 import { AnalysisPaymentUsecase } from './paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
-import { ApprovePaymentUsecase } from './paymentInscription/analysis/update-status-payment/approve-payment.usecase';
+import { UpdatePaymentUsecase } from './paymentInscription/analysis/update-status-payment/update-payment.usecase';
 import { CreatePaymentInscriptionUsecase } from './paymentInscription/create/create-payment-inscription.usecase';
 import { CreateRegionUseCase } from './region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './region/findAllRegion/find-all-paginated-regions.usecase';
@@ -122,7 +122,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-    ApprovePaymentUsecase,
+    UpdatePaymentUsecase,
 
     //Tickets
     CreateTicketUsecase,
@@ -201,7 +201,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-    ApprovePaymentUsecase,
+    UpdatePaymentUsecase,
 
     //Tickets
     CreateTicketUsecase,

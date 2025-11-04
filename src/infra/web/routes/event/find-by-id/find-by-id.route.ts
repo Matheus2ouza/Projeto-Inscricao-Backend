@@ -14,9 +14,9 @@ export class FindByIdEventRoute {
   ) {}
 
   @IsPublic()
-  @Get(':id') // Mude de 'me' para ':id' como parâmetro de rota
+  @Get(':id')
   public async handle(
-    @Param() params: FindByIdEventRequest, // Mude de @Query para @Param
+    @Param() params: FindByIdEventRequest,
   ): Promise<FindByIdEventOutput> {
     const id = String(params.id);
     const result = await this.findByIdEventUsecase.execute({ id });

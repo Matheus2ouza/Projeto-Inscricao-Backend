@@ -7,6 +7,7 @@ export type ListPaymentToAnalysisResponse = {
     id: string;
     username: string;
     inscriptions: {
+      id: string;
       responsible: string;
       totalValue: number;
       countPayments: number;

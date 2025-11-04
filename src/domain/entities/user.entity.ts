@@ -22,6 +22,7 @@ export type UserwithDto = {
   regionId?: string;
   regionName?: string;
   email?: string;
+  imageUrl?: string;
 };
 
 export class User extends Entity {
@@ -35,6 +36,7 @@ export class User extends Entity {
     private regionId?: string,
     private regionName?: string,
     private email?: string,
+    private imageUrl?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -77,6 +79,7 @@ export class User extends Entity {
     regionId,
     regionName,
     email,
+    imageUrl,
   }: UserwithDto): User {
     return new User(
       id,
@@ -88,6 +91,7 @@ export class User extends Entity {
       regionId,
       regionName,
       email,
+      imageUrl,
     );
   }
 
@@ -117,6 +121,10 @@ export class User extends Entity {
 
   public getEmail(): string | undefined {
     return this.email;
+  }
+
+  public getImage(): string | undefined {
+    return this.imageUrl;
   }
 
   public comparePassword(password: string): boolean {

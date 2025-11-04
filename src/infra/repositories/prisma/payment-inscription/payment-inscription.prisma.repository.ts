@@ -45,6 +45,16 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     );
   }
 
+  public async findToAnalysis(id: string): Promise<PaymentInscription[]> {
+    const aModel = await this.prisma.paymentInscription.findMany({
+      where: { inscriptionId: id, status: 'UNDER_REVIEW' },
+    });
+
+    return aModel.map(
+      PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map,
+    );
+  }
+
   public async countAllByEvent(eventId: string): Promise<number> {
     const total = await this.prisma.paymentInscription.count({
       where: { eventId },
@@ -102,9 +112,10 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     // Executar todas as operações em uma transação atômica
     const result = await this.prisma.$transaction(async (tx) => {
       // 1. Decrementar o valor total da inscrição
-      await tx.inscription.update({
+      const inscription = await tx.inscription.update({
         where: { id: payment.getInscriptionId() },
         data: { totalValue: { decrement: Number(payment.getValue()) } },
+        select: { totalValue: true },
       });
 
       // 2. Criar movimento financeiro
@@ -126,7 +137,15 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         data: { amountCollected: { increment: Number(payment.getValue()) } },
       });
 
-      // 4. Aprovar o pagamento
+      // 4. Atualiza o status da inscrição caso tenha quitado o saldo devedor
+      if (Math.abs(Number(inscription.totalValue)) < 0.01) {
+        await tx.inscription.update({
+          where: { id: payment.getInscriptionId() },
+          data: { status: 'PAID' },
+        });
+      }
+
+      // 5. Aprovar o pagamento
       const approvedPayment = await tx.paymentInscription.update({
         where: { id: paymentId },
         data: { status: 'APPROVED' },
@@ -137,6 +156,22 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
 
     return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
       result,
+    );
+  }
+
+  public async rejectedPayment(
+    paymentId: string,
+    rejectionReason?: string,
+  ): Promise<PaymentInscription> {
+    const payment = await this.prisma.paymentInscription.update({
+      where: { id: paymentId },
+      data: {
+        status: 'REFUSED',
+        rejectionReason: rejectionReason,
+      },
+    });
+    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
+      payment,
     );
   }
 }

@@ -1,4 +1,3 @@
-import { RedocModule } from '@juicyllama/nestjs-redoc';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
@@ -27,26 +26,17 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // Interface moderna do Scalar
+  // Interface nativa do Swagger
   if (process.env.NODE_ENV !== 'production') {
-    await RedocModule.setup('/api/docs', app, document, {
-      title: 'Sistema de Inscrição - Documentação da API',
-      sortPropsAlphabetically: true,
-      hideDownloadButton: false,
-      theme: {
-        colors: {
-          primary: { main: '#2563eb' },
-          text: { primary: '#1e293b' },
-          background: { default: '#ffffff' },
-        },
-        typography: {
-          fontFamily: 'Open Sans, sans-serif',
-          headings: {
-            fontWeight: '600',
-            color: '#1e293b',
-          },
-        },
+    SwaggerModule.setup('/api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
       },
+      customSiteTitle: 'Sistema de Inscrição - Documentação da API',
+      customCss: `
+        .topbar { background-color: #2563eb !important; }
+        .swagger-ui .topbar a span { color: #fff !important; }
+      `,
     });
   }
 
@@ -70,6 +60,7 @@ async function bootstrap() {
   const port = Number(process.env.PORT ?? 3000);
   await app.listen(port, '0.0.0.0');
   console.log(`Servidor rodando em: http://localhost:${port}`);
+  console.log(`Documentação disponível em: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

@@ -15,6 +15,7 @@ export class UserPrismaModelToUserEntityMapper {
       regionId: user.regionId ?? undefined,
       regionName: user.region?.name,
       email: user.email ?? undefined,
+      imageUrl: user.imageUrl ?? undefined,
     });
 
     return anUser;
