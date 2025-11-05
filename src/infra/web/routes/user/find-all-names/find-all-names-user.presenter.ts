@@ -8,6 +8,7 @@ export class FindAllNamesUserPresenter {
     return output.map((user) => ({
       id: user.id,
       username: user.username,
+      role: user.role,
     }));
   }
 }
