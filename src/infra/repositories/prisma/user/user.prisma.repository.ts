@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
 import { User } from 'src/domain/entities/user.entity';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { PrismaService } from '../prisma.service';
@@ -85,11 +86,17 @@ export class UserPrismaRepository implements UserGateway {
     return models.map(UserPrismaModelToUserEntityMapper.map);
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(roles?: string[]): Promise<User[]> {
+    const roleValues = roles
+      ? roles
+          .map((role) => roleType[role as keyof typeof roleType])
+          .filter((role): role is roleType => role !== undefined)
+      : [roleType.ADMIN, roleType.SUPER, roleType.MANAGER];
+
     const found = await this.prisma.accounts.findMany({
       where: {
         role: {
-          in: ['ADMIN', 'SUPER', 'MANAGER'],
+          in: roleValues,
         },
       },
     });
