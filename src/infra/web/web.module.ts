@@ -15,9 +15,11 @@ import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filt
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
+import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
+import { EditEventRoute } from './routes/event/edit/edit-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
@@ -80,6 +82,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //Event
     CreateEventRoute,
+    EditEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
     FindAllPaginatedEventsRoute,
@@ -97,6 +100,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedEventToInscriptionRoute,
     //Payments
     FindAllPaginatedEventToPaymentRoute,
+
+    //Events - Responsible
+    DeleteEventResponsibleRoute,
 
     //Region
     CreateRegionRoute,
