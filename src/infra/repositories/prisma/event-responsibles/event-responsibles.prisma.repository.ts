@@ -11,9 +11,7 @@ export class EventResponsiblePrismaRepository
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    eventResponsible: EventResponsible,
-  ): Promise<EventResponsible> {
+  async create(eventResponsible: EventResponsible): Promise<EventResponsible> {
     const data =
       EventResponsibleEntityToEventResponsiblePrismaModelMapper.map(
         eventResponsible,
@@ -29,6 +27,9 @@ export class EventResponsiblePrismaRepository
   async findByEventId(eventId: string): Promise<EventResponsible[]> {
     const found = await this.prisma.eventResponsibles.findMany({
       where: { eventId },
+      include: {
+        account: true,
+      },
     });
 
     return found.map(
