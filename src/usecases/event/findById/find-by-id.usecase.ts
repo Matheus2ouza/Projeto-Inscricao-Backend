@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { EventNotFoundUsecaseException } from 'src/usecases/exceptions/events/event-not-found.usecase.exception';
 import { Usecase } from 'src/usecases/usecase';
@@ -26,6 +28,12 @@ export type FindByIdEventOutput = {
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
+  responsibles: Responsible[];
+};
+
+export type Responsible = {
+  id: string;
+  name: string;
 };
 
 @Injectable()
@@ -34,6 +42,8 @@ export class FindByIdEventUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
+    private readonly userGateway: UserGateway,
     private readonly regionGateway: RegionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
@@ -42,9 +52,8 @@ export class FindByIdEventUsecase
     input: FindByIdEventInput,
   ): Promise<FindByIdEventOutput> {
     const id = input.id.trim();
-    console.log(id);
     const event = await this.eventGateway.findById(id);
-    console.log(event);
+
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Event not found with finding event with id ${input.id} in ${FindByIdEventUsecase.name}`,
@@ -64,6 +73,22 @@ export class FindByIdEventUsecase
       }
     }
 
+    const responsibles = await this.eventResponsibleGateway.findByEventId(
+      event.getId(),
+    );
+
+    const responsibleUsers = await Promise.all(
+      responsibles.map(async (responsible) => {
+        const user = await this.userGateway.findById(
+          responsible.getAccountId(),
+        );
+        return {
+          id: responsible.getAccountId(),
+          name: user?.getUsername() || 'Usuário não encontrado',
+        };
+      }),
+    );
+
     const output: FindByIdEventOutput = {
       id: event.getId(),
       name: event.getName(),
@@ -80,6 +105,7 @@ export class FindByIdEventUsecase
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
       regionName: region?.getName() || '',
+      responsibles: responsibleUsers,
     };
 
     return output;
