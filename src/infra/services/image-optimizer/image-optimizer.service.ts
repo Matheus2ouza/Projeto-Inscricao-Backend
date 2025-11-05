@@ -87,8 +87,8 @@ export class ImageOptimizerService {
   ): Promise<OptimizedImageResult> {
     try {
       const {
-        maxWidth = 1200, // Reduzido para economizar espaço
-        maxHeight = 800, // Reduzido para economizar espaço
+        maxWidth = 1920, // Reduzido para economizar espaço
+        maxHeight = 1080, // Reduzido para economizar espaço
         quality = 70, // Qualidade mais baixa para menor tamanho
         format = 'webp',
         maxFileSize = 500 * 1024, // 500KB por padrão - muito menor para economizar espaço

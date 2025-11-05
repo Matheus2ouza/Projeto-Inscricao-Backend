@@ -1,23 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { UserGateway } from 'src/domain/repositories/user.geteway';
 
+export type FindAllNamesUserInput = {
+  roles?: string[];
+};
+
 export type FindAllNamesUserOutput = {
   id: string;
   username: string;
+  role: string;
 }[];
 
 @Injectable()
 export class FindAllNamesUserUsecase {
   public constructor(private readonly userGateway: UserGateway) {}
 
-  public async execute(): Promise<FindAllNamesUserOutput> {
-    const allUsername = await this.userGateway.findAll();
+  public async execute(
+    input: FindAllNamesUserInput,
+  ): Promise<FindAllNamesUserOutput> {
+    const allUsers = await this.userGateway.findAll(input.roles);
 
-    const output: FindAllNamesUserOutput = allUsername.map((username) => ({
-      id: username.getId(),
-      username: username.getUsername(),
+    return allUsers.map((user) => ({
+      id: user.getId(),
+      username: user.getUsername(),
+      role: user.getRole(),
     }));
-    console.log(output);
-    return output;
   }
 }

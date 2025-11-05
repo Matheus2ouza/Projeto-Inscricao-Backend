@@ -31,7 +31,6 @@ export class DeleteInscriptionRoute {
     description: 'Inscrição não encontrada.',
   })
   async handle(@Param('id') id: string): Promise<void> {
-    console.log('deletando...');
     await this.deleteInscriptionUsecase.execute({ inscriptionId: id });
   }
 }

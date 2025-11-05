@@ -20,4 +20,10 @@ export type FindByIdEventOutput = {
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
+  responsibles: Responsible[];
+};
+
+export type Responsible = {
+  id: string;
+  name: string;
 };

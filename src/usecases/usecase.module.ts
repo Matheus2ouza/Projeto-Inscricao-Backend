@@ -6,9 +6,11 @@ import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateEventExpensesUsecase } from './event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
+import { DeleteEventResponsibleUseCase } from './event-responsible/delete-event-responsible.usecase';
 import { ListInscriptionToAnalysisUsecase } from './event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { ListPaymentToAnalysisUsecase } from './event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { CreateEventUseCase } from './event/create/create-event.usecase';
+import { EditEventUseCase } from './event/edit/edit-event.usecase';
 import { FindAllPaginatedEventsUsecase } from './event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventToInscriptionUsecase } from './event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
@@ -71,6 +73,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
 
     //Events
     CreateEventUseCase,
+    EditEventUseCase,
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
     FindAllnamesEventUsecase,
@@ -86,6 +89,9 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindAllPaginatedEventToInscriptionUsecase,
     //Events - List Payments
     FindAllPaginatedEventToPaymentUsecase,
+
+    //Events - Responsible
+    DeleteEventResponsibleUseCase,
 
     //Regions
     CreateRegionUseCase,
@@ -150,6 +156,7 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
 
     //Events
     CreateEventUseCase,
+    EditEventUseCase,
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
     FindAllnamesEventUsecase,
@@ -165,6 +172,9 @@ import { RefreshAuthTokenUserUsecase } from './user/refresh-auth-token/refresh-a
     FindAllPaginatedEventToInscriptionUsecase,
     //Events - List Payments
     FindAllPaginatedEventToPaymentUsecase,
+
+    //Events - Responsible
+    DeleteEventResponsibleUseCase,
 
     //Regions
     CreateRegionUseCase,

@@ -1,6 +1,6 @@
+import { statusEvent } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
-import { statusEvent } from 'generated/prisma';
 
 export type EventCreateDto = {
   name: string;
@@ -197,6 +197,74 @@ export class Event extends Entity {
 
   public getPaymentEnabled(): boolean {
     return this.paymentEnabled;
+  }
+
+  public setName(name: string): void {
+    this.name = name;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setStartDate(startDate: Date): void {
+    this.startDate = startDate;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setEndDate(endDate: Date): void {
+    this.endDate = endDate;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setLocation(location?: string): void {
+    this.location = location;
+    this.updatedAt = new Date();
+  }
+
+  public setLongitude(longitude?: number | null): void {
+    this.longitude = longitude;
+    this.updatedAt = new Date();
+  }
+
+  public setLatitude(latitude?: number | null): void {
+    this.latitude = latitude;
+    this.updatedAt = new Date();
+  }
+
+  public update({
+    name,
+    startDate,
+    endDate,
+    location,
+    longitude,
+    latitude,
+  }: {
+    name?: string;
+    startDate?: Date;
+    endDate?: Date;
+    location?: string;
+    longitude?: number | null;
+    latitude?: number | null;
+  }): void {
+    if (name !== undefined) {
+      this.setName(name);
+    }
+    if (startDate !== undefined) {
+      this.setStartDate(startDate);
+    }
+    if (endDate !== undefined) {
+      this.setEndDate(endDate);
+    }
+    if (location !== undefined) {
+      this.setLocation(location);
+    }
+    if (longitude !== undefined) {
+      this.setLongitude(longitude);
+    }
+    if (latitude !== undefined) {
+      this.setLatitude(latitude);
+    }
   }
 
   public openEvent(): any {

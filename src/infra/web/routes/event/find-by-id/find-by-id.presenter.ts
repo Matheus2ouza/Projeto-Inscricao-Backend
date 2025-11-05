@@ -18,6 +18,7 @@ export class FindByEventPresenter {
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
       regionName: input.regionName,
+      responsibles: input.responsibles,
     };
 
     return response;

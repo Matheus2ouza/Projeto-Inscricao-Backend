@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import { UserRole } from 'src/infra/web/authenticator/decorators/user-role.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { UserRole } from 'src/infra/web/authenticator/decorators/user-role.decorator';
 
 @Controller('users')
 export class UserProfileRoute {
