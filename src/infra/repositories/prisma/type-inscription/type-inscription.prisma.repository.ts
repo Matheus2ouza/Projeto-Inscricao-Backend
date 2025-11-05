@@ -49,12 +49,9 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
   }
 
   async findByEventId(eventId: string): Promise<TypesInscription[]> {
-    console.log('dentro da busca');
-    console.log(eventId);
     const found = await this.prisma.typeInscriptions.findMany({
       where: { eventId },
     });
-    console.log(found);
     return found.map(
       TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
     );
