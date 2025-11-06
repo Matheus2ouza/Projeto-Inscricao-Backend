@@ -9,15 +9,39 @@ export class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+
+    // Validar se as credenciais estão definidas
+    if (!smtpUser || !smtpPass) {
+      this.logger.warn(
+        'Credenciais SMTP não configuradas. Variáveis SMTP_USER e SMTP_PASS devem estar definidas no arquivo .env',
+      );
+    }
+
+    const transporterConfig: {
+      host: string;
+      port: number;
+      secure: boolean;
+      auth?: {
+        user: string;
+        pass: string;
+      };
+    } = {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true', // true para 465, false para outras portas
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    };
+
+    // Configurar autenticação apenas se as credenciais estiverem definidas
+    if (smtpUser && smtpPass) {
+      transporterConfig.auth = {
+        user: smtpUser,
+        pass: smtpPass,
+      };
+    }
+
+    this.transporter = nodemailer.createTransport(transporterConfig);
   }
 
   async sendMail({
@@ -30,6 +54,14 @@ export class MailService {
     html: string;
   }) {
     try {
+      // Validar se as credenciais estão configuradas
+      if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        const errorMessage =
+          'Credenciais SMTP não configuradas. Configure as variáveis SMTP_USER e SMTP_PASS no arquivo .env';
+        this.logger.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
       this.logger.debug(`Enviando e-mail...`);
       this.logger.debug(
         `From: ${process.env.SENDER_EMAIL || process.env.SMTP_USER}`,
@@ -132,9 +164,9 @@ export class MailService {
       typeof (exportedDefault as Record<string, unknown>)['default'] ===
         'function'
     ) {
-      return (exportedDefault as Record<string, unknown>)['default'] as ComponentType<
-        Record<string, unknown>
-      >;
+      return (exportedDefault as Record<string, unknown>)[
+        'default'
+      ] as ComponentType<Record<string, unknown>>;
     }
 
     const namedExportEntry = Object.entries(module).find(
@@ -144,7 +176,8 @@ export class MailService {
         typeof value === 'function',
     );
 
-    return (namedExportEntry?.[1] as ComponentType<Record<string, unknown>>) ??
-      null;
+    return (
+      (namedExportEntry?.[1] as ComponentType<Record<string, unknown>>) ?? null
+    );
   }
 }
