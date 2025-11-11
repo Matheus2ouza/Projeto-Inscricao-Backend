@@ -13,7 +13,6 @@ export type IndivUploadRequest = {
 
 export type IndivUploadRouteResponse = {
   cacheKey: string;
-  status: 'PENDING' | 'UNDER_REVIEW';
   participant: {
     name: string;
     birthDate: string;

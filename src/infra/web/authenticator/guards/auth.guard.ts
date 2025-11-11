@@ -35,7 +35,6 @@ export class AuthGuard implements CanActivate {
     }
 
     const payload = this.jwtService.verifyAuthToken(token);
-    console.log('Auth token payload:', payload);
 
     if (!payload) {
       console.log('Invalid auth token');
@@ -44,10 +43,6 @@ export class AuthGuard implements CanActivate {
 
     request['userId'] = payload.userId;
     request['userRole'] = payload.role;
-    console.log('Authenticated user:', {
-      userId: payload.userId,
-      role: payload.role,
-    });
     return true;
   }
 

@@ -1,18 +1,18 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { FindCacheGroupUsecase } from 'src/usecases/inscription/group/find-cache-group.usecase';
-import type { FindCacheGroupInput } from 'src/usecases/inscription/group/find-cache-group.usecase';
+import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import type { GroupFindCacheInput } from 'src/usecases/inscription/group/find-cache/group-find-cache.usecase';
+import { GroupFindCacheUsecase } from 'src/usecases/inscription/group/find-cache/group-find-cache.usecase';
 import type {
   GroupFindCacheRequest,
   GroupFindCacheRouteResponse,
 } from './group-find-cache.dto';
 import { GroupFindCachePresenter } from './group-find-cache.presenter';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 
 @ApiTags('Inscription Group')
 @Controller('inscriptions/group')
 export class GroupFindCacheRoute {
-  public constructor(private readonly findCacheGroup: FindCacheGroupUsecase) {}
+  public constructor(private readonly findCacheGroup: GroupFindCacheUsecase) {}
 
   @Post('find-cache')
   @ApiOperation({ summary: 'Buscar dados do cache de inscrição em grupo' })
@@ -20,7 +20,7 @@ export class GroupFindCacheRoute {
     @Body() request: GroupFindCacheRequest,
     @UserId() accountId: string,
   ): Promise<GroupFindCacheRouteResponse> {
-    const input: FindCacheGroupInput = {
+    const input: GroupFindCacheInput = {
       cacheKey: request.cacheKey,
       accountId,
     };

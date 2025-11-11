@@ -3,16 +3,16 @@ import { FindAllPaginatedInscriptionResponse } from './find-all-paginated-inscri
 
 export class FindAllPaginatedInscriptionPresenter {
   public static toHttp(
-    input: FindAllPaginatedInscriptionsOutput,
+    output: FindAllPaginatedInscriptionsOutput,
   ): FindAllPaginatedInscriptionResponse {
     return {
-      inscription: input.inscription,
-      total: input.total,
-      page: input.page,
-      pageCount: input.pageCount,
-      totalInscription: input.totalInscription,
-      totalParticipant: input.totalParticipant,
-      totalDebt: input.totalDebt,
+      events: output.events,
+      total: output.total,
+      page: output.page,
+      pageCount: output.pageCount,
+      totalInscription: output.totalInscription,
+      totalParticipant: output.totalParticipant,
+      totalDebt: output.totalDebt,
     };
   }
 }

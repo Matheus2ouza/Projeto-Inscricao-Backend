@@ -12,6 +12,7 @@ export abstract class EventGateway {
   abstract paymentCheck(eventId: string): Promise<boolean>;
   abstract update(event: Event): Promise<Event>;
   abstract delete(id: string): Promise<void>;
+  abstract updateImage(id: string, imageUrl: string): Promise<Event>;
   abstract findByNameAndRegionId(
     name: string,
     regionId: string,
@@ -36,4 +37,7 @@ export abstract class EventGateway {
   >;
   abstract incrementAmountCollected(id: string, value: number): Promise<Event>;
   abstract decrementAmountCollected(id: string, value: number): Promise<Event>;
+
+  //PDF
+  abstract findBasicDataForPdf(eventId: string): Promise<Event | null>;
 }

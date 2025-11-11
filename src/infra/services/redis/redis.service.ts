@@ -46,8 +46,14 @@ export class RedisService implements OnModuleDestroy {
     }
   }
 
-  async del(key: string): Promise<void> {
-    await this.client.del(key);
+  async del(key: string): Promise<number> {
+    return await this.client.del(key);
+  }
+
+  async delMany(keys: string[]): Promise<number> {
+    if (keys.length === 0) return 0;
+    const result = await this.client.del(...keys);
+    return result;
   }
 
   async setex(key: string, seconds: number, value: string): Promise<void> {

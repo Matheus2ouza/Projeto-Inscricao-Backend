@@ -7,7 +7,6 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { generateSlug } from 'src/shared/utils/event-image.util';
 import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/exceptions/events/event-name-already-exists.usecase.exception';
 import { InvalidEventDateRangeUsecaseException } from 'src/usecases/exceptions/events/invalid-event-date-range.usecase.exception';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/exceptions/events/invalid-image-format.usecase.exception';
@@ -165,9 +164,19 @@ export class CreateEventUseCase
       const { buffer, extension, originalName } =
         await this.imageOptimizerService.processBase64Image(image);
 
-      // Gera nome baseado no evento
-      const slug = generateSlug(eventName);
-      const fileName = `${slug}_${Date.now()}.${extension}`;
+      // Gera nome baseado no evento com data em formato ISO
+      // Limpa o nome do evento para ser seguro como nome de arquivo
+      const safeEventName = eventName
+        .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove caracteres especiais
+        .replace(/\s+/g, '-') // Substitui espaços por hífen
+        .toLowerCase();
+      // Formata a data ISO removendo caracteres especiais para usar em nome de arquivo
+      const isoDate = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .replace('T', '_')
+        .split('.')[0];
+      const fileName = `${safeEventName}_${isoDate}.${extension}`;
 
       // Valida a imagem
       const isValidImage = await this.imageOptimizerService.validateImage(
@@ -195,10 +204,10 @@ export class CreateEventUseCase
         },
       );
 
-      // Gera nome único para o arquivo final
-      const finalFileName = this.imageOptimizerService.generateUniqueFileName(
-        fileName,
-        optimizedImage.format,
+      // Substitui a extensão pelo formato otimizado (webp)
+      const finalFileName = fileName.replace(
+        /\.\w+$/,
+        `.${optimizedImage.format}`,
       );
 
       // Faz upload para o Supabase Storage

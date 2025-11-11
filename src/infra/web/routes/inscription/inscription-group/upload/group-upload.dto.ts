@@ -9,7 +9,6 @@ export type GroupUploadRouteResponse = {
   cacheKey: string;
   total: number;
   unitValue: number;
-  status: 'PENDING' | 'UNDER_REVIEW';
   items: {
     name: string;
     birthDate: string;

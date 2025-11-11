@@ -1,8 +1,8 @@
-import { ConfirmIndivOutput } from 'src/usecases/inscription/indiv/confirm-indiv.usecase';
+import { IndivConfirmOutput } from 'src/usecases/inscription/indiv/confirm/indiv-confirm.usecase';
 import { ConfirmIndivRouteResponse } from './indiv-confirm.dto';
 
 export class IndivConfirmPresenter {
-  public static toHttp(input: ConfirmIndivOutput): ConfirmIndivRouteResponse {
+  public static toHttp(input: IndivConfirmOutput): ConfirmIndivRouteResponse {
     const response: ConfirmIndivRouteResponse = {
       inscriptionId: input.inscriptionId,
       inscriptionStatus: input.inscriptionStatus,

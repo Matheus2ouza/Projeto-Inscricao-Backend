@@ -1,9 +1,9 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
-  UploadValidateIndivInput,
-  UploadValidateIndivUsecase,
-} from 'src/usecases/inscription/indiv/upload-valide-indiv.usecase';
+  IndivUploadValidateInput,
+  IndivUploadValidateUsecase,
+} from 'src/usecases/inscription/indiv/upload/indiv-upload-valide.usecase';
 import type {
   IndivUploadRequest,
   IndivUploadRouteResponse,
@@ -13,7 +13,7 @@ import { IndivUploadPresenter } from './indiv-upload.presenter';
 @Controller('inscriptions/indiv')
 export class IndivUploadRoute {
   public constructor(
-    private readonly uploadValidateIndivUsecase: UploadValidateIndivUsecase,
+    private readonly uploadValidateIndivUsecase: IndivUploadValidateUsecase,
   ) {}
 
   @Post('upload')
@@ -21,9 +21,8 @@ export class IndivUploadRoute {
     @Body() request: IndivUploadRequest,
     @UserId() accountId: string,
   ): Promise<IndivUploadRouteResponse> {
-    console.log('o que veio do front: ', request);
     const { participant } = request;
-    const input: UploadValidateIndivInput = {
+    const input: IndivUploadValidateInput = {
       responsible: request.responsible,
       email: request.email,
       phone: request.phone,

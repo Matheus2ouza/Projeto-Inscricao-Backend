@@ -1,7 +1,8 @@
-import { FindByIdEventOutput } from './find-by-id.dto';
+import { FindByIdEventOutput } from 'src/usecases/event/find-by-id/find-by-id.usecase';
+import { FindByIdEventResponse } from './find-by-id.dto';
 
 export class FindByEventPresenter {
-  public static toHttp(input: FindByIdEventOutput): FindByIdEventOutput {
+  public static toHttp(input: FindByIdEventOutput): FindByIdEventResponse {
     const response: FindByIdEventOutput = {
       id: input.id,
       name: input.name,
@@ -14,7 +15,7 @@ export class FindByEventPresenter {
       longitude: input.longitude,
       latitude: input.latitude,
       status: input.status,
-      paymentEneble: input.paymentEneble,
+      paymentEnebled: input.paymentEnebled,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
       regionName: input.regionName,
