@@ -8,11 +8,6 @@ export interface UploadFileOptions {
   contentType: string;
 }
 
-export interface DeleteFileOptions {
-  folderName: string;
-  fileName: string;
-}
-
 @Injectable()
 export class SupabaseStorageService {
   private readonly logger = new Logger(SupabaseStorageService.name);
@@ -95,12 +90,13 @@ export class SupabaseStorageService {
 
   /**
    * Remove um arquivo do Supabase Storage
-   * @param options - Opções de exclusão incluindo pasta e nome do arquivo
+   * @param filePath - Caminho completo do arquivo (ex: "events/nome_arquivo.webp")
    */
-  async deleteFile(options: DeleteFileOptions): Promise<void> {
+  async deleteFile(filePath: string): Promise<void> {
     try {
-      const { folderName, fileName } = options;
-      const filePath = `${folderName}/${fileName}`;
+      if (!filePath || filePath.trim().length === 0) {
+        throw new Error('Caminho do arquivo é obrigatório');
+      }
 
       this.logger.log(`Iniciando exclusão do arquivo: ${filePath}`);
 
