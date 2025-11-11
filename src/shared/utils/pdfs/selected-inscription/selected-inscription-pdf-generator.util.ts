@@ -157,22 +157,26 @@ export class SelectedInscriptionPdfGeneratorUtils {
   private static buildAccountsContent(
     accounts: SelectedInscriptionPdfAccount[],
   ) {
-    return accounts.flatMap((account, accountIndex) => [
-      {
-        stack: [
-          {
-            text: account.username,
-            style: 'accountTitle',
-          },
-          {
-            text: formatId(account.id),
-            style: 'accountSubtitle',
-          },
-        ],
-        margin: [0, accountIndex === 0 ? 0 : 24, 0, 4],
-      },
-      ...this.buildAccountInscriptions(account.inscriptions),
-    ]);
+    return accounts.map((account, accountIndex) => ({
+      stack: [
+        {
+          stack: [
+            {
+              text: account.username,
+              style: 'accountTitle',
+            },
+            {
+              text: formatId(account.id),
+              style: 'accountSubtitle',
+            },
+          ],
+          margin: [0, 0, 0, 4],
+        },
+        ...this.buildAccountInscriptions(account.inscriptions),
+      ],
+      margin: [0, accountIndex === 0 ? 0 : 24, 0, 0],
+      pageBreak: accountIndex === accounts.length - 1 ? undefined : 'after',
+    }));
   }
 
   private static buildAccountInscriptions(
