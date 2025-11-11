@@ -4,7 +4,7 @@ export type FindByIdEventRequest = {
   id: string;
 };
 
-export type FindByIdEventOutput = {
+export type FindByIdEventResponse = {
   id: string;
   name: string;
   quantityParticipants: number;
@@ -16,7 +16,7 @@ export type FindByIdEventOutput = {
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
-  paymentEneble: boolean;
+  paymentEnebled: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
