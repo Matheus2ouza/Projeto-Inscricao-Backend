@@ -19,14 +19,20 @@ import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/d
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
-import { EditEventRoute } from './routes/event/edit/edit-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
 import { FindAllPaginatedEventToPaymentRoute } from './routes/event/find-all-to-analysis/payments/find-all-paginated-events-to-payments.route';
+import { FindAllWithInscriptionsRoute } from './routes/event/find-all-with-inscriptions/find-all-with-inscriptions.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
+import { FindDetailsEventRoute } from './routes/event/find-details/find-details-event.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
+import { FindAccountWithInscriptionsRoute } from './routes/event/inscription/find-accounts-with-inscriptions/find-accounts-with-inscriptions.route';
+import { GeneratePdfSelectedInscriptionRoute } from './routes/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.route';
+import { UpdateEventRoute } from './routes/event/update-event/update-event.route';
+import { UpdateImageRoute } from './routes/event/update-image/update-image.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
+import { UpdateLocationEventRoute } from './routes/event/update-location/update-location-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
@@ -35,11 +41,14 @@ import { UpdateStatusInscriptionRoute } from './routes/inscription/analysis/upda
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
+import { GroupCancelRoute } from './routes/inscription/inscription-group/cancel/group-cancel.route';
 import { GroupConfirmRoute } from './routes/inscription/inscription-group/confirm/group-confirm.route';
 import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find-cache/group-find-cache.route';
 import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
+import { IndivCancelRoute } from './routes/inscription/inscription-indiv/cancel/indiv-cancel.route';
 import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
+import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
@@ -82,14 +91,22 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //Event
     CreateEventRoute,
-    EditEventRoute,
+    UpdateEventRoute,
+    UpdateImageRoute,
+    UpdateLocationEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
     FindAllPaginatedEventsRoute,
     FindEventCarouselRoute,
+    FindAllWithInscriptionsRoute,
     FindByIdEventRoute,
+    FindDetailsEventRoute,
     FindByEventId,
     FindAllNamesEventRoute,
+
+    //List Inscription with Account
+    FindAccountWithInscriptionsRoute,
+    GeneratePdfSelectedInscriptionRoute,
 
     //Events - ListToAnalysis
     ListInscriptonToAnalysisRoute,
@@ -118,14 +135,19 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedInscriptionsRoute,
     DeleteInscriptionRoute,
 
+    //PDF - Inscription
+    GeneratePdfInscriptionRoute,
+
     //InscriptionGrup
     GroupUploadRoute,
     GroupConfirmRoute,
+    GroupCancelRoute,
     GroupFindCacheRoute,
 
     //InscriptionIndiv
     IndivUploadRoute,
     IndivConfirmRoute,
+    IndivCancelRoute,
 
     //Analysis - Inscription
     AnalysisInscriptionRoute,
