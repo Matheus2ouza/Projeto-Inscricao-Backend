@@ -16,7 +16,7 @@ export class FindDetailsInscriptionRoute {
   ) {}
 
   @Roles(RoleTypeHierarchy.USER)
-  @Get(':id')
+  @Get(':id/details')
   @ApiOperation({
     summary: 'Retorna os detalhes completos de uma inscrição',
     description:
