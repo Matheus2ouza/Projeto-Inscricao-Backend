@@ -1,7 +1,7 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import type { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
+import { Injectable } from '@nestjs/common';
 import { CacheRecord } from 'src/domain/entities/cache-record.entity';
+import type { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
+import { PrismaService } from '../prisma.service';
 import { CacheRecordPrismaModelToCacheRecordEntityMapper } from './model/mappers/cache-record-prisma-model-to-cache-record-entity.mapper';
 
 @Injectable()
@@ -47,5 +47,49 @@ export class CacheRecordPrismaRepository implements CacheRecordGateway {
     });
 
     return result.count;
+  }
+
+  async findExpiredCacheKeys(): Promise<string[]> {
+    const expired = await this.prisma.cacheRecords.findMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+      select: {
+        cacheKey: true,
+      },
+    });
+
+    return expired.map((record) => record.cacheKey);
+  }
+
+  async findActiveByAccountId(accountId: string): Promise<CacheRecord[]> {
+    const now = new Date();
+    const found = await this.prisma.cacheRecords.findMany({
+      where: {
+        accountId,
+        OR: [
+          { expiresAt: null },
+          {
+            expiresAt: {
+              gt: now,
+            },
+          },
+        ],
+      },
+      orderBy: [
+        {
+          expiresAt: 'asc',
+        },
+        {
+          updatedAt: 'desc',
+        },
+      ],
+    });
+
+    return found.map((record) =>
+      CacheRecordPrismaModelToCacheRecordEntityMapper.map(record),
+    );
   }
 }

@@ -45,6 +45,14 @@ export class EventPrismaRepository implements EventGateway {
     return EventPrismaModelToEventEntityMapper.map(updated);
   }
 
+  async updateImage(id: string, imageUrl: string): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: { imageUrl },
+    });
+    return EventPrismaModelToEventEntityMapper.map(data);
+  }
+
   async paymentEnabled(eventId: string): Promise<void> {
     await this.prisma.events.update({
       where: { id: eventId },
@@ -178,5 +186,13 @@ export class EventPrismaRepository implements EventGateway {
     });
 
     return EventPrismaModelToEventEntityMapper.map(aModel);
+  }
+
+  //PDF
+  async findBasicDataForPdf(eventId: string): Promise<Event | null> {
+    const found = await this.prisma.events.findUnique({
+      where: { id: eventId },
+    });
+    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
   }
 }
