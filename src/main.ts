@@ -58,9 +58,17 @@ async function bootstrap() {
 
   // Inicialização
   const port = Number(process.env.PORT ?? 3000);
+  const host =
+    process.env.NODE_ENV === 'production'
+      ? process.env.APP_URL || 'https://seu-dominio.com'
+      : `http://localhost:${port}`;
+
   await app.listen(port, '0.0.0.0');
-  console.log(`Servidor rodando em: http://localhost:${port}`);
-  console.log(`Documentação disponível em: http://localhost:${port}/api/docs`);
+
+  console.log(`Servidor rodando em: ${host}`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`Documentação Swagger: ${host}/api/docs`);
+  }
 }
 
 bootstrap();
