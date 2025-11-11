@@ -10,8 +10,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import { XlsxGroupParserUtil } from 'src/shared/parser/xlsx-group-parser.util';
-import type { UploadValidateGroupInput } from 'src/usecases/inscription/group/upload-validate-group.usecase';
-import { UploadValidateGroupUsecase } from 'src/usecases/inscription/group/upload-validate-group.usecase';
+import type { GroupUploadInput } from 'src/usecases/inscription/group/upload/group-upload.usecase';
+import { GroupUploadUsecase } from 'src/usecases/inscription/group/upload/group-upload.usecase';
 import type {
   GroupUploadRequest,
   GroupUploadRouteResponse,
@@ -22,7 +22,7 @@ import { GroupUploadPresenter } from './group-upload.presenter';
 @Controller('inscriptions/group')
 export class GroupUploadRoute {
   public constructor(
-    private readonly uploadValidateGroup: UploadValidateGroupUsecase,
+    private readonly uploadValidateGroup: GroupUploadUsecase,
   ) {}
 
   @Post('upload')
@@ -38,7 +38,7 @@ export class GroupUploadRoute {
 
     const rows = await XlsxGroupParserUtil.parse(file.buffer);
 
-    const input: UploadValidateGroupInput = {
+    const input: GroupUploadInput = {
       responsible: request.responsible,
       email: request.email,
       phone: request.phone,

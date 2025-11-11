@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
-  ConfirmIndivInput,
+  IndivConfirmInput,
   IndivConfirmUsecase,
-} from 'src/usecases/inscription/indiv/confirm-indiv.usecase';
+} from 'src/usecases/inscription/indiv/confirm/indiv-confirm.usecase';
 import type {
   ConfirmIndivRouteResponse,
   IndivConfirmRequest,
@@ -21,7 +21,7 @@ export class IndivConfirmRoute {
     @Body() request: IndivConfirmRequest,
     @UserId() accountId: string,
   ): Promise<ConfirmIndivRouteResponse> {
-    const input: ConfirmIndivInput = {
+    const input: IndivConfirmInput = {
       cacheKey: request.cacheKey,
       accountId,
     };
