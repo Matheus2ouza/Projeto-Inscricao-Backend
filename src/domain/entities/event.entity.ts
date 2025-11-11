@@ -173,6 +173,7 @@ export class Event extends Entity {
 
   public setImageUrl(imageUrl: string): void {
     this.imageUrl = imageUrl;
+    this.updatedAt = new Date();
   }
 
   public getUpdatedAt(): Date {
@@ -275,6 +276,21 @@ export class Event extends Entity {
   public closeEvent(): void {
     this.status = 'CLOSE';
     this.updatedAt = new Date();
+  }
+
+  public updateImage(imageUrl: string): void {
+    this.imageUrl = imageUrl;
+    this.updatedAt = new Date();
+  }
+
+  public updateLocation(
+    location: string,
+    longitude: number,
+    latitude: number,
+  ): void {
+    this.location = location;
+    this.longitude = longitude;
+    this.latitude = latitude;
   }
 
   public incrementParticipantsCount(): void {
