@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
-import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/exceptions/users/user-not-allowed-to-create-user.usecase.exception';
+import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/web/exceptions/users/user-not-allowed-to-create-user.usecase.exception';
 
 @Catch(UserNotAllowedToCreateUserUsecaseException)
 export class UserNotAllowedToCreateUserUsecaseExceptionFilter

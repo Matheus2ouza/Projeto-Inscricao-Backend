@@ -1,4 +1,4 @@
-import { AnalysisInscriptionOutput } from 'src/usecases/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
+import { AnalysisInscriptionOutput } from 'src/usecases/web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { AnalysisInscriptionResponse } from './analysis-inscription.dto';
 
 export class AnalysisInscriptionPresenter {

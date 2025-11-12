@@ -8,7 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { UserNotFoundUsecaseException } from 'src/usecases/exceptions/users/user-not-found.usecase.exception';
+import { UserNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/user-not-found.usecase.exception';
 
 @Catch(UserNotFoundUsecaseException)
 export class UserNotFoundUsecaseExceptionFilter implements ExceptionFilter {

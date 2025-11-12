@@ -1,4 +1,4 @@
-import { SaleGroupTicketOutput } from 'src/usecases/tickets/sale-group/sale-group-ticket.usecase';
+import { SaleGroupTicketOutput } from 'src/usecases/web/tickets/sale-group/sale-group-ticket.usecase';
 import { SaleGroupTicketResponse } from './sale-group-ticket.dto';
 
 export class SaleGroupTicketPresenter {

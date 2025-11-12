@@ -1,4 +1,4 @@
-import { FindAllPaginatedEventToPaymentOutput } from 'src/usecases/event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
+import { FindAllPaginatedEventToPaymentOutput } from 'src/usecases/web/event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
 import { FindAllPaginatedEventToPaymentResponse } from './find-all-paginated-events-to-payments.dto';
 
 export class FindAllPaginatedEventToPaymentPresenter {

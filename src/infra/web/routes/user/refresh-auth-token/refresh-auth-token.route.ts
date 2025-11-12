@@ -1,14 +1,14 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   RefreshAuthTokenUserUsecase,
   RefreshAuthTokenUserUsecaseInput,
-} from 'src/usecases/user/refresh-auth-token/refresh-auth-token-user.usecase';
+} from 'src/usecases/web/user/refresh-auth-token/refresh-auth-token-user.usecase';
 import type {
   RefreshAuthTokenRequest,
   RefreshAuthTokenResponse,
 } from './refresh-auth-token.dto';
 import { RefreshAuthTokenPresenter } from './refresh-auth-token.presenter';
-import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 
 @Controller('users')
 export class RefreshAuthTokenRoute {

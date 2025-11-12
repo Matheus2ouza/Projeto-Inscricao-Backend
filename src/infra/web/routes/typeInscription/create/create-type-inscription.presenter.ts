@@ -1,4 +1,4 @@
-import { CreateTypeInscriptionOutput } from 'src/usecases/typeInscription/create/create-type-inscription.usecase';
+import { CreateTypeInscriptionOutput } from 'src/usecases/web/typeInscription/create/create-type-inscription.usecase';
 import { CreateTypeInscriptionResponse } from './create-type-inscription.dto';
 
 export class CreateTypeInscriptionPresenter {

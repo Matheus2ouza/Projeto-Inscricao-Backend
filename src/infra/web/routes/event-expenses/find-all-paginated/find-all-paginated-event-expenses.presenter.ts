@@ -1,4 +1,4 @@
-import { FindAllPaginatedEventExpensesOutput } from 'src/usecases/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
+import { FindAllPaginatedEventExpensesOutput } from 'src/usecases/web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesResponse } from './find-all-paginated-event-expenses.dto';
 
 export class FindAllPaginatedEventExpensesPresenter {

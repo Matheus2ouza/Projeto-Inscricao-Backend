@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   IndivUploadValidateInput,
   IndivUploadValidateUsecase,
-} from 'src/usecases/inscription/indiv/upload/indiv-upload-valide.usecase';
+} from 'src/usecases/web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import type {
   IndivUploadRequest,
   IndivUploadRouteResponse,

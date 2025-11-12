@@ -1,8 +1,8 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import type { GroupConfirmInput } from 'src/usecases/inscription/group/confirm/group-confirm.usecase';
-import { GroupConfirmUsecase } from 'src/usecases/inscription/group/confirm/group-confirm.usecase';
+import type { GroupConfirmInput } from 'src/usecases/web/inscription/group/confirm/group-confirm.usecase';
+import { GroupConfirmUsecase } from 'src/usecases/web/inscription/group/confirm/group-confirm.usecase';
 import type {
   GroupConfirmRequest,
   GroupConfirmRouteResponse,

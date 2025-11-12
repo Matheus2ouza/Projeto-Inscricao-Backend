@@ -1,4 +1,4 @@
-import { FindDetailsEventOutput } from 'src/usecases/event/find-details/find-details-event.usecase';
+import { FindDetailsEventOutput } from 'src/usecases/web/event/find-details/find-details-event.usecase';
 import { FindDetailsEventResponse } from './find-details-event.dto';
 
 export class FindDetailsEventPresenter {

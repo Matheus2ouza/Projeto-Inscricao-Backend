@@ -1,4 +1,4 @@
-import { UpdatePaymentOutput } from 'src/usecases/event/update-payment/update-payment.usecase';
+import { UpdatePaymentOutput } from 'src/usecases/web/event/update-payment/update-payment.usecase';
 import { UpdatePaymentEventResponse } from './update-payment-event.dto';
 
 export class UpdatePaymentEventPresenter {

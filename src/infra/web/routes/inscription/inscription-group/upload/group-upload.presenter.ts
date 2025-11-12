@@ -1,4 +1,4 @@
-import { GroupUploadOutput } from 'src/usecases/inscription/group/upload/group-upload.usecase';
+import { GroupUploadOutput } from 'src/usecases/web/inscription/group/upload/group-upload.usecase';
 import { GroupUploadRouteResponse } from './group-upload.dto';
 
 export class GroupUploadPresenter {

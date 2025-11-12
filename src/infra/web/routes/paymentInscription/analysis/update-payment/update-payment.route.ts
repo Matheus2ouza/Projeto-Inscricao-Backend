@@ -3,7 +3,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import {
   UpdatePaymentInput,
   UpdatePaymentUsecase,
-} from 'src/usecases/paymentInscription/analysis/update-status-payment/update-payment.usecase';
+} from 'src/usecases/web/paymentInscription/analysis/update-status-payment/update-payment.usecase';
 import type {
   UpdatePaymentRequest,
   UpdatePaymentResponse,

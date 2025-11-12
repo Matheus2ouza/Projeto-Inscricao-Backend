@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   CreateEventExpensesInput,
   CreateEventExpensesUsecase,
-} from 'src/usecases/event-expenses/create/create-event-expenses.usecase';
+} from 'src/usecases/web/event-expenses/create/create-event-expenses.usecase';
 import type {
   CreateEventExpensesRequest,
   CreateEventExpensesResponse,

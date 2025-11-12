@@ -1,4 +1,4 @@
-import { CreateEventOutput } from 'src/usecases/event/create/create-event.usecase';
+import { CreateEventOutput } from 'src/usecases/web/event/create/create-event.usecase';
 import { CreateEventRouteResponse } from './create-event.dto';
 
 export class CreateEventPresenter {

@@ -1,4 +1,4 @@
-import { CreateUserOutput } from 'src/usecases/user/create/create-user.usecase';
+import { CreateUserOutput } from 'src/usecases/web/user/create/create-user.usecase';
 import { CreateUserRouteResponse } from './create-user.dto';
 
 export class CreateUserPresenter {

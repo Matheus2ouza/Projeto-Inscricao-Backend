@@ -1,4 +1,4 @@
-import { CreateRegionOutput } from 'src/usecases/region/create/create-region.usecase';
+import { CreateRegionOutput } from 'src/usecases/web/region/create/create-region.usecase';
 import { CreateRegionResponse } from './create-region.dto';
 
 export class CreateRegionPresenter {

@@ -1,4 +1,4 @@
-import { FindAllPaginatedOnSiteRegistrationOutput } from 'src/usecases/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
+import { FindAllPaginatedOnSiteRegistrationOutput } from 'src/usecases/web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
 import { FindAllPaginatedOnSiteRegistrationResponse } from './find-all-paginated-onsite-registration.dto';
 
 export class FindAllPaginatedOnSiteRegistrationPresenter {

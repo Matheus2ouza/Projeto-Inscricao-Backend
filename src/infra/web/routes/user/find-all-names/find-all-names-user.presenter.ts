@@ -1,4 +1,4 @@
-import { FindAllNamesUserOutput } from 'src/usecases/user/find-all-username/find-all-names-user.usecase';
+import { FindAllNamesUserOutput } from 'src/usecases/web/user/find-all-username/find-all-names-user.usecase';
 import { FindAllNamesUserResponse } from './find-all-names-user.dto';
 
 export class FindAllNamesUserPresenter {

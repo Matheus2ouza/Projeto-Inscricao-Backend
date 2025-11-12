@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import {
   FindAccountWithInscriptionsInput,
   FindAccountWithInscriptionsUsecase,
-} from 'src/usecases/event/inscription/find-accounts-with-inscriptions.usecase';
+} from 'src/usecases/web/event/inscription/find-accounts-with-inscriptions.usecase';
 import { FindAccountWithInscriptionsResponse } from './find-accounts-with-inscriptions.dto';
 import { FindAccountWithInscriptionsPresenter } from './find-accounts-with-inscriptions.presenter';
 

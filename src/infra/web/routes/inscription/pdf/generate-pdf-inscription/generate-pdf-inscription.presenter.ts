@@ -1,4 +1,4 @@
-import { GeneratePdfInscriptionOutput } from 'src/usecases/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
+import { GeneratePdfInscriptionOutput } from 'src/usecases/web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { GeneratePdfInscriptionResponse } from './generate-pdf-inscription.dto';
 
 export class GeneratePdfInscriptionPresenter {

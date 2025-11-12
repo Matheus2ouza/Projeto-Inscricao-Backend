@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import type { IndivCancelInput } from 'src/usecases/inscription/indiv/cancel/indiv-cancel.usecase';
-import { IndivCancelUsecase } from 'src/usecases/inscription/indiv/cancel/indiv-cancel.usecase';
+import type { IndivCancelInput } from 'src/usecases/web/inscription/indiv/cancel/indiv-cancel.usecase';
+import { IndivCancelUsecase } from 'src/usecases/web/inscription/indiv/cancel/indiv-cancel.usecase';
 import type { IndivCancelRequest } from './indiv-cancel.dto';
 
 @ApiTags('Inscription Indiv')

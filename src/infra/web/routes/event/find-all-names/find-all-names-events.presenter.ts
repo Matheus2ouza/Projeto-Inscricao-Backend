@@ -1,4 +1,4 @@
-import { FindAllNamesEventOutput } from 'src/usecases/event/find-all-names/find-all-names.usecase';
+import { FindAllNamesEventOutput } from 'src/usecases/web/event/find-all-names/find-all-names.usecase';
 import { FindAllNamesEventResponse } from './find-all-names-events.dto';
 
 export class FindAllNamesEventPresenter {

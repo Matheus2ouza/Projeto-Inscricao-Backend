@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   CreatePaymentInput,
   CreatePaymentInscriptionUsecase,
-} from 'src/usecases/paymentInscription/create/create-payment-inscription.usecase';
+} from 'src/usecases/web/paymentInscription/create/create-payment-inscription.usecase';
 import type {
   CreatePaymentInscriptionRequest,
   CreatePaymentInscriptionResponse,

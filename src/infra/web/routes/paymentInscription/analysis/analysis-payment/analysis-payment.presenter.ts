@@ -1,4 +1,4 @@
-import { AnalysisPaymentOutput } from 'src/usecases/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
+import { AnalysisPaymentOutput } from 'src/usecases/web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import { AnalysisPaymentResponse } from './analysis-payment.dto';
 
 export class AnalysisPaymentPresenter {

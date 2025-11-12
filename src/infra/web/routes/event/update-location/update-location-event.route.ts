@@ -2,7 +2,7 @@ import { Body, Controller, Param, Patch } from '@nestjs/common';
 import {
   UpdateLocationEventInput,
   UpdateLocationEventUsecase,
-} from 'src/usecases/event/update-location/update-location-event.usecase';
+} from 'src/usecases/web/event/update-location/update-location-event.usecase';
 import type {
   UpdateLocationEventRequest,
   UpdateLocationEventResponse,

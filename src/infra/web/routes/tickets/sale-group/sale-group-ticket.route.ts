@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   SaleGroupTicketInput,
   SaleGroupTicketUsecase,
-} from 'src/usecases/tickets/sale-group/sale-group-ticket.usecase';
+} from 'src/usecases/web/tickets/sale-group/sale-group-ticket.usecase';
 import type {
   SaleGroupTicketRequest,
   SaleGroupTicketResponse,

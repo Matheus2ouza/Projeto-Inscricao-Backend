@@ -1,4 +1,4 @@
-import { UpdateLocationEventOutput } from 'src/usecases/event/update-location/update-location-event.usecase';
+import { UpdateLocationEventOutput } from 'src/usecases/web/event/update-location/update-location-event.usecase';
 import { UpdateLocationEventResponse } from './update-location-event.dto';
 
 export class UpdateLocationEventPresenter {

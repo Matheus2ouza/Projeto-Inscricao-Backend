@@ -1,4 +1,4 @@
-import type { ReportGeneralOutput } from 'src/usecases/report/report-general/general/report-general.usecase';
+import type { ReportGeneralOutput } from 'src/usecases/web/report/report-general/general/report-general.usecase';
 import type { ReportGeneralResponse } from './report-general.dto';
 
 export class RelatorioGeralPresenter {

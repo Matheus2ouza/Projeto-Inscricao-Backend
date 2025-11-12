@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { CleanupExpiredCacheUsecase } from 'src/usecases/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
+import { CleanupExpiredCacheUsecase } from 'src/usecases/worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
 
 @Injectable()
 export class CleanupExpiredCacheTask implements OnModuleInit, OnModuleDestroy {

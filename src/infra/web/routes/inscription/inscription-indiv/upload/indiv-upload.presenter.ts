@@ -1,4 +1,4 @@
-import { IndivUploadValidateOutput } from 'src/usecases/inscription/indiv/upload/indiv-upload-valide.usecase';
+import { IndivUploadValidateOutput } from 'src/usecases/web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { IndivUploadRouteResponse } from './indiv-upload.dto';
 
 export class IndivUploadPresenter {

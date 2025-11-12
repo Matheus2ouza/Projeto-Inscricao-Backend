@@ -1,4 +1,4 @@
-import { FindEventCarouselOutput } from 'src/usecases/event/find-event-carousel/find-event-carousel.usecase';
+import { FindEventCarouselOutput } from 'src/usecases/web/event/find-event-carousel/find-event-carousel.usecase';
 import { FindEventCarouselResponse } from './find-event-carousel.dto';
 
 export class FindEventCarousePresenter {

@@ -1,7 +1,7 @@
-import { FindAllInscriptionUsecase } from 'src/usecases/typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { Controller, Get } from '@nestjs/common';
+import { FindAllInscriptionUsecase } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindAllInscriptionResponse } from './find-all-type-inscription.dto';
 import { FindAllInscriptionPresenter } from './find-all-type-inscription.presenter';
-import { Controller, Get } from '@nestjs/common';
 
 @Controller('type-inscription')
 export class FindAllInscriptionRoute {

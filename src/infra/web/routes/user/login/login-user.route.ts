@@ -4,7 +4,7 @@ import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decor
 import {
   loginUserInput,
   LoginUserUsecase,
-} from 'src/usecases/user/login/login-user.usecase';
+} from 'src/usecases/web/user/login/login-user.usecase';
 import type { LoginUserRequest, LoginUserResponse } from './login-user.dto';
 import { LoginUserPresenter } from './login-user.presenter';
 

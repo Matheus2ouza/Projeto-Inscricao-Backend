@@ -1,4 +1,4 @@
-import { FindAllPaginatedUsersOutput } from 'src/usecases/user/find-all-paginated/find-all-paginated.usecase';
+import { FindAllPaginatedUsersOutput } from 'src/usecases/web/user/find-all-paginated/find-all-paginated.usecase';
 import { FindAllPaginatedUsersResponse } from './find-all-paginated-users.dto';
 
 export class FindAllPaginatedUsersPresenter {

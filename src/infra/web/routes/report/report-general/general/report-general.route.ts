@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import type { ReportGeneralInput } from 'src/usecases/report/report-general/general/report-general.usecase';
-import { ReportGeneralUsecase } from 'src/usecases/report/report-general/general/report-general.usecase';
+import type { ReportGeneralInput } from 'src/usecases/web/report/report-general/general/report-general.usecase';
+import { ReportGeneralUsecase } from 'src/usecases/web/report/report-general/general/report-general.usecase';
 import { ReportGeneralResponse } from './report-general.dto';
 import { RelatorioGeralPresenter } from './report-general.presenter';
 

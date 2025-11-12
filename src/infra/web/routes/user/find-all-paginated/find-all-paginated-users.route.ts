@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { FindAllPaginatedUsersUsecase } from 'src/usecases/user/find-all-paginated/find-all-paginated.usecase';
+import { FindAllPaginatedUsersUsecase } from 'src/usecases/web/user/find-all-paginated/find-all-paginated.usecase';
 import type {
   FindAllPaginatedUsersRequest,
   FindAllPaginatedUsersResponse,

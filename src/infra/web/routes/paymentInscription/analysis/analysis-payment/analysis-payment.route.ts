@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { AnalysisPaymentUsecase } from 'src/usecases/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
+import { AnalysisPaymentUsecase } from 'src/usecases/web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import type {
   AnalysisPaymentRequest,
   AnalysisPaymentResponse,

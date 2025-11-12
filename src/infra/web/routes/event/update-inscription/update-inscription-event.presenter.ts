@@ -1,4 +1,4 @@
-import { UpdateInscriptionEventOutput } from 'src/usecases/event/update-inscription/update-inscription-event.usecase';
+import { UpdateInscriptionEventOutput } from 'src/usecases/web/event/update-inscription/update-inscription-event.usecase';
 import { UpdateInscriptionEventResponse } from './update-inscription-event.dto';
 
 export class UpdateInscriptionEventPresenter {

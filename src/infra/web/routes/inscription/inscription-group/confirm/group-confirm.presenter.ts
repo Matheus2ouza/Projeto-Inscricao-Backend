@@ -1,4 +1,4 @@
-import { GroupConfirmOutput } from 'src/usecases/inscription/group/confirm/group-confirm.usecase';
+import { GroupConfirmOutput } from 'src/usecases/web/inscription/group/confirm/group-confirm.usecase';
 import { GroupConfirmRouteResponse } from './group-confirm.dto';
 
 export class GroupConfirmPresenter {

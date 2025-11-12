@@ -1,4 +1,4 @@
-import { ListInscriptionToAnalysisOutput } from 'src/usecases/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
+import { ListInscriptionToAnalysisOutput } from 'src/usecases/web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { ListInscriptonToAnalysisResponse } from './list-inscription-to-analysis.dto';
 
 export class ListInscriptonToAnalysisPresenter {

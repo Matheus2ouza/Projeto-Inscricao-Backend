@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { FindAllPaginatedEventExpensesUsecase } from 'src/usecases/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
+import { FindAllPaginatedEventExpensesUsecase } from 'src/usecases/web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import type {
   FindAllPaginatedEventExpensesRequest,
   FindAllPaginatedEventExpensesResponse,

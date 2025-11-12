@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { FindAllPaginatedOnSiteRegistrationUsecase } from 'src/usecases/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
+import { FindAllPaginatedOnSiteRegistrationUsecase } from 'src/usecases/web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
 import type {
   FindAllPaginatedOnSiteRegistrationRequest,
   FindAllPaginatedOnSiteRegistrationResponse,

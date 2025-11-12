@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { FindTypeInscriptionByEventIdUsecase } from 'src/usecases/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
+import { Controller, Get, Param } from '@nestjs/common';
+import { FindTypeInscriptionByEventIdUsecase } from 'src/usecases/web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
 import type {
   FindTypeInscriptionByEventIdRequest,
   FindTypeInscriptionByEventIdResponse,

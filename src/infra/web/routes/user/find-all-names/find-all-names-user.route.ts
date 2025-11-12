@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { FindAllNamesUserUsecase } from 'src/usecases/user/find-all-username/find-all-names-user.usecase';
+import { FindAllNamesUserUsecase } from 'src/usecases/web/user/find-all-username/find-all-names-user.usecase';
 import { FindAllNamesUserResponse } from './find-all-names-user.dto';
 import { FindAllNamesUserPresenter } from './find-all-names-user.presenter';
 

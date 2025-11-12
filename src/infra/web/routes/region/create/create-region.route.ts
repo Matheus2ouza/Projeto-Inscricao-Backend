@@ -1,16 +1,16 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   CreateRegionInput,
   CreateRegionOutput,
   CreateRegionUseCase,
-} from 'src/usecases/region/create/create-region.usecase';
-import { CreateRegionPresenter } from './create-region.presenter';
-import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
+} from 'src/usecases/web/region/create/create-region.usecase';
 import type {
   CreateRegionRequest,
   CreateRegionResponse,
 } from './create-region.dto';
-import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
+import { CreateRegionPresenter } from './create-region.presenter';
 
 @Controller('regions')
 export class CreateRegionRoute {

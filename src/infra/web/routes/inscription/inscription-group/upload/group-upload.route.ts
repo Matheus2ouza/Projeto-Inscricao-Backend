@@ -10,8 +10,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import { XlsxGroupParserUtil } from 'src/shared/parser/xlsx-group-parser.util';
-import type { GroupUploadInput } from 'src/usecases/inscription/group/upload/group-upload.usecase';
-import { GroupUploadUsecase } from 'src/usecases/inscription/group/upload/group-upload.usecase';
+import type { GroupUploadInput } from 'src/usecases/web/inscription/group/upload/group-upload.usecase';
+import { GroupUploadUsecase } from 'src/usecases/web/inscription/group/upload/group-upload.usecase';
 import type {
   GroupUploadRequest,
   GroupUploadRouteResponse,
