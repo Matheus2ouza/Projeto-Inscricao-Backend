@@ -74,11 +74,21 @@ export class FindAllWithInscriptionsUsecase
           (inscription) => inscription.getAccountId() === input.accountId,
         );
 
-        // Calcular totalDebt apenas das inscrições do accountId
-        const totalDebt = accountInscriptions.reduce(
-          (sum, inscription) => sum + Number(inscription.getTotalValue()),
-          0,
-        );
+        // Calcular totalDebt e totalParticipant apenas das inscrições do accountId
+        const [totalDebt, totalParticipant] = await Promise.all([
+          // Calcular totalDebt
+          Promise.resolve(
+            accountInscriptions.reduce(
+              (sum, inscription) => sum + Number(inscription.getTotalValue()),
+              0,
+            ),
+          ),
+          // Contar participantes apenas das inscrições do accountId
+          this.inscriptionGateway.countParticipants({
+            userId: input.accountId,
+            eventId: event.getId(),
+          }),
+        ]);
 
         // Ordenar por data de criação (mais recentes primeiro) e pegar as 5 primeiras
         const inscriptions = accountInscriptions
@@ -112,7 +122,7 @@ export class FindAllWithInscriptionsUsecase
           image: publicImageUrl,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
-          totalParticipant: event.getQuantityParticipants(),
+          totalParticipant,
           totalDebt,
           inscriptions: mappedInscriptions,
         };
