@@ -5,6 +5,7 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllWithInscriptionsInput = {
+  accountId: string;
   page: number;
   pageSize: number;
 };
@@ -63,21 +64,28 @@ export class FindAllWithInscriptionsUsecase
 
     const events = await Promise.all(
       pageEvents.map(async (event) => {
-        // Buscar todas as inscrições do evento para calcular totalDebt
+        // Buscar todas as inscrições do evento
         const allInscriptions = await this.inscriptionGateway.findMany(
           event.getId(),
         );
 
-        const totalDebt = allInscriptions.reduce(
+        // Filtrar apenas as inscrições do accountId especificado
+        const accountInscriptions = allInscriptions.filter(
+          (inscription) => inscription.getAccountId() === input.accountId,
+        );
+
+        // Calcular totalDebt apenas das inscrições do accountId
+        const totalDebt = accountInscriptions.reduce(
           (sum, inscription) => sum + Number(inscription.getTotalValue()),
           0,
         );
 
-        // Buscar apenas as 5 últimas inscrições (ou mais antigas, dependendo da ordenação do método)
-        const inscriptions = await this.inscriptionGateway.findLimitedByEvent(
-          event.getId(),
-          5,
-        );
+        // Ordenar por data de criação (mais recentes primeiro) e pegar as 5 primeiras
+        const inscriptions = accountInscriptions
+          .sort(
+            (a, b) => b.getCreatedAt().getTime() - a.getCreatedAt().getTime(),
+          )
+          .slice(0, 5);
 
         // Obter URL pública da imagem
         let publicImageUrl = '';
