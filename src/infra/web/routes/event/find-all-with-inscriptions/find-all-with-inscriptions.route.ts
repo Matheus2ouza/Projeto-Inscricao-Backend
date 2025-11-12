@@ -1,4 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
   FindAllWithInscriptionsInput,
   FindAllWithInscriptionsUsecase,
@@ -18,8 +19,10 @@ export class FindAllWithInscriptionsRoute {
   @Get('/inscriptions')
   public async handle(
     @Query() query: FindAllWithInscriptionsRequest,
+    @UserId() accountId: string,
   ): Promise<FindAllWithInscriptionsResponse> {
     const input: FindAllWithInscriptionsInput = {
+      accountId,
       page: query.page,
       pageSize: query.pageSize,
     };
