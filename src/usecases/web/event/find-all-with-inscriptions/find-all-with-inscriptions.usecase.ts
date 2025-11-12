@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -56,11 +57,17 @@ export class FindAllWithInscriptionsUsecase
     );
 
     const allEvents = await this.eventGateway.findAll();
-    const total = allEvents.length;
+
+    // Filtrar eventos que não estão finalizados
+    const activeEvents = allEvents.filter(
+      (event) => event.getStatus() !== statusEvent.FINALIZED,
+    );
+
+    const total = activeEvents.length;
 
     const start = (safePage - 1) * safePageSize;
     const end = start + safePageSize;
-    const pageEvents = allEvents.slice(start, end);
+    const pageEvents = activeEvents.slice(start, end);
 
     const events = await Promise.all(
       pageEvents.map(async (event) => {
