@@ -1,6 +1,7 @@
 import { statusEvent } from 'generated/prisma';
 
 export type FindAllPaginatedEventsRequest = {
+  status?: string[];
   page?: number;
   pageSize?: number;
 };
