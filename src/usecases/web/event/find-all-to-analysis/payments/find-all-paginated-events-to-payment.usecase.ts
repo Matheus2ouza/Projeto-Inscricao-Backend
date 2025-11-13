@@ -13,6 +13,7 @@ export type FindAllPaginatedEventToPaymentOutput = {
   events: {
     id: string;
     name: string;
+    status: string;
     imageUrl?: string;
     countPayments: number;
     countPaymentsAnalysis: number;
@@ -78,6 +79,7 @@ export class FindAllPaginatedEventToPaymentUsecase
         return {
           id: event.getId(),
           name: event.getName(),
+          status: event.getStatus(),
           imageUrl: publicImageUrl,
           countPayments,
           countPaymentsAnalysis,
