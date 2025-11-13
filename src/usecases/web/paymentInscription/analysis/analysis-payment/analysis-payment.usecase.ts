@@ -7,22 +7,35 @@ import { InvalidInscriptionIdUsecaseException } from 'src/usecases/web/exception
 import { MissingInscriptionIdUsecaseException } from 'src/usecases/web/exceptions/paymentInscription/missing-inscription-id.usecase.exception';
 
 export type AnalysisPaymentInput = {
+  page: number;
+  pageSize: number;
+  status?: string[];
   inscriptionId: string;
 };
 
 export type AnalysisPaymentOutput = {
+  inscription: Inscription;
+  total: number;
+  page: number;
+  pageCount: number;
+};
+
+type Inscription = {
   id: string;
+  status: string;
   responsible: string;
   phone: string;
   email?: string;
   totalValue: number;
-  payments: {
-    id: string;
-    status: string;
-    value: number;
-    image: string;
-  }[];
+  payments: Payments;
 };
+
+type Payments = {
+  id: string;
+  status: string;
+  value: number;
+  image: string | undefined;
+}[];
 
 @Injectable()
 export class AnalysisPaymentUsecase
@@ -35,6 +48,12 @@ export class AnalysisPaymentUsecase
   ) {}
 
   async execute(input: AnalysisPaymentInput): Promise<AnalysisPaymentOutput> {
+    const safePage = Math.max(1, Math.floor(input.page || 1));
+    const safePageSize = Math.max(
+      1,
+      Math.min(6, Math.floor(input.pageSize || 10)),
+    );
+
     //Validações das inscrições
     if (!input.inscriptionId) {
       throw new MissingInscriptionIdUsecaseException(
@@ -56,14 +75,23 @@ export class AnalysisPaymentUsecase
       );
     }
 
-    const payments = await this.paymentInscriptionGateway.findToAnalysis(
-      inscription.getId(),
-    );
+    const [payments, total] = await Promise.all([
+      this.paymentInscriptionGateway.findToAnalysis(input.inscriptionId, {
+        page: safePage,
+        pageSize: safePageSize,
+        status: input.status,
+      }),
+
+      this.paymentInscriptionGateway.countAllFiltered({
+        inscriptionId: input.inscriptionId,
+        status: input.status,
+      }),
+    ]);
 
     // Processar os pagamentos para obter as URLs públicas
     const enrichedPayments = await Promise.all(
       payments.map(async (p) => {
-        let publicImageUrl = '';
+        let publicImageUrl: string | undefined = '';
         const imagePath = p.getImageUrl();
 
         if (imagePath) {
@@ -72,7 +100,7 @@ export class AnalysisPaymentUsecase
               await this.supabaseStorageService.getPublicUrl(imagePath);
           } catch (e) {
             // Se houver erro, mantém a URL original
-            publicImageUrl = imagePath;
+            publicImageUrl = undefined;
           }
         }
 
@@ -86,12 +114,18 @@ export class AnalysisPaymentUsecase
     );
 
     const output: AnalysisPaymentOutput = {
-      id: inscription.getId(),
-      responsible: inscription.getResponsible(),
-      phone: inscription.getPhone(),
-      email: inscription.getEmail(),
-      totalValue: inscription.getTotalValue(),
-      payments: enrichedPayments,
+      inscription: {
+        id: inscription.getId(),
+        status: inscription.getStatus(),
+        responsible: inscription.getResponsible(),
+        phone: inscription.getPhone(),
+        email: inscription.getEmail(),
+        totalValue: inscription.getTotalValue(),
+        payments: enrichedPayments,
+      },
+      total,
+      page: safePage,
+      pageCount: Math.ceil(total / safePageSize),
     };
     return output;
   }

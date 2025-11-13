@@ -1,17 +1,29 @@
 export type AnalysisPaymentRequest = {
-  inscriptionId: string;
+  status?: string[];
+  page: number;
+  pageSize: number;
 };
 
 export type AnalysisPaymentResponse = {
+  inscription: Inscription;
+  total: number;
+  page: number;
+  pageCount: number;
+};
+
+type Inscription = {
   id: string;
+  status: string;
   responsible: string;
   phone: string;
   email?: string;
   totalValue: number;
-  payments: {
-    id: string;
-    status: string;
-    value: number;
-    image: string;
-  }[];
+  payments: Payments;
 };
+
+type Payments = {
+  id: string;
+  status: string;
+  value: number;
+  image: string | undefined;
+}[];
