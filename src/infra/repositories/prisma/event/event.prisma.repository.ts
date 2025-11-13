@@ -5,17 +5,17 @@ import { Region } from 'src/domain/entities/region.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PrismaService } from '../prisma.service';
 import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
-import { EventEntityToEventPrismaModelMapper } from './model/mappers/event-entity-to-event-prisma-model.mapper';
-import { EventPrismaModelToEventEntityMapper } from './model/mappers/event-prisma-model-to-event-entity.mapper';
+import { EventEntityToEventPrismaModelMapper as EntityToPrisma } from './model/mappers/event-entity-to-event-prisma-model.mapper';
+import { EventPrismaModelToEventEntityMapper as PrismaToEntity } from './model/mappers/event-prisma-model-to-event-entity.mapper';
 
 @Injectable()
 export class EventPrismaRepository implements EventGateway {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(event: Event): Promise<Event> {
-    const data = EventEntityToEventPrismaModelMapper.map(event);
+    const data = EntityToPrisma.map(event);
     const created = await this.prisma.events.create({ data });
-    return EventPrismaModelToEventEntityMapper.map(created);
+    return PrismaToEntity.map(created);
   }
 
   async updatePayment(id: string, status: boolean): Promise<Event> {
@@ -25,7 +25,7 @@ export class EventPrismaRepository implements EventGateway {
         paymentEnabled: status,
       },
     });
-    return EventPrismaModelToEventEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async updateInscription(id: string, status: statusEvent): Promise<Event> {
@@ -33,16 +33,16 @@ export class EventPrismaRepository implements EventGateway {
       where: { id },
       data: { status },
     });
-    return EventPrismaModelToEventEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async update(event: Event): Promise<Event> {
-    const data = EventEntityToEventPrismaModelMapper.map(event);
+    const data = EntityToPrisma.map(event);
     const updated = await this.prisma.events.update({
       where: { id: event.getId() },
       data,
     });
-    return EventPrismaModelToEventEntityMapper.map(updated);
+    return PrismaToEntity.map(updated);
   }
 
   async updateImage(id: string, imageUrl: string): Promise<Event> {
@@ -50,7 +50,7 @@ export class EventPrismaRepository implements EventGateway {
       where: { id },
       data: { imageUrl },
     });
-    return EventPrismaModelToEventEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async paymentEnabled(eventId: string): Promise<void> {
@@ -89,12 +89,12 @@ export class EventPrismaRepository implements EventGateway {
       where: { id },
       include: { region: { select: { name: true } } },
     });
-    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+    return found ? PrismaToEntity.map(found) : null;
   }
 
   async findByRegion(regionId: string): Promise<Event[]> {
     const found = await this.prisma.events.findMany({ where: { regionId } });
-    return found.map(EventPrismaModelToEventEntityMapper.map);
+    return found.map(PrismaToEntity.map);
   }
 
   async findRegionById(regionId: string): Promise<Region | null> {
@@ -111,14 +111,52 @@ export class EventPrismaRepository implements EventGateway {
     const found = await this.prisma.events.findFirst({
       where: { name, regionId },
     });
-    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+    return found ? PrismaToEntity.map(found) : null;
   }
 
   async findAll(): Promise<Event[]> {
     const found = await this.prisma.events.findMany({
+      orderBy: { createdAt: 'desc' },
       include: { region: { select: { name: true } } },
     });
-    return found.map(EventPrismaModelToEventEntityMapper.map);
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findAllFiltered(filters: {
+    status?: string[];
+    page: number;
+    pageSize: number;
+  }): Promise<Event[]> {
+    const { page, pageSize, ...filterFields } = filters;
+    const where = this.buildWhereClause(filterFields);
+    const skip = (page - 1) * pageSize;
+
+    const found = await this.prisma.events.findMany({
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      include: { region: { select: { name: true } } },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async countAllFiltered(filters: { status?: string[] }): Promise<number> {
+    const where = this.buildWhereClause(filters);
+    return this.prisma.events.count({ where });
+  }
+
+  private buildWhereClause(filters: { status?: string[] }) {
+    const where: any = {};
+
+    if (filters.status && filters.status.length > 0) {
+      where.status = {
+        in: filters.status,
+      };
+    }
+
+    return where;
   }
 
   async countTypesInscriptions(id: string): Promise<number> {
@@ -137,7 +175,7 @@ export class EventPrismaRepository implements EventGateway {
       where: { id },
       data: { quantityParticipants: { increment: quantity } },
     });
-    return EventPrismaModelToEventEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async decremntQuantityParticipants(
@@ -150,7 +188,7 @@ export class EventPrismaRepository implements EventGateway {
         quantityParticipants: { decrement: quantity },
       },
     });
-    return EventPrismaModelToEventEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async findAllCarousel(): Promise<
@@ -176,7 +214,7 @@ export class EventPrismaRepository implements EventGateway {
       data: { amountCollected: { increment: value } },
     });
 
-    return EventPrismaModelToEventEntityMapper.map(aModel);
+    return PrismaToEntity.map(aModel);
   }
 
   async decrementAmountCollected(id: string, value: number): Promise<Event> {
@@ -185,7 +223,7 @@ export class EventPrismaRepository implements EventGateway {
       data: { amountCollected: { decrement: value } },
     });
 
-    return EventPrismaModelToEventEntityMapper.map(aModel);
+    return PrismaToEntity.map(aModel);
   }
 
   //PDF
@@ -193,6 +231,6 @@ export class EventPrismaRepository implements EventGateway {
     const found = await this.prisma.events.findUnique({
       where: { id: eventId },
     });
-    return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
+    return found ? PrismaToEntity.map(found) : null;
   }
 }
