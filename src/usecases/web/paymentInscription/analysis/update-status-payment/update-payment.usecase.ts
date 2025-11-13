@@ -4,6 +4,7 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-approved-email.handler';
 import { PaymentRejectedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-rejected-email.handler';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { InvalidPaymentIdUsecaseException } from 'src/usecases/web/exceptions/paymentInscription/invalid-payment-id.usecase.exception';
 
@@ -27,6 +28,7 @@ export class UpdatePaymentUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
     private readonly paymentRejectedEmailHandler: PaymentRejectedEmailHandler,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {

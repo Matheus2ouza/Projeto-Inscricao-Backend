@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Param, Patch } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import {
   UpdatePaymentInput,
@@ -21,21 +21,22 @@ export class UpdatePaymentRoute {
     summary: 'Atualiza o status de uma pagamento (análise)',
     description:
       'Permite ao administrador alterar o status de uma pagamento específico durante o processo de análise. ' +
-      'O ID é passado via parâmetro, o status via query (ex: APPROVED, UNDER_REVIEW, REFUSED) ' +
+      'O ID é passado via parâmetro, o status via body (ex: APPROVED, UNDER_REVIEW, REFUSED) ' +
       'e o motivo da rejeição via body (quando status for REFUSED).',
   })
   async handle(
     @Param('paymentId') id: string,
-    @Query() query: Pick<UpdatePaymentRequest, 'statusPayment'>,
-    @Body() body: Pick<UpdatePaymentRequest, 'rejectionReason'>,
+    @Body() body: UpdatePaymentRequest,
   ): Promise<UpdatePaymentResponse> {
-    const paymentId = String(id);
+    const paymentId = id;
 
     const input: UpdatePaymentInput = {
-      paymentId: paymentId,
-      statusPayment: query.statusPayment,
+      paymentId,
+      statusPayment: body.statusPayment,
       rejectionReason: body.rejectionReason,
     };
+
+    console.log(input);
 
     const response = await this.updatePaymentUsecase.execute(input);
     return ApprovePaymentPresenter.toHttp(response);
