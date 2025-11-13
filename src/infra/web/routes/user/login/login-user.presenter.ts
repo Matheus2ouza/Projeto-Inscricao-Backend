@@ -1,4 +1,4 @@
-import { loginUserOutput } from 'src/usecases/user/login/login-user.usecase';
+import { loginUserOutput } from 'src/usecases/web/user/login/login-user.usecase';
 import { LoginUserResponse } from './login-user.dto';
 
 export class LoginUserPresenter {

@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
-import { FindByIdEventUsecase } from 'src/usecases/event/find-by-id/find-by-id.usecase';
+import { FindByIdEventUsecase } from 'src/usecases/web/event/find-by-id/find-by-id.usecase';
 import type {
   FindByIdEventRequest,
   FindByIdEventResponse,

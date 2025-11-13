@@ -1,4 +1,4 @@
-import { FindByIdEventOutput } from 'src/usecases/event/find-by-id/find-by-id.usecase';
+import { FindByIdEventOutput } from 'src/usecases/web/event/find-by-id/find-by-id.usecase';
 import { FindByIdEventResponse } from './find-by-id.dto';
 
 export class FindByEventPresenter {

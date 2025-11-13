@@ -1,8 +1,8 @@
 import { Body, Controller, Param, Put } from '@nestjs/common';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import type { UpdateEventInput } from 'src/usecases/event/update-event/update-event.usecase';
-import { UpdateEventUseCase } from 'src/usecases/event/update-event/update-event.usecase';
+import type { UpdateEventInput } from 'src/usecases/web/event/update-event/update-event.usecase';
+import { UpdateEventUseCase } from 'src/usecases/web/event/update-event/update-event.usecase';
 import type {
   UpdateEventRequest,
   UpdateEventRouteResponse,

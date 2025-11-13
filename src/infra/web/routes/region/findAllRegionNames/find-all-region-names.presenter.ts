@@ -1,4 +1,4 @@
-import { FindAllRegionsOutput } from 'src/usecases/region/findAllRegionNames/find-all-region-names.usecase';
+import { FindAllRegionsOutput } from 'src/usecases/web/region/findAllRegionNames/find-all-region-names.usecase';
 import { FindAllRegionNamesResponse } from './find-all-region-names.dto';
 
 export class FindAllRegionsNamesPresenter {

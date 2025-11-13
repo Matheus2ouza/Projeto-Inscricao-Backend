@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { FindAllRegionNamesUsecase } from 'src/usecases/region/findAllRegionNames/find-all-region-names.usecase';
+import { FindAllRegionNamesUsecase } from 'src/usecases/web/region/findAllRegionNames/find-all-region-names.usecase';
 import { FindAllRegionNamesResponse } from './find-all-region-names.dto';
 import { FindAllRegionsNamesPresenter } from './find-all-region-names.presenter';
 

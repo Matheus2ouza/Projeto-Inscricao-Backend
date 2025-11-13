@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import type { CreateUserInput } from 'src/usecases/user/create/create-user.usecase';
-import { CreateUserUsecase } from 'src/usecases/user/create/create-user.usecase';
+import type { CreateUserInput } from 'src/usecases/web/user/create/create-user.usecase';
+import { CreateUserUsecase } from 'src/usecases/web/user/create/create-user.usecase';
 import type {
   CreateUserRequest,
   CreateUserRouteResponse,

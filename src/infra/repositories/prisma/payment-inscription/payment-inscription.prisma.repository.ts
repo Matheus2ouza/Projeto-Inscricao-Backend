@@ -45,14 +45,56 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     );
   }
 
-  public async findToAnalysis(id: string): Promise<PaymentInscription[]> {
+  public async findToAnalysis(
+    id: string,
+    filters: {
+      status?: string[];
+      page: number;
+      pageSize: number;
+    },
+  ): Promise<PaymentInscription[]> {
+    const { page, pageSize, ...filterFields } = filters;
+    const where = this.buildWhereClause({
+      inscriptionId: id,
+      ...filterFields,
+    });
+    const skip = (page - 1) * pageSize;
+
     const aModel = await this.prisma.paymentInscription.findMany({
-      where: { inscriptionId: id, status: 'UNDER_REVIEW' },
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
     });
 
     return aModel.map(
       PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map,
     );
+  }
+
+  async countAllFiltered(filters: {
+    inscriptionId: string;
+    status?: string[];
+  }): Promise<number> {
+    const where = this.buildWhereClause(filters);
+    return this.prisma.paymentInscription.count({ where });
+  }
+
+  private buildWhereClause(filters: {
+    inscriptionId: string;
+    status?: string[];
+  }) {
+    const where: any = {
+      inscriptionId: filters.inscriptionId,
+    };
+
+    if (filters.status && filters.status.length > 0) {
+      where.status = {
+        in: filters.status,
+      };
+    }
+
+    return where;
   }
 
   public async countAllByEvent(eventId: string): Promise<number> {

@@ -9,7 +9,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
   DeleteEventResponsibleInput,
   DeleteEventResponsibleUseCase,
-} from 'src/usecases/event-responsible/delete-event-responsible.usecase';
+} from 'src/usecases/web/event-responsible/delete-event-responsible.usecase';
 
 @Controller('event-responsibles')
 export class DeleteEventResponsibleRoute {

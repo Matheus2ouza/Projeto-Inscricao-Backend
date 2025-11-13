@@ -1,6 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { AnalysisPaymentUsecase } from 'src/usecases/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
+import {
+  AnalysisPaymentInput,
+  AnalysisPaymentUsecase,
+} from 'src/usecases/web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import type {
   AnalysisPaymentRequest,
   AnalysisPaymentResponse,
@@ -13,19 +16,30 @@ export class AnalysisPaymentRoute {
     private readonly analysisPaymentUsecase: AnalysisPaymentUsecase,
   ) {}
 
-  @Get(':inscriptionId/analysis')
+  @Get(':id/analysis')
   @ApiOperation({
     summary: 'Retorna dados analíticos e pagamentos',
     description:
       'Endpoint administrativo que retorna os detalhes de uma inscrição com foco na analise de um pagamento ',
   })
   async handle(
-    @Param('inscriptionId') id: AnalysisPaymentRequest,
+    @Param('id') inscriptionId: string,
+    @Query() query: AnalysisPaymentRequest,
   ): Promise<AnalysisPaymentResponse> {
-    const inscriptionId = String(id);
-    const response = await this.analysisPaymentUsecase.execute({
+    const page = Number(query.page ?? '1');
+    const pageSize = Number(query.pageSize ?? '10');
+    const status = Array.isArray(query.status)
+      ? query.status
+      : query.status
+        ? [query.status]
+        : [];
+    const input: AnalysisPaymentInput = {
+      page,
+      pageSize,
+      status,
       inscriptionId,
-    });
+    };
+    const response = await this.analysisPaymentUsecase.execute(input);
     return AnalysisPaymentPresenter.toHttp(response);
   }
 }

@@ -1,5 +1,5 @@
 import { Body, Controller, Param, ParseBoolPipe, Patch } from '@nestjs/common';
-import { UpdatePaymentEventUsecase } from 'src/usecases/event/update-payment/update-payment.usecase';
+import { UpdatePaymentEventUsecase } from 'src/usecases/web/event/update-payment/update-payment.usecase';
 import { UpdatePaymentEventResponse } from './update-payment-event.dto';
 import { UpdatePaymentEventPresenter } from './update-payment-event.presenter';
 

@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import type { GroupCancelInput } from 'src/usecases/inscription/group/cancel/group-cancel.usecase';
-import { GroupCancelUsecase } from 'src/usecases/inscription/group/cancel/group-cancel.usecase';
+import type { GroupCancelInput } from 'src/usecases/web/inscription/group/cancel/group-cancel.usecase';
+import { GroupCancelUsecase } from 'src/usecases/web/inscription/group/cancel/group-cancel.usecase';
 import type { GroupCancelRequest } from './group-cancel.dto';
 
 @ApiTags('Inscription Group')

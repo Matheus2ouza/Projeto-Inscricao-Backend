@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   FindAllWithInscriptionsInput,
   FindAllWithInscriptionsUsecase,
-} from 'src/usecases/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
+} from 'src/usecases/web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
 import type {
   FindAllWithInscriptionsRequest,
   FindAllWithInscriptionsResponse,

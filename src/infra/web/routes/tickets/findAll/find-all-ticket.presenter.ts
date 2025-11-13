@@ -1,4 +1,4 @@
-import { FindAllTicketOutput } from 'src/usecases/tickets/findAll/find-all-ticket.usecase';
+import { FindAllTicketOutput } from 'src/usecases/web/tickets/findAll/find-all-ticket.usecase';
 import { FindAllTicketResponse } from './find-all-ticket.dto';
 
 export class FindAllTicketsPresenter {

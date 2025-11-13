@@ -6,7 +6,18 @@ export abstract class PaymentInscriptionGateway {
   ): Promise<PaymentInscription>;
   abstract findById(id: string): Promise<PaymentInscription | null>;
   abstract findbyInscriptionId(id: string): Promise<PaymentInscription[]>;
-  abstract findToAnalysis(id: string): Promise<PaymentInscription[]>;
+  abstract findToAnalysis(
+    id: string,
+    filters: {
+      status?: string[];
+      page: number;
+      pageSize: number;
+    },
+  ): Promise<PaymentInscription[]>;
+  abstract countAllFiltered(filters: {
+    inscriptionId: string;
+    status?: string[];
+  }): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;

@@ -1,5 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { FindAllPaginatedEventsUsecase } from 'src/usecases/event/find-all-event/find-all-paginated-events.usecase';
+import {
+  FindAllPaginatedEventsInput,
+  FindAllPaginatedEventsUsecase,
+} from 'src/usecases/web/event/find-all-event/find-all-paginated-events.usecase';
 import type {
   FindAllPaginatedEventResponse,
   FindAllPaginatedEventsRequest,
@@ -18,11 +21,18 @@ export class FindAllPaginatedEventsRoute {
   ): Promise<FindAllPaginatedEventResponse> {
     const page = Number(query.page ?? '1');
     const pageSize = Number(query.pageSize ?? '10');
+    const status = Array.isArray(query.status)
+      ? query.status
+      : query.status
+        ? [query.status]
+        : [];
 
-    const result = await this.findAllPaginatedEventsUsecase.execute({
+    const input: FindAllPaginatedEventsInput = {
+      status,
       page,
       pageSize,
-    });
+    };
+    const result = await this.findAllPaginatedEventsUsecase.execute(input);
 
     return FindAllPaginatedEventsPresenter.toHttp(result);
   }

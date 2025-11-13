@@ -1,4 +1,4 @@
-import { FindAllPaginatedRegionsOutput } from 'src/usecases/region/findAllRegion/find-all-paginated-regions.usecase';
+import { FindAllPaginatedRegionsOutput } from 'src/usecases/web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllPaginatedRegionResponse } from './find-all-paginated-regions.dto';
 
 export class FindAllPaginatedRegionsPresenter {

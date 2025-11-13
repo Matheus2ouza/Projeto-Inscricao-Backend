@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { FindAllnamesEventUsecase } from 'src/usecases/event/find-all-names/find-all-names.usecase';
+import { FindAllnamesEventUsecase } from 'src/usecases/web/event/find-all-names/find-all-names.usecase';
 import { FindAllNamesEventResponse } from './find-all-names-events.dto';
 import { FindAllNamesEventPresenter } from './find-all-names-events.presenter';
 

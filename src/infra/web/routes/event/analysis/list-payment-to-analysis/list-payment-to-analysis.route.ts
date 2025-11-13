@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ListPaymentToAnalysisUsecase } from 'src/usecases/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
+import { ListPaymentToAnalysisUsecase } from 'src/usecases/web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { ListPaymentToAnalysisResponse } from './list-payment-to-analysis.dto';
 import { ListPaymentToAnalysisPresenter } from './list-payment-to-analysis.presenter';
 

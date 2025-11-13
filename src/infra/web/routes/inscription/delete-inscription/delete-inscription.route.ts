@@ -6,7 +6,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { DeleteInscriptionUsecase } from 'src/usecases/inscription/delete-inscription/delete-inscription.usecase';
+import { DeleteInscriptionUsecase } from 'src/usecases/web/inscription/delete-inscription/delete-inscription.usecase';
 
 @Controller('inscriptions')
 export class DeleteInscriptionRoute {

@@ -2,7 +2,7 @@ import { Body, Controller, Param, Patch } from '@nestjs/common';
 import {
   UpdateImageEventInput,
   UpdateImageEventUsecase,
-} from 'src/usecases/event/update-image/update-image-event.usecase';
+} from 'src/usecases/web/event/update-image/update-image-event.usecase';
 import type {
   UpdateImageRequest,
   UpdateImageResponse,

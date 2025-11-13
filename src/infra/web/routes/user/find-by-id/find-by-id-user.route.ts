@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
+import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
   FindUserInput,
   FindUserUsecase,
-} from 'src/usecases/user/find-by-id/find-user.usecase';
+} from 'src/usecases/web/user/find-by-id/find-user.usecase';
 import { FindByIdUserResponse } from './find-by-id-user.dto';
 import { FindByIdUserPresenter } from './find-by-id-user.presenter';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 
 // /localities/:id
 @Controller('users')

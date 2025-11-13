@@ -1,4 +1,4 @@
-import { CreateInscriptionAvulOutput } from 'src/usecases/inscription/avul/create/create-inscription-avul.usecase';
+import { CreateInscriptionAvulOutput } from 'src/usecases/web/inscription/avul/create/create-inscription-avul.usecase';
 import { CreateInscriptionAvulResponse } from './create-inscription-avul.dto';
 
 export class CreateInscriptionAvulPresenter {

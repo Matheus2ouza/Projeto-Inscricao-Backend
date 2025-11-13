@@ -1,8 +1,8 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import type { GroupFindCacheInput } from 'src/usecases/inscription/group/find-cache/group-find-cache.usecase';
-import { GroupFindCacheUsecase } from 'src/usecases/inscription/group/find-cache/group-find-cache.usecase';
+import type { GroupFindCacheInput } from 'src/usecases/web/inscription/group/find-cache/group-find-cache.usecase';
+import { GroupFindCacheUsecase } from 'src/usecases/web/inscription/group/find-cache/group-find-cache.usecase';
 import type {
   GroupFindCacheRequest,
   GroupFindCacheRouteResponse,

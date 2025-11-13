@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   CreateTypeInscriptionInput,
   CreateTypeInscriptionUseCase,
-} from 'src/usecases/typeInscription/create/create-type-inscription.usecase';
+} from 'src/usecases/web/typeInscription/create/create-type-inscription.usecase';
 import type {
   CreateTypeInscriptionRequest,
   CreateTypeInscriptionResponse,

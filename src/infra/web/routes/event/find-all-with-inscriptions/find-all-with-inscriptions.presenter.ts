@@ -1,4 +1,4 @@
-import { FindAllWithInscriptionsOutput } from 'src/usecases/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
+import { FindAllWithInscriptionsOutput } from 'src/usecases/web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
 import { FindAllWithInscriptionsResponse } from './find-all-with-inscriptions.dto';
 
 export class FindAllWithInscriptionsPresenter {

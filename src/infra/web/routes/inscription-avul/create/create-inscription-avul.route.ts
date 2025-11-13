@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
-import { CreateInscriptionAvulUsecase } from 'src/usecases/inscription/avul/create/create-inscription-avul.usecase';
+import { CreateInscriptionAvulUsecase } from 'src/usecases/web/inscription/avul/create/create-inscription-avul.usecase';
 import type {
   CreateInscriptionAvulRequest,
   CreateInscriptionAvulResponse,

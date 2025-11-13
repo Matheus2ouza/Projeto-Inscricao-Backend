@@ -1,12 +1,11 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { AnalysisInscriptionUsecase } from 'src/usecases/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
+import { AnalysisInscriptionUsecase } from 'src/usecases/web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import type {
   AnalysisInscriptionRequest,
   AnalysisInscriptionResponse,
 } from './analysis-inscription.dto';
 import { AnalysisInscriptionPresenter } from './analysis-inscription.presenter';
-
 
 @Controller('inscriptions')
 export class AnalysisInscriptionRoute {

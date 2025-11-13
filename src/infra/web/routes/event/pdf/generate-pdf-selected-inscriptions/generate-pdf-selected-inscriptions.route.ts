@@ -3,7 +3,7 @@ import { Body, Controller, Param, Post } from '@nestjs/common';
 import {
   GeneratePdfSelectedInscriptionInput,
   GeneratePdfSelectedInscriptionUsecase,
-} from 'src/usecases/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
+} from 'src/usecases/web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
 import type {
   GeneratePdfSelectedInscriptionsRequest,
   GeneratePdfSelectedInscriptionsResponse,

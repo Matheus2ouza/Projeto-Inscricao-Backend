@@ -1,4 +1,4 @@
-import { UpdateImageEventOutput } from 'src/usecases/event/update-image/update-image-event.usecase';
+import { UpdateImageEventOutput } from 'src/usecases/web/event/update-image/update-image-event.usecase';
 import { UpdateImageResponse } from './update-image.dto';
 
 export class UpdateImagePresenter {

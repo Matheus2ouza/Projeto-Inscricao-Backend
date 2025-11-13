@@ -18,6 +18,12 @@ export abstract class EventGateway {
     regionId: string,
   ): Promise<Event | null>;
   abstract findAll(): Promise<Event[]>;
+  abstract findAllFiltered(filters: {
+    status?: string[];
+    page: number;
+    pageSize: number;
+  }): Promise<Event[]>;
+  abstract countAllFiltered(filters: { status?: string[] }): Promise<number>;
   abstract countTypesInscriptions(id: string): Promise<number>;
   abstract incrementQuantityParticipants(
     id: string,

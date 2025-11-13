@@ -157,4 +157,42 @@ export class Inscription extends Entity {
       throw new Error('O Status é obrigatório');
     }
   }
+
+  public setResponsible(responsible: string): void {
+    this.responsible = responsible;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setPhone(phone: string): void {
+    this.phone = phone;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setEmail(email: string): void {
+    this.email = email;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public update({
+    responsible,
+    phone,
+    email,
+  }: {
+    responsible?: string;
+    phone?: string;
+    email?: string;
+  }): void {
+    if (responsible !== undefined) {
+      this.setResponsible(responsible);
+    }
+    if (phone !== undefined) {
+      this.setPhone(phone);
+    }
+    if (email !== undefined) {
+      this.setEmail(email);
+    }
+  }
 }

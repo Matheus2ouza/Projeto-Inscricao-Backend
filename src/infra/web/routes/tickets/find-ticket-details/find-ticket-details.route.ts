@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { FindTicketDetailsUsecase } from 'src/usecases/tickets/find-ticket-details/find-ticket-details.usecase';
+import { FindTicketDetailsUsecase } from 'src/usecases/web/tickets/find-ticket-details/find-ticket-details.usecase';
 import type {
   FindTicketDetailsRequest,
   FindTicketDetailsResponse,

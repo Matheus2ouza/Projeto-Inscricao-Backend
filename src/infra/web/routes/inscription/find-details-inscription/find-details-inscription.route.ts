@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import { FindDetailsInscriptionUsecase } from 'src/usecases/inscription/find-details-inscription/find-details-inscription.usecase';
+import { FindDetailsInscriptionUsecase } from 'src/usecases/web/inscription/find-details-inscription/find-details-inscription.usecase';
 import type {
   FindDetailsInscriptionRequest,
   FindDetailsInscriptionResponse,

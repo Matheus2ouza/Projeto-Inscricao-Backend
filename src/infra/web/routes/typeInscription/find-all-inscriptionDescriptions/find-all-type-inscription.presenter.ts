@@ -1,4 +1,4 @@
-import { FindAllInscriptionOutput } from 'src/usecases/typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { FindAllInscriptionOutput } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindAllInscriptionResponse } from './find-all-type-inscription.dto';
 
 export class FindAllInscriptionPresenter {

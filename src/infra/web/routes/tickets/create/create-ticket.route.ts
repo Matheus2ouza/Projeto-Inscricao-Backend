@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   CreateTicketInput,
   CreateTicketUsecase,
-} from 'src/usecases/tickets/create/create-ticket.usecase';
+} from 'src/usecases/web/tickets/create/create-ticket.usecase';
 import type {
   CreateTicketRequest,
   CreateTicketResponse,

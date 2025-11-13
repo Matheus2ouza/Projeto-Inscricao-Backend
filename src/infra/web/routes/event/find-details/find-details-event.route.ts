@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { FindDetailsEventUsecase } from 'src/usecases/event/find-details/find-details-event.usecase';
+import { FindDetailsEventUsecase } from 'src/usecases/web/event/find-details/find-details-event.usecase';
 import {
   FindDetailsEventRequest,
   FindDetailsEventResponse,

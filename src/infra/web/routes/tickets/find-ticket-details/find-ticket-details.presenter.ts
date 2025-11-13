@@ -1,4 +1,4 @@
-import { FindTicketDetailsOutput } from 'src/usecases/tickets/find-ticket-details/find-ticket-details.usecase';
+import { FindTicketDetailsOutput } from 'src/usecases/web/tickets/find-ticket-details/find-ticket-details.usecase';
 import { FindTicketDetailsResponse } from './find-ticket-details.dto';
 
 export class FindTicketDetailsPresenter {

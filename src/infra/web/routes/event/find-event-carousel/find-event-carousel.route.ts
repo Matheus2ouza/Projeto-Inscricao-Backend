@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
-import { FindEventCarouselUsecase } from 'src/usecases/event/find-event-carousel/find-event-carousel.usecase';
+import { FindEventCarouselUsecase } from 'src/usecases/web/event/find-event-carousel/find-event-carousel.usecase';
 import { FindEventCarouselResponse } from './find-event-carousel.dto';
 import { FindEventCarousePresenter } from './find-event-carousel.presenter';
 

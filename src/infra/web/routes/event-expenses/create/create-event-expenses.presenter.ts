@@ -1,4 +1,4 @@
-import { CreateEventExpensesOutput } from 'src/usecases/event-expenses/create/create-event-expenses.usecase';
+import { CreateEventExpensesOutput } from 'src/usecases/web/event-expenses/create/create-event-expenses.usecase';
 import { CreateEventExpensesResponse } from './create-event-expenses.dto';
 
 export class CreateEventExpensesPresenter {

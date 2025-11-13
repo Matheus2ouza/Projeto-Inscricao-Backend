@@ -4,7 +4,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   FindAllPaginatedInscriptionsInput,
   FindAllPaginatedInscriptionsUsecase,
-} from 'src/usecases/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
+} from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import type {
   FindAllPaginatedInscriptionRequest,
   FindAllPaginatedInscriptionResponse,

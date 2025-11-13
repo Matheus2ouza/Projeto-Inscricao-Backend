@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { FindAllTicketsUsecase } from 'src/usecases/tickets/findAll/find-all-ticket.usecase';
+import { FindAllTicketsUsecase } from 'src/usecases/web/tickets/findAll/find-all-ticket.usecase';
 import type {
   FindAllTicketRequest,
   FindAllTicketResponse,

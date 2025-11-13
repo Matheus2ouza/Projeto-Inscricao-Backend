@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import {
   GeneratePdfInscriptionInput,
   GeneratePdfInscriptionUsecase,
-} from 'src/usecases/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
+} from 'src/usecases/web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { GeneratePdfInscriptionResponse } from './generate-pdf-inscription.dto';
 import { GeneratePdfInscriptionPresenter } from './generate-pdf-inscription.presenter';
 

@@ -1,4 +1,4 @@
-import { CreatePaymentOutput } from 'src/usecases/paymentInscription/create/create-payment-inscription.usecase';
+import { CreatePaymentOutput } from 'src/usecases/web/paymentInscription/create/create-payment-inscription.usecase';
 import { CreatePaymentInscriptionResponse } from './create-payment-inscription.dto';
 
 export class CreatePaymentInscriptionPresenter {

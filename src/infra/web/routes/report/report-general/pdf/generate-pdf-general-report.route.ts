@@ -4,7 +4,7 @@ import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   GeneratePdfGeneralReportInput,
   GeneratePdfGeneralReportUsecase,
-} from 'src/usecases/report/report-general/pdf/generate-pdf-general-report.usecase';
+} from 'src/usecases/web/report/report-general/pdf/generate-pdf-general-report.usecase';
 import type { GeneratePdfGeneralReportResponse } from './generate-pdf-general-report.dto';
 import { GeneratePdfGeneralReportPresenter } from './generate-pdf-general-report.presenter';
 

@@ -1,4 +1,4 @@
-import { FindCacheOutput } from 'src/usecases/inscription/find-cache/find-cache.usecase';
+import { FindCacheOutput } from 'src/usecases/web/inscription/find-cache/find-cache.usecase';
 import { FindCacheResponse } from './find-cache.dto';
 
 export class FindCachePresenter {

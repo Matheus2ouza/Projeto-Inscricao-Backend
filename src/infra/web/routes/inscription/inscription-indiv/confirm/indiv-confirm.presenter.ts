@@ -1,4 +1,4 @@
-import { IndivConfirmOutput } from 'src/usecases/inscription/indiv/confirm/indiv-confirm.usecase';
+import { IndivConfirmOutput } from 'src/usecases/web/inscription/indiv/confirm/indiv-confirm.usecase';
 import { ConfirmIndivRouteResponse } from './indiv-confirm.dto';
 
 export class IndivConfirmPresenter {

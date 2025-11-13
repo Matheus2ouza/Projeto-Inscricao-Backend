@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   SaleTicketInput,
   SaleTicketUsecase,
-} from 'src/usecases/tickets/sale/sale-ticket.usecase';
+} from 'src/usecases/web/tickets/sale/sale-ticket.usecase';
 import type { SaleTicketRequest, SaleTicketResponse } from './sale-ticket.dto';
 import { SaleTicketPresenter } from './sale-ticket.presenter';
 

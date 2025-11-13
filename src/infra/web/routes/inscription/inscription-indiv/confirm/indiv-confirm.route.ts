@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   IndivConfirmInput,
   IndivConfirmUsecase,
-} from 'src/usecases/inscription/indiv/confirm/indiv-confirm.usecase';
+} from 'src/usecases/web/inscription/indiv/confirm/indiv-confirm.usecase';
 import type {
   ConfirmIndivRouteResponse,
   IndivConfirmRequest,

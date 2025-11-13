@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ListInscriptionToAnalysisUsecase } from 'src/usecases/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
+import { ListInscriptionToAnalysisUsecase } from 'src/usecases/web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import type { ListInscriptonToAnalysisResponse } from './list-inscription-to-analysis.dto';
 import { ListInscriptonToAnalysisPresenter } from './list-inscription-to-analysis.presenter';
 

@@ -3,7 +3,7 @@ import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator
 import {
   FindCacheInput,
   FindCacheUsecase,
-} from 'src/usecases/inscription/find-cache/find-cache.usecase';
+} from 'src/usecases/web/inscription/find-cache/find-cache.usecase';
 import type { FindCacheRequest, FindCacheResponse } from './find-cache.dto';
 import { FindCachePresenter } from './find-cache.presenter';
 

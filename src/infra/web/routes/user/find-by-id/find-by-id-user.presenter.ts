@@ -1,4 +1,4 @@
-import { FindUserOutput } from 'src/usecases/user/find-by-id/find-user.usecase';
+import { FindUserOutput } from 'src/usecases/web/user/find-by-id/find-user.usecase';
 import { FindByIdUserResponse } from './find-by-id-user.dto';
 
 export class FindByIdUserPresenter {

@@ -49,6 +49,7 @@ import { IndivCancelRoute } from './routes/inscription/inscription-indiv/cancel/
 import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
+import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
@@ -133,6 +134,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Inscription
     FindAllInscriptionRoute,
     FindAllPaginatedInscriptionsRoute,
+    UpdateInscriptionRoute,
     DeleteInscriptionRoute,
 
     //PDF - Inscription
