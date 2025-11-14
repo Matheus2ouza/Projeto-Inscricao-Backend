@@ -199,9 +199,7 @@ $RECYCLE.BIN/
 # Arquivos de configuração de servidor
 .htaccess
 .htpasswd
-nginx.conf
 apache.conf
-*.conf
 
 # Arquivos de firewall e segurança
 firewall.rules
@@ -320,3 +318,7 @@ estrutura.txt
 
 # Arquivos de testes HTTP-test
 .http-test/
+
+
+postgres-data
+.vercel
