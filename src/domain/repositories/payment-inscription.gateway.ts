@@ -41,4 +41,9 @@ export abstract class PaymentInscriptionGateway {
     paymentId: string,
     rejectionReason?: string,
   ): Promise<PaymentInscription>;
+
+  abstract revertApprovedPayment(
+    paymentId: string,
+  ): Promise<PaymentInscription>;
+  abstract deletePayment(paymentId: string): Promise<void>;
 }

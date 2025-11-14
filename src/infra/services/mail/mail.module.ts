@@ -5,6 +5,7 @@ import { SupabaseModule } from '../supabase/supabase.module';
 import { InscriptionEmailHandler } from './handlers/inscription/inscription-email.handler';
 import { PaymentApprovedEmailHandler } from './handlers/payment/payment-approved-email.handler';
 import { PaymentRejectedEmailHandler } from './handlers/payment/payment-rejected-email.handler';
+import { PaymentReviewNotificationEmailHandler } from './handlers/payment/payment-review-notification-email.handler';
 import { MailService } from './mail.service';
 
 @Module({
@@ -20,6 +21,8 @@ import { MailService } from './mail.service';
     PaymentApprovedEmailHandler,
     //Rejected
     PaymentRejectedEmailHandler,
+    //Under review
+    PaymentReviewNotificationEmailHandler,
   ],
   exports: [
     MailService,
@@ -32,6 +35,8 @@ import { MailService } from './mail.service';
     PaymentApprovedEmailHandler,
     //Rejected
     PaymentRejectedEmailHandler,
+    //Under review
+    PaymentReviewNotificationEmailHandler,
   ],
 })
 export class MailModule {}

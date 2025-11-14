@@ -1,9 +1,24 @@
-import { Body, Controller, Param, Patch } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
 import {
-  UpdatePaymentInput,
-  UpdatePaymentUsecase,
-} from 'src/usecases/web/paymentInscription/analysis/update-status-payment/update-payment.usecase';
+  BadRequestException,
+  Body,
+  Controller,
+  Param,
+  Patch,
+} from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
+import { StatusPayment } from 'generated/prisma';
+import {
+  ApprovePaymentInput,
+  ApprovePaymentUsecase,
+} from 'src/usecases/web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
+import {
+  RejectPaymentInput,
+  RejectPaymentUsecase,
+} from 'src/usecases/web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
+import {
+  RevertApprovedPaymentInput,
+  RevertApprovedPaymentUsecase,
+} from 'src/usecases/web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import type {
   UpdatePaymentRequest,
   UpdatePaymentResponse,
@@ -13,7 +28,9 @@ import { ApprovePaymentPresenter } from './update-payment.presenter';
 @Controller('payments')
 export class UpdatePaymentRoute {
   public constructor(
-    private readonly updatePaymentUsecase: UpdatePaymentUsecase,
+    private readonly approvePaymentUsecase: ApprovePaymentUsecase,
+    private readonly rejectPaymentUsecase: RejectPaymentUsecase,
+    private readonly revertApprovedPaymentUsecase: RevertApprovedPaymentUsecase,
   ) {}
 
   @Patch(':paymentId/update')
@@ -28,17 +45,42 @@ export class UpdatePaymentRoute {
     @Param('paymentId') id: string,
     @Body() body: UpdatePaymentRequest,
   ): Promise<UpdatePaymentResponse> {
-    const paymentId = id;
+    const { statusPayment, rejectionReason } = body;
 
-    const input: UpdatePaymentInput = {
-      paymentId,
-      statusPayment: body.statusPayment,
-      rejectionReason: body.rejectionReason,
-    };
+    switch (statusPayment) {
+      case StatusPayment.APPROVED: {
+        const input: ApprovePaymentInput = {
+          paymentId: id,
+          rejectionReason,
+        };
+        const response = await this.approvePaymentUsecase.execute(input);
+        return ApprovePaymentPresenter.toHttp(response);
+      }
+      case StatusPayment.REFUSED: {
+        if (!rejectionReason) {
+          throw new BadRequestException(
+            'rejectionReason é obrigatório quando o status for REFUSED',
+          );
+        }
 
-    console.log(input);
-
-    const response = await this.updatePaymentUsecase.execute(input);
-    return ApprovePaymentPresenter.toHttp(response);
+        const input: RejectPaymentInput = {
+          paymentId: id,
+          rejectionReason,
+        };
+        const response = await this.rejectPaymentUsecase.execute(input);
+        return ApprovePaymentPresenter.toHttp(response);
+      }
+      case StatusPayment.UNDER_REVIEW: {
+        const input: RevertApprovedPaymentInput = {
+          paymentId: id,
+        };
+        const response = await this.revertApprovedPaymentUsecase.execute(input);
+        return ApprovePaymentPresenter.toHttp(response);
+      }
+      default:
+        throw new BadRequestException(
+          `Status ${statusPayment} não suportado para atualização`,
+        );
+    }
   }
 }

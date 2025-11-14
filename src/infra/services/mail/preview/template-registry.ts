@@ -4,6 +4,7 @@ import type {
   InscriptionEmailData,
 } from '../types/inscription/inscription-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
+import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
 
 export type TemplateCategory = 'payment' | 'inscription';
 
@@ -62,6 +63,22 @@ const mockInscriptionData = (): InscriptionEmailData => ({
   eventLocation: 'São Paulo Expo, São Paulo - SP',
 });
 
+const mockPaymentReviewNotificationData =
+  (): PaymentReviewNotificationEmailData => ({
+    paymentId: 'pay_123456',
+    inscriptionId: 'insc_987654',
+    eventName: 'Congresso de Tecnologia 2025',
+    eventLocation: 'São Paulo Expo, São Paulo - SP',
+    eventStartDate: new Date('2025-04-05T08:00:00Z'),
+    eventEndDate: new Date('2025-04-07T18:00:00Z'),
+    paymentValue: 259.9,
+    paymentDate: new Date('2025-03-18T10:30:00Z'),
+    payerName: 'Marina Costa',
+    payerEmail: 'marina.costa@example.com',
+    payerPhone: '+55 (11) 91234-5678',
+    accountUsername: 'tech-events-admin',
+  });
+
 export const templateDefinitions: TemplateDefinition[] = [
   {
     id: 'payment/payment-approved',
@@ -99,6 +116,26 @@ export const templateDefinitions: TemplateDefinition[] = [
       loginUrl:
         process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
       year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'payment/payment-review-notification',
+    category: 'payment',
+    title: 'Novo pagamento em análise',
+    description:
+      'Alerta os responsáveis do evento quando um pagamento é enviado para conferência.',
+    previewText: 'Um pagamento foi recebido e aguarda análise.',
+    loader: async () => {
+      const module = await import(
+        '../templates/payment/payment-review-notification/index.js'
+      );
+      return { default: module.PaymentReviewNotificationEmail };
+    },
+    getProps: () => ({
+      paymentData: mockPaymentReviewNotificationData(),
+      responsibles: mockResponsibles(),
+      year: new Date().getFullYear(),
+      currentDate: new Date(),
     }),
   },
   {

@@ -4,7 +4,6 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
-import { CleanupExpiredCacheUsecase } from './worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
 import { CreateEventExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
@@ -25,7 +24,6 @@ import { UpdateEventUseCase } from './web/event/update-event/update-event.usecas
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
 import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/update-inscription-event.usecase';
 import { UpdateLocationEventUsecase } from './web/event/update-location/update-location-event.usecase';
-import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
@@ -45,8 +43,11 @@ import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
-import { UpdatePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/update-payment.usecase';
+import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
+import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
+import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import { CreatePaymentInscriptionUsecase } from './web/paymentInscription/create/create-payment-inscription.usecase';
+import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -66,6 +67,8 @@ import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-n
 import { FindUserUsecase } from './web/user/find-by-id/find-user.usecase';
 import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
+import { CleanupExpiredCacheUsecase } from './worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
+import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
 
 @Module({
   imports: [
@@ -160,7 +163,14 @@ import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refre
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-    UpdatePaymentUsecase,
+
+    // Atualização do status do PaymentInscription
+    ApprovePaymentUsecase,
+    RejectPaymentUsecase,
+    RevertApprovedPaymentUsecase,
+
+    //Deleta um PaymentInscription
+    DeletePaymentInscriptionUsecase,
 
     //Tickets
     CreateTicketUsecase,
@@ -262,7 +272,14 @@ import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refre
     //PaymentInscription
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-    UpdatePaymentUsecase,
+
+    // Atualização do status do PaymentInscription
+    ApprovePaymentUsecase,
+    RejectPaymentUsecase,
+    RevertApprovedPaymentUsecase,
+
+    //Deleta um PaymentInscription
+    DeletePaymentInscriptionUsecase,
 
     //Tickets
     CreateTicketUsecase,
