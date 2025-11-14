@@ -53,6 +53,7 @@ import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
+import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -162,7 +163,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     //PaymentInscription
     CreatePaymentInscriptionRoute,
     AnalysisPaymentRoute,
+
+    // Atualização do status do PaymentInscription
     UpdatePaymentRoute,
+
+    //Deleta um PaymentInscription
+    DeletePaymentInscriptionRoute,
 
     //Ticket
     CreateTicketRoute,
