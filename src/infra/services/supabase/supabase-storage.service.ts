@@ -35,6 +35,22 @@ export class SupabaseStorageService {
     }
   }
 
+  async testConnection(): Promise<boolean> {
+    try {
+      const { data, error } = await this.supabase.storage.listBuckets();
+
+      if (error) {
+        throw error;
+      }
+
+      this.logger.log('Supabase conectado');
+      return true;
+    } catch (err) {
+      this.logger.error('[SupabaseStorageService] Falha ao conectar com Supabase: ' + err.message);
+      return false;
+    }
+  }
+
   /**
    * Faz upload de um arquivo para o Supabase Storage
    * @param options - Opções de upload incluindo pasta, nome do arquivo, buffer e tipo de conteúdo
