@@ -16,6 +16,7 @@ export class PaymentInscriptionEntityToPaymentInscriptionPrismaModelMapper {
       rejectionReason: paymentInscription.getRejectionReason() ?? null,
       createdAt: paymentInscription.getCreatedAt(),
       updatedAt: paymentInscription.getUpdatedAt(),
+      financialMovementId: paymentInscription.getFinancialMovementId() ?? null,
     };
     return aModel;
   }

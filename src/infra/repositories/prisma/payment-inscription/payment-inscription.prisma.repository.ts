@@ -187,10 +187,10 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         });
       }
 
-      // 5. Aprovar o pagamento
+      // 5. Aprovar o pagamento, conectando a movimentação financeira
       const approvedPayment = await tx.paymentInscription.update({
         where: { id: paymentId },
-        data: { status: 'APPROVED' },
+        data: { status: 'APPROVED', financialMovementId: movement.getId() },
       });
 
       return approvedPayment;
@@ -215,5 +215,65 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
       payment,
     );
+  }
+
+  public async revertApprovedPayment(
+    paymentId: string,
+  ): Promise<PaymentInscription> {
+    // Buscar o pagamento primeiro para obter os dados necessários
+    const payment = await this.findById(paymentId);
+
+    if (!payment) {
+      throw new Error(`Payment with id ${paymentId} not found`);
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Incrementa novamente o valor total da inscrição
+      const inscription = await tx.inscription.update({
+        where: { id: payment.getInscriptionId() },
+        data: { totalValue: { increment: Number(payment.getValue()) } },
+        select: {
+          status: true,
+        },
+      });
+
+      // 2. Deleta a movimentação financeira
+      if (payment.getFinancialMovementId()) {
+        await tx.financialMovement.delete({
+          where: { id: payment.getFinancialMovementId() },
+        });
+      }
+
+      // 3. Decrementa valor arrecadado no evento
+      await tx.events.update({
+        where: { id: payment.getEventId() },
+        data: { amountCollected: { decrement: Number(payment.getValue()) } },
+      });
+
+      // 4. Atualiza o status para pendente caso já tenha sido pago totalmente a inscrição
+      if (inscription.status === 'PAID') {
+        await tx.inscription.update({
+          where: { id: payment.getInscriptionId() },
+          data: { status: 'PENDING' },
+        });
+      }
+
+      // 5. Atualiza o status do pagamento para UNDER_REVIEW
+      const approvedPayment = await tx.paymentInscription.update({
+        where: { id: paymentId },
+        data: { status: 'UNDER_REVIEW' },
+      });
+
+      return approvedPayment;
+    });
+    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
+      result,
+    );
+  }
+
+  public async deletePayment(paymentId: string): Promise<void> {
+    await this.prisma.paymentInscription.delete({
+      where: { id: paymentId },
+    });
   }
 }
