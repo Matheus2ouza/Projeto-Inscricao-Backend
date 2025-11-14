@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { StatusPayment } from 'generated/prisma';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { PaymentInscription } from 'src/domain/entities/payment-inscription';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import { PaymentReviewNotificationEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-review-notification-email.handler';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
@@ -37,6 +41,9 @@ export class CreatePaymentInscriptionUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
+    private readonly userGateway: UserGateway,
+    private readonly paymentReviewNotificationEmailHandler: PaymentReviewNotificationEmailHandler,
   ) {}
 
   public async execute({
@@ -114,10 +121,85 @@ export class CreatePaymentInscriptionUsecase
       await this.inscriptionGateway.paidRegistration(inscriptionId);
     }
 
+    await this.notifyEventResponsiblesAboutPayment(
+      paymentInscription,
+      inscription,
+    );
+
     const output: CreatePaymentOutput = {
       id: paymentInscription.getId(),
     };
     return output;
+  }
+
+  private async notifyEventResponsiblesAboutPayment(
+    paymentInscription: PaymentInscription,
+    inscription: Inscription,
+  ): Promise<void> {
+    try {
+      const event = await this.eventGateway.findById(
+        paymentInscription.getEventId(),
+      );
+
+      if (!event) {
+        this.logger.warn(
+          `Evento ${paymentInscription.getEventId()} não encontrado ao tentar enviar notificação de pagamento.`,
+        );
+        return;
+      }
+
+      const eventResponsibles =
+        await this.eventResponsibleGateway.findByEventId(
+          paymentInscription.getEventId(),
+        );
+
+      if (eventResponsibles.length === 0) {
+        this.logger.warn(
+          `Evento ${paymentInscription.getEventId()} não possui responsáveis cadastrados para notificação de pagamento.`,
+        );
+        return;
+      }
+
+      const responsibles = await Promise.all(
+        eventResponsibles.map(async (responsible) => {
+          const user = await this.userGateway.findById(
+            responsible.getAccountId(),
+          );
+          return {
+            id: responsible.getAccountId(),
+            username: user?.getUsername() || 'Usuário não encontrado',
+            email: user?.getEmail(),
+          };
+        }),
+      );
+
+      const accountUser = await this.userGateway.findById(
+        paymentInscription.getAccountId(),
+      );
+
+      await this.paymentReviewNotificationEmailHandler.sendNewPaymentNotification(
+        {
+          paymentId: paymentInscription.getId(),
+          inscriptionId: inscription.getId(),
+          eventName: event.getName(),
+          eventLocation: event.getLocation(),
+          eventStartDate: event.getStartDate(),
+          eventEndDate: event.getEndDate(),
+          paymentValue: paymentInscription.getValue().toNumber(),
+          paymentDate: paymentInscription.getCreatedAt(),
+          payerName: inscription.getResponsible(),
+          payerEmail: inscription.getEmail(),
+          payerPhone: inscription.getPhone(),
+          accountUsername: accountUser?.getUsername(),
+        },
+        responsibles,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Erro ao notificar responsáveis sobre novo pagamento: ${error.message}`,
+        error.stack,
+      );
+    }
   }
 
   private async processEventImage(
