@@ -28,6 +28,7 @@ import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindDetailsEventRoute } from './routes/event/find-details/find-details-event.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
 import { FindAccountWithInscriptionsRoute } from './routes/event/inscription/find-accounts-with-inscriptions/find-accounts-with-inscriptions.route';
+import { FindAllToParticipantsRoute } from './routes/event/participants/find-all-to-participants/find-all-to-participants.route';
 import { GeneratePdfSelectedInscriptionRoute } from './routes/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.route';
 import { UpdateEventRoute } from './routes/event/update-event/update-event.route';
 import { UpdateImageRoute } from './routes/event/update-image/update-image.route';
@@ -50,6 +51,8 @@ import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confir
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
+import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
+import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
@@ -99,6 +102,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
     FindAllPaginatedEventsRoute,
+
+    //Events - List events to participants
+    FindAllToParticipantsRoute,
+
     FindEventCarouselRoute,
     FindAllWithInscriptionsRoute,
     FindByIdEventRoute,
@@ -169,6 +176,12 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //Deleta um PaymentInscription
     DeletePaymentInscriptionRoute,
+
+    // Participants
+    ListParticipantsRoute,
+
+    // PDF - Participants
+    GeneratePdfSelectedParticipantRoute,
 
     //Ticket
     CreateTicketRoute,
