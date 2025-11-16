@@ -11,7 +11,7 @@ import {
 } from 'src/shared/utils/pdfs/selected-inscription/selected-inscription-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
-import { MissingInscriptionIdsUsecaseException } from 'src/usecases/web/exceptions/inscription/update/missing-inscription-ids.usecase.exception';
+import { MissingInscriptionIdsUsecaseException } from 'src/usecases/web/exceptions/inscription/pdf/missing-inscription-ids.usecase.exception';
 
 export type GeneratePdfSelectedInscriptionInput = {
   eventId: string;

@@ -18,6 +18,7 @@ export abstract class EventGateway {
     regionId: string,
   ): Promise<Event | null>;
   abstract findAll(): Promise<Event[]>;
+  abstract findAllPaginated(page: number, pageSize: number): Promise<Event[]>;
   abstract findAllFiltered(filters: {
     status?: string[];
     page: number;

@@ -122,6 +122,17 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findAllPaginated(page: number, pageSize: number): Promise<Event[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.events.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async findAllFiltered(filters: {
     status?: string[];
     page: number;

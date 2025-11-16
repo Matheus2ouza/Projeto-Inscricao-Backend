@@ -13,10 +13,26 @@ export abstract class ParticipantGateway {
   ): Promise<Participant[]>;
   abstract countAll(): Promise<number>;
   abstract countByInscriptionId(inscriptionId: string): Promise<number>;
+  abstract countAllByEventId(eventId: string): Promise<number>;
   abstract findManyPaginatedByInscriptionId(
     inscriptionId: string,
     page: number,
     pageSize: number,
   ): Promise<Participant[]>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
+  // Buscar participantes de múltiplas inscrições
+  abstract findByInscriptionIds(
+    inscriptionIds: string[],
+  ): Promise<Participant[]>;
+  // Buscar participantes de uma conta em um evento (limitado)
+  abstract findByAccountIdAndEventId(
+    accountId: string,
+    eventId: string,
+    limit: number,
+  ): Promise<Participant[]>;
+  // Contar participantes de uma conta em um evento
+  abstract countByAccountIdAndEventId(
+    accountId: string,
+    eventId: string,
+  ): Promise<number>;
 }
