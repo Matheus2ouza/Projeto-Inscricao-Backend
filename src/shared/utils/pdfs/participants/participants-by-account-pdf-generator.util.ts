@@ -235,7 +235,7 @@ export class ParticipantsByAccountPdfGenerator {
           alignment: 'center',
           style: 'tableRow',
         },
-        { text: participant.name, style: 'tableRow' },
+        { text: participant.name.toUpperCase(), style: 'tableRow' },
         {
           text: formatDate(birthDate),
           alignment: 'center',
