@@ -57,5 +57,21 @@ export abstract class InscriptionGateway {
 
   abstract deleteInscription(id: string): Promise<void>;
 
+  // Buscar IDs únicos de contas que têm inscrições no evento
+  abstract findUniqueAccountIdsByEventId(eventId: string): Promise<string[]>;
+
+  // Buscar IDs únicos de contas paginadas e ordenadas por username
+  abstract findUniqueAccountIdsPaginatedByEventId(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<{ accountIds: string[]; total: number }>;
+
+  // Buscar inscrições de uma conta específica no evento
+  abstract findByEventIdAndAccountId(
+    eventId: string,
+    accountId: string,
+  ): Promise<Inscription[]>;
+
   //PDF
 }
