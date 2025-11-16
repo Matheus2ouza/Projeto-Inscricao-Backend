@@ -8,4 +8,6 @@ export abstract class UserGateway {
   abstract create(username: User): Promise<void>;
   abstract findManyPaginated(page: number, pageSize: number): Promise<User[]>;
   abstract countAll(): Promise<number>;
+  // Buscar múltiplos usuários por IDs
+  abstract findByIds(ids: string[]): Promise<User[]>;
 }

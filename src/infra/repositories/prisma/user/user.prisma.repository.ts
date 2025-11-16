@@ -107,4 +107,34 @@ export class UserPrismaRepository implements UserGateway {
     const total = await this.prisma.accounts.count();
     return total;
   }
+
+  public async findByIds(ids: string[]): Promise<User[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const models = await this.prisma.accounts.findMany({
+      where: {
+        id: { in: ids },
+      },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        regionId: true,
+        email: true,
+        imageUrl: true,
+        region: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return models.map(UserPrismaModelToUserEntityMapper.map);
+  }
 }
