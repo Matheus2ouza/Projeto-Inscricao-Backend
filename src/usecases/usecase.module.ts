@@ -19,6 +19,7 @@ import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase'
 import { FindDetailsEventUsecase } from './web/event/find-details/find-details-event.usecase';
 import { FindEventCarouselUsecase } from './web/event/find-event-carousel/find-event-carousel.usecase';
 import { FindAccountWithInscriptionsUsecase } from './web/event/inscription/find-accounts-with-inscriptions.usecase';
+import { FindAllToParticipantsUsecase } from './web/event/participants/find-all-to-participants/find-all-to-participants.usecase';
 import { GeneratePdfSelectedInscriptionUsecase } from './web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
 import { UpdateEventUseCase } from './web/event/update-event/update-event.usecase';
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
@@ -42,6 +43,8 @@ import { IndivConfirmUsecase } from './web/inscription/indiv/confirm/indiv-confi
 import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
+import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
+import { GeneratePdfSelectedParticipantUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participant.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
 import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
@@ -117,6 +120,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //Events - Responsible
     DeleteEventResponsibleUseCase,
 
+    //Events - ListParticipants
+    FindAllToParticipantsUsecase,
+
     //Regions
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
@@ -171,6 +177,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Deleta um PaymentInscription
     DeletePaymentInscriptionUsecase,
+
+    // Participants
+    ListParticipantsUsecase,
+
+    //PDF - Participants
+    GeneratePdfSelectedParticipantUsecase,
 
     //Tickets
     CreateTicketUsecase,
@@ -226,6 +238,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //Events - Responsible
     DeleteEventResponsibleUseCase,
 
+    //Events - ListParticipants
+    FindAllToParticipantsUsecase,
+
     //Regions
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
@@ -280,6 +295,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Deleta um PaymentInscription
     DeletePaymentInscriptionUsecase,
+
+    //Participants
+    ListParticipantsUsecase,
+
+    //PDF - Participants
+    GeneratePdfSelectedParticipantUsecase,
 
     //Tickets
     CreateTicketUsecase,
