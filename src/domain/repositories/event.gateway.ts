@@ -30,7 +30,7 @@ export abstract class EventGateway {
     id: string,
     quantity: number,
   ): Promise<Event>;
-  abstract decremntQuantityParticipants(
+  abstract decrementQuantityParticipants(
     id: string,
     quantity: number,
   ): Promise<Event>;
