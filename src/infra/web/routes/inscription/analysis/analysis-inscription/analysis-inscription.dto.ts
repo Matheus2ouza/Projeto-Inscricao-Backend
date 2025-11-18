@@ -9,13 +9,16 @@ export type AnalysisInscriptionResponse = {
   email?: string;
   phone: string;
   status: string;
-  participants: {
-    id: string;
-    name: string;
-    birthDate: Date;
-    gender: string;
-  }[];
+  participants: Participants;
   total: number;
   page: number;
   pageCount: number;
 };
+
+export type Participants = {
+  id: string;
+  name: string;
+  birthDate: Date;
+  typeInscription?: string;
+  gender: string;
+}[];

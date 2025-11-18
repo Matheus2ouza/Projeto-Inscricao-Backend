@@ -32,6 +32,8 @@ export class AnalysisInscriptionRoute {
       pageSize: query.pageSize,
     });
 
+    console.log(response);
+
     return AnalysisInscriptionPresenter.toHttp(response);
   }
 }
