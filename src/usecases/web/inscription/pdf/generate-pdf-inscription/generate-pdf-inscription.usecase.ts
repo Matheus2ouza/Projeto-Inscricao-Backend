@@ -3,6 +3,7 @@ import axios from 'axios'; // ✅ IMPORTANTE
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   InscriptionPdfData,
@@ -28,6 +29,7 @@ export class GeneratePdfInscriptionUsecase
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -78,9 +80,16 @@ export class GeneratePdfInscriptionUsecase
       inscription.getId(),
     );
 
+    const types = await this.typeInscriptionGateway.findByEventId(
+      inscription.getEventId(),
+    );
+
+    const typesMap = new Map(types.map((t) => [t.getId(), t.getDescription()]));
+
     const mappedParticipants = participants.map((participant) => ({
       name: participant.getName(),
       birthDate: participant.getBirthDate(),
+      typeInscription: typesMap.get(participant.getTypeInscriptionId()),
       gender: participant.getGender(),
     }));
 

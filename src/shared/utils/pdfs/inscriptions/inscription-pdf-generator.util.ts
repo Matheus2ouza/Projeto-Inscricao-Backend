@@ -27,7 +27,14 @@ const printer = new PdfPrinter(fonts);
 export type InscriptionPdfParticipant = {
   name: string;
   birthDate: Date;
+  typeInscription?: string;
   gender: genderType;
+};
+
+export type InscriptionPdfEvent = {
+  name?: string | null;
+  startDate?: Date | null;
+  endDate?: Date | null;
 };
 
 export type InscriptionPdfData = {
@@ -35,11 +42,7 @@ export type InscriptionPdfData = {
   id: string;
   responsible: string;
   createAt: Date;
-  event: {
-    name?: string | null;
-    startDate?: Date | null;
-    endDate?: Date | null;
-  };
+  event: InscriptionPdfEvent;
   participants: InscriptionPdfParticipant[];
 };
 
@@ -271,7 +274,7 @@ export class InscriptionPdfGeneratorUtils {
       },
       { text: participant.name, style: 'tableRow' },
       {
-        text: formatDate(participant.birthDate),
+        text: participant.typeInscription,
         alignment: 'center',
         style: 'tableRow',
       },
