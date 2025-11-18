@@ -12,7 +12,7 @@ import {
 } from 'src/shared/utils/pdfs/participants/participants-by-account-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../../exceptions/events/event-not-found.usecase.exception';
-import { MissingParticipantIdsUsecaseException } from '../../../exceptions/participants/pdf/missing-participant-ids.usecase.exception';
+import { MissingParticipantIdsUsecaseException } from '../../../exceptions/participants/missing-participant-ids.usecase.exception';
 
 export type GeneratePdfSelectedParticipantInput = {
   eventId: string;
