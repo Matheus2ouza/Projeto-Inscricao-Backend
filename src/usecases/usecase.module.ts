@@ -43,6 +43,7 @@ import { IndivConfirmUsecase } from './web/inscription/indiv/confirm/indiv-confi
 import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
+import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfSelectedParticipantUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participant.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
@@ -180,6 +181,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
+    DeleteParticipantsUsecase,
 
     //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,
@@ -298,6 +300,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Participants
     ListParticipantsUsecase,
+    DeleteParticipantsUsecase,
 
     //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,

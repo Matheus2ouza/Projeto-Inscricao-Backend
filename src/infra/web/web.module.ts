@@ -51,6 +51,7 @@ import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confir
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
+import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
@@ -179,6 +180,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Participants
     ListParticipantsRoute,
+    DeleteParticipantsRoute,
 
     // PDF - Participants
     GeneratePdfSelectedParticipantRoute,
