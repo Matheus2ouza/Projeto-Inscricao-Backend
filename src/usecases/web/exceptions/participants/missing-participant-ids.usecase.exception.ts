@@ -1,4 +1,4 @@
-import { UsecaseException } from '../../usecase.exception';
+import { UsecaseException } from 'src/usecases/web/exceptions/usecase.exception';
 
 export class MissingParticipantIdsUsecaseException extends UsecaseException {
   public constructor(
