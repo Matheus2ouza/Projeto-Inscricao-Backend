@@ -72,6 +72,7 @@ import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
+import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update/update-type-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
@@ -139,6 +140,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //TypeInscription
     CreateTypeInscriptionRoute,
+    UpdateTypeInscriptionRoute,
     FindDetailsInscriptionRoute,
 
     //Inscription

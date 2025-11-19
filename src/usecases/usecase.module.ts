@@ -66,6 +66,7 @@ import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
+import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update/update-type-inscription.usecase';
 import { CreateUserUsecase } from './web/user/create/create-user.usecase';
 import { FindAllPaginatedUsersUsecase } from './web/user/find-all-paginated/find-all-paginated.usecase';
 import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-names-user.usecase';
@@ -132,6 +133,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //TypeInscription
     CreateTypeInscriptionUseCase,
+    UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
@@ -252,6 +254,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //TypeInscription
     CreateTypeInscriptionUseCase,
+    UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
