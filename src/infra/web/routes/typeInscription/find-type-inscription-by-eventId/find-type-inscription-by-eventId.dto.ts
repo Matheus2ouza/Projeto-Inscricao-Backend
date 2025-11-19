@@ -6,6 +6,4 @@ export type FindTypeInscriptionByEventIdResponse = {
   id: string;
   description: string;
   value: number;
-  createdAt: Date;
-  updatedAt: Date;
 }[];
