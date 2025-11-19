@@ -5,6 +5,7 @@ export type TypesInscriptionDto = {
   description: string;
   value: number;
   eventId: string;
+  specialtype: boolean;
 };
 
 export type TypesInscriptionWithDto = {
@@ -12,6 +13,7 @@ export type TypesInscriptionWithDto = {
   description: string;
   value: number;
   eventId: string;
+  specialtype: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -22,6 +24,7 @@ export class TypesInscription extends Entity {
     private description: string,
     private value: number,
     private eventId: string,
+    private specialtype: boolean,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -33,6 +36,7 @@ export class TypesInscription extends Entity {
     description,
     value,
     eventId,
+    specialtype,
   }: TypesInscriptionDto): TypesInscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -43,6 +47,7 @@ export class TypesInscription extends Entity {
       description,
       value,
       eventId,
+      specialtype,
       createdAt,
       updatedAt,
     );
@@ -53,6 +58,7 @@ export class TypesInscription extends Entity {
     description,
     value,
     eventId,
+    specialtype,
     createdAt,
     updatedAt,
   }: TypesInscriptionWithDto): TypesInscription {
@@ -61,6 +67,7 @@ export class TypesInscription extends Entity {
       description,
       value,
       eventId,
+      specialtype,
       createdAt,
       updatedAt,
     );
@@ -84,11 +91,55 @@ export class TypesInscription extends Entity {
     return this.eventId;
   }
 
+  public getSpecialType(): boolean {
+    return this.specialtype;
+  }
+
   public getCreatedAt(): Date {
     return this.createdAt;
   }
 
   public getUpdatedAt(): Date {
     return this.updatedAt;
+  }
+
+  public setDescription(description: string): void {
+    this.description = description;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setValue(value: number): void {
+    this.value = value;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setSpecialType(specialtype: boolean): void {
+    this.specialtype = specialtype;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public update({
+    description,
+    value,
+    specialtype,
+  }: {
+    description: string;
+    value: number;
+    specialtype: boolean;
+  }): void {
+    if (!description !== undefined) {
+      this.setDescription(description);
+    }
+
+    if (!value !== undefined) {
+      this.setValue(value);
+    }
+
+    if (!specialtype !== undefined) {
+      this.setSpecialType(specialtype);
+    }
   }
 }
