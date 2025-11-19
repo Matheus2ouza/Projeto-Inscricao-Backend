@@ -4,8 +4,8 @@ export abstract class ParticipantGateway {
   abstract findById(id: string): Promise<Participant | null>;
   abstract findByInscriptionId(inscriptionId: string): Promise<Participant[]>;
   abstract findByName(name: string): Promise<Participant[]>;
-  abstract create(participant: Participant): Promise<void>;
-  abstract update(participant: Participant): Promise<void>;
+  abstract create(participant: Participant): Promise<Participant>;
+  abstract update(participant: Participant): Promise<Participant>;
   abstract delete(id: string): Promise<void>;
   abstract findManyPaginated(
     page: number,
