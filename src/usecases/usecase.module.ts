@@ -46,6 +46,7 @@ import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/u
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfSelectedParticipantUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participant.usecase';
+import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
 import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
@@ -181,6 +182,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
+    UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
 
     //PDF - Participants
@@ -300,6 +302,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Participants
     ListParticipantsUsecase,
+    UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
 
     //PDF - Participants
