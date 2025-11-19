@@ -325,7 +325,7 @@ export class ReportGeneralUsecase
         case PaymentMethod.PIX:
           totais.totalPix += valor;
           break;
-        case PaymentMethod.CARTÃO:
+        case PaymentMethod.CARTAO:
           totais.totalCartao += valor;
           break;
       }
@@ -353,7 +353,7 @@ export class ReportGeneralUsecase
         case PaymentMethod.PIX:
           totais.totalPix += valor;
           break;
-        case PaymentMethod.CARTÃO:
+        case PaymentMethod.CARTAO:
           totais.totalCartao += valor;
           break;
       }
