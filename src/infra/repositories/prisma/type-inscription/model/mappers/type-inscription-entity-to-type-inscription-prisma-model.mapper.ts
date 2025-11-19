@@ -7,6 +7,7 @@ export class TypeInscriptionEntityToTypeInscriptionPrismaModelMapper {
       description: typeInscription.getDescription(),
       value: typeInscription.getValue(),
       eventId: typeInscription.getEventId(),
+      specialType: typeInscription.getSpecialType(),
       createdAt: typeInscription.getCreatedAt(),
       updatedAt: typeInscription.getUpdatedAt(),
     };

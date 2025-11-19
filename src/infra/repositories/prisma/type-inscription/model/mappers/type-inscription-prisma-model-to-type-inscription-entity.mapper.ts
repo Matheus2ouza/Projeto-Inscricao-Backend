@@ -8,6 +8,7 @@ export class TypeInscriptionPrismaModelToTypeInscriptionEntityMapper {
       description: typeInscription.description,
       value: Number(typeInscription.value),
       eventId: typeInscription.eventId,
+      specialtype: typeInscription.specialType,
       createdAt: typeInscription.createdAt,
       updatedAt: typeInscription.updatedAt,
     });
