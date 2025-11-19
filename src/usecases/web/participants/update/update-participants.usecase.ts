@@ -88,8 +88,16 @@ export class UpdateParticipantsUsecase
       typeInscriptionId: input.typeInscriptionId,
     });
 
+    // Atualize o Participante
     const updatedParticipant =
       await this.participantGateway.update(participant);
+
+    if (newType.getSpecialType()) {
+      await this.inscriptionGateway.updateStatus(
+        inscription.getId(),
+        'UNDER_REVIEW',
+      );
+    }
 
     // Atualiza valor total da inscrição
     const newTotal = inscription.getTotalValue() + diff;
