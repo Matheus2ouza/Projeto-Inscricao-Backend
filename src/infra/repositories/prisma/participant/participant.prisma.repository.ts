@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PrismaService } from '../prisma.service';
+import { ParticipantEntityToParticipantPrismaModelMapper as EntityToPrisma } from './model/mapper/participant-entity-to-participant-prisma-model.mapper';
 import { ParticipantPrismaModelToParticipantEntityMapper as PrismaToEntity } from './model/mapper/participant-prisma-model-to-participant-entity.mapper';
 
 @Injectable()
@@ -28,34 +29,23 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async create(participant: Participant): Promise<void> {
-    await this.prisma.participant.create({
-      data: {
-        id: participant.getId(),
-        inscriptionId: participant.getInscriptionId(),
-        typeInscriptionId: participant.getTypeInscriptionId(),
-        name: participant.getName(),
-        birthDate: participant.getBirthDate(),
-        gender: participant.getGender(),
-        createdAt: participant.getCreatedAt(),
-        // updatedAt is handled by Prisma @updatedAt
-      },
+  async create(participant: Participant): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const created = await this.prisma.participant.create({
+      data,
+      include: { typeInscription: { select: { description: true } } },
     });
+    return PrismaToEntity.map(created);
   }
 
-  async update(participant: Participant): Promise<void> {
-    await this.prisma.participant.update({
+  async update(participant: Participant): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const updated = await this.prisma.participant.update({
       where: { id: participant.getId() },
-      data: {
-        inscriptionId: participant.getInscriptionId(),
-        typeInscriptionId: participant.getTypeInscriptionId(),
-        name: participant.getName(),
-        birthDate: participant.getBirthDate(),
-        gender: participant.getGender(),
-        createdAt: participant.getCreatedAt(),
-        // updatedAt is handled by Prisma @updatedAt
-      },
+      data,
+      include: { typeInscription: { select: { description: true } } },
     });
+    return PrismaToEntity.map(updated);
   }
 
   async delete(id: string): Promise<void> {

@@ -147,7 +147,7 @@ export class OnSiteRegistrationPrismaRepository
         case PaymentMethod.DINHEIRO:
           totals.totalDinheiro = amount;
           break;
-        case PaymentMethod.CARTÃO:
+        case PaymentMethod.CARTAO:
           totals.totalCartao = amount;
           break;
         case PaymentMethod.PIX:

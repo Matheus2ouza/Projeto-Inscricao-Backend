@@ -23,6 +23,7 @@ export class CreateTypeInscriptionRoute {
       description: request.description,
       value: request.value,
       eventId: request.eventId,
+      specialtype: request.specialtype,
     };
     const result = await this.createTypeInscriptionUseCase.execute(input);
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 
@@ -16,16 +17,19 @@ export type AnalysisInscriptionOutput = {
   email?: string;
   phone: string;
   status: string;
-  participants: {
-    id: string;
-    name: string;
-    birthDate: Date;
-    gender: string;
-  }[];
+  participants: Participants;
   total: number;
   page: number;
   pageCount: number;
 };
+
+export type Participants = {
+  id: string;
+  name: string;
+  birthDate: Date;
+  typeInscription?: string;
+  gender: string;
+}[];
 
 @Injectable()
 export class AnalysisInscriptionUsecase
@@ -34,6 +38,7 @@ export class AnalysisInscriptionUsecase
   public constructor(
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
   async execute(
@@ -66,6 +71,12 @@ export class AnalysisInscriptionUsecase
       this.participantGateway.countAllByInscriptionId(inscription.getId()),
     ]);
 
+    const types = await this.typeInscriptionGateway.findByEventId(
+      inscription.getEventId(),
+    );
+
+    const typesMap = new Map(types.map((t) => [t.getId(), t.getDescription()]));
+
     // Calcula total de páginas
     const pageCount = Math.ceil(total / safePageSize);
 
@@ -73,6 +84,7 @@ export class AnalysisInscriptionUsecase
       id: participant.getId(),
       name: participant.getName(),
       birthDate: participant.getBirthDate(),
+      typeInscription: typesMap.get(participant.getTypeInscriptionId()),
       gender: participant.getGender(),
     }));
 

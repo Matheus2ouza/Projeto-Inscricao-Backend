@@ -189,7 +189,7 @@ export class EventPrismaRepository implements EventGateway {
     return PrismaToEntity.map(data);
   }
 
-  async decremntQuantityParticipants(
+  async decrementQuantityParticipants(
     id: string,
     quantity: number,
   ): Promise<Event> {

@@ -49,7 +49,7 @@ export class DeleteInscriptionUsecase {
 
     await this.inscriptionGateway.deleteInscription(input.inscriptionId);
 
-    await this.eventGateway.decremntQuantityParticipants(
+    await this.eventGateway.decrementQuantityParticipants(
       inscription.getEventId(),
       countParticipants,
     );

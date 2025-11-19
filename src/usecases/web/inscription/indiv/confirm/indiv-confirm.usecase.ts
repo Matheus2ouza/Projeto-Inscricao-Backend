@@ -83,16 +83,11 @@ export class IndivConfirmUsecase {
       throw new Error('Dados expiraram ou não foram encontrados');
     }
 
-    // Verifica se o tipo de inscrição é "isento" ou "serviço" para definir o status
-    const normalizedType = cached.participant.typeInscription
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-
-    const isExemptType =
-      normalizedType === 'isento' || normalizedType === 'servico';
-    const status = isExemptType
+    // Verifica se o tipo de inscrição é especial para definir o status
+    const typeInscription = await this.typeInscriptionGateway.findById(
+      cached.participant.typeInscriptionId,
+    );
+    const status = typeInscription?.getSpecialType()
       ? InscriptionStatus.UNDER_REVIEW
       : InscriptionStatus.PENDING;
 

@@ -83,16 +83,22 @@ export class GroupConfirmUsecase {
       throw new Error('Dados expiraram ou não foram encontrados');
     }
 
-    // Verifica se há algum tipo de inscrição "isento" ou "serviço" para definir o status
-    const hasExemptType = cached.items.some((item) => {
-      const normalizedType = item.typeInscription
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
-      return normalizedType === 'isento' || normalizedType === 'servico';
-    });
-    const status = hasExemptType
+    // Busca tipos de inscrição para validar se algum é especial
+    const typeInscriptionIds = Array.from(
+      new Set(cached.items.map((item) => item.typeInscriptionId)),
+    );
+    const specialTypeEntries = await Promise.all(
+      typeInscriptionIds.map(async (typeId) => {
+        const typeInscription =
+          await this.typeInscriptionGateway.findById(typeId);
+        return [typeId, typeInscription?.getSpecialType() ?? false] as const;
+      }),
+    );
+    const specialTypesMap = new Map(specialTypeEntries);
+    const hasSpecialType = cached.items.some((item) =>
+      specialTypesMap.get(item.typeInscriptionId),
+    );
+    const status = hasSpecialType
       ? InscriptionStatus.UNDER_REVIEW
       : InscriptionStatus.PENDING;
 

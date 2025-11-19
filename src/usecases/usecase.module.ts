@@ -43,8 +43,10 @@ import { IndivConfirmUsecase } from './web/inscription/indiv/confirm/indiv-confi
 import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
+import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfSelectedParticipantUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participant.usecase';
+import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
 import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
 import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
@@ -64,6 +66,7 @@ import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
+import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update/update-type-inscription.usecase';
 import { CreateUserUsecase } from './web/user/create/create-user.usecase';
 import { FindAllPaginatedUsersUsecase } from './web/user/find-all-paginated/find-all-paginated.usecase';
 import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-names-user.usecase';
@@ -130,6 +133,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //TypeInscription
     CreateTypeInscriptionUseCase,
+    UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
@@ -180,6 +184,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
+    UpdateParticipantsUsecase,
+    DeleteParticipantsUsecase,
 
     //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,
@@ -248,6 +254,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //TypeInscription
     CreateTypeInscriptionUseCase,
+    UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
@@ -298,6 +305,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Participants
     ListParticipantsUsecase,
+    UpdateParticipantsUsecase,
+    DeleteParticipantsUsecase,
 
     //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,

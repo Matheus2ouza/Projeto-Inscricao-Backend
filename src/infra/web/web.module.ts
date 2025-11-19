@@ -51,8 +51,10 @@ import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confir
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
+import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
+import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
@@ -70,6 +72,7 @@ import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
+import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update/update-type-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
@@ -137,6 +140,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     //TypeInscription
     CreateTypeInscriptionRoute,
+    UpdateTypeInscriptionRoute,
     FindDetailsInscriptionRoute,
 
     //Inscription
@@ -179,6 +183,8 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Participants
     ListParticipantsRoute,
+    UpdateParticipantsRoute,
+    DeleteParticipantsRoute,
 
     // PDF - Participants
     GeneratePdfSelectedParticipantRoute,
