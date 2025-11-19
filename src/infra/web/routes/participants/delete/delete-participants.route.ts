@@ -17,7 +17,7 @@ export class DeleteParticipantsRoute {
     private readonly deleteParticipantsUsecase: DeleteParticipantsUsecase,
   ) {}
 
-  @Delete(':inscriptionId/:participantId')
+  @Delete(':id/delete')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Exclui um participante de uma inscrição',
@@ -39,12 +39,8 @@ export class DeleteParticipantsRoute {
     status: 500,
     description: 'Erro interno do servidor.',
   })
-  async handle(
-    @Param('inscriptionId') inscriptionId: string,
-    @Param('participantId') participantId: string,
-  ): Promise<void> {
+  async handle(@Param('id') participantId: string): Promise<void> {
     const input: DeleteParticipantsInput = {
-      inscriptionId: inscriptionId,
       participantId: participantId,
     };
     await this.deleteParticipantsUsecase.execute(input);
