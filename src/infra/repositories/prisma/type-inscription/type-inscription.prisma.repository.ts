@@ -28,7 +28,7 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
   }
 
   async findByDescription(
-    eventId,
+    eventId: string,
     description: string,
   ): Promise<TypesInscription | null> {
     const found = await this.prisma.typeInscriptions.findFirst({
@@ -51,6 +51,7 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
   async findByEventId(eventId: string): Promise<TypesInscription[]> {
     const found = await this.prisma.typeInscriptions.findMany({
       where: { eventId },
+      orderBy: { value: 'desc' },
     });
     return found.map(
       TypeInscriptionPrismaModelToTypeInscriptionEntityMapper.map,
