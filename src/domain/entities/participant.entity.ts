@@ -111,6 +111,63 @@ export class Participant extends Entity {
     return this.gender;
   }
 
+  public getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  public setName(name: string): void {
+    this.name = name;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setBirthDate(birthDate: Date): void {
+    this.birthDate = birthDate;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setGender(gender: genderType): void {
+    this.gender = gender;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setTypeInscription(typeInscription: string): void {
+    this.typeInscriptionId = typeInscription;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public update({
+    name,
+    birthDate,
+    gender,
+    typeInscriptionId,
+  }: {
+    name?: string;
+    birthDate?: Date;
+    gender?: genderType;
+    typeInscriptionId: string;
+  }): void {
+    if (name !== undefined) {
+      this.setName(name);
+    }
+    if (birthDate !== undefined) {
+      this.setBirthDate(birthDate);
+    }
+    if (gender !== undefined) {
+      this.setGender(gender);
+    }
+    if (typeInscriptionId !== undefined) {
+      this.setTypeInscription(typeInscriptionId);
+    }
+  }
+
   protected validate(): void {
     if (!this.inscriptionId) {
       throw new Error('Id da Inscrição é obrigatório');
