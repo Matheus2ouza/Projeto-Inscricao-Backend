@@ -9,6 +9,7 @@ export class FindTypeInscriptionByEventIdPresenter {
       id: typeInscription.id,
       description: typeInscription.description,
       value: typeInscription.value,
+      specialType: typeInscription.specialType,
     }));
   }
 }

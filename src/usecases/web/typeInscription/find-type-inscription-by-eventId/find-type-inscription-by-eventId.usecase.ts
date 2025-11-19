@@ -12,6 +12,7 @@ export type FindTypeInscriptionByEventIdOutput = {
   id: string;
   description: string;
   value: number;
+  specialType: boolean;
 }[];
 
 @Injectable()
@@ -49,6 +50,7 @@ export class FindTypeInscriptionByEventIdUsecase
         id: typeInscription.getId(),
         description: typeInscription.getDescription(),
         value: typeInscription.getValue(),
+        specialType: typeInscription.getSpecialType(),
       }),
     );
     return output;
