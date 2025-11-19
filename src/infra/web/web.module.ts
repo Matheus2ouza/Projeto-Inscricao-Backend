@@ -54,6 +54,7 @@ import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
+import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
@@ -180,6 +181,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Participants
     ListParticipantsRoute,
+    UpdateParticipantsRoute,
     DeleteParticipantsRoute,
 
     // PDF - Participants
