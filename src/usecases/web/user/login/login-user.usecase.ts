@@ -103,6 +103,7 @@ export class LoginUserUsecase
     const authToken = this.jwtService.generateAuthToken(
       anUser.getId(),
       anUser.getRole(),
+      anUser.getRegionId(),
     );
     const refreshToken = this.jwtService.genereteRefreshToken(anUser.getId());
 
