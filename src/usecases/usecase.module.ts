@@ -4,6 +4,10 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
+import { FindActiveEventsUsecase } from './web/dashboard/admin/find-active-events.usecase';
+import { FindActiveParticipantsUsecase } from './web/dashboard/admin/find-active-participants.usecase';
+import { FindTotalCollectedUsecase } from './web/dashboard/admin/find-total-collected.usecase';
+import { FindTotalDebtUsecase } from './web/dashboard/admin/find-total-debt.usecase';
 import { CreateEventExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
@@ -202,6 +206,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedEventExpensesUsecase,
 
     //Reports
+    //DASHBOARD--ADMIN
+    FindTotalCollectedUsecase,
+    FindTotalDebtUsecase,
+    FindActiveParticipantsUsecase,
+    FindActiveEventsUsecase,
+
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
   ],
@@ -323,6 +333,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedEventExpensesUsecase,
 
     //Reports
+    //DASHBOARD--ADMIN
+    FindTotalCollectedUsecase,
+    FindTotalDebtUsecase,
+    FindActiveParticipantsUsecase,
+    FindActiveEventsUsecase,
+
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
   ],

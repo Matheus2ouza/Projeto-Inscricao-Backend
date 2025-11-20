@@ -13,6 +13,7 @@ import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-excep
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
+import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
@@ -201,6 +202,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedEventExpensesRoute,
 
     //Relatorio
+    //DASHBOARD--ADMIN
+    DashboardAdminRoute,
+
     ReportGeneralRoute,
     GeneratePdfGeneralReportRoute,
   ],
