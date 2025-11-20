@@ -43,13 +43,12 @@ export class AuthGuard implements CanActivate {
 
     request['userId'] = payload.userId;
     request['userRole'] = payload.role;
+    request['regionId'] = payload.regionId;
+
     return true;
   }
 
-  // authorization: Bearer <token>
-
   private exctractTokenFromRequest(request: Request): string | undefined {
-    // Primeiro tenta pelo header Authorization
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     if (type === 'Bearer' && token) {
       return token;
