@@ -76,7 +76,7 @@ model EventResponsibles {
   eventId   String   @map("event_id")
   accountId String   @map("account_id")
   account   Accounts @relation(fields: [accountId], references: [id])
-  event     Events   @relation(fields: [eventId], references: [id])
+  event     Events   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, accountId])
   @@map("event_responsibles")
