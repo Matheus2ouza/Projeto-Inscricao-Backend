@@ -10,7 +10,7 @@ import type {
 import { UpdateImagePresenter } from './update-image.presenter';
 
 @Controller('events')
-export class UpdateImageRoute {
+export class UpdateImageEventRoute {
   public constructor(
     private readonly updateImageUsecase: UpdateImageEventUsecase,
   ) {}
