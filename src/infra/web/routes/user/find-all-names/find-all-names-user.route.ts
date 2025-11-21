@@ -16,7 +16,7 @@ export class FindAllNamesUserRoute {
     const roles = Array.isArray(role)
       ? role.map((r) => r.trim())
       : role
-        ? role.split(',').map((r) => r.trim()) // permite ?role=ADMIN,USER
+        ? role.split(',').map((r) => r.trim())
         : [];
 
     const result = await this.findAllNamesUserUsecase.execute({ roles });
