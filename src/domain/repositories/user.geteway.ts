@@ -6,8 +6,12 @@ export abstract class UserGateway {
   abstract findRegionById(id: string): Promise<any | null>;
   abstract findAll(roles?: string[]): Promise<User[]>;
   abstract create(username: User): Promise<void>;
-  abstract findManyPaginated(page: number, pageSize: number): Promise<User[]>;
-  abstract countAll(): Promise<number>;
+  abstract findManyPaginated(
+    page: number,
+    pageSize: number,
+    regionId?: string,
+  ): Promise<User[]>;
+  abstract countAll(regionId?: string): Promise<number>;
   // Buscar múltiplos usuários por IDs
   abstract findByIds(ids: string[]): Promise<User[]>;
 }
