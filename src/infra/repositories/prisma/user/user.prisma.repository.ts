@@ -58,23 +58,17 @@ export class UserPrismaRepository implements UserGateway {
   public async findManyPaginated(
     page: number,
     pageSize: number,
+    regionId?: string,
   ): Promise<User[]> {
     const skip = (page - 1) * pageSize;
+    const where = regionId ? { regionId } : {};
 
     const models = await this.prisma.accounts.findMany({
+      where,
       skip,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        regionId: true,
-        email: true,
-        imageUrl: true,
+      include: {
         region: {
           select: {
             name: true,
@@ -103,8 +97,12 @@ export class UserPrismaRepository implements UserGateway {
     return found.map(UserPrismaModelToUserEntityMapper.map);
   }
 
-  public async countAll(): Promise<number> {
-    const total = await this.prisma.accounts.count();
+  public async countAll(regionId: string): Promise<number> {
+    const where = regionId ? { regionId } : {};
+
+    const total = await this.prisma.accounts.count({
+      where,
+    });
     return total;
   }
 

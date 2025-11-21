@@ -5,6 +5,7 @@ import { Usecase } from 'src/usecases/usecase';
 export type FindAllPaginatedUsersInput = {
   page: number;
   pageSize: number;
+  regionId?: string;
 };
 
 export type FindAllPaginatedUsersOutput = {
@@ -36,9 +37,11 @@ export class FindAllPaginatedUsersUsecase
       Math.min(100, Math.floor(input.pageSize || 10)),
     );
 
+    const regionId = input.regionId;
+
     const [models, total] = await Promise.all([
-      this.userGateway.findManyPaginated(safePage, safePageSize),
-      this.userGateway.countAll(),
+      this.userGateway.findManyPaginated(safePage, safePageSize, regionId),
+      this.userGateway.countAll(regionId),
     ]);
 
     const users = models.map((anUser) => ({

@@ -31,8 +31,12 @@ export class JsonWebTokenService extends JwtService {
     this.refreshSecret = process.env.JWT_REFRESH_SECRET;
   }
 
-  public generateAuthToken(userId: string, role: string): string {
-    const payload = this.generateAuthTokenPayload(userId, role);
+  public generateAuthToken(
+    userId: string,
+    role: string,
+    regionId?: string,
+  ): string {
+    const payload = this.generateAuthTokenPayload(userId, role, regionId);
 
     const token = jsonwebToken.sign(payload, this.authSecret, {
       expiresIn: '1h',
@@ -44,11 +48,16 @@ export class JsonWebTokenService extends JwtService {
   private generateAuthTokenPayload(
     userId: string,
     role: string,
+    regionId?: string,
   ): JwtAuthPayload {
     const payload: JwtAuthPayload = {
       userId,
       role,
     };
+
+    if (regionId) {
+      payload.regionId = regionId;
+    }
 
     return payload;
   }
@@ -92,12 +101,17 @@ export class JsonWebTokenService extends JwtService {
         );
       }
 
-      const authToken = this.generateAuthToken(userId, user.getRole());
+      const authToken = this.generateAuthToken(
+        userId,
+        user.getRole(),
+        user.getRegionId(),
+      );
 
       const output: GenerateAuthTokenWithRefreshTokenOutput = {
         authToken,
         userId,
         role: user.getRole(),
+        regionId: user.getRegionId() ?? undefined,
       };
 
       return output;

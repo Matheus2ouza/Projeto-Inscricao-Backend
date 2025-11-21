@@ -13,12 +13,14 @@ import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-excep
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
+import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
+import { DeleteEventRoute } from './routes/event/delete/delete-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
@@ -27,11 +29,12 @@ import { FindAllWithInscriptionsRoute } from './routes/event/find-all-with-inscr
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindDetailsEventRoute } from './routes/event/find-details/find-details-event.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
+import { FindEventDateRoute } from './routes/event/find-event-dates/find-event-dates.route';
 import { FindAccountWithInscriptionsRoute } from './routes/event/inscription/find-accounts-with-inscriptions/find-accounts-with-inscriptions.route';
 import { FindAllToParticipantsRoute } from './routes/event/participants/find-all-to-participants/find-all-to-participants.route';
 import { GeneratePdfSelectedInscriptionRoute } from './routes/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.route';
 import { UpdateEventRoute } from './routes/event/update-event/update-event.route';
-import { UpdateImageRoute } from './routes/event/update-image/update-image.route';
+import { UpdateImageEventRoute } from './routes/event/update-image/update-image.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdateLocationEventRoute } from './routes/event/update-location/update-location-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
@@ -100,11 +103,15 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Event
     CreateEventRoute,
     UpdateEventRoute,
-    UpdateImageRoute,
+    DeleteEventRoute,
+    UpdateImageEventRoute,
     UpdateLocationEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
     FindAllPaginatedEventsRoute,
+
+    //List of event dates
+    FindEventDateRoute,
 
     //Events - List events to participants
     FindAllToParticipantsRoute,
@@ -201,6 +208,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedEventExpensesRoute,
 
     //Relatorio
+    //DASHBOARD--ADMIN
+    DashboardAdminRoute,
+
     ReportGeneralRoute,
     GeneratePdfGeneralReportRoute,
   ],

@@ -157,6 +157,21 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   // Agregações e contagens
+  async contTotalDebtByEvent(eventId: string): Promise<number> {
+    const count = await this.prisma.inscription.aggregate({
+      where: {
+        eventId,
+        status: {
+          not: 'PAID',
+        },
+      },
+      _sum: {
+        totalValue: true,
+      },
+    });
+    return count._sum.totalValue?.toNumber() ?? 0;
+  }
+
   async countAll(filters: {
     userId: string;
     eventId: string;

@@ -49,7 +49,6 @@ export class CreateInscriptionAvulUsecase
     const eventExists = await this.eventGateway.findById(input.eventId);
 
     if (!eventExists) {
-      console.log(eventExists);
       throw new EventNotFoundUsecaseException(
         `attempt to create on-site registration for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',

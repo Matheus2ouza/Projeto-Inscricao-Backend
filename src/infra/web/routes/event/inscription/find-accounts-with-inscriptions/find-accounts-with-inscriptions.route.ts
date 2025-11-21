@@ -16,7 +16,6 @@ export class FindAccountWithInscriptionsRoute {
   async handle(
     @Param('id') id: string,
   ): Promise<FindAccountWithInscriptionsResponse> {
-    console.log('o eventId:', id);
     const input: FindAccountWithInscriptionsInput = {
       eventId: id,
     };

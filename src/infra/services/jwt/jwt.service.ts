@@ -2,11 +2,13 @@ export type GenerateAuthTokenWithRefreshTokenOutput = {
   authToken: string;
   userId: string;
   role: string;
+  regionId?: string;
 };
 
 export type JwtAuthPayload = {
   userId: string;
   role: string;
+  regionId?: string;
 };
 
 export type JwtRefreshPayload = {
@@ -14,7 +16,11 @@ export type JwtRefreshPayload = {
 };
 
 export abstract class JwtService {
-  public abstract generateAuthToken(userId: string, role: string): string;
+  public abstract generateAuthToken(
+    userId: string,
+    role: string,
+    regionId?: string,
+  ): string;
   public abstract genereteRefreshToken(userId: string): string;
   public abstract generateAuthTokenWithRefreshToken(
     refreshAuthToken: string,

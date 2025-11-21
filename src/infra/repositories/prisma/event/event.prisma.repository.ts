@@ -12,28 +12,11 @@ import { EventPrismaModelToEventEntityMapper as PrismaToEntity } from './model/m
 export class EventPrismaRepository implements EventGateway {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   async create(event: Event): Promise<Event> {
     const data = EntityToPrisma.map(event);
     const created = await this.prisma.events.create({ data });
     return PrismaToEntity.map(created);
-  }
-
-  async updatePayment(id: string, status: boolean): Promise<Event> {
-    const data = await this.prisma.events.update({
-      where: { id },
-      data: {
-        paymentEnabled: status,
-      },
-    });
-    return PrismaToEntity.map(data);
-  }
-
-  async updateInscription(id: string, status: statusEvent): Promise<Event> {
-    const data = await this.prisma.events.update({
-      where: { id },
-      data: { status },
-    });
-    return PrismaToEntity.map(data);
   }
 
   async update(event: Event): Promise<Event> {
@@ -45,10 +28,33 @@ export class EventPrismaRepository implements EventGateway {
     return PrismaToEntity.map(updated);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.events.delete({ where: { id } });
+  }
+
   async updateImage(id: string, imageUrl: string): Promise<Event> {
     const data = await this.prisma.events.update({
       where: { id },
       data: { imageUrl },
+    });
+    return PrismaToEntity.map(data);
+  }
+
+  // Atualizações de status e pagamento
+  async updateInscription(id: string, status: statusEvent): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: { status },
+    });
+    return PrismaToEntity.map(data);
+  }
+
+  async updatePayment(id: string, status: boolean): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: {
+        paymentEnabled: status,
+      },
     });
     return PrismaToEntity.map(data);
   }
@@ -80,10 +86,7 @@ export class EventPrismaRepository implements EventGateway {
     return event.paymentEnabled;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.events.delete({ where: { id } });
-  }
-
+  // Buscas e listagens
   async findById(id: string): Promise<Event | null> {
     const found = await this.prisma.events.findUnique({
       where: { id },
@@ -153,21 +156,70 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findAllCarousel(): Promise<
+    { id: string; name: string; location: string; imageUrl: string }[]
+  > {
+    const data = await this.prisma.events.findMany({
+      take: 8,
+      orderBy: { createdAt: 'desc' }, // <- ordena do mais novo para o mais antigo
+      select: { id: true, name: true, location: true, imageUrl: true },
+    });
+
+    return data.map((event) => ({
+      id: event.id,
+      name: event.name,
+      location: event.location || '',
+      imageUrl: event.imageUrl || '',
+    }));
+  }
+
+  async findNextUpcomingEvent(regionId: string): Promise<Event | null> {
+    const now = new Date();
+
+    const result = await this.prisma.events.findFirst({
+      where: {
+        regionId,
+        status: 'OPEN',
+        OR: [
+          {
+            startDate: { lte: now },
+            endDate: { gte: now },
+          },
+          {
+            startDate: { gt: now },
+          },
+        ],
+      },
+      orderBy: [
+        {
+          startDate: 'asc',
+        },
+      ],
+    });
+
+    return result ? PrismaToEntity.map(result) : null;
+  }
+
+  async findEventDates(regionId: string): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({
+      where: { regionId },
+      orderBy: { startDate: 'asc' },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  // Agregações e contagens
+  async countEventsActive(regionId: string): Promise<number> {
+    const count = await this.prisma.events.count({
+      where: { regionId, status: 'OPEN' },
+    });
+    return count;
+  }
+
   async countAllFiltered(filters: { status?: string[] }): Promise<number> {
     const where = this.buildWhereClause(filters);
     return this.prisma.events.count({ where });
-  }
-
-  private buildWhereClause(filters: { status?: string[] }) {
-    const where: any = {};
-
-    if (filters.status && filters.status.length > 0) {
-      where.status = {
-        in: filters.status,
-      };
-    }
-
-    return where;
   }
 
   async countTypesInscriptions(id: string): Promise<number> {
@@ -202,23 +254,6 @@ export class EventPrismaRepository implements EventGateway {
     return PrismaToEntity.map(data);
   }
 
-  async findAllCarousel(): Promise<
-    { id: string; name: string; location: string; imageUrl: string }[]
-  > {
-    const data = await this.prisma.events.findMany({
-      take: 8,
-      orderBy: { createdAt: 'desc' }, // <- ordena do mais novo para o mais antigo
-      select: { id: true, name: true, location: true, imageUrl: true },
-    });
-
-    return data.map((event) => ({
-      id: event.id,
-      name: event.name,
-      location: event.location || '',
-      imageUrl: event.imageUrl || '',
-    }));
-  }
-
   async incrementAmountCollected(id: string, value: number): Promise<Event> {
     const aModel = await this.prisma.events.update({
       where: { id },
@@ -237,11 +272,24 @@ export class EventPrismaRepository implements EventGateway {
     return PrismaToEntity.map(aModel);
   }
 
-  //PDF
+  // PDF
   async findBasicDataForPdf(eventId: string): Promise<Event | null> {
     const found = await this.prisma.events.findUnique({
       where: { id: eventId },
     });
     return found ? PrismaToEntity.map(found) : null;
+  }
+
+  // Métodos privados
+  private buildWhereClause(filters: { status?: string[] }) {
+    const where: any = {};
+
+    if (filters.status && filters.status.length > 0) {
+      where.status = {
+        in: filters.status,
+      };
+    }
+
+    return where;
   }
 }
