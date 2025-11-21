@@ -200,6 +200,15 @@ export class EventPrismaRepository implements EventGateway {
     return result ? PrismaToEntity.map(result) : null;
   }
 
+  async findEventDates(regionId: string): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({
+      where: { regionId },
+      orderBy: { startDate: 'asc' },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   // Agregações e contagens
   async countEventsActive(regionId: string): Promise<number> {
     const count = await this.prisma.events.count({

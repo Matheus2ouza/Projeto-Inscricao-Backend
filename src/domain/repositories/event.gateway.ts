@@ -38,6 +38,7 @@ export abstract class EventGateway {
     }[]
   >;
   abstract findNextUpcomingEvent(regionId: string): Promise<Event | null>;
+  abstract findEventDates(regionId: string): Promise<Event[]>;
 
   // Agregações e contagens
   abstract countEventsActive(regionId: string): Promise<number>;
