@@ -14,6 +14,7 @@ import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-ev
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { ListPaymentToAnalysisUsecase } from './web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { CreateEventUseCase } from './web/event/create/create-event.usecase';
+import { DeleteEventUsecase } from './web/event/delete/delete-event.usecase';
 import { FindAllPaginatedEventsUsecase } from './web/event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './web/event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventToInscriptionUsecase } from './web/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
@@ -22,6 +23,7 @@ import { FindAllWithInscriptionsUsecase } from './web/event/find-all-with-inscri
 import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase';
 import { FindDetailsEventUsecase } from './web/event/find-details/find-details-event.usecase';
 import { FindEventCarouselUsecase } from './web/event/find-event-carousel/find-event-carousel.usecase';
+import { FindEventDateUsecase } from './web/event/find-event-dates/find-event-dates.usecase';
 import { FindAccountWithInscriptionsUsecase } from './web/event/inscription/find-accounts-with-inscriptions.usecase';
 import { FindAllToParticipantsUsecase } from './web/event/participants/find-all-to-participants/find-all-to-participants.usecase';
 import { GeneratePdfSelectedInscriptionUsecase } from './web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
@@ -100,6 +102,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //Events
     CreateEventUseCase,
     UpdateEventUseCase,
+    DeleteEventUsecase,
     UpdateImageEventUsecase,
     UpdateLocationEventUsecase,
     FindAllPaginatedEventsUsecase,
@@ -111,6 +114,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     FinalizeExpiredEventsUsecase,
+
+    //List of event dates
+    FindEventDateUsecase,
 
     //List Inscription with Account
     FindAccountWithInscriptionsUsecase,
@@ -227,6 +233,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //Events
     CreateEventUseCase,
     UpdateEventUseCase,
+    DeleteEventUsecase,
     UpdateImageEventUsecase,
     UpdateLocationEventUsecase,
     FindAllPaginatedEventsUsecase,
@@ -238,6 +245,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     FinalizeExpiredEventsUsecase,
+
+    //List of event dates
+    FindEventDateUsecase,
 
     //Lista Inscription with Account
     FindAccountWithInscriptionsUsecase,
