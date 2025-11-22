@@ -49,7 +49,7 @@ export class DeleteParticipantsUsecase
       );
     }
 
-    if (inscription.getStatus() !== 'PENDING') {
+    if (inscription.getStatus() === 'PAID') {
       throw new InscriptionNotPendingStatusUsecaseException(
         `attempt to delete participant ${input.participantId} from inscription ${participant.getInscriptionId()} that is not pending`,
         `Não é possível excluir um participante de uma inscrição que já foi finalizada.`,
