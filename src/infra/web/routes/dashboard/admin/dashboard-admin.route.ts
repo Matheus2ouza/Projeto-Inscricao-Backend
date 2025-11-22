@@ -42,7 +42,6 @@ export class DashboardAdminRoute {
   public async getCompleteDashboard(
     @UserInfo() userInfo: { regionId: string },
   ): Promise<GetDashboardAdminResponse> {
-    console.log('chamou o getCompleteDashboard');
     const input = {
       regionId: userInfo.regionId,
     };
@@ -65,7 +64,6 @@ export class DashboardAdminRoute {
   public async getActiveEvents(
     @UserInfo() userInfo: { regionId: string },
   ): Promise<FindActiveEventsResponse> {
-    console.log('chamou o getActiveEvents');
     const input: FindActiveEventsInput = {
       regionId: userInfo.regionId,
     };
@@ -78,7 +76,6 @@ export class DashboardAdminRoute {
   public async getCollected(
     @UserInfo() userInfo: { regionId: string },
   ): Promise<FindTotalCollectedResponse> {
-    console.log('chamou o getCollected');
     const input: FindTotalCollectedInput = {
       regionId: userInfo.regionId,
     };
@@ -91,7 +88,6 @@ export class DashboardAdminRoute {
   public async getDebt(
     @UserInfo() userInfo: { regionId: string },
   ): Promise<FindTotalDebtResponse> {
-    console.log('chamou o getDebt');
     const input: FindTotalDebtInput = {
       regionId: userInfo.regionId,
     };
@@ -105,7 +101,6 @@ export class DashboardAdminRoute {
   public async getActiveParticipants(
     @UserInfo() userInfo: { regionId: string },
   ): Promise<FindActiveParticipantsResponse> {
-    console.log('chamou o getActiveParticipants');
     const input: FindActiveParticipantsInput = {
       regionId: userInfo.regionId,
     };
