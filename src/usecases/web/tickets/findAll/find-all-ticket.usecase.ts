@@ -27,6 +27,7 @@ type Tickets = {
   price: number;
   expirationDate: Date;
   available: number;
+  isActive: boolean;
 }[];
 
 @Injectable()
@@ -81,6 +82,7 @@ export class FindAllTicketsUsecase
         price: t.getPrice(),
         expirationDate: t.getExpirationDate(),
         available: t.getAvailable(),
+        isActive: t.getIsActive(),
       })),
     };
 
