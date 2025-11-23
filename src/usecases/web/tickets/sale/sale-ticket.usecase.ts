@@ -31,8 +31,6 @@ export class SaleTicketUsecase
   ) {}
 
   async execute(input: SaleTicketInput): Promise<SaleTicketOutput> {
-    console.log('O input dentro do usecase');
-    console.log(input);
     const eventTicketId = input.ticketId;
     const ticket = await this.eventTicketGateway.findById(eventTicketId);
 

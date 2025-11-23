@@ -42,7 +42,6 @@ export class IndivUploadRoute {
       return response;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      console.log(e);
       throw new BadRequestException(msg);
     }
   }

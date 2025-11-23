@@ -22,7 +22,6 @@ export class RefreshAuthTokenRoute {
     @Body() request: RefreshAuthTokenRequest,
     @Req() req: any,
   ): Promise<RefreshAuthTokenResponse> {
-    console.log('Atualizando token com request:', request.refreshToken);
     const refreshToken = request.refreshToken || req.cookies?.refreshToken;
     const input: RefreshAuthTokenUserUsecaseInput = {
       refreshToken,
@@ -30,7 +29,6 @@ export class RefreshAuthTokenRoute {
 
     const result = await this.refreshAuthTokenUsecase.execute(input);
 
-    console.log('Token atualizado:', result);
     const response = RefreshAuthTokenPresenter.toHttp(result);
 
     return response;

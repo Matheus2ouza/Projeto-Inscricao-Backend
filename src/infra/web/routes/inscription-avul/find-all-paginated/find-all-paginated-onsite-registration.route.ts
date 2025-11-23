@@ -26,8 +26,6 @@ export class FindAllPaginatedOnSiteRegistrationRoute {
       pageSize,
     };
 
-    console.log(data);
-
     const result = await this.usecase.execute(data);
     return FindAllPaginatedOnSiteRegistrationPresenter.toHttp(result);
   }
