@@ -9,6 +9,8 @@ export type FindTicketDetailsResponse = {
   quantity: number;
   price: number;
   available: number;
+  expirationDate: Date;
+  isActive: boolean;
   ticketSale: {
     id: string;
     quantity: number;
