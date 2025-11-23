@@ -17,14 +17,16 @@ export class CreateTicketRoute {
 
   @Post('create')
   async handle(
-    @Body() request: CreateTicketRequest,
+    @Body() body: CreateTicketRequest,
   ): Promise<CreateTicketResponse> {
     const input: CreateTicketInput = {
-      eventId: request.eventId,
-      name: request.name,
-      description: request.description,
-      quantity: request.quantity,
-      price: request.price,
+      eventId: body.eventId,
+      name: body.name,
+      description: body.description,
+      quantity: body.quantity,
+      price: body.price,
+      expirationDate: body.expirationDate,
+      isActive: body.isActive,
     };
 
     const response = await this.createTicketUsecase.execute(input);
