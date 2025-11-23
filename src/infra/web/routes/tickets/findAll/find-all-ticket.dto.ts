@@ -19,4 +19,5 @@ type Tickets = {
   price: number;
   expirationDate: Date;
   available: number;
+  isActive: boolean;
 }[];
