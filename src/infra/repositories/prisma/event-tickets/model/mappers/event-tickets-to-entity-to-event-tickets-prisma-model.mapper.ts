@@ -12,6 +12,8 @@ export class EventTicketToEntityToEventTicketPrismaModelMapper {
       quantity: eventTicket.getQuantity(),
       price: new Decimal(eventTicket.getPrice()),
       available: eventTicket.getAvailable(),
+      expirationDate: eventTicket.getExpirationDate(),
+      isActive: eventTicket.getIsActive(),
       createdAt: eventTicket.getCreatedAt(),
       updatedAt: eventTicket.getUpdatedAt(),
     };
