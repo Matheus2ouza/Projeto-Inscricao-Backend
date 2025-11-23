@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { PaymentMethod } from 'generated/prisma';
 import { Buffer } from 'node:buffer';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
@@ -13,7 +12,6 @@ export type SaleTicketInput = {
   ticketId: string;
   accountId: string;
   quantity: number;
-  paymentMethod: PaymentMethod;
   pricePerTicket: number;
 };
 
@@ -59,7 +57,6 @@ export class SaleTicketUsecase
       ticketId: input.ticketId,
       accountId: input.accountId,
       quantity: input.quantity,
-      paymentMethod: input.paymentMethod,
       pricePerTicket: input.pricePerTicket,
     });
 
@@ -78,11 +75,12 @@ export class SaleTicketUsecase
 
     const ticketPdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
-    // Retorna id da venda, nova quantidade disponível e PDF
-    return {
+    const output: SaleTicketOutput = {
       id: createdSale.getId(),
       ticketQuantity: updatedTicket.getAvailable(),
       ticketPdfBase64,
     };
+
+    return output;
   }
 }
