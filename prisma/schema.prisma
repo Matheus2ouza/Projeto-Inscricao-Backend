@@ -49,6 +49,7 @@ model Events {
   regionId             String
   amountCollected      Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
   imageUrl             String?              @map("image_url")
+  logoUrl              String?
   quantityParticipants Int                  @default(0) @map("quantity_participants")
   updatedAt            DateTime             @updatedAt
   endDate              DateTime             @map("end_date")
