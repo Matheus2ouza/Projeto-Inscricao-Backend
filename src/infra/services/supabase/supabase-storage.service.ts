@@ -46,7 +46,10 @@ export class SupabaseStorageService {
       this.logger.log('Supabase conectado');
       return true;
     } catch (err) {
-      this.logger.error('[SupabaseStorageService] Falha ao conectar com Supabase: ' + err.message);
+      this.logger.error(
+        '[SupabaseStorageService] Falha ao conectar com Supabase: ' +
+          err.message,
+      );
       return false;
     }
   }
