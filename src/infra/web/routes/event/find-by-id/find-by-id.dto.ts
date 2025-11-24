@@ -12,6 +12,7 @@ export type FindByIdEventResponse = {
   startDate: Date;
   endDate: Date;
   imageUrl?: string;
+  logUrl?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
