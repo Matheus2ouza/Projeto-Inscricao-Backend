@@ -14,6 +14,7 @@ export class EventEntityToEventPrismaModelMapper {
       status: event.getStatus(),
       paymentEnabled: event.getPaymentEnabled(),
       imageUrl: event.getImageUrl() ?? null,
+      logoUrl: event.getLogoUrl() ?? null,
       location: event.getLocation() ?? null,
       longitude: event.getLongitude() ?? null,
       latitude: event.getLatitude() ?? null,

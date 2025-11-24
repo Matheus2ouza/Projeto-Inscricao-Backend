@@ -7,6 +7,7 @@ export abstract class EventGateway {
   abstract update(event: Event): Promise<Event>;
   abstract delete(id: string): Promise<void>;
   abstract updateImage(id: string, imageUrl: string): Promise<Event>;
+  abstract updateLogo(id: string, logoUrl: string): Promise<Event>;
 
   // Atualizações de status e pagamento
   abstract updateInscription(id: string, status: statusEvent): Promise<Event>;
@@ -14,6 +15,10 @@ export abstract class EventGateway {
   abstract paymentEnabled(eventId: string): Promise<void>;
   abstract paymentDisabled(eventId: string): Promise<void>;
   abstract paymentCheck(eventId: string): Promise<boolean>;
+
+  //Deletes
+  abstract deleteImage(id: string): Promise<void>;
+  abstract deleteLogo(id: string): Promise<void>;
 
   // Buscas e listagens
   abstract findById(id: string): Promise<Event | null>;
