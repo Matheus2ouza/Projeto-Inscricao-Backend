@@ -20,7 +20,9 @@ import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/d
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
-import { DeleteEventRoute } from './routes/event/delete/delete-event.route';
+import { DeleteEventRoute } from './routes/event/delete/delete-event/delete-event.route';
+import { DeleteImageEventRoute } from './routes/event/delete/delete-image/delete-image-event.route';
+import { DeleteLogoEventRoute } from './routes/event/delete/delete-logo/delete-logo-event.route';
 import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-names-events.route';
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
@@ -37,6 +39,7 @@ import { UpdateEventRoute } from './routes/event/update-event/update-event.route
 import { UpdateImageEventRoute } from './routes/event/update-image/update-image.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdateLocationEventRoute } from './routes/event/update-location/update-location-event.route';
+import { UpdateLogoEventRoute } from './routes/event/update-logo/update-logo.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
@@ -103,11 +106,17 @@ import { WelcomeRoute } from './routes/welcome.route';
     //Event
     CreateEventRoute,
     UpdateEventRoute,
-    DeleteEventRoute,
     UpdateImageEventRoute,
+    UpdateLogoEventRoute,
     UpdateLocationEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
+
+    //Deletes
+    DeleteEventRoute,
+    DeleteImageEventRoute,
+    DeleteLogoEventRoute,
+
     FindAllPaginatedEventsRoute,
 
     //List of event dates
