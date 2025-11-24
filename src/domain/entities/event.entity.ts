@@ -8,6 +8,7 @@ export type EventCreateDto = {
   endDate: Date;
   regionId: string;
   imageUrl?: string;
+  logoUrl?: string;
   location?: string;
   longitude?: number;
   latitude?: number;
@@ -24,6 +25,7 @@ export type EventWithDto = {
   amountCollected: number;
   regionId: string;
   imageUrl?: string;
+  logoUrl?: string;
   location?: string;
   longitude?: number;
   latitude?: number;
@@ -47,6 +49,7 @@ export class Event extends Entity {
     private status: statusEvent,
     private paymentEnabled: boolean,
     private imageUrl?: string,
+    private logoUrl?: string,
     private location?: string,
     private longitude?: number | null,
     private latitude?: number | null,
@@ -61,6 +64,7 @@ export class Event extends Entity {
     endDate,
     regionId,
     imageUrl,
+    logoUrl,
     location,
     longitude,
     latitude,
@@ -86,6 +90,7 @@ export class Event extends Entity {
       status,
       paymentEnabled,
       imageUrl,
+      logoUrl,
       location,
       longitude,
       latitude,
@@ -101,6 +106,7 @@ export class Event extends Entity {
     amountCollected,
     regionId,
     imageUrl,
+    logoUrl,
     location,
     longitude,
     latitude,
@@ -122,6 +128,7 @@ export class Event extends Entity {
       status,
       paymentEnabled,
       imageUrl,
+      logoUrl,
       location,
       longitude,
       latitude,
@@ -169,6 +176,10 @@ export class Event extends Entity {
 
   public getImageUrl(): string | undefined {
     return this.imageUrl;
+  }
+
+  public getLogoUrl(): string | undefined {
+    return this.logoUrl;
   }
 
   public setImageUrl(imageUrl: string): void {
@@ -283,6 +294,15 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
+  public updateLogoUrl(logoUrl: string): void {
+    if (!logoUrl || logoUrl.trim().length === 0) {
+      throw new Error('logoUrl não pode ser vazio');
+    }
+
+    this.logoUrl = logoUrl;
+    this.updatedAt = new Date();
+  }
+
   public updateLocation(
     location: string,
     longitude: number,
@@ -291,6 +311,16 @@ export class Event extends Entity {
     this.location = location;
     this.longitude = longitude;
     this.latitude = latitude;
+  }
+
+  public deleteImage(): void {
+    this.imageUrl = undefined;
+    this.updatedAt = new Date();
+  }
+
+  public deleteLogo(): void {
+    this.logoUrl = undefined;
+    this.updatedAt = new Date();
   }
 
   public incrementParticipantsCount(): void {
