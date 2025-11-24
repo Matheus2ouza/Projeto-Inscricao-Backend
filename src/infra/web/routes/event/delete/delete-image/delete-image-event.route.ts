@@ -10,7 +10,6 @@ import {
   DeleteImageEventInput,
   DeleteImageEventUsecase,
 } from 'src/usecases/web/event/delete/delete-image/delete-image-event.usecase';
-import type { DeleteImageEventRequest } from './delete-image-event.dto';
 
 @Controller('events')
 export class DeleteImageEventRoute {
@@ -40,9 +39,9 @@ export class DeleteImageEventRoute {
     status: 500,
     description: 'Erro interno do servidor.',
   })
-  async handle(@Param('id') request: DeleteImageEventRequest) {
+  async handle(@Param('id') id: string) {
     const input: DeleteImageEventInput = {
-      eventId: request.eventId,
+      eventId: id,
     };
 
     await this.deleteImageEventUsecase.execute(input);
