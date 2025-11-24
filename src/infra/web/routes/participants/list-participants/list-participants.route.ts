@@ -27,7 +27,6 @@ export class ListParticipantsRoute {
     };
 
     const response = await this.listParticipantsUsecase.execute(input);
-    console.log(response);
     return ListParticipantsPresenter.toHttp(response);
   }
 }

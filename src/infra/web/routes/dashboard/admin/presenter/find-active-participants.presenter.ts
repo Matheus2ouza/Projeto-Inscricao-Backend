@@ -6,7 +6,7 @@ export class FindActiveParticipantsPresenter {
     output: FindActiveParticipantsOutput,
   ): FindActiveParticipantsResponse {
     return {
-      countParticipants: output.countParticipants,
+      activeParticipants: output.countParticipants,
     };
   }
 }

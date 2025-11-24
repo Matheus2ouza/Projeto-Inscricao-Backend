@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { PaymentMethod } from 'generated/prisma';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
@@ -11,7 +10,6 @@ export type SaleGroupTicketInput = {
   ticketId: string;
   accountId: string;
   quantity: number;
-  paymentMethod: PaymentMethod;
   pricePerTicket: number;
 };
 
@@ -52,7 +50,6 @@ export class SaleGroupTicketUsecase
       ticketId: input.ticketId,
       accountId: input.accountId,
       quantity: input.quantity,
-      paymentMethod: input.paymentMethod,
       pricePerTicket: input.pricePerTicket,
     });
 

@@ -40,6 +40,17 @@ export class EventPrismaRepository implements EventGateway {
     return PrismaToEntity.map(data);
   }
 
+  async updateLogo(id: string, logoUrl: string): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id },
+      data: {
+        logoUrl,
+      },
+    });
+
+    return PrismaToEntity.map(data);
+  }
+
   // Atualizações de status e pagamento
   async updateInscription(id: string, status: statusEvent): Promise<Event> {
     const data = await this.prisma.events.update({
@@ -84,6 +95,21 @@ export class EventPrismaRepository implements EventGateway {
     }
 
     return event.paymentEnabled;
+  }
+
+  //Deletes
+  async deleteImage(id: string): Promise<void> {
+    await this.prisma.events.update({
+      where: { id },
+      data: { imageUrl: null },
+    });
+  }
+
+  async deleteLogo(id: string): Promise<void> {
+    await this.prisma.events.update({
+      where: { id },
+      data: { logoUrl: null },
+    });
   }
 
   // Buscas e listagens

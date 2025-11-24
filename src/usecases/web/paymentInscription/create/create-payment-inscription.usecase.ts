@@ -117,10 +117,6 @@ export class CreatePaymentInscriptionUsecase
 
     await this.paymentInscriptionGateway.create(paymentInscription);
 
-    if (new Decimal(currentDebt).minus(value).equals(0)) {
-      await this.inscriptionGateway.paidRegistration(inscriptionId);
-    }
-
     await this.notifyEventResponsiblesAboutPayment(
       paymentInscription,
       inscription,

@@ -4,12 +4,20 @@ export type FindAllTicketRequest = {
 
 export type FindAllTicketResponse = {
   id: string;
-  eventId: string;
   name: string;
-  description: string;
+  imageUrl?: string;
+  quantityTicketSale: number;
+  totalSalesValue: number;
+  tickets: Tickets;
+};
+
+type Tickets = {
+  id: string;
+  name: string;
+  description?: string;
   quantity: number;
   price: number;
+  expirationDate: Date;
   available: number;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive: boolean;
 }[];

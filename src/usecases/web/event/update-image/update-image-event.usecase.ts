@@ -114,9 +114,9 @@ export class UpdateImageEventUsecase
       const optimizedImage = await this.imageOptimizerService.optimizeImage(
         buffer,
         {
-          maxWidth: 1200,
-          maxHeight: 800,
-          quality: 60, // Qualidade mais baixa para menor tamanho
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 60,
           format: 'webp',
           maxFileSize: 300 * 1024, // 300KB - muito menor para economizar espaço
         },

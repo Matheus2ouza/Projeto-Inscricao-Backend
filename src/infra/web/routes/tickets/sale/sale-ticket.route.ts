@@ -20,7 +20,6 @@ export class SaleTicketRoute {
       ticketId: request.ticketId,
       accountId: userId,
       quantity: request.quantity,
-      paymentMethod: request.paymentMethod,
       pricePerTicket: request.pricePerTicket,
     };
 

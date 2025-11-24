@@ -13,7 +13,9 @@ import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/
 import { PaymentInscriptionRepositoryProvider } from './prisma/payment-inscription/model/payment-inscription.prisma.repository.provider';
 import { PrismaService } from './prisma/prisma.service';
 import { RegionPrismaRepositoryProvider } from './prisma/region/model/region.prisma.repository.provider';
+import { TicketSalePaymentPrismaRepositoryProvider } from './prisma/ticket-sale-payment/model/ticket-sale-payment.prisma.repository.provider';
 import { TicketSalePrismaRepositoryProvider } from './prisma/ticket-sale/model/ticket-sale.prisma.repository.provider';
+import { TicketUnitPrismaRepositoryProvider } from './prisma/ticket-unit/model/ticket-unit.prisma.repository.provider';
 import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/model/type-inscription.prisma.repository.provider';
 import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
 
@@ -36,6 +38,8 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
     EventExpensesPrismaRepositoryProvider,
+    TicketSalePaymentPrismaRepositoryProvider,
+    TicketUnitPrismaRepositoryProvider,
   ],
   exports: [
     PrismaService,
@@ -55,6 +59,8 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
     EventExpensesPrismaRepositoryProvider,
+    TicketSalePaymentPrismaRepositoryProvider,
+    TicketUnitPrismaRepositoryProvider,
   ],
 })
 export class DataBaseModule {}

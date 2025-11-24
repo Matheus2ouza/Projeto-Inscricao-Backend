@@ -1,10 +1,9 @@
-import type { PaymentMethod, StatusPayment } from 'generated/prisma';
+import type { StatusPayment } from 'generated/prisma';
 
 export type SaleTicketRequest = {
   ticketId: string;
   accountId: string;
   quantity: number;
-  paymentMethod: PaymentMethod;
   pricePerTicket: number;
   status: StatusPayment;
 };

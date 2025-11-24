@@ -4,6 +4,8 @@ export type CreateTicketRequest = {
   description?: string;
   quantity: number;
   price: number;
+  expirationDate: Date;
+  isActive: boolean;
 };
 
 export type CreateTicketResponse = {

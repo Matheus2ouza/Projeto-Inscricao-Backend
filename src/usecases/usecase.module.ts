@@ -14,7 +14,9 @@ import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-ev
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { ListPaymentToAnalysisUsecase } from './web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { CreateEventUseCase } from './web/event/create/create-event.usecase';
-import { DeleteEventUsecase } from './web/event/delete/delete-event.usecase';
+import { DeleteEventUsecase } from './web/event/delete/delete-event/delete-event.usecase';
+import { DeleteImageEventUsecase } from './web/event/delete/delete-image/delete-image-event.usecase';
+import { DeleteLogoEventUsecase } from './web/event/delete/delete-logo/delete-logo-event.usecase';
 import { FindAllPaginatedEventsUsecase } from './web/event/find-all-event/find-all-paginated-events.usecase';
 import { FindAllnamesEventUsecase } from './web/event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventToInscriptionUsecase } from './web/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
@@ -31,6 +33,7 @@ import { UpdateEventUseCase } from './web/event/update-event/update-event.usecas
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
 import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/update-inscription-event.usecase';
 import { UpdateLocationEventUsecase } from './web/event/update-location/update-location-event.usecase';
+import { UpdateLogoEventUsecase } from './web/event/update-logo/update-logo.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
@@ -104,7 +107,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateEventUseCase,
     DeleteEventUsecase,
     UpdateImageEventUsecase,
+    UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
+
+    //Delete
+    DeleteLogoEventUsecase,
+    DeleteImageEventUsecase,
+
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
     FindDetailsEventUsecase,
@@ -235,6 +244,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateEventUseCase,
     DeleteEventUsecase,
     UpdateImageEventUsecase,
+    UpdateLogoEventUsecase,
+
+    //Delete
+    DeleteLogoEventUsecase,
+    DeleteImageEventUsecase,
+
     UpdateLocationEventUsecase,
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,

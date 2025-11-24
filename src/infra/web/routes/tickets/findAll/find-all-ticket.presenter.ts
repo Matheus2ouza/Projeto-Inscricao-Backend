@@ -2,17 +2,14 @@ import { FindAllTicketOutput } from 'src/usecases/web/tickets/findAll/find-all-t
 import { FindAllTicketResponse } from './find-all-ticket.dto';
 
 export class FindAllTicketsPresenter {
-  public static toHttp(input: FindAllTicketOutput): FindAllTicketResponse {
-    return input.map((ticket) => ({
-      id: ticket.id,
-      eventId: ticket.eventId,
-      name: ticket.name,
-      description: ticket.description,
-      quantity: ticket.quantity,
-      price: ticket.price,
-      available: ticket.available,
-      createdAt: ticket.createdAt,
-      updatedAt: ticket.updatedAt,
-    }));
+  public static toHttp(output: FindAllTicketOutput): FindAllTicketResponse {
+    return {
+      id: output.id,
+      name: output.name,
+      imageUrl: output.imageUrl,
+      quantityTicketSale: output.quantityTicketSale,
+      totalSalesValue: output.totalSalesValue,
+      tickets: output.tickets,
+    };
   }
 }

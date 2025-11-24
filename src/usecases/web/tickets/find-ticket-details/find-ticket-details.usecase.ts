@@ -15,6 +15,8 @@ export type FindTicketDetailsOutput = {
   quantity: number;
   price: number;
   available: number;
+  expirationDate: Date;
+  isActive: boolean;
   ticketSale: {
     id: string;
     quantity: number;
@@ -55,6 +57,8 @@ export class FindTicketDetailsUsecase
       quantity: ticket.getQuantity(),
       price: ticket.getPrice(),
       available: ticket.getAvailable(),
+      expirationDate: ticket.getExpirationDate(),
+      isActive: ticket.getIsActive(),
       ticketSale: sales.map((sale) => ({
         id: sale.getId(),
         quantity: sale.getQuantity(),

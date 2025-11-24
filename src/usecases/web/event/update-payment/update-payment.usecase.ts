@@ -19,7 +19,6 @@ export class UpdatePaymentEventUsecase
   public constructor(private readonly eventGateway: EventGateway) {}
 
   async execute(Input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
-    console.log(Input);
     const event = await this.eventGateway.updatePayment(
       Input.eventId,
       Input.paymentStatus,

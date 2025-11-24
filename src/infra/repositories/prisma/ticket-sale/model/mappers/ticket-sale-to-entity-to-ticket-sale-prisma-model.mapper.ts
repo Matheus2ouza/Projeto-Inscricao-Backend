@@ -9,7 +9,6 @@ export class TicketSaleToEntityToTicketSalePrismaModelMapper {
       ticketId: ticketSale.getTicketId(),
       accountId: ticketSale.getAccountId(),
       quantity: ticketSale.getQuantity(),
-      paymentMethod: ticketSale.getPaymentMethod(),
       totalValue: new Decimal(ticketSale.getTotalValue()),
       createdAt: ticketSale.getCreatedAt(),
       updatedAt: ticketSale.getUpdateAt(),

@@ -11,6 +11,8 @@ export type CreateTicketInput = {
   description?: string;
   quantity: number;
   price: number;
+  expirationDate: Date;
+  isActive: boolean;
 };
 
 export type CreateTicketOutput = {
@@ -43,14 +45,16 @@ export class CreateTicketUsecase
       description: input.description,
       quantity: input.quantity,
       price: input.price,
+      expirationDate: input.expirationDate,
+      isActive: input.isActive,
     });
 
-    console.log('O ticket do entity');
-    console.log(ticket);
-
-    // ✅ passa a entidade completa para o gateway
     const created = await this.eventTicketsGateway.create(ticket);
 
-    return { id: created.getId() };
+    const output: CreateTicketOutput = {
+      id: created.getId(),
+    };
+
+    return output;
   }
 }

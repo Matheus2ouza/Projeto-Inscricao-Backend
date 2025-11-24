@@ -1,3 +1,3 @@
 export type FindActiveParticipantsResponse = {
-  countParticipants: number;
+  activeParticipants: number;
 };

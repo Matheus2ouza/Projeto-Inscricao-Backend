@@ -26,7 +26,6 @@ export class UpdateTypeInscriptionRoute {
       value: body.value,
       specialType: body.specialType,
     };
-    console.log(input);
 
     const response = await this.updateTypeInscriptionUsecase.execute(input);
     return UpdateTypeInscriptionPresenter.toHttp(response);

@@ -3,16 +3,18 @@ import { FindTicketDetailsResponse } from './find-ticket-details.dto';
 
 export class FindTicketDetailsPresenter {
   public static toHttp(
-    input: FindTicketDetailsOutput,
+    output: FindTicketDetailsOutput,
   ): FindTicketDetailsResponse {
     const aModal: FindTicketDetailsResponse = {
-      id: input.id,
-      name: input.name,
-      description: input.description,
-      quantity: input.quantity,
-      price: input.price,
-      available: input.available,
-      ticketSale: input.ticketSale,
+      id: output.id,
+      name: output.name,
+      description: output.description,
+      quantity: output.quantity,
+      price: output.price,
+      available: output.available,
+      ticketSale: output.ticketSale,
+      expirationDate: output.expirationDate,
+      isActive: output.isActive,
     };
     return aModal;
   }

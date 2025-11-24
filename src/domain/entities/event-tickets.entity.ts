@@ -7,6 +7,8 @@ export type EventTicketCreateDto = {
   description?: string;
   quantity: number;
   price: number;
+  expirationDate: Date;
+  isActive: boolean;
 };
 
 export type EventTicketWithDto = {
@@ -17,6 +19,8 @@ export type EventTicketWithDto = {
   quantity: number;
   price: number;
   available: number;
+  expirationDate: Date;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -30,6 +34,8 @@ export class EventTicket extends Entity {
     private quantity: number,
     private price: number,
     private available: number,
+    private expirationDate: Date,
+    private isActive: boolean,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -43,10 +49,13 @@ export class EventTicket extends Entity {
     description,
     quantity,
     price,
+    expirationDate,
+    isActive,
   }: EventTicketCreateDto): EventTicket {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
+    const available = quantity;
 
     return new EventTicket(
       id,
@@ -55,7 +64,9 @@ export class EventTicket extends Entity {
       description,
       quantity,
       price,
-      quantity, // disponível inicialmente = total
+      available,
+      expirationDate,
+      isActive,
       createdAt,
       updatedAt,
     );
@@ -69,6 +80,8 @@ export class EventTicket extends Entity {
     quantity,
     price,
     available,
+    expirationDate,
+    isActive,
     createdAt,
     updatedAt,
   }: EventTicketWithDto): EventTicket {
@@ -80,6 +93,8 @@ export class EventTicket extends Entity {
       quantity,
       price,
       available,
+      expirationDate,
+      isActive,
       createdAt,
       updatedAt,
     );
@@ -119,6 +134,14 @@ export class EventTicket extends Entity {
 
   public getPrice(): number {
     return this.price;
+  }
+
+  public getExpirationDate(): Date {
+    return this.expirationDate;
+  }
+
+  public getIsActive(): boolean {
+    return this.isActive;
   }
 
   public getCreatedAt(): Date {

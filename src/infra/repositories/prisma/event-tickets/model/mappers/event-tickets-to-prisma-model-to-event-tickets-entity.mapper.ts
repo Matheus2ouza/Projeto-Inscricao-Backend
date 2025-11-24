@@ -11,6 +11,8 @@ export class EventTicketToPrismaModelToEnvetTicketEntityMapper {
       quantity: eventTicket.quantity,
       price: Number(eventTicket.price),
       available: eventTicket.available,
+      expirationDate: eventTicket.expirationDate,
+      isActive: eventTicket.isActive,
       createdAt: eventTicket.createdAt,
       updatedAt: eventTicket.updatedAt,
     });

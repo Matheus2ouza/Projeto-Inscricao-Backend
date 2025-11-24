@@ -20,6 +20,7 @@ export type FindByIdEventOutput = {
   startDate: Date;
   endDate: Date;
   imageUrl?: string;
+  logoUrl?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
@@ -64,12 +65,16 @@ export class FindByIdEventUsecase
     const region = await this.regionGateway.findById(event.getRegionId());
 
     let publicImageUrl: string | undefined = undefined;
-    if (event.getImageUrl) {
-      const imagePath = event.getImageUrl();
-      if (imagePath) {
-        publicImageUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-      }
+    const imagePath = event.getImageUrl();
+    if (imagePath) {
+      publicImageUrl =
+        await this.supabaseStorageService.getPublicUrl(imagePath);
+    }
+
+    let publicLogoUrl: string | undefined = undefined;
+    const logoPath = event.getLogoUrl();
+    if (logoPath) {
+      publicLogoUrl = await this.supabaseStorageService.getPublicUrl(logoPath);
     }
 
     const responsibles = await this.eventResponsibleGateway.findByEventId(
@@ -96,6 +101,7 @@ export class FindByIdEventUsecase
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
       imageUrl: publicImageUrl,
+      logoUrl: publicLogoUrl,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),

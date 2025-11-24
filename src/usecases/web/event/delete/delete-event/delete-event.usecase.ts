@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
-import { EventHasParticipantsUsecaseException } from '../../exceptions/events/event-has-participants.usecase.exception';
-import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
+import { EventHasParticipantsUsecaseException } from '../../../exceptions/events/event-has-participants.usecase.exception';
+import { EventNotFoundUsecaseException } from '../../../exceptions/events/event-not-found.usecase.exception';
 
 export type DeleteEventInput = {
   eventId: string;

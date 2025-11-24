@@ -5,7 +5,7 @@ export interface ImageOptimizationOptions {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-  format?: 'webp';
+  format?: 'webp' | 'png';
   maxFileSize?: number; // em bytes
 }
 
@@ -100,6 +100,7 @@ export class ImageOptimizerService {
 
       // Obtém metadados da imagem original
       const originalMetadata = await sharp(buffer).metadata();
+      const originalHasAlpha = Boolean(originalMetadata.hasAlpha);
       this.logger.log(
         `Imagem original: ${originalMetadata.width}x${originalMetadata.height}, formato: ${originalMetadata.format}, tamanho: ${buffer.length} bytes`,
       );
@@ -113,24 +114,38 @@ export class ImageOptimizerService {
       let currentQuality = quality;
       let optimizedBuffer: Buffer;
       let attempts = 0;
-      const maxAttempts = 8; // Mais tentativas para melhor compressão
+      const isPngOutput = format === 'png';
+      const maxAttempts = isPngOutput ? 1 : 8; // PNG preserva transparência, não reduzimos qualidade
 
       do {
         attempts++;
-        this.logger.log(`Tentativa ${attempts}: qualidade ${currentQuality}`);
+        this.logger.log(
+          `Tentativa ${attempts}: ${
+            isPngOutput ? 'compressão sem perda' : `qualidade ${currentQuality}`
+          } (formato ${format})`,
+        );
 
-        // Configura o Sharp para otimização agressiva
-        const sharpInstance = sharp(buffer)
-          .resize(maxWidth, maxHeight, {
-            fit: 'inside',
-            withoutEnlargement: true,
-          })
-          .webp({
+        // Configura o Sharp para otimização do formato adequado
+        let sharpInstance = sharp(buffer).resize(maxWidth, maxHeight, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        });
+
+        if (isPngOutput) {
+          // PNG precisa preservar o canal alpha; evitamos reduzir paleta ou mexer em "qualidade"
+          sharpInstance = sharpInstance.png({
+            compressionLevel: 9,
+            adaptiveFiltering: true,
+            palette: false,
+          });
+        } else {
+          sharpInstance = sharpInstance.webp({
             quality: currentQuality,
-            effort: 6, // Máximo esforço para melhor compressão
+            effort: 6,
             lossless: false, // Sempre com perda para menor tamanho
             nearLossless: false, // Desabilita para menor tamanho
           });
+        }
 
         optimizedBuffer = await sharpInstance.toBuffer();
 
@@ -144,14 +159,50 @@ export class ImageOptimizerService {
         }
 
         // Reduz a qualidade de forma mais agressiva
-        if (attempts <= 3) {
-          currentQuality = Math.max(30, currentQuality - 20);
-        } else {
-          currentQuality = Math.max(10, currentQuality - 10);
+        if (!isPngOutput) {
+          if (attempts <= 3) {
+            currentQuality = Math.max(30, currentQuality - 20);
+          } else {
+            currentQuality = Math.max(10, currentQuality - 10);
+          }
         }
       } while (attempts < maxAttempts);
 
-      const optimizedMetadata = await sharp(optimizedBuffer).metadata();
+      let optimizedMetadata = await sharp(optimizedBuffer).metadata();
+      const optimizedHasAlpha = Boolean(optimizedMetadata.hasAlpha);
+
+      if (isPngOutput && originalHasAlpha && !optimizedHasAlpha) {
+        this.logger.warn(
+          'PNG otimizado perdeu o canal alpha. Aplicando fallback para preservar transparência.',
+        );
+
+        const fallbackBuffer = await sharp(buffer)
+          .resize(maxWidth, maxHeight, {
+            fit: 'inside',
+            withoutEnlargement: true,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+          })
+          .png({
+            compressionLevel: 6,
+            adaptiveFiltering: true,
+            palette: false,
+            progressive: false,
+          })
+          .toBuffer();
+
+        const fallbackMetadata = await sharp(fallbackBuffer).metadata();
+
+        if (!fallbackMetadata.hasAlpha) {
+          this.logger.warn(
+            'Fallback ainda sem alpha. Mantendo buffer original para evitar perda de transparência.',
+          );
+          optimizedBuffer = buffer;
+          optimizedMetadata = originalMetadata;
+        } else {
+          optimizedBuffer = fallbackBuffer;
+          optimizedMetadata = fallbackMetadata;
+        }
+      }
 
       const result: OptimizedImageResult = {
         buffer: optimizedBuffer,

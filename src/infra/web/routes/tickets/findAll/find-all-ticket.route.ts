@@ -1,5 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { FindAllTicketsUsecase } from 'src/usecases/web/tickets/findAll/find-all-ticket.usecase';
+import {
+  FindAllTicketInput,
+  FindAllTicketsUsecase,
+} from 'src/usecases/web/tickets/findAll/find-all-ticket.usecase';
 import type {
   FindAllTicketRequest,
   FindAllTicketResponse,
@@ -16,9 +19,11 @@ export class FindAllTicketRoute {
   async handle(
     @Param() param: FindAllTicketRequest,
   ): Promise<FindAllTicketResponse> {
-    const eventId = param.eventId;
+    const input: FindAllTicketInput = {
+      eventId: param.eventId,
+    };
 
-    const response = await this.findAllTicketsUsecase.execute({ eventId });
+    const response = await this.findAllTicketsUsecase.execute(input);
 
     return FindAllTicketsPresenter.toHttp(response);
   }
