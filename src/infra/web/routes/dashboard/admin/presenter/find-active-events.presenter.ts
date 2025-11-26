@@ -1,10 +1,10 @@
-import { FindActiveEventsOutput } from 'src/usecases/web/dashboard/admin/find-active-events.usecase';
-import { FindActiveEventsResponse } from '../dto/find-active-events.dto';
+import { FindActiveEventsAdminOutput } from 'src/usecases/web/dashboard/admin/find-active-events.usecase';
+import { FindActiveEventsAdminResponse } from '../dto/find-active-events.dto';
 
-export class FindActiveEventsPresenter {
+export class FindActiveEventsAdminPresenter {
   public static tohttp(
-    output: FindActiveEventsOutput,
-  ): FindActiveEventsResponse {
+    output: FindActiveEventsAdminOutput,
+  ): FindActiveEventsAdminResponse {
     return {
       activeEvents: output.countEventsActive,
     };

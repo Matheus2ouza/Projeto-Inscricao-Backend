@@ -1,3 +1,3 @@
-export type FindActiveEventsResponse = {
+export type FindActiveEventsAdminResponse = {
   activeEvents: number;
 };

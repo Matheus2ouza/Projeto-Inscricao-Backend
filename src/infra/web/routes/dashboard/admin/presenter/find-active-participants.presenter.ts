@@ -1,10 +1,10 @@
-import { FindActiveParticipantsOutput } from 'src/usecases/web/dashboard/admin/find-active-participants.usecase';
-import { FindActiveParticipantsResponse } from '../dto/find-active-participants.dto';
+import { FindActiveParticipantsAdminOutput } from 'src/usecases/web/dashboard/admin/find-active-participants.usecase';
+import { FindActiveParticipantsAdminResponse } from '../dto/find-active-participants.dto';
 
-export class FindActiveParticipantsPresenter {
+export class FindActiveParticipantsAdminPresenter {
   static tohttp(
-    output: FindActiveParticipantsOutput,
-  ): FindActiveParticipantsResponse {
+    output: FindActiveParticipantsAdminOutput,
+  ): FindActiveParticipantsAdminResponse {
     return {
       activeParticipants: output.countParticipants,
     };
