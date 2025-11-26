@@ -16,6 +16,7 @@ export type FindAllTicketOutput = {
   imageUrl?: string;
   quantityTicketSale: number;
   totalSalesValue: number;
+  ticketEnabled?: boolean;
   tickets: Tickets;
 };
 
@@ -74,6 +75,7 @@ export class FindAllTicketsUsecase
       imageUrl: publicImageUrl,
       quantityTicketSale: salesSummary.quantityTicketSale,
       totalSalesValue: salesSummary.totalSalesValue,
+      ticketEnabled: event.getTicketEnabled(),
       tickets: tickets.map((t) => ({
         id: t.getId(),
         name: t.getName(),
