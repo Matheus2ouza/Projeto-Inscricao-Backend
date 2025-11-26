@@ -10,6 +10,7 @@ import { PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper } from '.
 export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   public async create(
     paymentInscription: PaymentInscription,
   ): Promise<PaymentInscription> {
@@ -23,6 +24,13 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     );
   }
 
+  public async deletePayment(paymentId: string): Promise<void> {
+    await this.prisma.paymentInscription.delete({
+      where: { id: paymentId },
+    });
+  }
+
+  // Buscas por identificador único
   public async findById(id: string): Promise<PaymentInscription | null> {
     const aModel = await this.prisma.paymentInscription.findUnique({
       where: { id },
@@ -35,6 +43,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       : null;
   }
 
+  // Buscas por relacionamento
   public async findbyInscriptionId(id: string): Promise<PaymentInscription[]> {
     const aModel = await this.prisma.paymentInscription.findMany({
       where: { inscriptionId: id },
@@ -72,29 +81,13 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     );
   }
 
+  // Agregações e contagens
   async countAllFiltered(filters: {
     inscriptionId: string;
     status?: string[];
   }): Promise<number> {
     const where = this.buildWhereClause(filters);
     return this.prisma.paymentInscription.count({ where });
-  }
-
-  private buildWhereClause(filters: {
-    inscriptionId: string;
-    status?: string[];
-  }) {
-    const where: any = {
-      inscriptionId: filters.inscriptionId,
-    };
-
-    if (filters.status && filters.status.length > 0) {
-      where.status = {
-        in: filters.status,
-      };
-    }
-
-    return where;
   }
 
   public async countAllByEvent(eventId: string): Promise<number> {
@@ -120,6 +113,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return total;
   }
 
+  // Atualizações de status
   public async approvedPayment(id: string): Promise<PaymentInscription> {
     const data = await this.prisma.paymentInscription.update({
       where: { id },
@@ -136,14 +130,12 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
   public async approvePaymentWithTransaction(
     paymentId: string,
   ): Promise<PaymentInscription> {
-    // Buscar o pagamento primeiro para obter os dados necessários
     const payment = await this.findById(paymentId);
 
     if (!payment) {
       throw new Error(`Payment with id ${paymentId} not found`);
     }
 
-    // Criar a entidade de movimento financeiro
     const movement = FinancialMovement.create({
       eventId: payment.getEventId(),
       accountId: payment.getAccountId(),
@@ -151,16 +143,13 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       value: payment.getValue(),
     });
 
-    // Executar todas as operações em uma transação atômica
     const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Decrementar o valor total da inscrição
       const inscription = await tx.inscription.update({
         where: { id: payment.getInscriptionId() },
         data: { totalValue: { decrement: Number(payment.getValue()) } },
         select: { totalValue: true },
       });
 
-      // 2. Criar movimento financeiro
       await tx.financialMovement.create({
         data: {
           id: movement.getId(),
@@ -173,13 +162,11 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         },
       });
 
-      // 3. Incrementar valor arrecadado no evento
       await tx.events.update({
         where: { id: payment.getEventId() },
         data: { amountCollected: { increment: Number(payment.getValue()) } },
       });
 
-      // 4. Atualiza o status da inscrição caso tenha quitado o saldo devedor
       if (Math.abs(Number(inscription.totalValue)) < 0.01) {
         await tx.inscription.update({
           where: { id: payment.getInscriptionId() },
@@ -187,7 +174,6 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         });
       }
 
-      // 5. Aprovar o pagamento, conectando a movimentação financeira
       const approvedPayment = await tx.paymentInscription.update({
         where: { id: paymentId },
         data: { status: 'APPROVED', financialMovementId: movement.getId() },
@@ -220,7 +206,6 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
   public async revertApprovedPayment(
     paymentId: string,
   ): Promise<PaymentInscription> {
-    // Buscar o pagamento primeiro para obter os dados necessários
     const payment = await this.findById(paymentId);
 
     if (!payment) {
@@ -228,7 +213,6 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Incrementa novamente o valor total da inscrição
       const inscription = await tx.inscription.update({
         where: { id: payment.getInscriptionId() },
         data: { totalValue: { increment: Number(payment.getValue()) } },
@@ -237,20 +221,17 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         },
       });
 
-      // 2. Deleta a movimentação financeira
       if (payment.getFinancialMovementId()) {
         await tx.financialMovement.delete({
           where: { id: payment.getFinancialMovementId() },
         });
       }
 
-      // 3. Decrementa valor arrecadado no evento
       await tx.events.update({
         where: { id: payment.getEventId() },
         data: { amountCollected: { decrement: Number(payment.getValue()) } },
       });
 
-      // 4. Atualiza o status para pendente caso já tenha sido pago totalmente a inscrição
       if (inscription.status === 'PAID') {
         await tx.inscription.update({
           where: { id: payment.getInscriptionId() },
@@ -258,7 +239,6 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         });
       }
 
-      // 5. Atualiza o status do pagamento para UNDER_REVIEW
       const approvedPayment = await tx.paymentInscription.update({
         where: { id: paymentId },
         data: { status: 'UNDER_REVIEW' },
@@ -271,9 +251,38 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     );
   }
 
-  public async deletePayment(paymentId: string): Promise<void> {
-    await this.prisma.paymentInscription.delete({
-      where: { id: paymentId },
+  // Métodos privados
+  private buildWhereClause(filters: {
+    inscriptionId: string;
+    status?: string[];
+  }) {
+    const where: any = {
+      inscriptionId: filters.inscriptionId,
+    };
+
+    if (filters.status && filters.status.length > 0) {
+      where.status = {
+        in: filters.status,
+      };
+    }
+
+    return where;
+  }
+
+  async sumPaidByAccountIdAndEventId(
+    accountId: string,
+    eventId: string,
+  ): Promise<number> {
+    const sum = await this.prisma.paymentInscription.aggregate({
+      where: {
+        accountId,
+        eventId,
+        status: 'APPROVED',
+      },
+      _sum: {
+        value: true,
+      },
     });
+    return Number(sum._sum.value || 0);
   }
 }
