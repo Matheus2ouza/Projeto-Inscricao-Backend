@@ -13,7 +13,8 @@ export type FindAllWithInscriptionsResponse = {
 export type Events = {
   id: string;
   name: string;
-  image: string;
+  imageUrl: string;
+  status: string;
   startDate: string;
   endDate: string;
   totalParticipant: number;
