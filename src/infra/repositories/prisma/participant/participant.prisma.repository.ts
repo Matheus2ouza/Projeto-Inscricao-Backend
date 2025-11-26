@@ -152,6 +152,7 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
         inscription: {
           accountId,
           eventId,
+          status: { notIn: ['UNDER_REVIEW', 'CANCELLED'] },
         },
       },
     });
