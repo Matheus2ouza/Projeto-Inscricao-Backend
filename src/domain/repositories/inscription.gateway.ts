@@ -62,6 +62,15 @@ export abstract class InscriptionGateway {
     eventId: string; // obrigatório
     limitTime?: string; // opcional
   }): Promise<number>;
+  abstract countTotalInscriptions(
+    eventId: string,
+    accountId: string,
+  ): Promise<number>;
+  abstract countPendingInscriptions(
+    eventId: string,
+    accountId: string,
+  ): Promise<number>;
+  abstract countTotalDebt(eventId: string, accountId: string): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(
@@ -79,6 +88,4 @@ export abstract class InscriptionGateway {
     page: number,
     pageSize: number,
   ): Promise<{ accountIds: string[]; total: number }>;
-
-  // PDF
 }
