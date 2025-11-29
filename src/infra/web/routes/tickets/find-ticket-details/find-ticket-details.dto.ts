@@ -11,9 +11,4 @@ export type FindTicketDetailsResponse = {
   available: number;
   expirationDate: Date;
   isActive: boolean;
-  ticketSale: {
-    id: string;
-    quantity: number;
-    totalValue: number;
-  }[];
 };

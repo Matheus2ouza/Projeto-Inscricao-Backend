@@ -12,7 +12,6 @@ export class FindTicketDetailsPresenter {
       quantity: output.quantity,
       price: output.price,
       available: output.available,
-      ticketSale: output.ticketSale,
       expirationDate: output.expirationDate,
       isActive: output.isActive,
     };

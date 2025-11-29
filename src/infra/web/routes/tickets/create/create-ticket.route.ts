@@ -9,7 +9,7 @@ import type {
 } from './create-ticket.dto';
 import { CreateTicketPresenter } from './create-ticket.presenter';
 
-@Controller('ticket')
+@Controller('tickets')
 export class CreateTicketRoute {
   public constructor(
     private readonly createTicketUsecase: CreateTicketUsecase,
