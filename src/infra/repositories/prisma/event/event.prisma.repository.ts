@@ -178,6 +178,7 @@ export class EventPrismaRepository implements EventGateway {
     page: number,
     pageSize: number,
     filter?: {
+      regionId?: string;
       status?: statusEvent[];
       ticketEnabled?: boolean;
     },
@@ -194,24 +195,14 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  private buildWhereClauseEvent(filter?: {
-    status?: statusEvent[];
-    ticketEnabled?: boolean;
-  }) {
-    const { status, ticketEnabled } = filter || {};
-    return {
-      status: status ? { in: status } : undefined,
-      ticketEnabled,
-    };
-  }
-
-  async findAllFiltered(filters: {
-    status?: string[];
-    page: number;
-    pageSize: number;
-  }): Promise<Event[]> {
-    const { page, pageSize, ...filterFields } = filters;
-    const where = this.buildWhereClause(filterFields);
+  async findAllFiltered(
+    page: number,
+    pageSize: number,
+    filters?: {
+      status?: statusEvent[];
+    },
+  ): Promise<Event[]> {
+    const where = this.buildWhereClauseEvent(filters);
     const skip = (page - 1) * pageSize;
 
     const found = await this.prisma.events.findMany({
@@ -286,8 +277,11 @@ export class EventPrismaRepository implements EventGateway {
     return count;
   }
 
-  async countAllFiltered(filters: { status?: string[] }): Promise<number> {
-    const where = this.buildWhereClause(filters);
+  async countAllFiltered(filters?: {
+    status?: statusEvent[];
+    regionId?: string;
+  }): Promise<number> {
+    const where = this.buildWhereClauseEvent(filters);
     return this.prisma.events.count({ where });
   }
 
@@ -349,16 +343,16 @@ export class EventPrismaRepository implements EventGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  // Métodos privados
-  private buildWhereClause(filters: { status?: string[] }) {
-    const where: any = {};
-
-    if (filters.status && filters.status.length > 0) {
-      where.status = {
-        in: filters.status,
-      };
-    }
-
-    return where;
+  private buildWhereClauseEvent(filter?: {
+    regionId?: string;
+    status?: statusEvent[];
+    ticketEnabled?: boolean;
+  }) {
+    const { regionId, status, ticketEnabled } = filter || {};
+    return {
+      regionId,
+      status: status ? { in: status } : undefined,
+      ticketEnabled,
+    };
   }
 }
