@@ -151,4 +151,28 @@ export class EventTicket extends Entity {
   public getUpdatedAt(): Date {
     return this.updatedAt;
   }
+
+  public decrementAvailable(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error('Quantidade inválida para diminuir.');
+    }
+
+    if (this.available < quantity) {
+      throw new Error(
+        `Estoque insuficiente: disponível ${this.available}, solicitado ${quantity}`,
+      );
+    }
+
+    this.available -= quantity;
+    this.updatedAt = new Date();
+  }
+
+  public incrementAvailable(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error('Quantidade inválida para aumentar.');
+    }
+
+    this.available += quantity;
+    this.updatedAt = new Date();
+  }
 }
