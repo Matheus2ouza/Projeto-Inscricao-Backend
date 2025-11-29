@@ -1,19 +1,25 @@
+import { TicketSaleStatus } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
 export type TicketSaleCreateDto = {
-  ticketId: string;
-  accountId: string;
-  quantity: number;
-  pricePerTicket: number;
+  eventId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  status: TicketSaleStatus;
+  totalValue: number;
 };
 
 export type TicketSaleWithDto = {
   id: string;
-  ticketId: string;
-  accountId: string;
-  quantity: number;
+  eventId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  status: TicketSaleStatus;
   totalValue: number;
+  approvedBy?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -21,79 +27,111 @@ export type TicketSaleWithDto = {
 export class TicketSale extends Entity {
   private constructor(
     id: string,
-    private ticketId: string,
-    private accountId: string,
-    private quantity: number,
+    private eventId: string,
+    private name: string,
+    private email: string,
+    private status: TicketSaleStatus,
     private totalValue: number,
     createdAt: Date,
     updatedAt: Date,
+    private phone?: string,
+    private approvedBy?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
   }
 
   public static create({
-    ticketId,
-    accountId,
-    quantity,
-    pricePerTicket,
+    eventId,
+    name,
+    email,
+    phone,
+    status,
+    totalValue,
   }: TicketSaleCreateDto): TicketSale {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
 
-    const totalValue = quantity * pricePerTicket;
-
     return new TicketSale(
       id,
-      ticketId,
-      accountId,
-      quantity,
+      eventId,
+      name,
+      email,
+      status,
       totalValue,
       createdAt,
       updatedAt,
+      phone,
     );
   }
 
   public static with({
     id,
-    ticketId,
-    accountId,
-    quantity,
+    eventId,
+    name,
+    email,
+    status,
     totalValue,
     createdAt,
     updatedAt,
+    phone,
+    approvedBy,
   }: TicketSaleWithDto): TicketSale {
     return new TicketSale(
       id,
-      ticketId,
-      accountId,
-      quantity,
+      eventId,
+      name,
+      email,
+      status,
       totalValue,
       createdAt,
       updatedAt,
+      phone,
+      approvedBy,
     );
   }
 
   protected validate(): void {
-    if (this.quantity <= 0) {
-      throw new Error('A quantidade de tickets deve ser maior que zero');
+    if (!this.eventId) {
+      throw new Error('O ID do evento é obrigatório');
+    }
+    if (!this.name) {
+      throw new Error('O nome é obrigatório');
+    }
+    if (!this.email) {
+      throw new Error('O email é obrigatório');
+    }
+    if (this.totalValue <= 0) {
+      throw new Error('O valor total deve ser maior que zero');
     }
     if (this.totalValue < 0) {
       throw new Error('O valor total não pode ser negativo');
     }
   }
 
-  public getTicketId(): string {
-    return this.ticketId;
+  public getId(): string {
+    return this.id;
   }
 
-  public getAccountId(): string {
-    return this.accountId;
+  public getEventId(): string {
+    return this.eventId;
   }
 
-  public getQuantity(): number {
-    return this.quantity;
+  public getName(): string {
+    return this.name;
+  }
+
+  public getEmail(): string {
+    return this.email;
+  }
+
+  public getPhone(): string | undefined {
+    return this.phone;
+  }
+
+  public getStatus(): TicketSaleStatus {
+    return this.status;
   }
 
   public getTotalValue(): number {
@@ -106,5 +144,25 @@ export class TicketSale extends Entity {
 
   public getUpdateAt(): Date {
     return this.updatedAt;
+  }
+
+  public getApprovedBy(): string | undefined {
+    return this.approvedBy;
+  }
+
+  public approve(approvedBy: string): void {
+    this.status = TicketSaleStatus.PAID;
+    this.updatedAt = new Date();
+    this.approvedBy = approvedBy;
+  }
+
+  public reject(): void {
+    this.status = TicketSaleStatus.CANCELLED;
+    this.updatedAt = new Date();
+  }
+
+  public payTicket(): void {
+    this.status = TicketSaleStatus.UNDER_REVIEW;
+    this.updatedAt = new Date();
   }
 }
