@@ -5,10 +5,17 @@ import {
 } from '@nestjs/common';
 
 import { Request } from 'express';
+import { roleType } from 'generated/prisma';
 
 type UserInfoRequestType = Request & {
   userId?: string;
   userRole?: string;
+  regionId?: string;
+};
+
+export type UserInfoType = {
+  userId: string;
+  userRole: roleType;
   regionId?: string;
 };
 

@@ -24,7 +24,6 @@ export class ApprovePreSaleRoute {
       ticketSaleId: param.ticketSaleId,
     };
 
-    console.log(input);
     const response = await this.approvePreSaleUseCase.execute(input);
     return ApprovePreSalePresenter.toHttp(response);
   }

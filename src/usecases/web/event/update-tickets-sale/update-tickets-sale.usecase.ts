@@ -5,12 +5,12 @@ import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not
 
 export type UpdateTicketsSaleInput = {
   eventId: string;
-  saleTicketsEnabled: boolean;
+  saleTicketsStatus: boolean;
 };
 
 export type UpdateTicketsSaleOutput = {
   id: string;
-  ticketEnabled?: boolean;
+  saleTicketsStatus?: boolean;
 };
 
 @Injectable()
@@ -32,12 +32,12 @@ export class UpdateTicketsSaleUsecase
       );
     }
 
-    input.saleTicketsEnabled ? event.enableTicket() : event.disableTicket();
-    await this.eventGateway.enableTicket(event.getId());
+    event.updateTicketStatus(input.saleTicketsStatus);
+    await this.eventGateway.update(event);
 
     const output: UpdateTicketsSaleOutput = {
       id: event.getId(),
-      ticketEnabled: event.getTicketEnabled(),
+      saleTicketsStatus: event.getTicketEnabled(),
     };
 
     return output;

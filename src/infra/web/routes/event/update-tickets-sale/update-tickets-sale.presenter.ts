@@ -7,7 +7,7 @@ export class UpdateTicketsSalePresenter {
   ): UpdateTicketsSaleResponse {
     return {
       id: output.id,
-      ticketEnabled: output.ticketEnabled,
+      saleTicketsStatus: output.saleTicketsStatus,
     };
   }
 }

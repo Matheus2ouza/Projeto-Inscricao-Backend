@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 
 export type FindAllWithTicketsInput = {
+  regionId?: string;
   page: number;
   pageSize: number;
 };
@@ -47,9 +48,11 @@ export class FindAllWithTicketsUsecase
     const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
         status: ['OPEN'],
+        regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
         status: ['OPEN'],
+        regionId: input.regionId,
       }),
     ]);
 

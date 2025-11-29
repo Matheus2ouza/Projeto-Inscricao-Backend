@@ -82,6 +82,7 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
     const data = await this.prisma.ticketSale.aggregate({
       where: {
         eventId,
+        status: 'PAID',
       },
       _sum: {
         totalValue: true,
@@ -94,6 +95,17 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
       quantityTicketSale: data._count.id || 0,
       totalSalesValue: Number(data._sum.totalValue || 0),
     };
+  }
+
+  async countByEventIdAndStatus(
+    eventId: string,
+    status: TicketSaleStatus[],
+  ): Promise<number> {
+    const count = await this.prisma.ticketSale.count({
+      where: { eventId, status: { in: status } },
+    });
+
+    return Number(count);
   }
 
   // Atualizações de Status

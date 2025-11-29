@@ -75,12 +75,14 @@ import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf
 import { AnalysisPreSaleUseCase } from './web/tickets/analysis-pre-sale/analysis-pre-sale.usecase';
 import { ApprovePreSaleUseCase } from './web/tickets/approve-pre-sale/approve-pre-sale.usecase';
 import { CreateTicketUsecase } from './web/tickets/create/create-ticket.usecase';
+import { FindAllListPreSaleUsecase } from './web/tickets/find-all-list-pre-sale/find-all-list-pre-sale.usecase';
 import { FindTicketDetailsUsecase } from './web/tickets/find-ticket-details/find-ticket-details.usecase';
 import { FindTicketsForSaleUsecase } from './web/tickets/find-tickets-for-sale/find-tickets-for-sale.usecase';
 import { FindAllTicketsUsecase } from './web/tickets/findAll/find-all-ticket.usecase';
 import { PreSaleUseCase } from './web/tickets/pre-sale/pre-sale.usecase';
 import { RejectPreSaleUseCase } from './web/tickets/reject-pre-sale/reject-pre-sale.usecase';
 import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
+import { GenerateTicketPdfSecondCopyUsecase } from './web/tickets/generate-ticket-pdf-second-copy/generate-ticket-pdf-second-copy.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
@@ -200,11 +202,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllTicketsUsecase,
     FindTicketsForSaleUsecase,
     AnalysisPreSaleUseCase,
+    FindAllListPreSaleUsecase,
     ApprovePreSaleUseCase,
     RejectPreSaleUseCase,
     PreSaleUseCase,
     FindTicketDetailsUsecase,
     SaleTicketUsecase,
+    GenerateTicketPdfSecondCopyUsecase,
 
     // Event Expenses
     CreateEventExpensesUsecase,
@@ -316,11 +320,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllTicketsUsecase,
     FindTicketsForSaleUsecase,
     AnalysisPreSaleUseCase,
+    FindAllListPreSaleUsecase,
     ApprovePreSaleUseCase,
     RejectPreSaleUseCase,
     FindTicketDetailsUsecase,
     SaleTicketUsecase,
     PreSaleUseCase,
+    GenerateTicketPdfSecondCopyUsecase,
 
     // Event Expenses
     CreateEventExpensesUsecase,
