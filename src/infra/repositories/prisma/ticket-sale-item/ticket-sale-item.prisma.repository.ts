@@ -19,7 +19,7 @@ export class TicketSaleItemPrismaRepository implements TicketSaleItemGateway {
   // Busca e listagens
   async findByTicketSaleId(ticketSaleId: string): Promise<TicketSaleItem[]> {
     const found = await this.prisma.ticketSaleItem.findMany({
-      where: { ticketId: ticketSaleId },
+      where: { ticketSaleId },
     });
 
     return found.map(PrismaToEntity.map);
