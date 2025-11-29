@@ -114,10 +114,24 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedUsersRoute,
     FindAllNamesUserRoute,
 
-    // Events - Create & Update
+    // Events - Listings & Details
+    FindAllPaginatedEventsRoute,
     FindAllWithInscriptionsRoute,
     FindAllWithTicketsRoute,
+    FindAllPaginatedEventToInscriptionRoute,
+    FindAllPaginatedEventToPaymentRoute,
+    FindEventDateRoute,
+    FindEventCarouselRoute,
+    FindAllNamesEventRoute,
+    FindAllToParticipantsRoute,
+    FindDetailsEventRoute,
+    FindAccountWithInscriptionsRoute,
+    GeneratePdfSelectedInscriptionRoute,
+    ListInscriptonToAnalysisRoute,
+    ListPaymentToAnalysisRoute,
+    FindByIdEventRoute, // keep generic :id route last to avoid collisions with static paths
 
+    // Events - Create & Update
     CreateEventRoute,
     UpdateEventRoute,
     UpdateImageEventRoute,
@@ -132,20 +146,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     DeleteImageEventRoute,
     DeleteLogoEventRoute,
 
-    // Events - Listings & Details
-    FindAllPaginatedEventsRoute,
-    FindEventDateRoute,
-    FindEventCarouselRoute,
-    FindByIdEventRoute,
-    FindDetailsEventRoute,
-    FindAllNamesEventRoute,
-    FindAllToParticipantsRoute,
-    FindAccountWithInscriptionsRoute,
-    GeneratePdfSelectedInscriptionRoute,
-    ListInscriptonToAnalysisRoute,
-    ListPaymentToAnalysisRoute,
-    FindAllPaginatedEventToInscriptionRoute,
-    FindAllPaginatedEventToPaymentRoute,
+    // Event Responsibles
     DeleteEventResponsibleRoute,
 
     // Regions
