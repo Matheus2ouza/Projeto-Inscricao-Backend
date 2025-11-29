@@ -5,7 +5,8 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedEventsInput = {
-  status?: string[];
+  regionId?: string;
+  status?: statusEvent[];
   page: number;
   pageSize: number;
 };
@@ -53,13 +54,13 @@ export class FindAllPaginatedEventsUsecase
 
     // Buscar eventos filtrados e paginados diretamente do banco
     const [events, total] = await Promise.all([
-      this.eventGateway.findAllFiltered({
+      this.eventGateway.findAllPaginated(safePage, safePageSize, {
         status: input.status,
-        page: safePage,
-        pageSize: safePageSize,
+        regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
         status: input.status,
+        regionId: input.regionId,
       }),
     ]);
 
