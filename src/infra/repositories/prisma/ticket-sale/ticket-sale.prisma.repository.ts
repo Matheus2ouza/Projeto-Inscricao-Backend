@@ -82,6 +82,7 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
     const data = await this.prisma.ticketSale.aggregate({
       where: {
         eventId,
+        status: 'PAID',
       },
       _sum: {
         totalValue: true,
