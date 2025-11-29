@@ -16,4 +16,25 @@ export class TicketUnitPrismaRepository implements TicketUnitGateway {
     });
     return PrismaToEntity.map(created);
   }
+
+  async findByTicketSaleItemIds(
+    ticketSaleItemIds: string[],
+  ): Promise<TicketUnit[]> {
+    if (!ticketSaleItemIds.length) {
+      return [];
+    }
+
+    const units = await this.prisma.ticketUnit.findMany({
+      where: {
+        ticketSaleItemId: {
+          in: ticketSaleItemIds,
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    return units.map(PrismaToEntity.map);
+  }
 }
