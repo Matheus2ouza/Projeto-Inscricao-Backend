@@ -48,10 +48,12 @@ export class MailService {
     to,
     subject,
     html,
+    attachments,
   }: {
     to: string;
     subject: string;
     html: string;
+    attachments?: nodemailer.SendMailOptions['attachments'];
   }) {
     try {
       // Validar se as credenciais estão configuradas
@@ -74,6 +76,7 @@ export class MailService {
         to,
         subject,
         html,
+        attachments,
       });
 
       this.logger.log(`E-mail enviado com sucesso: ${info.messageId}`);
@@ -93,15 +96,17 @@ export class MailService {
     subject,
     templateName,
     context,
+    attachments,
   }: {
     to: string;
     subject: string;
     templateName: string;
     context: Record<string, unknown>;
+    attachments?: nodemailer.SendMailOptions['attachments'];
   }) {
     try {
       const html = await this.renderReactTemplate(templateName, context);
-      return await this.sendMail({ to, subject, html });
+      return await this.sendMail({ to, subject, html, attachments });
     } catch (error) {
       this.logger.error(
         `Erro ao enviar e-mail por template '${templateName}': ${error.message}`,
@@ -117,11 +122,11 @@ export class MailService {
     'payment/payment-rejected': () =>
       import('./templates/payment/payment-rejected/index.js'),
     'payment/payment-review-notification': () =>
-      import(
-        './templates/payment/payment-review-notification/index.js'
-      ),
+      import('./templates/payment/payment-review-notification/index.js'),
     'inscription/inscription-notification': () =>
       import('./templates/inscription/inscription-notification/index.js'),
+    'tickets/pre-sale-approved': () =>
+      import('./templates/tickets/pre-sale-approved/index.js'),
   };
 
   private async renderReactTemplate(
