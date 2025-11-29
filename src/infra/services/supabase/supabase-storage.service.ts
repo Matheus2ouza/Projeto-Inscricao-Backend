@@ -15,8 +15,8 @@ export class SupabaseStorageService {
   private readonly bucketName: string;
 
   constructor() {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
+    const supabaseUrl = process.env.SUPABASE_URL as string;
+    const supabaseKey = process.env.SUPABASE_KEY as string;
     this.bucketName = process.env.SUPABASE_BUCKET || 'images';
 
     if (!supabaseUrl || !supabaseKey) {
