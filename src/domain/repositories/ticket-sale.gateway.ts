@@ -50,4 +50,8 @@ export abstract class TicketSaleGateway {
     status: TicketSaleStatus,
     updatedAt: Date,
   ): Promise<TicketSale>;
+
+  // Limpeza
+  abstract findCancelledBefore(cutoffDate: Date): Promise<TicketSale[]>;
+  abstract deleteMany(ticketSaleIds: string[]): Promise<number>;
 }

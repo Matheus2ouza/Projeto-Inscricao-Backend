@@ -33,4 +33,20 @@ export class TicketSaleItemPrismaRepository implements TicketSaleItemGateway {
       },
     });
   }
+
+  async deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number> {
+    if (!ticketSaleIds.length) {
+      return 0;
+    }
+
+    const result = await this.prisma.ticketSaleItem.deleteMany({
+      where: {
+        ticketSaleId: {
+          in: ticketSaleIds,
+        },
+      },
+    });
+
+    return result.count;
+  }
 }

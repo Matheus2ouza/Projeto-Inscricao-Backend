@@ -79,10 +79,10 @@ import { FindAllListPreSaleUsecase } from './web/tickets/find-all-list-pre-sale/
 import { FindTicketDetailsUsecase } from './web/tickets/find-ticket-details/find-ticket-details.usecase';
 import { FindTicketsForSaleUsecase } from './web/tickets/find-tickets-for-sale/find-tickets-for-sale.usecase';
 import { FindAllTicketsUsecase } from './web/tickets/findAll/find-all-ticket.usecase';
+import { GenerateTicketPdfSecondCopyUsecase } from './web/tickets/generate-ticket-pdf-second-copy/generate-ticket-pdf-second-copy.usecase';
 import { PreSaleUseCase } from './web/tickets/pre-sale/pre-sale.usecase';
 import { RejectPreSaleUseCase } from './web/tickets/reject-pre-sale/reject-pre-sale.usecase';
 import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
-import { GenerateTicketPdfSecondCopyUsecase } from './web/tickets/generate-ticket-pdf-second-copy/generate-ticket-pdf-second-copy.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
@@ -95,6 +95,7 @@ import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
 import { CleanupExpiredCacheUsecase } from './worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
 import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
+import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup-cancelled-ticket-sales.usecase';
 
 @Module({
   imports: [
@@ -221,6 +222,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Background tasks
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
+    CleanupCancelledTicketSalesUsecase,
   ],
   exports: [
     // Dashboard
@@ -339,6 +341,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Background tasks
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
+    CleanupCancelledTicketSalesUsecase,
   ],
 })
 export class UsecaseModule {}

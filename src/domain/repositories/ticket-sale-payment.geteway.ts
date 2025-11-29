@@ -16,4 +16,7 @@ export abstract class TicketSalePaymentGateway {
   abstract findByTicketSaleId(
     ticketSaleId: string,
   ): Promise<TicketSalePayment[]>;
+
+  // Remoções
+  abstract deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number>;
 }

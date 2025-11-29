@@ -227,4 +227,33 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
     );
     return PrismaToEntity.map(data);
   }
+
+  async findCancelledBefore(cutoffDate: Date): Promise<TicketSale[]> {
+    const data = await this.prisma.ticketSale.findMany({
+      where: {
+        status: TicketSaleStatus.CANCELLED,
+        updatedAt: {
+          lt: cutoffDate,
+        },
+      },
+    });
+
+    return data.map(PrismaToEntity.map);
+  }
+
+  async deleteMany(ticketSaleIds: string[]): Promise<number> {
+    if (!ticketSaleIds.length) {
+      return 0;
+    }
+
+    const result = await this.prisma.ticketSale.deleteMany({
+      where: {
+        id: {
+          in: ticketSaleIds,
+        },
+      },
+    });
+
+    return result.count;
+  }
 }
