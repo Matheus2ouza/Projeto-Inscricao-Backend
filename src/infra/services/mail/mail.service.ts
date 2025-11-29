@@ -125,6 +125,10 @@ export class MailService {
       import('./templates/payment/payment-review-notification/index.js'),
     'inscription/inscription-notification': () =>
       import('./templates/inscription/inscription-notification/index.js'),
+    'inscription/status-approved': () =>
+      import('./templates/inscription/status-approved/index.js'),
+    'inscription/status-rejected': () =>
+      import('./templates/inscription/status-rejected/index.js'),
     'tickets/pre-sale-approved': () =>
       import('./templates/tickets/pre-sale-approved/index.js'),
     'tickets/pre-sale-notification': () =>

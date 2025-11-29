@@ -3,6 +3,7 @@ import type {
   EventResponsibleEmailData,
   InscriptionEmailData,
 } from '../types/inscription/inscription-email.types';
+import type { InscriptionStatusEmailData } from '../types/inscription/inscription-status-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
 import type { TicketReleaseEmailData } from '../types/tickets/ticket-release-email.types';
@@ -105,6 +106,15 @@ const mockTicketSaleNotificationData =
     submittedAt: new Date(),
   });
 
+const mockInscriptionStatusData = (): InscriptionStatusEmailData => ({
+  inscriptionId: 'insc_987654',
+  responsibleName: 'Marina Costa',
+  responsibleEmail: 'marina.costa@example.com',
+  eventName: 'Congresso de Tecnologia 2025',
+  eventLocation: 'São Paulo Expo, São Paulo - SP',
+  decisionDate: new Date(),
+});
+
 export const templateDefinitions: TemplateDefinition[] = [
   {
     id: 'payment/payment-approved',
@@ -181,6 +191,40 @@ export const templateDefinitions: TemplateDefinition[] = [
       responsibles: mockResponsibles(),
       year: new Date().getFullYear(),
       currentDate: new Date(),
+    }),
+  },
+  {
+    id: 'inscription/status-approved',
+    category: 'inscription',
+    title: 'Inscrição aprovada',
+    description: 'Confirma ao responsável que a inscrição foi aprovada.',
+    previewText: 'Sua inscrição foi aprovada.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/status-approved/index.js'
+      );
+      return { default: module.InscriptionStatusApprovedEmail };
+    },
+    getProps: () => ({
+      statusData: mockInscriptionStatusData(),
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'inscription/status-rejected',
+    category: 'inscription',
+    title: 'Inscrição reprovada',
+    description: 'Informa o responsável sobre a reprovação da inscrição.',
+    previewText: 'Sua inscrição foi reprovada.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/status-rejected/index.js'
+      );
+      return { default: module.InscriptionStatusRejectedEmail };
+    },
+    getProps: () => ({
+      statusData: mockInscriptionStatusData(),
+      year: new Date().getFullYear(),
     }),
   },
   {

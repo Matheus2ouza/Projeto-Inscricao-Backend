@@ -1,6 +1,9 @@
 import { Controller, Param, Patch, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { UpdateStatusInscriptionUsecase } from 'src/usecases/web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
+import {
+  UpdateStatusInscriptionInput,
+  UpdateStatusInscriptionUsecase,
+} from 'src/usecases/web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import type {
   UpdateStatusInscriptionRequest,
   UpdateStatusInscriptionResponse,
@@ -18,17 +21,18 @@ export class UpdateStatusInscriptionRoute {
     summary: 'Atualiza o status de uma inscrição (análise)',
     description:
       'Permite ao administrador alterar o status de uma inscrição específica durante o processo de análise. ' +
-      'O ID é passado via parâmetro e o novo status via query (ex: APPROVED, REJECTED, PENDING).',
+      'O ID é passado via parâmetro e o novo status via query (ex: APPROVED, CANCELLED, PENDING).',
   })
   async handle(
     @Param('id') id: string,
     @Query() query: UpdateStatusInscriptionRequest,
   ): Promise<UpdateStatusInscriptionResponse> {
-    const response = await this.updateStatusUsecase.execute({
+    const input: UpdateStatusInscriptionInput = {
       inscriptionId: id,
       statusInscription: query.status,
-    });
+    };
 
+    const response = await this.updateStatusUsecase.execute(input);
     return UpdateStatusInscriptionPresenter.toHttp(response);
   }
 }

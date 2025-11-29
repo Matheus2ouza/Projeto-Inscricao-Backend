@@ -3,6 +3,7 @@ import { DataBaseModule } from 'src/infra/repositories/database.module';
 import { RedisModule } from '../redis/redis.module';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { InscriptionEmailHandler } from './handlers/inscription/inscription-email.handler';
+import { InscriptionStatusEmailHandler } from './handlers/inscription/inscription-status-email.handler';
 import { PaymentApprovedEmailHandler } from './handlers/payment/payment-approved-email.handler';
 import { PaymentRejectedEmailHandler } from './handlers/payment/payment-rejected-email.handler';
 import { PaymentReviewNotificationEmailHandler } from './handlers/payment/payment-review-notification-email.handler';
@@ -16,6 +17,7 @@ import { MailService } from './mail.service';
 
     //Inscription
     InscriptionEmailHandler,
+    InscriptionStatusEmailHandler,
 
     //Payments
     //Approved
@@ -33,6 +35,7 @@ import { MailService } from './mail.service';
 
     //Inscription
     InscriptionEmailHandler,
+    InscriptionStatusEmailHandler,
 
     //Payments
     //Approved
