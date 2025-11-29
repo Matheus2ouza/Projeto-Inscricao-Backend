@@ -76,9 +76,11 @@ import { GeneratePdfGeneralReportRoute } from './routes/report/report-general/pd
 import { AnalysisPreSaleRoute } from './routes/tickets/analysis-pre-sale/analysis-pre-sale.route';
 import { ApprovePreSaleRoute } from './routes/tickets/approve-pre-sale/approve-pre-sale.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
+import { FindAllListPreSaleRoute } from './routes/tickets/find-all-list-pre-sale/find-all-list-pre-sale.route';
 import { FindTicketDetailsRoute } from './routes/tickets/find-ticket-details/find-ticket-details.route';
 import { FindTicketsForSaleRoute } from './routes/tickets/find-tickets-for-sale/find-tickets-for-sale.route';
 import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.route';
+import { GenerateTicketPdfSecondCopyRoute } from './routes/tickets/generate-second-copy/generate-second-copy.route';
 import { PreSaleRoute } from './routes/tickets/pre-sale/pre-sale.route';
 import { RejectPreSaleRoute } from './routes/tickets/reject-pre-sale/reject-pre-sale.route';
 import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
@@ -202,8 +204,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     CreateTicketRoute,
     FindAllTicketRoute,
     AnalysisPreSaleRoute,
+    FindAllListPreSaleRoute,
     FindTicketsForSaleRoute,
     FindTicketDetailsRoute,
+    GenerateTicketPdfSecondCopyRoute,
     SaleTicketRoute,
     PreSaleRoute,
     ApprovePreSaleRoute,
