@@ -127,6 +127,8 @@ export class MailService {
       import('./templates/inscription/inscription-notification/index.js'),
     'tickets/pre-sale-approved': () =>
       import('./templates/tickets/pre-sale-approved/index.js'),
+    'tickets/pre-sale-notification': () =>
+      import('./templates/tickets/pre-sale-notification/index.js'),
   };
 
   private async renderReactTemplate(

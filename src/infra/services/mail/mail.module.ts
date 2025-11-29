@@ -6,6 +6,7 @@ import { InscriptionEmailHandler } from './handlers/inscription/inscription-emai
 import { PaymentApprovedEmailHandler } from './handlers/payment/payment-approved-email.handler';
 import { PaymentRejectedEmailHandler } from './handlers/payment/payment-rejected-email.handler';
 import { PaymentReviewNotificationEmailHandler } from './handlers/payment/payment-review-notification-email.handler';
+import { TicketSaleNotificationEmailHandler } from './handlers/tickets/ticket-sale-notification-email.handler';
 import { MailService } from './mail.service';
 
 @Module({
@@ -23,6 +24,9 @@ import { MailService } from './mail.service';
     PaymentRejectedEmailHandler,
     //Under review
     PaymentReviewNotificationEmailHandler,
+
+    // Tickets
+    TicketSaleNotificationEmailHandler,
   ],
   exports: [
     MailService,
@@ -37,6 +41,9 @@ import { MailService } from './mail.service';
     PaymentRejectedEmailHandler,
     //Under review
     PaymentReviewNotificationEmailHandler,
+
+    // Tickets
+    TicketSaleNotificationEmailHandler,
   ],
 })
 export class MailModule {}

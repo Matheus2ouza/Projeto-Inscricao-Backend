@@ -1,14 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PaymentMethod, TicketSaleStatus } from 'generated/prisma';
+import { Event } from 'src/domain/entities/event.entity';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
+import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import { TicketSaleNotificationEmailHandler } from 'src/infra/services/mail/handlers/tickets/ticket-sale-notification-email.handler';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
@@ -47,6 +51,9 @@ export class PreSaleUseCase implements Usecase<PreSaleInput, PreSaleOutput> {
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
+    private readonly ticketSaleNotificationEmailHandler: TicketSaleNotificationEmailHandler,
+    private readonly userGateway: UserGateway,
   ) {}
 
   public async execute(input: PreSaleInput): Promise<PreSaleOutput> {
@@ -147,6 +154,8 @@ export class PreSaleUseCase implements Usecase<PreSaleInput, PreSaleOutput> {
       await this.eventTicketsGateway.decrementAvailable(ticketId, quantity);
     }
 
+    await this.notifyEventResponsibles(event, sale, payment);
+
     return {
       id: sale.getId(),
       status: sale.getStatus(),
@@ -218,5 +227,72 @@ export class PreSaleUseCase implements Usecase<PreSaleInput, PreSaleOutput> {
     });
 
     return imageUrl;
+  }
+
+  private async notifyEventResponsibles(
+    event: Event,
+    sale: TicketSale,
+    payment: TicketSalePayment,
+  ): Promise<void> {
+    try {
+      const responsibles = await this.eventResponsibleGateway.findByEventId(
+        event.getId(),
+      );
+
+      if (!responsibles.length) {
+        console.warn(
+          `Evento ${event.getId()} não possui responsáveis cadastrados para notificação de pré-venda`,
+        );
+        return;
+      }
+
+      const responsibleUsers = await Promise.all(
+        responsibles.map(async (responsible) => {
+          const user = await this.userGateway.findById(
+            responsible.getAccountId(),
+          );
+          return {
+            id: responsible.getAccountId(),
+            username: user?.getUsername() || 'Usuário não encontrado',
+            email: user?.getEmail(),
+          };
+        }),
+      );
+
+      const responsiblesWithEmail = responsibleUsers.filter((responsible) =>
+        Boolean(responsible.email),
+      );
+
+      if (!responsiblesWithEmail.length) {
+        console.warn(
+          `Evento ${event.getId()} não possui responsáveis com e-mail cadastrado`,
+        );
+        return;
+      }
+
+      await this.ticketSaleNotificationEmailHandler.sendTicketSaleNotification(
+        {
+          saleId: sale.getId(),
+          paymentId: payment.getId(),
+          eventName: event.getName(),
+          eventLocation: event.getLocation(),
+          eventStartDate: event.getStartDate(),
+          eventEndDate: event.getEndDate(),
+          buyerName: sale.getName(),
+          buyerEmail: sale.getEmail(),
+          buyerPhone: sale.getPhone(),
+          totalValue: Number(sale.getTotalValue()),
+          paymentMethod: payment.getPaymentMethod(),
+          paymentValue: payment.getValue(),
+          submittedAt: sale.getCreatedAt(),
+        },
+        responsiblesWithEmail,
+      );
+    } catch (error) {
+      console.error(
+        'Erro ao enviar e-mail de notificação de venda de tickets:',
+        error,
+      );
+    }
   }
 }
