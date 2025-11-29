@@ -36,10 +36,11 @@ export const buildPdfHeaderSection = (header: PdfHeaderDefinition) => {
   const columns = header.image
     ? [
         {
-          width: 90,
+          width: 120,
           image: header.image,
-          fit: [90, 60],
+          fit: [120, 120],
           alignment: 'left',
+          margin: [0, -35, 0, 0],
         },
         textColumn,
       ]
