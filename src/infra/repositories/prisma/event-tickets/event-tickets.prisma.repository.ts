@@ -9,6 +9,7 @@ import { EventTicketToPrismaModelToEnvetTicketEntityMapper } from './model/mappe
 export class EventTicketPrismaRepository implements EventTicketsGateway {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   async create(EventTicket: EventTicket): Promise<EventTicket> {
     const data =
       EventTicketToEntityToEventTicketPrismaModelMapper.map(EventTicket);
@@ -17,6 +18,34 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
     return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(created);
   }
 
+  // Atualizações
+  async decrementAvailable(id: string, quantity: number): Promise<EventTicket> {
+    const data = await this.prisma.eventTickets.update({
+      where: { id },
+      data: {
+        available: {
+          decrement: quantity,
+        },
+      },
+    });
+
+    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+  }
+
+  async incrementAvailable(id: string, quantity: number): Promise<EventTicket> {
+    const data = await this.prisma.eventTickets.update({
+      where: { id },
+      data: {
+        available: {
+          increment: quantity,
+        },
+      },
+    });
+
+    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+  }
+
+  // Buscas e listagens
   async findById(id: string): Promise<EventTicket | null> {
     const data = await this.prisma.eventTickets.findUnique({
       where: { id },
@@ -27,24 +56,23 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       : null;
   }
 
+  async findByIds(ids: string[]): Promise<EventTicket[]> {
+    const data = await this.prisma.eventTickets.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    return data.map(EventTicketToPrismaModelToEnvetTicketEntityMapper.map);
+  }
+
   async findAll(eventId: string): Promise<EventTicket[]> {
     const aModal = await this.prisma.eventTickets.findMany({
       where: { eventId },
     });
 
     return aModal.map(EventTicketToPrismaModelToEnvetTicketEntityMapper.map);
-  }
-
-  async UpdateAvailable(id: string, available: number): Promise<EventTicket> {
-    const data = await this.prisma.eventTickets.update({
-      where: { id },
-      data: {
-        available: {
-          decrement: available,
-        },
-      },
-    });
-
-    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
   }
 }
