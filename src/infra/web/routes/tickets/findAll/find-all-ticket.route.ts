@@ -9,7 +9,7 @@ import type {
 } from './find-all-ticket.dto';
 import { FindAllTicketsPresenter } from './find-all-ticket.presenter';
 
-@Controller('ticket')
+@Controller('tickets')
 export class FindAllTicketRoute {
   public constructor(
     private readonly findAllTicketsUsecase: FindAllTicketsUsecase,

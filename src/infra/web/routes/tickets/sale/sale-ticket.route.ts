@@ -1,5 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import {
   SaleTicketInput,
   SaleTicketUsecase,
@@ -7,20 +6,22 @@ import {
 import type { SaleTicketRequest, SaleTicketResponse } from './sale-ticket.dto';
 import { SaleTicketPresenter } from './sale-ticket.presenter';
 
-@Controller('ticket')
+@Controller('tickets')
 export class SaleTicketRoute {
   public constructor(private readonly saleTicketUsecase: SaleTicketUsecase) {}
 
-  @Post('sale')
+  @Post(':id/sale')
   async handle(
+    @Param('id') id: string,
     @Body() request: SaleTicketRequest,
-    @UserId() userId: string,
   ): Promise<SaleTicketResponse> {
     const input: SaleTicketInput = {
-      ticketId: request.ticketId,
-      accountId: userId,
+      eventId: id,
+      name: request.name,
+      email: request.email,
+      phone: request.phone,
+      totalValue: request.totalValue,
       quantity: request.quantity,
-      pricePerTicket: request.pricePerTicket,
     };
 
     const response = await this.saleTicketUsecase.execute(input);

@@ -1,11 +1,10 @@
-import type { StatusPayment } from 'generated/prisma';
-
 export type SaleTicketRequest = {
-  ticketId: string;
-  accountId: string;
+  eventId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  totalValue: number;
   quantity: number;
-  pricePerTicket: number;
-  status: StatusPayment;
 };
 
 export type SaleTicketResponse = {

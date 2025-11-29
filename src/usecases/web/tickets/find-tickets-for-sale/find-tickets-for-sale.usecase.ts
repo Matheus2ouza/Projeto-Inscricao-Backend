@@ -6,16 +6,14 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 
-export type FindAllTicketInput = {
+export type FindTicketsForSaleInput = {
   eventId: string;
 };
 
-export type FindAllTicketOutput = {
+export type FindTicketsForSaleOutput = {
   id: string;
   name: string;
   imageUrl?: string;
-  quantityTicketSale: number;
-  totalSalesValue: number;
   ticketEnabled?: boolean;
   tickets: Tickets;
 };
@@ -32,24 +30,26 @@ type Tickets = {
 }[];
 
 @Injectable()
-export class FindAllTicketsUsecase
-  implements Usecase<FindAllTicketInput, FindAllTicketOutput>
+export class FindTicketsForSaleUsecase
+  implements Usecase<FindTicketsForSaleInput, FindTicketsForSaleOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly eventTicketsGateway: EventTicketsGateway,
-    private readonly ticketSaleGateway: TicketSaleGateway,
+    private readonly ticketSale: TicketSaleGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
-  async execute(input: FindAllTicketInput): Promise<FindAllTicketOutput> {
+  public async execute(
+    input: FindTicketsForSaleInput,
+  ): Promise<FindTicketsForSaleOutput> {
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with finding event with id ${input.eventId} in ${FindAllTicketsUsecase.name}`,
+        `Event not found with finding event with id ${input.eventId} in ${FindTicketsForSaleUsecase.name}`,
         `Evento não encontrado`,
-        FindAllTicketsUsecase.name,
+        FindTicketsForSaleUsecase.name,
       );
     }
 
@@ -64,17 +64,14 @@ export class FindAllTicketsUsecase
       }
     }
 
-    const [tickets, salesSummary] = await Promise.all([
+    const [tickets] = await Promise.all([
       this.eventTicketsGateway.findAll(event.getId()),
-      this.ticketSaleGateway.getEventSalesSummary(event.getId()),
     ]);
 
-    const output: FindAllTicketOutput = {
+    const output: FindTicketsForSaleOutput = {
       id: event.getId(),
       name: event.getName(),
       imageUrl: publicImageUrl,
-      quantityTicketSale: salesSummary.quantityTicketSale,
-      totalSalesValue: salesSummary.totalSalesValue,
       ticketEnabled: event.getTicketEnabled(),
       tickets: tickets.map((t) => ({
         id: t.getId(),
