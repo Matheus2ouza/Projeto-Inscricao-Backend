@@ -60,4 +60,20 @@ export class TicketSalePaymentPrismaRepository
 
     return found.map(PrismaToEntity.map);
   }
+
+  async deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number> {
+    if (!ticketSaleIds.length) {
+      return 0;
+    }
+
+    const result = await this.prisma.ticketSalePayment.deleteMany({
+      where: {
+        ticketSaleId: {
+          in: ticketSaleIds,
+        },
+      },
+    });
+
+    return result.count;
+  }
 }
