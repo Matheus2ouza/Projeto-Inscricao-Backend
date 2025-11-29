@@ -11,6 +11,7 @@ export class TicketSalePaymentPrismaRepository
 {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   async create(
     ticketSalePayment: TicketSalePayment,
   ): Promise<TicketSalePayment> {
@@ -21,5 +22,42 @@ export class TicketSalePaymentPrismaRepository
     });
 
     return PrismaToEntity.map(created);
+  }
+
+  // Atualizações
+  async update(
+    ticketSalePayment: TicketSalePayment,
+  ): Promise<TicketSalePayment> {
+    const data = EntityToPrisma.map(ticketSalePayment);
+
+    const updated = await this.prisma.ticketSalePayment.update({
+      where: {
+        id: ticketSalePayment.getId(),
+      },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
+  // Buscas e listagens
+  async findById(id: string): Promise<TicketSalePayment | null> {
+    const found = await this.prisma.ticketSalePayment.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findByTicketSaleId(ticketSaleId: string): Promise<TicketSalePayment[]> {
+    const found = await this.prisma.ticketSalePayment.findMany({
+      where: {
+        ticketSaleId,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
   }
 }
