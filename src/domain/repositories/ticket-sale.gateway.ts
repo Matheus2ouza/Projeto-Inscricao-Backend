@@ -23,6 +23,10 @@ export abstract class TicketSaleGateway {
     quantityTicketSale: number;
     totalSalesValue: number;
   }>;
+  abstract countByEventIdAndStatus(
+    eventId: string,
+    status: TicketSaleStatus[],
+  ): Promise<number>;
 
   // Atualizações de Status
   abstract approvePreSale(

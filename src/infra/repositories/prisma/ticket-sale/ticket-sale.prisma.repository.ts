@@ -97,6 +97,17 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
     };
   }
 
+  async countByEventIdAndStatus(
+    eventId: string,
+    status: TicketSaleStatus[],
+  ): Promise<number> {
+    const count = await this.prisma.ticketSale.count({
+      where: { eventId, status: { in: status } },
+    });
+
+    return Number(count);
+  }
+
   // Atualizações de Status
   async approvePreSale(
     ticketSaleId: string,
