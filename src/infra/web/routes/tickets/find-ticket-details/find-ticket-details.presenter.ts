@@ -14,6 +14,11 @@ export class FindTicketDetailsPresenter {
       available: output.available,
       expirationDate: output.expirationDate,
       isActive: output.isActive,
+      TicketSaleItens: output.TicketSaleItens.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        createdAt: item.createdAt,
+      })),
     };
     return aModal;
   }
