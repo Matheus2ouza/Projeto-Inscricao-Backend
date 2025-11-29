@@ -344,13 +344,8 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
-  public enableTicket(): void {
-    this.ticketEnabled = true;
-    this.updatedAt = new Date();
-  }
-
-  public disableTicket(): void {
-    this.ticketEnabled = false;
+  public updateTicketStatus(ticketEnabled: boolean): void {
+    this.ticketEnabled = ticketEnabled;
     this.updatedAt = new Date();
   }
 }

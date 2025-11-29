@@ -1,6 +1,9 @@
 import { Body, Controller, Param, Patch } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { UpdateTicketsSaleUsecase } from 'src/usecases/web/event/update-tickets-sale/update-tickets-sale.usecase';
+import {
+  UpdateTicketsSaleInput,
+  UpdateTicketsSaleUsecase,
+} from 'src/usecases/web/event/update-tickets-sale/update-tickets-sale.usecase';
 import type {
   UpdateTicketsSaleRequest,
   UpdateTicketsSaleResponse,
@@ -24,11 +27,12 @@ export class UpdateTicketsSaleRoute {
     @Param('id') id: string,
     @Body() body: UpdateTicketsSaleRequest,
   ): Promise<UpdateTicketsSaleResponse> {
-    const response = await this.updateTicketsSaleUsecase.execute({
+    const input: UpdateTicketsSaleInput = {
       eventId: id,
-      saleTicketsEnabled: body.saleTicketsEnabled,
-    });
+      saleTicketsStatus: body.saleTicketsStatus,
+    };
 
+    const response = await this.updateTicketsSaleUsecase.execute(input);
     return UpdateTicketsSalePresenter.toHttp(response);
   }
 }

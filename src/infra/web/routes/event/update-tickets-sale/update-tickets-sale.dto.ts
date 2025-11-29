@@ -1,8 +1,8 @@
 export type UpdateTicketsSaleRequest = {
-  saleTicketsEnabled: boolean;
+  saleTicketsStatus: boolean;
 };
 
 export type UpdateTicketsSaleResponse = {
   id: string;
-  ticketEnabled?: boolean;
+  saleTicketsStatus?: boolean;
 };
