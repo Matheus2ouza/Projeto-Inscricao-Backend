@@ -2,13 +2,13 @@ import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
 export type TicketUnitCreateDto = {
-  ticketSaleId: string;
+  ticketSaleItemId: string;
   qrCode: string;
 };
 
 export type TicketUnitCreateWithDto = {
   id: string;
-  ticketSaleId: string;
+  ticketSaleItemId: string;
   qrCode: string;
   usedAt: Date | null;
   createdAt: Date;
@@ -17,39 +17,39 @@ export type TicketUnitCreateWithDto = {
 export class TicketUnit extends Entity {
   private constructor(
     id: string,
-    private readonly ticketSaleId: string,
+    private readonly ticketSaleItemId: string,
     private readonly qrCode: string,
     private usedAt: Date | null,
     createdAt: Date,
   ) {
-    super(id, createdAt, createdAt); // TicketUnit não tem updatedAt (fixo)
+    super(id, createdAt, createdAt);
     this.validate();
   }
 
   public static create({
-    ticketSaleId,
+    ticketSaleItemId,
     qrCode,
   }: TicketUnitCreateDto): TicketUnit {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const usedAt = null;
 
-    return new TicketUnit(id, ticketSaleId, qrCode, usedAt, createdAt);
+    return new TicketUnit(id, ticketSaleItemId, qrCode, usedAt, createdAt);
   }
 
   public static with({
     id,
-    ticketSaleId,
+    ticketSaleItemId,
     qrCode,
     usedAt,
     createdAt,
   }: TicketUnitCreateWithDto): TicketUnit {
-    return new TicketUnit(id, ticketSaleId, qrCode, usedAt, createdAt);
+    return new TicketUnit(id, ticketSaleItemId, qrCode, usedAt, createdAt);
   }
 
   protected validate(): void {
-    if (!this.ticketSaleId) {
-      throw new Error('ticketSaleId é obrigatório');
+    if (!this.ticketSaleItemId) {
+      throw new Error('ticketSaleItemId é obrigatório');
     }
 
     if (!this.qrCode || this.qrCode.trim().length === 0) {
@@ -59,8 +59,8 @@ export class TicketUnit extends Entity {
 
   // ======= GETTERS =======
 
-  public getTicketSaleId(): string {
-    return this.ticketSaleId;
+  public getTicketSaleItemId(): string {
+    return this.ticketSaleItemId;
   }
 
   public getQrCode(): string {
