@@ -10,6 +10,8 @@ export class TicketSalePaymentToPrismaModelToTicketSalePaymentEntityMapper {
       ticketSaleId: ticketSalePayment.ticketSaleId,
       paymentMethod: ticketSalePayment.paymentMethod,
       value: Number(ticketSalePayment.value),
+      imageUrl: ticketSalePayment.imageUrl,
+      financialMovementId: ticketSalePayment.financialMovementId || undefined,
       createdAt: ticketSalePayment.createdAt,
     });
   }

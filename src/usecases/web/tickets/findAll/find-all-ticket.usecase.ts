@@ -38,7 +38,7 @@ export class FindAllTicketsUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly eventTicketsGateway: EventTicketsGateway,
-    private readonly ticketSale: TicketSaleGateway,
+    private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -66,7 +66,7 @@ export class FindAllTicketsUsecase
 
     const [tickets, salesSummary] = await Promise.all([
       this.eventTicketsGateway.findAll(event.getId()),
-      this.ticketSale.getEventSalesSummary(event.getId()),
+      this.ticketSaleGateway.getEventSalesSummary(event.getId()),
     ]);
 
     const output: FindAllTicketOutput = {

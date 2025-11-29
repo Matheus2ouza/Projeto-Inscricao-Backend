@@ -1,4 +1,4 @@
-import { statusEvent } from 'generated/prisma/client';
+import { statusEvent } from 'generated/prisma';
 
 export type FindDetailsEventRequest = {
   eventId: string;

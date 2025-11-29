@@ -24,6 +24,7 @@ export type PaymentInscriptionWithDto = {
   createdAt: Date;
   updatedAt: Date;
   financialMovementId?: string;
+  approvedBy?: string;
 };
 
 export class PaymentInscription extends Entity {
@@ -39,6 +40,7 @@ export class PaymentInscription extends Entity {
     updatedAt: Date,
     private rejectionReason?: string,
     private financialMovementId?: string,
+    private approvedBy?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -81,6 +83,7 @@ export class PaymentInscription extends Entity {
     updatedAt,
     rejectionReason,
     financialMovementId,
+    approvedBy,
   }: PaymentInscriptionWithDto): PaymentInscription {
     return new PaymentInscription(
       id,
@@ -94,6 +97,7 @@ export class PaymentInscription extends Entity {
       updatedAt,
       rejectionReason,
       financialMovementId,
+      approvedBy,
     );
   }
 
@@ -146,5 +150,14 @@ export class PaymentInscription extends Entity {
 
   public getFinancialMovementId(): string | undefined {
     return this.financialMovementId;
+  }
+
+  public getApprovedBy(): string | undefined {
+    return this.approvedBy;
+  }
+
+  public setApprovedBy(approvedBy: string): void {
+    this.approvedBy = approvedBy;
+    this.updatedAt = new Date();
   }
 }

@@ -19,6 +19,7 @@ export class PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper {
       updatedAt: paymentInscription.updatedAt,
       rejectionReason: paymentInscription?.rejectionReason || undefined,
       financialMovementId: paymentInscription?.financialMovementId || undefined,
+      approvedBy: paymentInscription?.approvedBy || undefined,
     });
 
     return anPaymentInscription;

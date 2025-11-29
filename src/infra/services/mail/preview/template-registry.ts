@@ -5,8 +5,9 @@ import type {
 } from '../types/inscription/inscription-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
+import type { TicketReleaseEmailData } from '../types/tickets/ticket-release-email.types';
 
-export type TemplateCategory = 'payment' | 'inscription';
+export type TemplateCategory = 'payment' | 'inscription' | 'tickets';
 
 export interface TemplateDefinition {
   id: string;
@@ -78,6 +79,13 @@ const mockPaymentReviewNotificationData =
     payerPhone: '+55 (11) 91234-5678',
     accountUsername: 'tech-events-admin',
   });
+
+const mockTicketReleaseData = (): TicketReleaseEmailData => ({
+  buyerName: 'Carolina Dias',
+  eventName: 'Congresso de Tecnologia 2025',
+  totalTickets: 4,
+  saleId: 'sale_ABC123',
+});
 
 export const templateDefinitions: TemplateDefinition[] = [
   {
@@ -157,6 +165,25 @@ export const templateDefinitions: TemplateDefinition[] = [
       currentDate: new Date(),
     }),
   },
+  {
+    id: 'tickets/pre-sale-approved',
+    category: 'tickets',
+    title: 'Tickets liberados',
+    description: 'Envia os tickets aprovados ao comprador.',
+    previewText: 'Seus tickets estão liberados.',
+    loader: async () => {
+      const module = await import(
+        '../templates/tickets/pre-sale-approved/index.js'
+      );
+      return { default: module.TicketPreSaleApprovedEmail };
+    },
+    getProps: () => ({
+      ticketData: mockTicketReleaseData(),
+      downloadsUrl:
+        process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
+      year: new Date().getFullYear(),
+    }),
+  },
 ];
 
 export const categories = Array.from(
@@ -176,6 +203,7 @@ export const templatesByCategory = templateDefinitions.reduce<
   {
     payment: [],
     inscription: [],
+    tickets: [],
   },
 );
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { genderType } from 'generated/prisma/client';
+import { genderType } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';

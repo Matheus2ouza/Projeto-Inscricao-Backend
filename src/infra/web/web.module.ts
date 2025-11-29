@@ -73,10 +73,14 @@ import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
 import { ReportGeneralRoute } from './routes/report/report-general/general/report-general.route';
 import { GeneratePdfGeneralReportRoute } from './routes/report/report-general/pdf/generate-pdf-general-report.route';
+import { AnalysisPreSaleRoute } from './routes/tickets/analysis-pre-sale/analysis-pre-sale.route';
+import { ApprovePreSaleRoute } from './routes/tickets/approve-pre-sale/approve-pre-sale.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
 import { FindTicketDetailsRoute } from './routes/tickets/find-ticket-details/find-ticket-details.route';
+import { FindTicketsForSaleRoute } from './routes/tickets/find-tickets-for-sale/find-tickets-for-sale.route';
 import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.route';
-import { SaleGroupTicketRoute } from './routes/tickets/sale-group/sale-group-ticket.route';
+import { PreSaleRoute } from './routes/tickets/pre-sale/pre-sale.route';
+import { RejectPreSaleRoute } from './routes/tickets/reject-pre-sale/reject-pre-sale.route';
 import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
@@ -94,10 +98,14 @@ import { WelcomeRoute } from './routes/welcome.route';
 @Module({
   imports: [ServiceModule, UsecaseModule],
   controllers: [
-    //Rota bem vindo
+    // Welcome
     WelcomeRoute,
 
-    //User
+    // Dashboard
+    DashboardAdminRoute,
+    DashboardUserRoute,
+
+    // Users
     CreateUserRoute,
     LoginUserRoute,
     RefreshAuthTokenRoute,
@@ -106,11 +114,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedUsersRoute,
     FindAllNamesUserRoute,
 
-    //Event
+    // Events - Create & Update
+    FindAllWithInscriptionsRoute,
+    FindAllWithTicketsRoute,
+
     CreateEventRoute,
     UpdateEventRoute,
-
-    //Event - Update
     UpdateImageEventRoute,
     UpdateLogoEventRoute,
     UpdateLocationEventRoute,
@@ -118,123 +127,92 @@ import { WelcomeRoute } from './routes/welcome.route';
     UpdateInscriptionEventRoute,
     UpdateTicketsSaleRoute,
 
-    //Deletes
+    // Events - Delete
     DeleteEventRoute,
     DeleteImageEventRoute,
     DeleteLogoEventRoute,
 
+    // Events - Listings & Details
     FindAllPaginatedEventsRoute,
-
-    //List of event dates
     FindEventDateRoute,
-
-    //Events - List events to participants
-    FindAllToParticipantsRoute,
-
     FindEventCarouselRoute,
-
-    // List with Inscriptions
-    FindAllWithInscriptionsRoute,
-
-    // List with Tickets
-    FindAllWithTicketsRoute,
-
     FindByIdEventRoute,
     FindDetailsEventRoute,
-    FindByEventId,
     FindAllNamesEventRoute,
-
-    //List Inscription with Account
+    FindAllToParticipantsRoute,
     FindAccountWithInscriptionsRoute,
     GeneratePdfSelectedInscriptionRoute,
-
-    //Events - ListToAnalysis
     ListInscriptonToAnalysisRoute,
     ListPaymentToAnalysisRoute,
-
-    //Event - Analise
-    //Inscriptions
     FindAllPaginatedEventToInscriptionRoute,
-    //Payments
     FindAllPaginatedEventToPaymentRoute,
-
-    //Events - Responsible
     DeleteEventResponsibleRoute,
 
-    //Region
+    // Regions
     CreateRegionRoute,
     FindAllRegionsRoute,
     FindAllPaginatedRegionsRoute,
 
-    //TypeInscription
+    // Type Inscriptions
     CreateTypeInscriptionRoute,
     UpdateTypeInscriptionRoute,
-    FindDetailsInscriptionRoute,
-
-    //Inscription
     FindAllInscriptionRoute,
+    FindByEventId,
+
+    // Inscriptions
     FindAllPaginatedInscriptionsRoute,
     UpdateInscriptionRoute,
     DeleteInscriptionRoute,
-
-    //PDF - Inscription
     GeneratePdfInscriptionRoute,
+    FindDetailsInscriptionRoute,
 
-    //InscriptionGrup
+    // Inscriptions - Group
     GroupUploadRoute,
     GroupConfirmRoute,
     GroupCancelRoute,
     GroupFindCacheRoute,
 
-    //InscriptionIndiv
+    // Inscriptions - Individual
     IndivUploadRoute,
     IndivConfirmRoute,
     IndivCancelRoute,
 
-    //Analysis - Inscription
+    // Inscriptions - Analysis
     AnalysisInscriptionRoute,
     UpdateStatusInscriptionRoute,
 
-    //InscrpitonAvul
+    // Inscriptions - Avul
     CreateInscriptionAvulRoute,
     FindAllPaginatedOnSiteRegistrationRoute,
 
-    //PaymentInscription
+    // Payment Inscriptions
     CreatePaymentInscriptionRoute,
     AnalysisPaymentRoute,
-
-    // Atualização do status do PaymentInscription
     UpdatePaymentRoute,
-
-    //Deleta um PaymentInscription
     DeletePaymentInscriptionRoute,
 
     // Participants
     ListParticipantsRoute,
     UpdateParticipantsRoute,
     DeleteParticipantsRoute,
-
-    // PDF - Participants
     GeneratePdfSelectedParticipantRoute,
 
-    //Ticket
+    // Tickets
     CreateTicketRoute,
     FindAllTicketRoute,
+    AnalysisPreSaleRoute,
+    FindTicketsForSaleRoute,
     FindTicketDetailsRoute,
-    SaleGroupTicketRoute,
     SaleTicketRoute,
+    PreSaleRoute,
+    ApprovePreSaleRoute,
+    RejectPreSaleRoute,
 
-    //Expenses
+    // Event Expenses
     CreateEventExpensesRoute,
     FindAllPaginatedEventExpensesRoute,
 
-    //Relatorio
-    //DASHBOARD--ADMIN
-    DashboardAdminRoute,
-
-    //DASHBOARD--USER
-    DashboardUserRoute,
-
+    // Reports
     ReportGeneralRoute,
     GeneratePdfGeneralReportRoute,
   ],

@@ -72,10 +72,14 @@ import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
 import { ReportGeneralUsecase } from './web/report/report-general/general/report-general.usecase';
 import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf/generate-pdf-general-report.usecase';
+import { AnalysisPreSaleUseCase } from './web/tickets/analysis-pre-sale/analysis-pre-sale.usecase';
+import { ApprovePreSaleUseCase } from './web/tickets/approve-pre-sale/approve-pre-sale.usecase';
 import { CreateTicketUsecase } from './web/tickets/create/create-ticket.usecase';
 import { FindTicketDetailsUsecase } from './web/tickets/find-ticket-details/find-ticket-details.usecase';
+import { FindTicketsForSaleUsecase } from './web/tickets/find-tickets-for-sale/find-tickets-for-sale.usecase';
 import { FindAllTicketsUsecase } from './web/tickets/findAll/find-all-ticket.usecase';
-import { SaleGroupTicketUsecase } from './web/tickets/sale-group/sale-group-ticket.usecase';
+import { PreSaleUseCase } from './web/tickets/pre-sale/pre-sale.usecase';
+import { RejectPreSaleUseCase } from './web/tickets/reject-pre-sale/reject-pre-sale.usecase';
 import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
@@ -99,7 +103,16 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     MailModule,
   ],
   providers: [
-    //Users
+    // Dashboard
+    FindActiveEventsAdminUsecase,
+    FindActiveParticipantsAdminUsecase,
+    FindTotalCollectedAdminUsecase,
+    FindTotalDebtAdminUsecase,
+    FindActiveEventsUserUsecase,
+    FindTotalDebtUserUsecase,
+    FindTotalInscriptionsUserUsecase,
+
+    // Users
     CreateUserUsecase,
     FindUserUsecase,
     LoginUserUsecase,
@@ -107,151 +120,115 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedUsersUsecase,
     FindAllNamesUserUsecase,
 
-    //Events
+    // Events - CRUD & Updates
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
-
-    //Updates
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
+    UpdatePaymentEventUsecase,
+    UpdateInscriptionEventUsecase,
     UpdateTicketsSaleUsecase,
-
-    //Delete
-    DeleteLogoEventUsecase,
     DeleteImageEventUsecase,
+    DeleteLogoEventUsecase,
 
+    // Events - Listings & Details
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
-
-    // List with Inscriptions
     FindAllWithInscriptionsUsecase,
-
-    // List with Tickets
     FindAllWithTicketsUsecase,
-
-    // Update
-    UpdatePaymentEventUsecase,
-    UpdateInscriptionEventUsecase,
-    FinalizeExpiredEventsUsecase,
-
-    //List of event dates
     FindEventDateUsecase,
-
-    //List Inscription with Account
     FindAccountWithInscriptionsUsecase,
-
-    //Events - ListToAnalysis
     ListInscriptionToAnalysisUsecase,
     ListPaymentToAnalysisUsecase,
-
-    //Events - List Inscriptions
     FindAllPaginatedEventToInscriptionUsecase,
-    //Events - List Payments
     FindAllPaginatedEventToPaymentUsecase,
-
-    //Events - Responsible
     DeleteEventResponsibleUseCase,
-
-    //Events - ListParticipants
     FindAllToParticipantsUsecase,
 
-    //Regions
+    // Regions
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
     FindAllPaginatedRegionsUsecase,
 
-    //TypeInscription
+    // Type Inscriptions
     CreateTypeInscriptionUseCase,
     UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
-    //Inscription
+    // Inscriptions
     UpdateInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
     FindCacheUsecase,
-
-    //PDF - Inscription
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
-
-    //Cache
-    CleanupExpiredCacheUsecase,
-
-    //InscriptionGroup
     GroupUploadUsecase,
     GroupConfirmUsecase,
     GroupCancelUsecase,
     GroupFindCacheUsecase,
-
-    //InscriptionIndiv
     IndivUploadValidateUsecase,
     IndivConfirmUsecase,
     IndivCancelUsecase,
-
-    //Analysis - Inscription
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
-
-    //InscriptionAvul
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
 
-    //PaymentInscription
+    // Payment Inscriptions
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-
-    // Atualização do status do PaymentInscription
     ApprovePaymentUsecase,
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
-
-    //Deleta um PaymentInscription
     DeletePaymentInscriptionUsecase,
 
     // Participants
     ListParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
-
-    //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,
 
-    //Tickets
+    // Tickets
     CreateTicketUsecase,
     FindAllTicketsUsecase,
+    FindTicketsForSaleUsecase,
+    AnalysisPreSaleUseCase,
+    ApprovePreSaleUseCase,
+    RejectPreSaleUseCase,
+    PreSaleUseCase,
     FindTicketDetailsUsecase,
-    SaleGroupTicketUsecase,
     SaleTicketUsecase,
 
-    //EventExpenses
+    // Event Expenses
     CreateEventExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
 
-    //Reports
-    //DASHBOARD--ADMIN
+    // Reports
+    ReportGeneralUsecase,
+    GeneratePdfGeneralReportUsecase,
+
+    // Background tasks
+    CleanupExpiredCacheUsecase,
+    FinalizeExpiredEventsUsecase,
+  ],
+  exports: [
+    // Dashboard
+    FindActiveEventsAdminUsecase,
+    FindActiveParticipantsAdminUsecase,
     FindTotalCollectedAdminUsecase,
     FindTotalDebtAdminUsecase,
-    FindActiveParticipantsAdminUsecase,
-    FindActiveEventsAdminUsecase,
-
-    //DASHBOARD--USER
     FindActiveEventsUserUsecase,
     FindTotalDebtUserUsecase,
     FindTotalInscriptionsUserUsecase,
 
-    ReportGeneralUsecase,
-    GeneratePdfGeneralReportUsecase,
-  ],
-  exports: [
-    //Users
+    // Users
     CreateUserUsecase,
     FindUserUsecase,
     LoginUserUsecase,
@@ -259,149 +236,103 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedUsersUsecase,
     FindAllNamesUserUsecase,
 
-    //Events
+    // Events - CRUD & Updates
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
-
-    //Updates
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateTicketsSaleUsecase,
-
-    //Delete
+    UpdateLocationEventUsecase,
+    UpdatePaymentEventUsecase,
+    UpdateInscriptionEventUsecase,
     DeleteLogoEventUsecase,
     DeleteImageEventUsecase,
 
-    UpdateLocationEventUsecase,
+    // Events - Listings & Details
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
-
-    // List with Inscriptions
     FindAllWithInscriptionsUsecase,
-
-    // List with Tickets
     FindAllWithTicketsUsecase,
-
-    // Update
-    UpdatePaymentEventUsecase,
-    UpdateInscriptionEventUsecase,
-    FinalizeExpiredEventsUsecase,
-
-    //List of event dates
     FindEventDateUsecase,
-
-    //Lista Inscription with Account
     FindAccountWithInscriptionsUsecase,
-
-    //Events - ListToAnalysis
     ListInscriptionToAnalysisUsecase,
     ListPaymentToAnalysisUsecase,
-
-    //Events - List Inscriptions
     FindAllPaginatedEventToInscriptionUsecase,
-
-    //Events - List Payments
     FindAllPaginatedEventToPaymentUsecase,
-
-    //Events - Responsible
     DeleteEventResponsibleUseCase,
-
-    //Events - ListParticipants
     FindAllToParticipantsUsecase,
 
-    //Regions
+    // Regions
     CreateRegionUseCase,
     FindAllRegionNamesUsecase,
     FindAllPaginatedRegionsUsecase,
 
-    //TypeInscription
+    // Type Inscriptions
     CreateTypeInscriptionUseCase,
     UpdateTypeInscriptionUsecase,
     FindTypeInscriptionByEventIdUsecase,
     FindAllInscriptionUsecase,
 
-    //Inscription
+    // Inscriptions
     UpdateInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
     FindCacheUsecase,
-
-    //PDF - Inscription
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
-
-    //Cache
-    CleanupExpiredCacheUsecase,
-
-    //InscriptionGroup
     GroupUploadUsecase,
     GroupConfirmUsecase,
     GroupCancelUsecase,
     GroupFindCacheUsecase,
-
-    //InscriptionIndiv
     IndivUploadValidateUsecase,
     IndivConfirmUsecase,
     IndivCancelUsecase,
-
-    //Analysis - Inscription
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
-
-    //InscriptionAvul
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
 
-    //PaymentInscription
+    // Payment Inscriptions
     CreatePaymentInscriptionUsecase,
     AnalysisPaymentUsecase,
-
-    // Atualização do status do PaymentInscription
     ApprovePaymentUsecase,
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
-
-    //Deleta um PaymentInscription
     DeletePaymentInscriptionUsecase,
 
-    //Participants
+    // Participants
     ListParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
-
-    //PDF - Participants
     GeneratePdfSelectedParticipantUsecase,
 
-    //Tickets
+    // Tickets
     CreateTicketUsecase,
     FindAllTicketsUsecase,
+    FindTicketsForSaleUsecase,
+    AnalysisPreSaleUseCase,
+    ApprovePreSaleUseCase,
+    RejectPreSaleUseCase,
     FindTicketDetailsUsecase,
-    SaleGroupTicketUsecase,
     SaleTicketUsecase,
+    PreSaleUseCase,
 
-    //EventExpenses
+    // Event Expenses
     CreateEventExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
 
-    //Reports
-    //DASHBOARD--ADMIN
-    FindTotalCollectedAdminUsecase,
-    FindTotalDebtAdminUsecase,
-    FindActiveParticipantsAdminUsecase,
-    FindActiveEventsAdminUsecase,
-
-    //DASHBOARD--USER
-    FindActiveEventsUserUsecase,
-    FindTotalDebtUserUsecase,
-    FindTotalInscriptionsUserUsecase,
-
+    // Reports
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
+
+    // Background tasks
+    CleanupExpiredCacheUsecase,
+    FinalizeExpiredEventsUsecase,
   ],
 })
 export class UsecaseModule {}

@@ -30,7 +30,6 @@ export class AuthGuard implements CanActivate {
     const token = this.exctractTokenFromRequest(request);
 
     if (!token) {
-      console.log('No auth token found in request');
       throw new UnauthorizedException('User not authenticated');
     }
 

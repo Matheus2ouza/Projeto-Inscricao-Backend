@@ -11,8 +11,9 @@ import { OnSiteParticipantPrismaRepositoryProvider } from './prisma/on-site-part
 import { OnSiteRegistrationPrismaRepositoryProvider } from './prisma/on-site-registration/model/on-site-registration.prisma.repository.provider';
 import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/participant.prisma.repository.provider';
 import { PaymentInscriptionRepositoryProvider } from './prisma/payment-inscription/model/payment-inscription.prisma.repository.provider';
-import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 import { RegionPrismaRepositoryProvider } from './prisma/region/model/region.prisma.repository.provider';
+import { TicketSaleItemPrismaRepositoryProvider } from './prisma/ticket-sale-item/model/ticket-sale-item.prisma.repository.provider';
 import { TicketSalePaymentPrismaRepositoryProvider } from './prisma/ticket-sale-payment/model/ticket-sale-payment.prisma.repository.provider';
 import { TicketSalePrismaRepositoryProvider } from './prisma/ticket-sale/model/ticket-sale.prisma.repository.provider';
 import { TicketUnitPrismaRepositoryProvider } from './prisma/ticket-unit/model/ticket-unit.prisma.repository.provider';
@@ -20,8 +21,8 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
 import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
 
 @Module({
+  imports: [PrismaModule],
   providers: [
-    PrismaService,
     UserPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
@@ -34,6 +35,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     EventTicketPrismaRepositoryProvider,
     EventResponsiblePrismaRepositoryProvider,
     TicketSalePrismaRepositoryProvider,
+    TicketSaleItemPrismaRepositoryProvider,
     OnSiteParticipantPrismaRepositoryProvider,
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,
@@ -42,7 +44,6 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     TicketUnitPrismaRepositoryProvider,
   ],
   exports: [
-    PrismaService,
     UserPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
@@ -55,6 +56,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     EventTicketPrismaRepositoryProvider,
     EventResponsiblePrismaRepositoryProvider,
     TicketSalePrismaRepositoryProvider,
+    TicketSaleItemPrismaRepositoryProvider,
     OnSiteParticipantPrismaRepositoryProvider,
     OnSiteParticipantPaymentPrismaRepositoryProvider,
     OnSiteRegistrationPrismaRepositoryProvider,

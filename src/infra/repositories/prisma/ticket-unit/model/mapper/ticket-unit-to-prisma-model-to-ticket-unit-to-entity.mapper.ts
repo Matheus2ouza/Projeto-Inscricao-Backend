@@ -5,7 +5,7 @@ export class TicketUnitToPrismaModelToTicketUnitEntityMapper {
   public static map(ticketUnitPrismaModal: TicketUnitPrismaModal): TicketUnit {
     return TicketUnit.with({
       id: ticketUnitPrismaModal.id,
-      ticketSaleId: ticketUnitPrismaModal.ticketSaleId,
+      ticketSaleItemId: ticketUnitPrismaModal.ticketSaleItemId,
       qrCode: ticketUnitPrismaModal.qrCode,
       usedAt: ticketUnitPrismaModal.usedAt,
       createdAt: ticketUnitPrismaModal.createdAt,

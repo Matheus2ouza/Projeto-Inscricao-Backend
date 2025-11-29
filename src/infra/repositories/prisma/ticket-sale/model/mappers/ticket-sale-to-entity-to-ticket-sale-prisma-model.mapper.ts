@@ -6,10 +6,13 @@ export class TicketSaleToEntityToTicketSalePrismaModelMapper {
   public static map(ticketSale: TicketSale): TicketSalePrismaModal {
     return {
       id: ticketSale.getId(),
-      ticketId: ticketSale.getTicketId(),
-      accountId: ticketSale.getAccountId(),
-      quantity: ticketSale.getQuantity(),
+      eventId: ticketSale.getEventId(),
+      name: ticketSale.getName(),
+      email: ticketSale.getEmail(),
+      phone: ticketSale.getPhone() || null,
+      status: ticketSale.getStatus(),
       totalValue: new Decimal(ticketSale.getTotalValue()),
+      approvedBy: ticketSale.getApprovedBy() || null,
       createdAt: ticketSale.getCreatedAt(),
       updatedAt: ticketSale.getUpdateAt(),
     };

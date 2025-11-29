@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
+import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { TicketNotFoundUsecaseException } from 'src/usecases/web/exceptions/tickets/ticket-not-found.usecase.exception';
@@ -17,11 +18,6 @@ export type FindTicketDetailsOutput = {
   available: number;
   expirationDate: Date;
   isActive: boolean;
-  ticketSale: {
-    id: string;
-    quantity: number;
-    totalValue: number;
-  }[];
 };
 
 @Injectable()
@@ -31,6 +27,7 @@ export class FindTicketDetailsUsecase
   public constructor(
     private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly eventTicketsGateway: EventTicketsGateway,
+    private readonly ticketSaleItemGateway: TicketSaleItemGateway,
   ) {}
 
   async execute(
@@ -46,8 +43,17 @@ export class FindTicketDetailsUsecase
       );
     }
 
-    const sales = await this.ticketSaleGateway.findByEventTicketId(
-      ticket.getId(),
+    const sales = await this.ticketSaleGateway.findByEventId(
+      ticket.getEventId(),
+    );
+
+    const ticketSaleItems = await Promise.all(
+      sales.map(async (sale) => ({
+        id: sale.getId(),
+        quantity: await this.ticketSaleItemGateway.countItemsByTicketSaleId(
+          sale.getId(),
+        ),
+      })),
     );
 
     return {
@@ -59,11 +65,6 @@ export class FindTicketDetailsUsecase
       available: ticket.getAvailable(),
       expirationDate: ticket.getExpirationDate(),
       isActive: ticket.getIsActive(),
-      ticketSale: sales.map((sale) => ({
-        id: sale.getId(),
-        quantity: sale.getQuantity(),
-        totalValue: sale.getTotalValue(),
-      })),
     };
   }
 }
