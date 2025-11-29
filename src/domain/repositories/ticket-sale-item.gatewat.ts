@@ -9,4 +9,7 @@ export abstract class TicketSaleItemGateway {
 
   // Agregações e contagens
   abstract countItemsByTicketSaleId(ticketSaleId: string): Promise<number>;
+
+  // Remoção
+  abstract deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number>;
 }
