@@ -2,23 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindActiveParticipantsInput = {
+export type FindActiveParticipantsAdminInput = {
   regionId: string;
 };
 
-export type FindActiveParticipantsOutput = {
+export type FindActiveParticipantsAdminOutput = {
   countParticipants: number;
 };
 
 @Injectable()
-export class FindActiveParticipantsUsecase
-  implements Usecase<FindActiveParticipantsInput, FindActiveParticipantsOutput>
+export class FindActiveParticipantsAdminUsecase
+  implements
+    Usecase<FindActiveParticipantsAdminInput, FindActiveParticipantsAdminOutput>
 {
   public constructor(private readonly eventGateway: EventGateway) {}
 
   public async execute(
-    input: FindActiveParticipantsInput,
-  ): Promise<FindActiveParticipantsOutput> {
+    input: FindActiveParticipantsAdminInput,
+  ): Promise<FindActiveParticipantsAdminOutput> {
     const event = await this.eventGateway.findNextUpcomingEvent(input.regionId);
 
     if (!event) {
@@ -27,7 +28,7 @@ export class FindActiveParticipantsUsecase
       };
     }
 
-    const output: FindActiveParticipantsOutput = {
+    const output: FindActiveParticipantsAdminOutput = {
       countParticipants: event.getQuantityParticipants(),
     };
 

@@ -4,10 +4,13 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
-import { FindActiveEventsUsecase } from './web/dashboard/admin/find-active-events.usecase';
-import { FindActiveParticipantsUsecase } from './web/dashboard/admin/find-active-participants.usecase';
-import { FindTotalCollectedUsecase } from './web/dashboard/admin/find-total-collected.usecase';
-import { FindTotalDebtUsecase } from './web/dashboard/admin/find-total-debt.usecase';
+import { FindActiveEventsAdminUsecase } from './web/dashboard/admin/find-active-events.usecase';
+import { FindActiveParticipantsAdminUsecase } from './web/dashboard/admin/find-active-participants.usecase';
+import { FindTotalCollectedAdminUsecase } from './web/dashboard/admin/find-total-collected.usecase';
+import { FindTotalDebtAdminUsecase } from './web/dashboard/admin/find-total-debt.usecase';
+import { FindActiveEventsUserUsecase } from './web/dashboard/user/find-active-events.usecase';
+import { FindTotalDebtUserUsecase } from './web/dashboard/user/find-total-debt.usecase';
+import { FindTotalInscriptionsUserUsecase } from './web/dashboard/user/find-total-inscriptions.usecase';
 import { CreateEventExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
@@ -22,6 +25,7 @@ import { FindAllnamesEventUsecase } from './web/event/find-all-names/find-all-na
 import { FindAllPaginatedEventToInscriptionUsecase } from './web/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
 import { FindAllPaginatedEventToPaymentUsecase } from './web/event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
 import { FindAllWithInscriptionsUsecase } from './web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
+import { FindAllWithTicketsUsecase } from './web/event/find-all-with-tickets/find-all-with-tickets.usecase';
 import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase';
 import { FindDetailsEventUsecase } from './web/event/find-details/find-details-event.usecase';
 import { FindEventCarouselUsecase } from './web/event/find-event-carousel/find-event-carousel.usecase';
@@ -35,6 +39,7 @@ import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/up
 import { UpdateLocationEventUsecase } from './web/event/update-location/update-location-event.usecase';
 import { UpdateLogoEventUsecase } from './web/event/update-logo/update-logo.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
+import { UpdateTicketsSaleUsecase } from './web/event/update-tickets-sale/update-tickets-sale.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
@@ -106,9 +111,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
+
+    //Updates
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
+    UpdateTicketsSaleUsecase,
 
     //Delete
     DeleteLogoEventUsecase,
@@ -119,7 +127,14 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
+
+    // List with Inscriptions
     FindAllWithInscriptionsUsecase,
+
+    // List with Tickets
+    FindAllWithTicketsUsecase,
+
+    // Update
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     FinalizeExpiredEventsUsecase,
@@ -222,10 +237,15 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Reports
     //DASHBOARD--ADMIN
-    FindTotalCollectedUsecase,
-    FindTotalDebtUsecase,
-    FindActiveParticipantsUsecase,
-    FindActiveEventsUsecase,
+    FindTotalCollectedAdminUsecase,
+    FindTotalDebtAdminUsecase,
+    FindActiveParticipantsAdminUsecase,
+    FindActiveEventsAdminUsecase,
+
+    //DASHBOARD--USER
+    FindActiveEventsUserUsecase,
+    FindTotalDebtUserUsecase,
+    FindTotalInscriptionsUserUsecase,
 
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
@@ -243,8 +263,11 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
+
+    //Updates
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
+    UpdateTicketsSaleUsecase,
 
     //Delete
     DeleteLogoEventUsecase,
@@ -256,7 +279,14 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
+
+    // List with Inscriptions
     FindAllWithInscriptionsUsecase,
+
+    // List with Tickets
+    FindAllWithTicketsUsecase,
+
+    // Update
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
     FinalizeExpiredEventsUsecase,
@@ -273,6 +303,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Events - List Inscriptions
     FindAllPaginatedEventToInscriptionUsecase,
+
     //Events - List Payments
     FindAllPaginatedEventToPaymentUsecase,
 
@@ -359,10 +390,15 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     //Reports
     //DASHBOARD--ADMIN
-    FindTotalCollectedUsecase,
-    FindTotalDebtUsecase,
-    FindActiveParticipantsUsecase,
-    FindActiveEventsUsecase,
+    FindTotalCollectedAdminUsecase,
+    FindTotalDebtAdminUsecase,
+    FindActiveParticipantsAdminUsecase,
+    FindActiveEventsAdminUsecase,
+
+    //DASHBOARD--USER
+    FindActiveEventsUserUsecase,
+    FindTotalDebtUserUsecase,
+    FindTotalInscriptionsUserUsecase,
 
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,

@@ -16,6 +16,11 @@ export abstract class EventGateway {
   abstract paymentDisabled(eventId: string): Promise<void>;
   abstract paymentCheck(eventId: string): Promise<boolean>;
 
+  // Atualizações de tickets
+  abstract enableTicket(eventId: string): Promise<Event>;
+  abstract disableTicket(eventId: string): Promise<Event>;
+  abstract ticketCheck(eventId: string): Promise<Event | null>;
+
   //Deletes
   abstract deleteImage(id: string): Promise<void>;
   abstract deleteLogo(id: string): Promise<void>;
@@ -28,7 +33,14 @@ export abstract class EventGateway {
     regionId: string,
   ): Promise<Event | null>;
   abstract findAll(): Promise<Event[]>;
-  abstract findAllPaginated(page: number, pageSize: number): Promise<Event[]>;
+  abstract findAllPaginated(
+    page: number,
+    pageSize: number,
+    filter?: {
+      status?: statusEvent[];
+      ticketEnabled?: boolean;
+    },
+  ): Promise<Event[]>;
   abstract findAllFiltered(filters: {
     status?: string[];
     page: number;

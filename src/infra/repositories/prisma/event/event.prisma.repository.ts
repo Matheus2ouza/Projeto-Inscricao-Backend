@@ -97,6 +97,29 @@ export class EventPrismaRepository implements EventGateway {
     return event.paymentEnabled;
   }
 
+  async enableTicket(eventId: string): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id: eventId },
+      data: { ticketEnabled: true },
+    });
+    return PrismaToEntity.map(data);
+  }
+
+  async disableTicket(eventId: string): Promise<Event> {
+    const data = await this.prisma.events.update({
+      where: { id: eventId },
+      data: { ticketEnabled: false },
+    });
+    return PrismaToEntity.map(data);
+  }
+
+  async ticketCheck(eventId: string): Promise<Event | null> {
+    const event = await this.prisma.events.findUnique({
+      where: { id: eventId },
+    });
+    return event ? PrismaToEntity.map(event) : null;
+  }
+
   //Deletes
   async deleteImage(id: string): Promise<void> {
     await this.prisma.events.update({
@@ -151,15 +174,35 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findAllPaginated(page: number, pageSize: number): Promise<Event[]> {
+  async findAllPaginated(
+    page: number,
+    pageSize: number,
+    filter?: {
+      status?: statusEvent[];
+      ticketEnabled?: boolean;
+    },
+  ): Promise<Event[]> {
     const skip = (page - 1) * pageSize;
+    const where = this.buildWhereClauseEvent(filter);
     const found = await this.prisma.events.findMany({
       skip,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
+      where,
     });
 
     return found.map(PrismaToEntity.map);
+  }
+
+  private buildWhereClauseEvent(filter?: {
+    status?: statusEvent[];
+    ticketEnabled?: boolean;
+  }) {
+    const { status, ticketEnabled } = filter || {};
+    return {
+      status: status ? { in: status } : undefined,
+      ticketEnabled,
+    };
   }
 
   async findAllFiltered(filters: {

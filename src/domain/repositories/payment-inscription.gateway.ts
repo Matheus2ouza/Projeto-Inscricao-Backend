@@ -1,10 +1,16 @@
 import { PaymentInscription } from '../entities/payment-inscription';
 
 export abstract class PaymentInscriptionGateway {
+  // CRUD básico
   abstract create(
     paymentInscription: PaymentInscription,
   ): Promise<PaymentInscription>;
+  abstract deletePayment(paymentId: string): Promise<void>;
+
+  // Buscas por identificador único
   abstract findById(id: string): Promise<PaymentInscription | null>;
+
+  // Buscas por relacionamento
   abstract findbyInscriptionId(id: string): Promise<PaymentInscription[]>;
   abstract findToAnalysis(
     id: string,
@@ -14,6 +20,8 @@ export abstract class PaymentInscriptionGateway {
       pageSize: number;
     },
   ): Promise<PaymentInscription[]>;
+
+  // Agregações e contagens
   abstract countAllFiltered(filters: {
     inscriptionId: string;
     status?: string[];
@@ -22,28 +30,20 @@ export abstract class PaymentInscriptionGateway {
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
 
+  // Atualizações de status
   abstract approvedPayment(id: string): Promise<PaymentInscription>;
-
-  /**
-   * Aprova o pagamento com transação atômica.
-   * Executa todas as operações necessárias:
-   * - Decrementa o valor da inscrição
-   * - Cria movimento financeiro
-   * - Incrementa valor arrecadado no evento
-   * - Atualiza status do pagamento para APPROVED
-   * Se alguma operação falhar, todas são revertidas.
-   */
   abstract approvePaymentWithTransaction(
     paymentId: string,
   ): Promise<PaymentInscription>;
-
   abstract rejectedPayment(
     paymentId: string,
     rejectionReason?: string,
   ): Promise<PaymentInscription>;
-
   abstract revertApprovedPayment(
     paymentId: string,
   ): Promise<PaymentInscription>;
-  abstract deletePayment(paymentId: string): Promise<void>;
+  abstract sumPaidByAccountIdAndEventId(
+    accountId: string,
+    eventId: string,
+  ): Promise<number>;
 }

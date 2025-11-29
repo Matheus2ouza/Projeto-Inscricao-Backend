@@ -8,6 +8,7 @@ export type FindAllTicketResponse = {
   imageUrl?: string;
   quantityTicketSale: number;
   totalSalesValue: number;
+  ticketEnabled?: boolean;
   tickets: Tickets;
 };
 

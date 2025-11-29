@@ -2,23 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindTotalCollectedInput = {
+export type FindTotalCollectedAdminInput = {
   regionId: string;
 };
 
-export type FindTotalCollectedOutput = {
+export type FindTotalCollectedAdminOutput = {
   totalCollected: number;
 };
 
 @Injectable()
-export class FindTotalCollectedUsecase
-  implements Usecase<FindTotalCollectedInput, FindTotalCollectedOutput>
+export class FindTotalCollectedAdminUsecase
+  implements
+    Usecase<FindTotalCollectedAdminInput, FindTotalCollectedAdminOutput>
 {
   public constructor(private readonly eventGateway: EventGateway) {}
 
   public async execute(
-    input: FindTotalCollectedInput,
-  ): Promise<FindTotalCollectedOutput> {
+    input: FindTotalCollectedAdminInput,
+  ): Promise<FindTotalCollectedAdminOutput> {
     const event = await this.eventGateway.findNextUpcomingEvent(input.regionId);
 
     if (!event) {
@@ -27,7 +28,7 @@ export class FindTotalCollectedUsecase
       };
     }
 
-    const output: FindTotalCollectedOutput = {
+    const output: FindTotalCollectedAdminOutput = {
       totalCollected: event.getAmountCollected(),
     };
 

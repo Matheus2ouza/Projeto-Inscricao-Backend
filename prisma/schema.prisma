@@ -59,6 +59,7 @@ model Events {
   longitude            Float?
   status               statusEvent
   paymentEnabled       Boolean              @default(false) @map("payment_enabled")
+  ticketEnabled        Boolean              @default(false) @map("ticket_enabled")
   EventExpenses        EventExpenses[]
   responsibles         EventResponsibles[]
   EventTickets         EventTickets[]

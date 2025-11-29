@@ -3,17 +3,17 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindTotalDebtInput = {
+export type FindTotalDebtAdminInput = {
   regionId: string;
 };
 
-export type FindTotalDebtOutput = {
+export type FindTotalDebtAdminOutput = {
   totalDebt: number;
 };
 
 @Injectable()
-export class FindTotalDebtUsecase
-  implements Usecase<FindTotalDebtInput, FindTotalDebtOutput>
+export class FindTotalDebtAdminUsecase
+  implements Usecase<FindTotalDebtAdminInput, FindTotalDebtAdminOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
@@ -21,8 +21,8 @@ export class FindTotalDebtUsecase
   ) {}
 
   public async execute(
-    input: FindTotalDebtInput,
-  ): Promise<FindTotalDebtOutput> {
+    input: FindTotalDebtAdminInput,
+  ): Promise<FindTotalDebtAdminOutput> {
     const event = await this.eventGateway.findNextUpcomingEvent(input.regionId);
 
     if (!event) {
@@ -35,7 +35,7 @@ export class FindTotalDebtUsecase
       event.getId(),
     );
 
-    const output: FindTotalDebtOutput = {
+    const output: FindTotalDebtAdminOutput = {
       totalDebt,
     };
 

@@ -125,6 +125,7 @@ export class CreateEventUseCase
       latitude: latitude,
       status: status,
       paymentEnabled: paymentEnabled,
+      ticketEnabled: false,
     });
 
     await this.eventGateway.create(event);

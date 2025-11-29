@@ -14,6 +14,7 @@ export type EventCreateDto = {
   latitude?: number;
   status: statusEvent;
   paymentEnabled: boolean;
+  ticketEnabled?: boolean;
 };
 
 export type EventWithDto = {
@@ -31,6 +32,7 @@ export type EventWithDto = {
   latitude?: number;
   status: statusEvent;
   paymentEnabled: boolean;
+  ticketEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -48,6 +50,7 @@ export class Event extends Entity {
     updatedAt: Date,
     private status: statusEvent,
     private paymentEnabled: boolean,
+    private ticketEnabled?: boolean,
     private imageUrl?: string,
     private logoUrl?: string,
     private location?: string,
@@ -70,6 +73,7 @@ export class Event extends Entity {
     latitude,
     status,
     paymentEnabled,
+    ticketEnabled,
   }: EventCreateDto): Event {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -89,6 +93,7 @@ export class Event extends Entity {
       updatedAt,
       status,
       paymentEnabled,
+      ticketEnabled,
       imageUrl,
       logoUrl,
       location,
@@ -112,6 +117,7 @@ export class Event extends Entity {
     latitude,
     status,
     paymentEnabled,
+    ticketEnabled,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -127,6 +133,7 @@ export class Event extends Entity {
       updatedAt,
       status,
       paymentEnabled,
+      ticketEnabled,
       imageUrl,
       logoUrl,
       location,
@@ -209,6 +216,10 @@ export class Event extends Entity {
 
   public getPaymentEnabled(): boolean {
     return this.paymentEnabled;
+  }
+
+  public getTicketEnabled(): boolean | undefined {
+    return this.ticketEnabled;
   }
 
   public setName(name: string): void {
@@ -330,6 +341,16 @@ export class Event extends Entity {
 
   public incrementAmountCollected(amount: number): void {
     this.amountCollected += amount;
+    this.updatedAt = new Date();
+  }
+
+  public enableTicket(): void {
+    this.ticketEnabled = true;
+    this.updatedAt = new Date();
+  }
+
+  public disableTicket(): void {
+    this.ticketEnabled = false;
     this.updatedAt = new Date();
   }
 }

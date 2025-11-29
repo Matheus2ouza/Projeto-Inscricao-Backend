@@ -2,29 +2,29 @@ import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindActiveEventsAdminInput = {
+export type FindActiveEventsUserInput = {
   regionId: string;
 };
 
-export type FindActiveEventsAdminOutput = {
-  countEventsActive: number;
+export type FindActiveEventsUserOutput = {
+  activeEvents: number;
 };
 
 @Injectable()
-export class FindActiveEventsAdminUsecase
-  implements Usecase<FindActiveEventsAdminInput, FindActiveEventsAdminOutput>
+export class FindActiveEventsUserUsecase
+  implements Usecase<FindActiveEventsUserInput, FindActiveEventsUserOutput>
 {
   public constructor(private readonly EventGateway: EventGateway) {}
 
   public async execute(
-    input: FindActiveEventsAdminInput,
-  ): Promise<FindActiveEventsAdminOutput> {
+    input: FindActiveEventsUserInput,
+  ): Promise<FindActiveEventsUserOutput> {
     const eventsActive = await this.EventGateway.countEventsActive(
       input.regionId,
     );
 
-    const output: FindActiveEventsAdminOutput = {
-      countEventsActive: eventsActive,
+    const output: FindActiveEventsUserOutput = {
+      activeEvents: eventsActive,
     };
     return output;
   }

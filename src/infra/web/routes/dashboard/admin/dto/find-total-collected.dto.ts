@@ -1,3 +1,3 @@
-export type FindTotalCollectedResponse = {
+export type FindTotalCollectedAdminResponse = {
   totalCollected: number;
 };

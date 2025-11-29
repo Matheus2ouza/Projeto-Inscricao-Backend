@@ -9,6 +9,7 @@ export class FindAllTicketsPresenter {
       imageUrl: output.imageUrl,
       quantityTicketSale: output.quantityTicketSale,
       totalSalesValue: output.totalSalesValue,
+      ticketEnabled: output.ticketEnabled,
       tickets: output.tickets,
     };
   }

@@ -51,6 +51,8 @@ export class FindAllToParticipantsUsecase
       this.eventGateway.countAllFiltered({}),
     ]);
 
+    const pageCount = Math.ceil(total / safePageSize);
+
     const enriched = await Promise.all(
       allEvents.map(async (event: any) => {
         let publicImageUrl: string | undefined = undefined;
@@ -80,8 +82,6 @@ export class FindAllToParticipantsUsecase
         };
       }),
     );
-
-    const pageCount = Math.ceil(total / safePageSize);
 
     return {
       events: enriched,

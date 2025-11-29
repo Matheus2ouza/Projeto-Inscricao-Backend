@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -21,7 +20,8 @@ export type FindAllWithInscriptionsOutput = {
 export type Events = {
   id: string;
   name: string;
-  image: string;
+  imageUrl: string;
+  status: string;
   startDate: string;
   endDate: string;
   totalParticipant: number;
@@ -56,18 +56,20 @@ export class FindAllWithInscriptionsUsecase
       Math.min(5, Math.floor(input.pageSize || 5)),
     );
 
-    const allEvents = await this.eventGateway.findAll();
+    const [allEvents, total] = await Promise.all([
+      this.eventGateway.findAllPaginated(safePage, safePageSize, {
+        status: ['OPEN'],
+      }),
+      this.eventGateway.countAllFiltered({
+        status: ['OPEN'],
+      }),
+    ]);
 
-    // Filtrar eventos que não estão finalizados
-    const activeEvents = allEvents.filter(
-      (event) => event.getStatus() !== statusEvent.FINALIZED,
-    );
-
-    const total = activeEvents.length;
+    const pageCount = Math.ceil(total / safePageSize);
 
     const start = (safePage - 1) * safePageSize;
     const end = start + safePageSize;
-    const pageEvents = activeEvents.slice(start, end);
+    const pageEvents = allEvents.slice(start, end);
 
     const events = await Promise.all(
       pageEvents.map(async (event) => {
@@ -126,7 +128,8 @@ export class FindAllWithInscriptionsUsecase
         return {
           id: event.getId(),
           name: event.getName(),
-          image: publicImageUrl,
+          status: event.getStatus(),
+          imageUrl: publicImageUrl,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
           totalParticipant,
@@ -140,7 +143,7 @@ export class FindAllWithInscriptionsUsecase
       events,
       total,
       page: safePage,
-      pageCount: Math.ceil(total / safePageSize),
+      pageCount,
     };
   }
 }
