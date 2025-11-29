@@ -1,4 +1,4 @@
-import { genderType } from 'generated/prisma/client';
+import { genderType } from 'generated/prisma';
 
 export type UpdateParticipantsRequest = {
   participantId: string;
