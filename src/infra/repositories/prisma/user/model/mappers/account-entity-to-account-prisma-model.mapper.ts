@@ -1,10 +1,10 @@
-import { User } from 'src/domain/entities/user.entity';
-import UserPrismaModel from '../user.prisma.model';
+import { Account } from 'src/domain/entities/account.entity';
+import AccountPrismaModel from '../account.prisma.model';
 
 //Conversão de entity para model do prisma
-export class UserEntityToUserPrismaModelMapper {
-  public static map(user: User): UserPrismaModel {
-    const aModel: UserPrismaModel = {
+export class AccountEntityToUserPrismaModelMapper {
+  public static map(user: Account): AccountPrismaModel {
+    const aModel: AccountPrismaModel = {
       id: user.getId(),
       username: user.getUsername(),
       password: user.getPassword(),

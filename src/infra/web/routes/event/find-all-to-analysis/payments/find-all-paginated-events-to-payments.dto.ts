@@ -1,4 +1,7 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindAllPaginatedEventToPaymentRequest = {
+  status?: statusEvent[];
   page?: number;
   pageSize?: number;
 };

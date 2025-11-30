@@ -67,6 +67,8 @@ import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-s
 import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import { CreatePaymentInscriptionUsecase } from './web/paymentInscription/create/create-payment-inscription.usecase';
 import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
+import { ListAllPaymentsInscriptionUsecase } from './web/paymentInscription/list-all-payments-inscription/list-all-payments-inscription.usecase';
+import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -191,6 +193,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
+    ListAllPaymentsInscriptionUsecase,
+    PaymentDetailsUsecase,
 
     // Participants
     ListParticipantsUsecase,
@@ -310,6 +314,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
+    ListAllPaymentsInscriptionUsecase,
+    PaymentDetailsUsecase,
 
     // Participants
     ListParticipantsUsecase,

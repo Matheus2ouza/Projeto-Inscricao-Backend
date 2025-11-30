@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
+import { StatusPayment } from 'generated/prisma';
 import {
   AnalysisPaymentInput,
   AnalysisPaymentUsecase,
@@ -29,9 +30,9 @@ export class AnalysisPaymentRoute {
     const page = Number(query.page ?? '1');
     const pageSize = Number(query.pageSize ?? '10');
     const status = Array.isArray(query.status)
-      ? query.status
+      ? query.status.map((s) => s as StatusPayment)
       : query.status
-        ? [query.status]
+        ? [query.status as StatusPayment]
         : [];
     const input: AnalysisPaymentInput = {
       page,

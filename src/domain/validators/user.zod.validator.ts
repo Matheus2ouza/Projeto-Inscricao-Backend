@@ -1,18 +1,18 @@
-import { z } from 'zod';
-import { User } from '../entities/user.entity';
-import { Validator } from '../shared/validators/validator';
 import { ZodUtils } from 'src/shared/utils/zod-utils';
-import { ValidatorDomainException } from '../shared/exceptions/validator-domain.exception';
+import { z } from 'zod';
+import { Account } from '../entities/account.entity';
 import { DomainException } from '../shared/exceptions/domain.exception';
+import { ValidatorDomainException } from '../shared/exceptions/validator-domain.exception';
+import { Validator } from '../shared/validators/validator';
 
-export class UserZodValidator implements Validator<User> {
+export class UserZodValidator implements Validator<Account> {
   private constructor() {}
 
   public static create(): UserZodValidator {
     return new UserZodValidator();
   }
 
-  public validate(input: User): void {
+  public validate(input: Account): void {
     try {
       this.getZodSchema().parse(input);
     } catch (error) {

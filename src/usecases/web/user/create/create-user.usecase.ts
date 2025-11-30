@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
-import { User } from 'src/domain/entities/user.entity';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { Account } from 'src/domain/entities/account.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/region-not-found.usecase.exception';
 import { UserAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/users/user-already-exists.usecase.exception';
@@ -23,7 +23,7 @@ export type CreateUserOutput = {
 export class CreateUserUsecase
   implements Usecase<CreateUserInput, CreateUserOutput>
 {
-  public constructor(private readonly userGateway: UserGateway) {}
+  public constructor(private readonly userGateway: AccountGateway) {}
 
   public async execute({
     username,
@@ -57,7 +57,13 @@ export class CreateUserUsecase
       );
     }
 
-    const anUser = User.create({ username, password, role, regionId, email });
+    const anUser = Account.create({
+      username,
+      password,
+      role,
+      regionId,
+      email,
+    });
 
     await this.userGateway.create(anUser);
 

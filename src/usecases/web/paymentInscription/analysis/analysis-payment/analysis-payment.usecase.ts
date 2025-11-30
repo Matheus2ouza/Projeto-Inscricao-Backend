@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { StatusPayment } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -9,7 +10,7 @@ import { MissingInscriptionIdUsecaseException } from 'src/usecases/web/exception
 export type AnalysisPaymentInput = {
   page: number;
   pageSize: number;
-  status?: string[];
+  status?: StatusPayment[];
   inscriptionId: string;
 };
 
@@ -76,11 +77,11 @@ export class AnalysisPaymentUsecase
     }
 
     const [payments, total] = await Promise.all([
-      this.paymentInscriptionGateway.findToAnalysis(input.inscriptionId, {
-        page: safePage,
-        pageSize: safePageSize,
-        status: input.status,
-      }),
+      this.paymentInscriptionGateway.findToAnalysis(
+        input.inscriptionId,
+        safePage,
+        safePageSize,
+      ),
 
       this.paymentInscriptionGateway.countAllFiltered({
         inscriptionId: input.inscriptionId,

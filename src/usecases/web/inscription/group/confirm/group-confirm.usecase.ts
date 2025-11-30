@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
 import { Participant as ParticipantEntity } from 'src/domain/entities/participant.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
 import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription/inscription-email.types';
 import { RedisService } from 'src/infra/services/redis/redis.service';
@@ -49,7 +49,7 @@ export class GroupConfirmUsecase {
     private readonly participantGateway: ParticipantGateway,
     private readonly eventGateway: EventGateway,
     private readonly eventResponsibleGateway: EventResponsibleGateway,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly inscriptionEmailHandler: InscriptionEmailHandler,
   ) {}

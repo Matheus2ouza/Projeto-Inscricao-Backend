@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 
 export type FindAllNamesUserInput = {
   roles?: string[];
@@ -13,7 +13,7 @@ export type FindAllNamesUserOutput = {
 
 @Injectable()
 export class FindAllNamesUserUsecase {
-  public constructor(private readonly userGateway: UserGateway) {}
+  public constructor(private readonly userGateway: AccountGateway) {}
 
   public async execute(
     input: FindAllNamesUserInput,

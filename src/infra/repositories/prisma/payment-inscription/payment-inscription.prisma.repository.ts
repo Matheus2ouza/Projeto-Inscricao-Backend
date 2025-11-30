@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { StatusPayment } from 'generated/prisma';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInscription } from 'src/domain/entities/payment-inscription';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { PrismaService } from '../prisma.service';
-import { PaymentInscriptionEntityToPaymentInscriptionPrismaModelMapper } from './model/mapper/payment-inscription-entity-to-payment-inscription-prisma-model.mapper';
-import { PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper } from './model/mapper/payment-inscription-prisma-model-to-payment-inscription-entity.mapper';
+import { PaymentInscriptionEntityToPaymentInscriptionPrismaModelMapper as EntityToPrisma } from './model/mapper/payment-inscription-entity-to-payment-inscription-prisma-model.mapper';
+import { PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper as PrismaToEntity } from './model/mapper/payment-inscription-prisma-model-to-payment-inscription-entity.mapper';
 
 @Injectable()
 export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
@@ -14,14 +15,9 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
   public async create(
     paymentInscription: PaymentInscription,
   ): Promise<PaymentInscription> {
-    const data =
-      PaymentInscriptionEntityToPaymentInscriptionPrismaModelMapper.map(
-        paymentInscription,
-      );
+    const data = EntityToPrisma.map(paymentInscription);
     const created = await this.prisma.paymentInscription.create({ data });
-    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-      created,
-    );
+    return PrismaToEntity.map(created);
   }
 
   public async deletePayment(paymentId: string): Promise<void> {
@@ -36,11 +32,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       where: { id },
     });
 
-    return aModel
-      ? PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-          aModel,
-        )
-      : null;
+    return aModel ? PrismaToEntity.map(aModel) : null;
   }
 
   // Buscas por relacionamento
@@ -49,26 +41,19 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       where: { inscriptionId: id },
     });
 
-    return aModel.map(
-      PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map,
-    );
+    return aModel.map(PrismaToEntity.map);
   }
 
   public async findToAnalysis(
     id: string,
+    page: number,
+    pageSize: number,
     filters: {
-      status?: string[];
-      page: number;
-      pageSize: number;
+      status?: StatusPayment[];
     },
   ): Promise<PaymentInscription[]> {
-    const { page, pageSize, ...filterFields } = filters;
-    const where = this.buildWhereClause({
-      inscriptionId: id,
-      ...filterFields,
-    });
+    const where = this.buildWhereClauseEvent(filters);
     const skip = (page - 1) * pageSize;
-
     const aModel = await this.prisma.paymentInscription.findMany({
       where,
       skip,
@@ -76,17 +61,40 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       orderBy: { createdAt: 'desc' },
     });
 
-    return aModel.map(
-      PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map,
-    );
+    return aModel.map(PrismaToEntity.map);
+  }
+
+  async findByEventIdWithPagination(
+    page: number,
+    pageSize: number,
+    orderBy?: { field: string; direction: 'asc' | 'desc' },
+    filter?: { eventId?: string; status?: StatusPayment[] },
+  ): Promise<PaymentInscription[]> {
+    const where = this.buildWhereClauseEvent(filter);
+    const skip = (page - 1) * pageSize;
+
+    const order =
+      orderBy?.field && orderBy?.direction
+        ? { [orderBy.field]: orderBy.direction }
+        : undefined;
+
+    const data = await this.prisma.paymentInscription.findMany({
+      where,
+      skip,
+      take: pageSize,
+      ...(order && { orderBy: order }),
+    });
+
+    return data.map(PrismaToEntity.map);
   }
 
   // Agregações e contagens
   async countAllFiltered(filters: {
-    inscriptionId: string;
-    status?: string[];
+    eventId: string;
+    inscriptionId?: string;
+    status?: StatusPayment[];
   }): Promise<number> {
-    const where = this.buildWhereClause(filters);
+    const where = this.buildWhereClauseEvent(filters);
     return this.prisma.paymentInscription.count({ where });
   }
 
@@ -122,9 +130,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       },
     });
 
-    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-      data,
-    );
+    return PrismaToEntity.map(data);
   }
 
   public async approvePaymentWithTransaction(
@@ -182,9 +188,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       return approvedPayment;
     });
 
-    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-      result,
-    );
+    return PrismaToEntity.map(result);
   }
 
   public async rejectedPayment(
@@ -198,9 +202,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
         rejectionReason: rejectionReason,
       },
     });
-    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-      payment,
-    );
+    return PrismaToEntity.map(payment);
   }
 
   public async revertApprovedPayment(
@@ -246,27 +248,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
 
       return approvedPayment;
     });
-    return PaymentInscriptionPrismaModelToPaymentInscriptionEntityMapper.map(
-      result,
-    );
-  }
-
-  // Métodos privados
-  private buildWhereClause(filters: {
-    inscriptionId: string;
-    status?: string[];
-  }) {
-    const where: any = {
-      inscriptionId: filters.inscriptionId,
-    };
-
-    if (filters.status && filters.status.length > 0) {
-      where.status = {
-        in: filters.status,
-      };
-    }
-
-    return where;
+    return PrismaToEntity.map(result);
   }
 
   async sumPaidByAccountIdAndEventId(
@@ -284,5 +266,18 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
       },
     });
     return Number(sum._sum.value || 0);
+  }
+
+  private buildWhereClauseEvent(filter?: {
+    eventId?: string;
+    inscriptionId?: string;
+    status?: StatusPayment[];
+  }) {
+    const { eventId, inscriptionId, status } = filter || {};
+    return {
+      eventId,
+      inscriptionId,
+      status: status ? { in: status } : undefined,
+    };
   }
 }

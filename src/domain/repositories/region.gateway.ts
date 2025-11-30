@@ -1,6 +1,6 @@
-import { Region } from '../entities/region.entity';
+import { Account } from '../entities/account.entity';
 import { Event } from '../entities/event.entity';
-import { User } from '../entities/user.entity';
+import { Region } from '../entities/region.entity';
 
 export abstract class RegionGateway {
   abstract create(region: Region): Promise<Region>;
@@ -10,5 +10,5 @@ export abstract class RegionGateway {
   abstract findAll(): Promise<Region[]>;
   abstract lastEventAt(regionId: string): Promise<Event | null>;
   abstract nextEventAt(regionId: string): Promise<Event | null>;
-  abstract lastAccountAt(regionId: string): Promise<User | null>;
+  abstract lastAccountAt(regionId: string): Promise<Account | null>;
 }

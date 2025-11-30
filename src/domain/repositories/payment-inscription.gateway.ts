@@ -1,3 +1,4 @@
+import { Prisma, StatusPayment } from 'generated/prisma';
 import { PaymentInscription } from '../entities/payment-inscription';
 
 export abstract class PaymentInscriptionGateway {
@@ -14,17 +15,31 @@ export abstract class PaymentInscriptionGateway {
   abstract findbyInscriptionId(id: string): Promise<PaymentInscription[]>;
   abstract findToAnalysis(
     id: string,
-    filters: {
-      status?: string[];
-      page: number;
-      pageSize: number;
+    page: number,
+    pageSize: number,
+    filters?: {
+      status?: StatusPayment[];
+    },
+  ): Promise<PaymentInscription[]>;
+
+  abstract findByEventIdWithPagination(
+    page: number,
+    pageSize: number,
+    orderBy?: {
+      field: Prisma.PaymentInscriptionScalarFieldEnum;
+      direction: 'asc' | 'desc';
+    },
+    filter?: {
+      eventId?: string;
+      status?: StatusPayment[];
     },
   ): Promise<PaymentInscription[]>;
 
   // Agregações e contagens
   abstract countAllFiltered(filters: {
-    inscriptionId: string;
-    status?: string[];
+    eventId?: string;
+    inscriptionId?: string;
+    status?: StatusPayment[];
   }): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 
@@ -40,7 +40,7 @@ export class ListParticipantsUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly participantGateway: ParticipantGateway,
   ) {}
 

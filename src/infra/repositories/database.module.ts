@@ -18,12 +18,12 @@ import { TicketSalePaymentPrismaRepositoryProvider } from './prisma/ticket-sale-
 import { TicketSalePrismaRepositoryProvider } from './prisma/ticket-sale/model/ticket-sale.prisma.repository.provider';
 import { TicketUnitPrismaRepositoryProvider } from './prisma/ticket-unit/model/ticket-unit.prisma.repository.provider';
 import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/model/type-inscription.prisma.repository.provider';
-import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.repository.provider';
+import { AccountPrismaRepositoryProvider } from './prisma/user/model/account.prisma.repository.provider';
 
 @Module({
   imports: [PrismaModule],
   providers: [
-    UserPrismaRepositoryProvider,
+    AccountPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
@@ -44,7 +44,7 @@ import { UserPrismaRepositoryProvider } from './prisma/user/model/user.prisma.re
     TicketUnitPrismaRepositoryProvider,
   ],
   exports: [
-    UserPrismaRepositoryProvider,
+    AccountPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,

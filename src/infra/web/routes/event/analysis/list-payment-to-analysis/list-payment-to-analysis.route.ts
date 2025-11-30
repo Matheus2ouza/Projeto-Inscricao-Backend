@@ -1,7 +1,13 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ListPaymentToAnalysisUsecase } from 'src/usecases/web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
-import { ListPaymentToAnalysisResponse } from './list-payment-to-analysis.dto';
+import {
+  ListPaymentToAnalysisInput,
+  ListPaymentToAnalysisUsecase,
+} from 'src/usecases/web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
+import type {
+  ListPaymentToAnalysisRequest,
+  ListPaymentToAnalysisResponse,
+} from './list-payment-to-analysis.dto';
 import { ListPaymentToAnalysisPresenter } from './list-payment-to-analysis.presenter';
 
 @ApiTags('Events')
@@ -20,11 +26,13 @@ export class ListPaymentToAnalysisRoute {
       'Este endpoint é utilizado no painel de análise de inscrições do evento para facilitar a verificação e conferência financeira dos participantes.',
   })
   async handle(
-    @Param('eventId') eventId: string,
+    @Param() param: ListPaymentToAnalysisRequest,
   ): Promise<ListPaymentToAnalysisResponse> {
-    const result = await this.ListPaymentToAnalysisUsecase.execute({
-      eventId,
-    });
+    const input: ListPaymentToAnalysisInput = {
+      eventId: param.eventId,
+    };
+
+    const result = await this.ListPaymentToAnalysisUsecase.execute(input);
     return ListPaymentToAnalysisPresenter.toHttp(result);
   }
 }

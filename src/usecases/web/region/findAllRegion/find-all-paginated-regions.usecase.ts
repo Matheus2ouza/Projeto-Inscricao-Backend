@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { Account } from 'src/domain/entities/account.entity';
 import { Event } from 'src/domain/entities/event.entity';
-import { User } from 'src/domain/entities/user.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { EventWithImageUrl } from 'src/infra/web/routes/region/find-all-paginated/find-all-paginated-regions.dto';
@@ -22,7 +22,7 @@ export type FindAllPaginatedRegionsOutput = {
     numberOfAccounts?: number;
     lastEventAt: EventWithImageUrl | null;
     nextEventAt: EventWithImageUrl | null;
-    lastAccountAt: User | null;
+    lastAccountAt: Account | null;
   }[];
   total: number;
   page: number;

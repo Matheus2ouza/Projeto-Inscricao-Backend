@@ -3,9 +3,11 @@ import type {
   EventResponsibleEmailData,
   InscriptionEmailData,
 } from '../types/inscription/inscription-email.types';
+import type { InscriptionStatusEmailData } from '../types/inscription/inscription-status-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
 import type { TicketReleaseEmailData } from '../types/tickets/ticket-release-email.types';
+import type { TicketSaleNotificationEmailData } from '../types/tickets/ticket-sale-notification-email.types';
 
 export type TemplateCategory = 'payment' | 'inscription' | 'tickets';
 
@@ -87,6 +89,32 @@ const mockTicketReleaseData = (): TicketReleaseEmailData => ({
   saleId: 'sale_ABC123',
 });
 
+const mockTicketSaleNotificationData =
+  (): TicketSaleNotificationEmailData => ({
+    saleId: 'sale_ABC123',
+    paymentId: 'pay_123456',
+    eventName: 'Congresso de Tecnologia 2025',
+    eventLocation: 'São Paulo Expo, São Paulo - SP',
+    eventStartDate: new Date('2025-04-05T08:00:00Z'),
+    eventEndDate: new Date('2025-04-07T18:00:00Z'),
+    buyerName: 'Carolina Dias',
+    buyerEmail: 'carolina@example.com',
+    buyerPhone: '+55 (11) 91234-5678',
+    totalValue: 129.9,
+    paymentMethod: 'PIX',
+    paymentValue: 129.9,
+    submittedAt: new Date(),
+  });
+
+const mockInscriptionStatusData = (): InscriptionStatusEmailData => ({
+  inscriptionId: 'insc_987654',
+  responsibleName: 'Marina Costa',
+  responsibleEmail: 'marina.costa@example.com',
+  eventName: 'Congresso de Tecnologia 2025',
+  eventLocation: 'São Paulo Expo, São Paulo - SP',
+  decisionDate: new Date(),
+});
+
 export const templateDefinitions: TemplateDefinition[] = [
   {
     id: 'payment/payment-approved',
@@ -166,6 +194,40 @@ export const templateDefinitions: TemplateDefinition[] = [
     }),
   },
   {
+    id: 'inscription/status-approved',
+    category: 'inscription',
+    title: 'Inscrição aprovada',
+    description: 'Confirma ao responsável que a inscrição foi aprovada.',
+    previewText: 'Sua inscrição foi aprovada.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/status-approved/index.js'
+      );
+      return { default: module.InscriptionStatusApprovedEmail };
+    },
+    getProps: () => ({
+      statusData: mockInscriptionStatusData(),
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'inscription/status-rejected',
+    category: 'inscription',
+    title: 'Inscrição reprovada',
+    description: 'Informa o responsável sobre a reprovação da inscrição.',
+    previewText: 'Sua inscrição foi reprovada.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/status-rejected/index.js'
+      );
+      return { default: module.InscriptionStatusRejectedEmail };
+    },
+    getProps: () => ({
+      statusData: mockInscriptionStatusData(),
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
     id: 'tickets/pre-sale-approved',
     category: 'tickets',
     title: 'Tickets liberados',
@@ -182,6 +244,26 @@ export const templateDefinitions: TemplateDefinition[] = [
       downloadsUrl:
         process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
       year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'tickets/pre-sale-notification',
+    category: 'tickets',
+    title: 'Nova pré-venda',
+    description:
+      'Notifica os responsáveis do evento quando uma nova venda é submetida.',
+    previewText: 'Uma nova pré-venda aguarda validação.',
+    loader: async () => {
+      const module = await import(
+        '../templates/tickets/pre-sale-notification/index.js'
+      );
+      return { default: module.TicketSaleNotificationEmail };
+    },
+    getProps: () => ({
+      saleData: mockTicketSaleNotificationData(),
+      responsibles: mockResponsibles(),
+      year: new Date().getFullYear(),
+      currentDate: new Date(),
     }),
   },
 ];

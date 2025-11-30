@@ -1,4 +1,4 @@
-import { User } from 'src/domain/entities/user.entity';
+import { Account } from 'src/domain/entities/account.entity';
 import { Event } from 'src/domain/entities/event.entity';
 
 export type FindAllPaginatedRegionRequest = {
@@ -17,7 +17,7 @@ export type FindAllPaginatedRegionResponse = {
     updatedAt: Date;
     lastEventAt: EventWithImageUrl | null;
     nextEventAt: EventWithImageUrl | null;
-    lastAccountAt: User | null;
+    lastAccountAt: Account | null;
   }[];
   total: number;
   page: number;
