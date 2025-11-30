@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedUsersInput = {
@@ -26,7 +26,7 @@ export type FindAllPaginatedUsersOutput = {
 export class FindAllPaginatedUsersUsecase
   implements Usecase<FindAllPaginatedUsersInput, FindAllPaginatedUsersOutput>
 {
-  public constructor(private readonly userGateway: UserGateway) {}
+  public constructor(private readonly userGateway: AccountGateway) {}
 
   public async execute(
     input: FindAllPaginatedUsersInput,

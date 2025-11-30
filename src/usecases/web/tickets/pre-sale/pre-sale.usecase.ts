@@ -4,13 +4,13 @@ import { Event } from 'src/domain/entities/event.entity';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { TicketSaleNotificationEmailHandler } from 'src/infra/services/mail/handlers/tickets/ticket-sale-notification-email.handler';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -53,7 +53,7 @@ export class PreSaleUseCase implements Usecase<PreSaleInput, PreSaleOutput> {
     private readonly imageOptimizerService: ImageOptimizerService,
     private readonly eventResponsibleGateway: EventResponsibleGateway,
     private readonly ticketSaleNotificationEmailHandler: TicketSaleNotificationEmailHandler,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
   ) {}
 
   public async execute(input: PreSaleInput): Promise<PreSaleOutput> {

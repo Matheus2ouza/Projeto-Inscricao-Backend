@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
@@ -30,7 +30,7 @@ export class ListInscriptionToAnalysisUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly inscriptionGateway: InscriptionGateway,
   ) {}
 

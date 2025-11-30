@@ -1,28 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
-import { User } from 'src/domain/entities/user.entity';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { Account } from 'src/domain/entities/account.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { PrismaService } from '../prisma.service';
-import { UserEntityToUserPrismaModelMapper } from './model/mappers/user-entity-to-user-prisma-model.mapper';
-import { UserPrismaModelToUserEntityMapper } from './model/mappers/user-prisma-model-to-user-entity.mapper';
+import { AccountEntityToUserPrismaModelMapper } from './model/mappers/account-entity-to-account-prisma-model.mapper';
+import { AccountPrismaModelToUserEntityMapper } from './model/mappers/account-prisma-model-to-account-entity.mapper';
 
 @Injectable()
-export class UserPrismaRepository implements UserGateway {
+export class AccountPrismaRepository implements AccountGateway {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async findByUser(username: string): Promise<User | null> {
+  public async findByUser(username: string): Promise<Account | null> {
     const aModel = await this.prisma.accounts.findFirst({
       where: { username },
     });
 
     if (!aModel) return null;
 
-    const anUser = UserPrismaModelToUserEntityMapper.map(aModel);
+    const anUser = AccountPrismaModelToUserEntityMapper.map(aModel);
 
     return anUser;
   }
 
-  public async findById(id: string): Promise<User | null> {
+  public async findById(id: string): Promise<Account | null> {
     const aModel = await this.prisma.accounts.findUnique({
       where: {
         id,
@@ -31,7 +31,7 @@ export class UserPrismaRepository implements UserGateway {
 
     if (!aModel) return null;
 
-    const anUser = UserPrismaModelToUserEntityMapper.map(aModel);
+    const anUser = AccountPrismaModelToUserEntityMapper.map(aModel);
 
     return anUser;
   }
@@ -48,8 +48,8 @@ export class UserPrismaRepository implements UserGateway {
     return region;
   }
 
-  public async create(user: User): Promise<void> {
-    const aModel = UserEntityToUserPrismaModelMapper.map(user);
+  public async create(user: Account): Promise<void> {
+    const aModel = AccountEntityToUserPrismaModelMapper.map(user);
     await this.prisma.accounts.create({
       data: aModel,
     });
@@ -59,7 +59,7 @@ export class UserPrismaRepository implements UserGateway {
     page: number,
     pageSize: number,
     regionId?: string,
-  ): Promise<User[]> {
+  ): Promise<Account[]> {
     const skip = (page - 1) * pageSize;
     const where = regionId ? { regionId } : {};
 
@@ -77,10 +77,10 @@ export class UserPrismaRepository implements UserGateway {
       },
     });
 
-    return models.map(UserPrismaModelToUserEntityMapper.map);
+    return models.map(AccountPrismaModelToUserEntityMapper.map);
   }
 
-  async findAll(roles?: string[]): Promise<User[]> {
+  async findAll(roles?: string[]): Promise<Account[]> {
     const roleValues = roles
       ? roles
           .map((role) => roleType[role as keyof typeof roleType])
@@ -94,7 +94,7 @@ export class UserPrismaRepository implements UserGateway {
         },
       },
     });
-    return found.map(UserPrismaModelToUserEntityMapper.map);
+    return found.map(AccountPrismaModelToUserEntityMapper.map);
   }
 
   public async countAll(regionId: string): Promise<number> {
@@ -106,7 +106,7 @@ export class UserPrismaRepository implements UserGateway {
     return total;
   }
 
-  public async findByIds(ids: string[]): Promise<User[]> {
+  public async findByIds(ids: string[]): Promise<Account[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -133,6 +133,6 @@ export class UserPrismaRepository implements UserGateway {
       },
     });
 
-    return models.map(UserPrismaModelToUserEntityMapper.map);
+    return models.map(AccountPrismaModelToUserEntityMapper.map);
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -36,7 +36,7 @@ export class LoginUserUsecase
   implements Usecase<loginUserInput, loginUserOutput>
 {
   public constructor(
-    private readonly UserGateway: UserGateway,
+    private readonly UserGateway: AccountGateway,
     private readonly jwtService: JwtService,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly regionGateway: RegionGateway,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
 import { Usecase } from 'src/usecases/usecase';
 import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/users/credentials-no-valid.usecase.exception';
@@ -18,7 +18,7 @@ export class RefreshAuthTokenUserUsecase
     Usecase<RefreshAuthTokenUserUsecaseInput, RefreshAuthTokenUserUsecaseOutput>
 {
   public constructor(
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly jwtService: JwtService,
   ) {}
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
@@ -44,7 +44,7 @@ export class FindByIdEventUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly eventResponsibleGateway: EventResponsibleGateway,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly regionGateway: RegionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}

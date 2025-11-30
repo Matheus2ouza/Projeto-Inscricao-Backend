@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedEventToPaymentInput = {
+  regionId?: string;
+  status?: statusEvent[];
   page: number;
   pageSize: number;
 };
@@ -46,16 +49,19 @@ export class FindAllPaginatedEventToPaymentUsecase
       Math.min(6, Math.floor(input.pageSize || 10)),
     );
 
-    const allEvents = await this.eventGateway.findAll();
-
-    const total = allEvents.length;
-
-    const start = (safePage - 1) * safePageSize;
-    const end = start + safePageSize;
-    const pageRegions = allEvents.slice(start, end);
+    const [events, total] = await Promise.all([
+      this.eventGateway.findAllPaginated(safePage, safePageSize, {
+        status: input.status,
+        regionId: input.regionId,
+      }),
+      this.eventGateway.countAllFiltered({
+        status: input.status,
+        regionId: input.regionId,
+      }),
+    ]);
 
     const enriched = await Promise.all(
-      pageRegions.map(async (event: any) => {
+      events.map(async (event: any) => {
         let publicImageUrl: string | undefined = undefined;
         const imagePath =
           event.getImageUrl?.() || event.imageUrl || event.imagePath;

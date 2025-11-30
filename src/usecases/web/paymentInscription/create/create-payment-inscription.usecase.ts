@@ -3,11 +3,11 @@ import Decimal from 'decimal.js';
 import { StatusPayment } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { PaymentInscription } from 'src/domain/entities/payment-inscription';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { PaymentReviewNotificationEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-review-notification-email.handler';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -42,7 +42,7 @@ export class CreatePaymentInscriptionUsecase
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
     private readonly eventResponsibleGateway: EventResponsibleGateway,
-    private readonly userGateway: UserGateway,
+    private readonly userGateway: AccountGateway,
     private readonly paymentReviewNotificationEmailHandler: PaymentReviewNotificationEmailHandler,
   ) {}
 

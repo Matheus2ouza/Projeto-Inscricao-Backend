@@ -1,5 +1,5 @@
 import { ValidatorDomainException } from '../shared/exceptions/validator-domain.exception';
-import { User } from './user.entity';
+import { Account } from './account.entity';
 
 describe('Domain > Entities > User', () => {
   describe('create', () => {
@@ -9,13 +9,13 @@ describe('Domain > Entities > User', () => {
       const aPassword = '123456';
 
       // Act
-      const anUser = User.create({
+      const anUser = Account.create({
         username: aUsername,
         password: aPassword,
       });
 
       // Assert
-      expect(anUser).toBeInstanceOf(User);
+      expect(anUser).toBeInstanceOf(Account);
       expect(anUser.getUsername()).toBe(aUsername);
       expect(anUser.getPassword()).not.toBe(aPassword);
       expect(anUser.comparePassword(aPassword)).toBe(true);
@@ -33,7 +33,7 @@ describe('Domain > Entities > User', () => {
 
       // Act
       const anError = () => {
-        User.create({
+        Account.create({
           username: anInvalidUser,
           password: anInvalidPassword,
         });
@@ -50,7 +50,7 @@ describe('Domain > Entities > User', () => {
 
       // Act
       const anError = () => {
-        User.create({
+        Account.create({
           username: anInvalidUsser,
           password: anInvalidPassword,
         });
@@ -68,7 +68,7 @@ describe('Domain > Entities > User', () => {
       const aPassword = '123456';
 
       // Act
-      const anUser = User.create({
+      const anUser = Account.create({
         username: aUser,
         password: aPassword,
       });
@@ -89,7 +89,7 @@ describe('Domain > Entities > User', () => {
       const aPassword = '123456';
 
       // Act
-      const anUser = User.create({
+      const anUser = Account.create({
         username: aUser,
         password: aPassword,
       });

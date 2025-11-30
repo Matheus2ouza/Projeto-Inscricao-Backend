@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { Account } from 'src/domain/entities/account.entity';
 import { Event } from 'src/domain/entities/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
-import { User } from 'src/domain/entities/user.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { EventPrismaModelToEventEntityMapper } from '../event/model/mappers/event-prisma-model-to-event-entity.mapper';
 import { PrismaService } from '../prisma.service';
-import { UserPrismaModelToUserEntityMapper } from '../user/model/mappers/user-prisma-model-to-user-entity.mapper';
+import { AccountPrismaModelToUserEntityMapper } from '../user/model/mappers/account-prisma-model-to-account-entity.mapper';
 import { RegionEntityToRegionPrismaModelMapper } from './model/mappers/region-entity-to-region-prisma-model.mapper';
 import { RegionPrismaModelToRegionEntityMapper } from './model/mappers/region-prisma-model-to-region-entity.mapper';
 
@@ -72,11 +72,11 @@ export class RegionPrismaRepository implements RegionGateway {
     return found ? EventPrismaModelToEventEntityMapper.map(found) : null;
   }
 
-  async lastAccountAt(regionId: string): Promise<User | null> {
+  async lastAccountAt(regionId: string): Promise<Account | null> {
     const found = await this.prisma.accounts.findFirst({
       where: { regionId },
       orderBy: { createdAt: 'desc' },
     });
-    return found ? UserPrismaModelToUserEntityMapper.map(found) : null;
+    return found ? AccountPrismaModelToUserEntityMapper.map(found) : null;
   }
 }

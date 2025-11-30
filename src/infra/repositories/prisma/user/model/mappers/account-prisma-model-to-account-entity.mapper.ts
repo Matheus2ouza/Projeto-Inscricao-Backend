@@ -1,11 +1,11 @@
-import { User } from 'src/domain/entities/user.entity';
-import UserPrismaModel from '../user.prisma.model';
+import { Account } from 'src/domain/entities/account.entity';
+import AccountPrismaModel from '../account.prisma.model';
 
-export class UserPrismaModelToUserEntityMapper {
+export class AccountPrismaModelToUserEntityMapper {
   public static map(
-    user: UserPrismaModel & { region?: { name: string } | null },
-  ): User {
-    const anUser = User.with({
+    user: AccountPrismaModel & { region?: { name: string } | null },
+  ): Account {
+    const anUser = Account.with({
       id: user.id,
       username: user.username,
       password: user.password,

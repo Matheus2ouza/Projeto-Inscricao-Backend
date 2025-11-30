@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserGateway } from 'src/domain/repositories/user.geteway';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { UserNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/user-not-found.usecase.exception';
 
@@ -18,7 +18,7 @@ export type FindUserOutput = {
 
 @Injectable()
 export class FindUserUsecase implements Usecase<FindUserInput, FindUserOutput> {
-  public constructor(private readonly userGateway: UserGateway) {}
+  public constructor(private readonly userGateway: AccountGateway) {}
 
   public async execute({ id }: FindUserInput): Promise<FindUserOutput> {
     const anUser = await this.userGateway.findById(id);

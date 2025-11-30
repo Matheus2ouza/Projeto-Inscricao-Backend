@@ -68,6 +68,8 @@ import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analy
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
+import { ListAllPaymentsInscriptionRoute } from './routes/paymentInscription/list-all-payments-inscription/list-all-payments-inscription.route';
+import { PaymentDetailsRoute } from './routes/paymentInscription/payment-details/payment-details.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -193,6 +195,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     AnalysisPaymentRoute,
     UpdatePaymentRoute,
     DeletePaymentInscriptionRoute,
+    ListAllPaymentsInscriptionRoute,
+    PaymentDetailsRoute,
 
     // Participants
     ListParticipantsRoute,

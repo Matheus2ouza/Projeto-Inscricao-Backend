@@ -4,7 +4,7 @@ import { UserPasswordZodValidatorFactory } from '../factories/user-password.vali
 import { UserValidatorFactory } from '../factories/user.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
-export type UserCreateDto = {
+export type AccountCreateDto = {
   username: string;
   password: string;
   role: roleType;
@@ -12,7 +12,7 @@ export type UserCreateDto = {
   email: string;
 };
 
-export type UserwithDto = {
+export type AccountwithDto = {
   id: string;
   username: string;
   password: string;
@@ -25,7 +25,7 @@ export type UserwithDto = {
   imageUrl?: string;
 };
 
-export class User extends Entity {
+export class Account extends Entity {
   private constructor(
     id: string,
     private username: string,
@@ -48,7 +48,7 @@ export class User extends Entity {
     role,
     regionId,
     email,
-  }: UserCreateDto): User {
+  }: AccountCreateDto): Account {
     const id = Utils.generateUUID();
 
     UserPasswordZodValidatorFactory.create().validate(password);
@@ -57,7 +57,7 @@ export class User extends Entity {
     const createdAt = new Date();
     const updatedAt = new Date();
 
-    return new User(
+    return new Account(
       id,
       username,
       encryptedPassword,
@@ -80,8 +80,8 @@ export class User extends Entity {
     regionName,
     email,
     imageUrl,
-  }: UserwithDto): User {
-    return new User(
+  }: AccountwithDto): Account {
+    return new Account(
       id,
       username,
       password,
