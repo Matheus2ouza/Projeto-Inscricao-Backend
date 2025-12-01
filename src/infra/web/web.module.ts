@@ -29,6 +29,7 @@ import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/f
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
 import { FindAllPaginatedEventToPaymentRoute } from './routes/event/find-all-to-analysis/payments/find-all-paginated-events-to-payments.route';
 import { FindAllWithInscriptionsRoute } from './routes/event/find-all-with-inscriptions/find-all-with-inscriptions.route';
+import { FindAllWithPaymentsRoute } from './routes/event/find-all-with-payments/find-all-with-payments.route';
 import { FindAllWithTicketsRoute } from './routes/event/find-all-with-tickets/find-all-with-tickets.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
 import { FindDetailsEventRoute } from './routes/event/find-details/find-details-event.route';
@@ -68,7 +69,7 @@ import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analy
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
-import { ListAllPaymentsInscriptionRoute } from './routes/paymentInscription/list-all-payments-inscription/list-all-payments-inscription.route';
+import { ListAllPaymentsRoute } from './routes/paymentInscription/list-all-payments/list-all-payments.route';
 import { PaymentDetailsRoute } from './routes/paymentInscription/payment-details/payment-details.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
@@ -121,6 +122,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
     FindAllWithInscriptionsRoute,
+    FindAllWithPaymentsRoute,
     FindAllWithTicketsRoute,
     FindAllPaginatedEventToInscriptionRoute,
     FindAllPaginatedEventToPaymentRoute,
@@ -195,7 +197,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     AnalysisPaymentRoute,
     UpdatePaymentRoute,
     DeletePaymentInscriptionRoute,
-    ListAllPaymentsInscriptionRoute,
+    ListAllPaymentsRoute,
     PaymentDetailsRoute,
 
     // Participants

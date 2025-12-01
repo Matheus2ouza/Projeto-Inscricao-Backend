@@ -16,7 +16,7 @@ export class FindAllWithInscriptionsRoute {
     private readonly findAllwithInscriptionUsecase: FindAllWithInscriptionsUsecase,
   ) {}
 
-  @Get('/inscriptions')
+  @Get('inscriptions')
   public async handle(
     @Query() query: FindAllWithInscriptionsRequest,
     @UserId() accountId: string,

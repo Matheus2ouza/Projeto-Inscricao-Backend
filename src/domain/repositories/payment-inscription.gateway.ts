@@ -41,7 +41,7 @@ export abstract class PaymentInscriptionGateway {
     inscriptionId?: string;
     status?: StatusPayment[];
   }): Promise<number>;
-  abstract countAllByEvent(eventId: string): Promise<number>;
+  abstract countAllByEventId(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
 

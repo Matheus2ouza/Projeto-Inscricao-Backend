@@ -25,6 +25,7 @@ import { FindAllnamesEventUsecase } from './web/event/find-all-names/find-all-na
 import { FindAllPaginatedEventToInscriptionUsecase } from './web/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
 import { FindAllPaginatedEventToPaymentUsecase } from './web/event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
 import { FindAllWithInscriptionsUsecase } from './web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
+import { FindAllWithPaymentsUsecase } from './web/event/find-all-with-payments/find-all-with-payments.usecase';
 import { FindAllWithTicketsUsecase } from './web/event/find-all-with-tickets/find-all-with-tickets.usecase';
 import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase';
 import { FindDetailsEventUsecase } from './web/event/find-details/find-details-event.usecase';
@@ -67,7 +68,7 @@ import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-s
 import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import { CreatePaymentInscriptionUsecase } from './web/paymentInscription/create/create-payment-inscription.usecase';
 import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
-import { ListAllPaymentsInscriptionUsecase } from './web/paymentInscription/list-all-payments-inscription/list-all-payments-inscription.usecase';
+import { ListAllPaymentsUsecase } from './web/paymentInscription/list-all-payments/list-all-payments.usecase';
 import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
@@ -145,6 +146,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
     FindAllWithInscriptionsUsecase,
+    FindAllWithPaymentsUsecase,
     FindAllWithTicketsUsecase,
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
@@ -193,7 +195,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
-    ListAllPaymentsInscriptionUsecase,
+    ListAllPaymentsUsecase,
     PaymentDetailsUsecase,
 
     // Participants
@@ -266,6 +268,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
     FindAllWithInscriptionsUsecase,
+    FindAllWithPaymentsUsecase,
     FindAllWithTicketsUsecase,
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
@@ -314,7 +317,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
-    ListAllPaymentsInscriptionUsecase,
+    ListAllPaymentsUsecase,
     PaymentDetailsUsecase,
 
     // Participants

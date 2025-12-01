@@ -12,7 +12,10 @@ export abstract class InscriptionGateway {
 
   // Buscas por relacionamento
   abstract findByAccountId(accountId: string): Promise<Inscription[]>;
-  abstract findByEventId(eventId: string): Promise<Inscription[]>;
+  abstract findByEventId(filters?: {
+    eventId: string;
+    status?: InscriptionStatus[];
+  }): Promise<Inscription[]>;
   abstract findByEventIdAndAccountId(
     eventId: string,
     accountId: string,

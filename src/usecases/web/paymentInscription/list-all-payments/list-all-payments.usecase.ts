@@ -7,13 +7,13 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 
-export type ListAllPaymentsInscriptionInput = {
+export type ListAllPaymentsInput = {
   eventId: string;
   page: number;
   pageSize: number;
 };
 
-export type ListAllPaymentsInscriptionOutput = {
+export type ListAllPaymentsOutput = {
   paymentsInscriptions: PaymentsInscriptions;
   total: number;
   page: number;
@@ -31,9 +31,8 @@ type PaymentsInscriptions = {
 }[];
 
 @Injectable()
-export class ListAllPaymentsInscriptionUsecase
-  implements
-    Usecase<ListAllPaymentsInscriptionInput, ListAllPaymentsInscriptionOutput>
+export class ListAllPaymentsUsecase
+  implements Usecase<ListAllPaymentsInput, ListAllPaymentsOutput>
 {
   constructor(
     private readonly accountGateway: AccountGateway,
@@ -43,8 +42,8 @@ export class ListAllPaymentsInscriptionUsecase
   ) {}
 
   public async execute(
-    input: ListAllPaymentsInscriptionInput,
-  ): Promise<ListAllPaymentsInscriptionOutput> {
+    input: ListAllPaymentsInput,
+  ): Promise<ListAllPaymentsOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
@@ -55,9 +54,9 @@ export class ListAllPaymentsInscriptionUsecase
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with finding event with id ${input.eventId} in ${ListAllPaymentsInscriptionUsecase.name}`,
+        `Event not found with finding event with id ${input.eventId} in ${ListAllPaymentsUsecase.name}`,
         `Evento não encontrado`,
-        ListAllPaymentsInscriptionUsecase.name,
+        ListAllPaymentsUsecase.name,
       );
     }
 
@@ -116,7 +115,7 @@ export class ListAllPaymentsInscriptionUsecase
         };
       }),
     );
-    const output: ListAllPaymentsInscriptionOutput = {
+    const output: ListAllPaymentsOutput = {
       paymentsInscriptions: enrichedPayments,
       total,
       page: safePage,
