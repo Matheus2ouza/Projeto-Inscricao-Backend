@@ -75,7 +75,7 @@ export class FindAllPaginatedEventToPaymentUsecase
         }
 
         const countPayments =
-          await this.paymentInscriptionGateway.countAllByEvent(event.getId());
+          await this.paymentInscriptionGateway.countAllByEventId(event.getId());
 
         const countPaymentsAnalysis =
           await this.paymentInscriptionGateway.countAllInAnalysis(

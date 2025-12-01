@@ -9,7 +9,7 @@
     "build": "nest build",
     "heroku-postbuild": "npm run build",
     "start": "node dist/main.js",
-    "start:dev": "nest start --watch",
+    "start:dev": "nest start --watch --trace-deprecation",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "worker": "node dist/worker/main.js",

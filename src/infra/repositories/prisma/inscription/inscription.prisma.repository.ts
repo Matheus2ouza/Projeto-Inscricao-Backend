@@ -47,9 +47,13 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByEventId(eventId: string): Promise<Inscription[]> {
+  async findByEventId(filters?: {
+    eventId: string;
+    status?: InscriptionStatus[];
+  }): Promise<Inscription[]> {
+    const where = this.buildWhereClauseEvent(filters);
     const found = await this.prisma.inscription.findMany({
-      where: { eventId },
+      where,
     });
     return found.map(PrismaToEntity.map);
   }
@@ -394,6 +398,19 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     }
 
     return where;
+  }
+
+  private buildWhereClauseEvent(filter?: {
+    eventId?: string;
+    inscriptionId?: string;
+    status?: InscriptionStatus[];
+  }) {
+    const { eventId, inscriptionId, status } = filter || {};
+    return {
+      eventId,
+      inscriptionId,
+      status: status ? { in: status } : undefined,
+    };
   }
 
   // PDF

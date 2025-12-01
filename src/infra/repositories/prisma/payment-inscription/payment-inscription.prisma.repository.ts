@@ -98,7 +98,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return this.prisma.paymentInscription.count({ where });
   }
 
-  public async countAllByEvent(eventId: string): Promise<number> {
+  public async countAllByEventId(eventId: string): Promise<number> {
     const total = await this.prisma.paymentInscription.count({
       where: { eventId },
     });
