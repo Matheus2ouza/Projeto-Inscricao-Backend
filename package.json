@@ -43,6 +43,8 @@
     "body-parser": "^2.2.0",
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
+    "data-fns": "^1.1.0",
+    "date-fns": "^4.1.0",
     "decimal.js": "^10.6.0",
     "exceljs": "^4.4.0",
     "express": "^5.1.0",

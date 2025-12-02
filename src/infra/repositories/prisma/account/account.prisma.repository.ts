@@ -80,17 +80,11 @@ export class AccountPrismaRepository implements AccountGateway {
     return models.map(AccountPrismaModelToUserEntityMapper.map);
   }
 
-  async findAll(roles?: string[]): Promise<Account[]> {
-    const roleValues = roles
-      ? roles
-          .map((role) => roleType[role as keyof typeof roleType])
-          .filter((role): role is roleType => role !== undefined)
-      : [roleType.ADMIN, roleType.SUPER, roleType.MANAGER];
-
+  async findAllNames(roles?: roleType[]): Promise<Account[]> {
     const found = await this.prisma.accounts.findMany({
       where: {
         role: {
-          in: roleValues,
+          in: roles,
         },
       },
     });

@@ -4,6 +4,7 @@ import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscr
 import { PaymentRejectedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-rejected-email.handler';
 import { Usecase } from 'src/usecases/usecase';
 import { InvalidPaymentIdUsecaseException } from 'src/usecases/web/exceptions/paymentInscription/invalid-payment-id.usecase.exception';
+import { Logger } from '@nestjs/common';
 
 export type RejectPaymentInput = {
   paymentId: string;
@@ -24,6 +25,8 @@ export class RejectPaymentUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly paymentRejectedEmailHandler: PaymentRejectedEmailHandler,
   ) {}
+
+  private readonly logger = new Logger(RejectPaymentUsecase.name);
 
   async execute(input: RejectPaymentInput): Promise<RejectPaymentOutput> {
     // Validar se o pagamento existe
@@ -58,11 +61,16 @@ export class RejectPaymentUsecase
     );
 
     // Enviar email de pagamento reprovado (não aguarda para não bloquear a resposta)
-    this.sendRejectedEmail(payment, inscription, input.rejectionReason).catch(
-      (error) => {
-        console.error('Erro ao enviar email de pagamento reprovado:', error);
-      },
-    );
+    void this.sendRejectedEmail(
+      payment,
+      inscription,
+      input.rejectionReason,
+    ).catch((error) => {
+      this.logger.error(
+        `(BG) Erro ao enviar email de pagamento reprovado para ${inscription.getEmail()}: ${error.message}`,
+        error,
+      );
+    });
 
     const output: RejectPaymentOutput = {
       id: updatedPayment.getId(),
@@ -92,8 +100,16 @@ export class RejectPaymentUsecase
       rejectionReason,
     };
 
+    this.logger.log(
+      `(BG) Enviando email de pagamento reprovado para ${inscription.getEmail()}...`,
+    );
+
     await this.paymentRejectedEmailHandler.sendPaymentRejectedEmail(
       paymentEmailData,
+    );
+
+    this.logger.log(
+      `(BG) Email de pagamento reprovado enviado para ${inscription.getEmail()} com sucesso`,
     );
   }
 }

@@ -48,14 +48,10 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     id: string,
     page: number,
     pageSize: number,
-    filters: {
-      status?: StatusPayment[];
-    },
   ): Promise<PaymentInscription[]> {
-    const where = this.buildWhereClauseEvent(filters);
     const skip = (page - 1) * pageSize;
     const aModel = await this.prisma.paymentInscription.findMany({
-      where,
+      where: { inscriptionId: id, status: 'UNDER_REVIEW' },
       skip,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
@@ -70,7 +66,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     orderBy?: { field: string; direction: 'asc' | 'desc' },
     filter?: { eventId?: string; status?: StatusPayment[] },
   ): Promise<PaymentInscription[]> {
-    const where = this.buildWhereClauseEvent(filter);
+    const where = this.buildWhereClausePaymentInscription(filter);
     const skip = (page - 1) * pageSize;
 
     const order =
@@ -94,7 +90,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     inscriptionId?: string;
     status?: StatusPayment[];
   }): Promise<number> {
-    const where = this.buildWhereClauseEvent(filters);
+    const where = this.buildWhereClausePaymentInscription(filters);
     return this.prisma.paymentInscription.count({ where });
   }
 
@@ -268,7 +264,7 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return Number(sum._sum.value || 0);
   }
 
-  private buildWhereClauseEvent(filter?: {
+  private buildWhereClausePaymentInscription(filter?: {
     eventId?: string;
     inscriptionId?: string;
     status?: StatusPayment[];

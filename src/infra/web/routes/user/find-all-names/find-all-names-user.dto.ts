@@ -1,5 +1,7 @@
+import { roleType } from 'generated/prisma';
+
 export type FindAllNamesUserRequest = {
-  role?: string;
+  roles?: roleType[];
 };
 
 export type FindAllNamesUserResponse = {

@@ -25,6 +25,11 @@ export abstract class InscriptionGateway {
     accountIds: string[],
   ): Promise<Inscription[]>;
   abstract findMany(eventId: string): Promise<Inscription[]>;
+  abstract findInscriptionsWithPayments(
+    page: number,
+    pageSize: number,
+    eventId: string,
+  ): Promise<Inscription[]>;
 
   // Buscas paginadas
   abstract findManyPaginated(
@@ -74,6 +79,7 @@ export abstract class InscriptionGateway {
     accountId: string,
   ): Promise<number>;
   abstract countTotalDebt(eventId: string, accountId: string): Promise<number>;
+  abstract countInscriptionsWithPayments(eventId: string): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AccountPrismaRepositoryProvider } from './prisma/account/model/account.prisma.repository.provider';
 import { CacheRecordRepositoryProvider } from './prisma/cache-record/model/cache-record.prisma.repository.provider';
 import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
@@ -18,7 +19,6 @@ import { TicketSalePaymentPrismaRepositoryProvider } from './prisma/ticket-sale-
 import { TicketSalePrismaRepositoryProvider } from './prisma/ticket-sale/model/ticket-sale.prisma.repository.provider';
 import { TicketUnitPrismaRepositoryProvider } from './prisma/ticket-unit/model/ticket-unit.prisma.repository.provider';
 import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscription/model/type-inscription.prisma.repository.provider';
-import { AccountPrismaRepositoryProvider } from './prisma/user/model/account.prisma.repository.provider';
 
 @Module({
   imports: [PrismaModule],
