@@ -6,7 +6,10 @@ export class ListPaymentToAnalysisPresenter {
     output: ListPaymentToAnalysisOutput,
   ): ListPaymentToAnalysisResponse {
     return {
-      account: output.account,
+      inscriptions: output.inscriptions,
+      total: output.total,
+      page: output.page,
+      pageCount: output.pageCount,
     };
   }
 }

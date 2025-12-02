@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ListPaymentToAnalysisInput,
@@ -27,12 +27,15 @@ export class ListPaymentToAnalysisRoute {
   })
   async handle(
     @Param() param: ListPaymentToAnalysisRequest,
+    @Query() query: ListPaymentToAnalysisRequest,
   ): Promise<ListPaymentToAnalysisResponse> {
     const input: ListPaymentToAnalysisInput = {
+      page: query.page,
+      pageSize: query.pageSize,
       eventId: param.eventId,
     };
 
-    const result = await this.ListPaymentToAnalysisUsecase.execute(input);
-    return ListPaymentToAnalysisPresenter.toHttp(result);
+    const response = await this.ListPaymentToAnalysisUsecase.execute(input);
+    return ListPaymentToAnalysisPresenter.toHttp(response);
   }
 }

@@ -1,10 +1,11 @@
+import { roleType } from 'generated/prisma';
 import { Account } from '../entities/account.entity';
 
 export abstract class AccountGateway {
   abstract findByUser(username: string): Promise<Account | null>;
   abstract findById(id: string): Promise<Account | null>;
   abstract findRegionById(id: string): Promise<any | null>;
-  abstract findAll(roles?: string[]): Promise<Account[]>;
+  abstract findAllNames(roles?: roleType[]): Promise<Account[]>;
   abstract create(username: Account): Promise<void>;
   abstract findManyPaginated(
     page: number,

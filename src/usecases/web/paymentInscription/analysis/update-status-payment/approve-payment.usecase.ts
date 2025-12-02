@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-approved-email.handler';
@@ -24,6 +24,8 @@ export class ApprovePaymentUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
   ) {}
+
+  private readonly logger = new Logger(ApprovePaymentUsecase.name);
 
   async execute(input: ApprovePaymentInput): Promise<ApprovePaymentOutput> {
     // Validar se o pagamento existe
@@ -59,8 +61,11 @@ export class ApprovePaymentUsecase
       );
 
     // Enviar email de pagamento aprovado (não aguarda para não bloquear a resposta)
-    this.sendApprovedEmail(payment, inscription).catch((error) => {
-      console.error('Erro ao enviar email de pagamento aprovado:', error);
+    void this.sendApprovedEmail(payment, inscription).catch((error) => {
+      this.logger.error(
+        `(BG) Erro ao enviar email de pagamento aprovado para ${inscription.getEmail()}: ${error.message}`,
+        error,
+      );
     });
 
     const output: ApprovePaymentOutput = {
@@ -89,8 +94,16 @@ export class ApprovePaymentUsecase
       paymentDate: payment.getCreatedAt(),
     };
 
+    this.logger.log(
+      `(BG) Enviando email de pagamento aprovado para ${inscription.getEmail()}...`,
+    );
+
     await this.paymentApprovedEmailHandler.sendPaymentApprovedEmail(
       paymentEmailData,
+    );
+
+    this.logger.log(
+      `(BG) Email de pagamento aprovado enviado para ${inscription.getEmail()} com sucesso`,
     );
   }
 }

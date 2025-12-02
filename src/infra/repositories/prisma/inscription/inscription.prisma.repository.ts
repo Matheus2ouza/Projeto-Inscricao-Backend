@@ -51,7 +51,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     eventId: string;
     status?: InscriptionStatus[];
   }): Promise<Inscription[]> {
-    const where = this.buildWhereClauseEvent(filters);
+    const where = this.buildWhereClauseInscription(filters);
     const found = await this.prisma.inscription.findMany({
       where,
     });
@@ -81,6 +81,29 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         eventId,
         accountId: { in: accountIds },
       },
+      include: { participants: true },
+    });
+
+    return found.map((item) => PrismaToEntity.map(item));
+  }
+
+  async findInscriptionsWithPayments(
+    page: number,
+    pageSize: number,
+    eventId: string,
+  ): Promise<Inscription[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId: eventId,
+        PaymentInscription: {
+          some: {
+            status: 'UNDER_REVIEW',
+          },
+        },
+      },
+      skip,
+      take: pageSize,
       include: { participants: true },
     });
 
@@ -278,6 +301,20 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return count._sum.totalValue?.toNumber() ?? 0;
   }
 
+  async countInscriptionsWithPayments(eventId: string): Promise<number> {
+    const count = await this.prisma.inscription.count({
+      where: {
+        eventId,
+        PaymentInscription: {
+          some: {
+            status: 'UNDER_REVIEW',
+          },
+        },
+      },
+    });
+    return count;
+  }
+
   // Atualizações de status e valor
   async updateStatus(
     id: string,
@@ -400,16 +437,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return where;
   }
 
-  private buildWhereClauseEvent(filter?: {
+  private buildWhereClauseInscription(filter?: {
     eventId?: string;
     inscriptionId?: string;
     status?: InscriptionStatus[];
+    accountId?: string;
   }) {
-    const { eventId, inscriptionId, status } = filter || {};
+    const { eventId, inscriptionId, status, accountId } = filter || {};
     return {
       eventId,
       inscriptionId,
       status: status ? { in: status } : undefined,
+      accountId,
     };
   }
 

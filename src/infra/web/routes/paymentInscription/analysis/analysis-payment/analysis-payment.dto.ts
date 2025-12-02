@@ -1,5 +1,4 @@
 export type AnalysisPaymentRequest = {
-  status?: string[];
   page: number;
   pageSize: number;
 };

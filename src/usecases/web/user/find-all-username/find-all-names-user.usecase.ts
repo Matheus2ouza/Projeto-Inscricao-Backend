@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
+import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllNamesUserInput = {
-  roles?: string[];
+  roles?: roleType[];
 };
 
 export type FindAllNamesUserOutput = {
@@ -12,13 +14,15 @@ export type FindAllNamesUserOutput = {
 }[];
 
 @Injectable()
-export class FindAllNamesUserUsecase {
+export class FindAllNamesUserUsecase
+  implements Usecase<FindAllNamesUserInput, FindAllNamesUserOutput>
+{
   public constructor(private readonly userGateway: AccountGateway) {}
 
   public async execute(
     input: FindAllNamesUserInput,
   ): Promise<FindAllNamesUserOutput> {
-    const allUsers = await this.userGateway.findAll(input.roles);
+    const allUsers = await this.userGateway.findAllNames(input.roles);
 
     return allUsers.map((user) => ({
       id: user.getId(),

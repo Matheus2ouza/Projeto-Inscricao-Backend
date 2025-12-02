@@ -3,9 +3,9 @@ import { Account } from 'src/domain/entities/account.entity';
 import { Event } from 'src/domain/entities/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
+import { AccountPrismaModelToUserEntityMapper } from '../account/model/mappers/account-prisma-model-to-account-entity.mapper';
 import { EventPrismaModelToEventEntityMapper } from '../event/model/mappers/event-prisma-model-to-event-entity.mapper';
 import { PrismaService } from '../prisma.service';
-import { AccountPrismaModelToUserEntityMapper } from '../user/model/mappers/account-prisma-model-to-account-entity.mapper';
 import { RegionEntityToRegionPrismaModelMapper } from './model/mappers/region-entity-to-region-prisma-model.mapper';
 import { RegionPrismaModelToRegionEntityMapper } from './model/mappers/region-prisma-model-to-region-entity.mapper';
 

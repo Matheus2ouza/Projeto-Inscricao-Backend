@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { StatusPayment } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -10,7 +9,6 @@ import { MissingInscriptionIdUsecaseException } from 'src/usecases/web/exception
 export type AnalysisPaymentInput = {
   page: number;
   pageSize: number;
-  status?: StatusPayment[];
   inscriptionId: string;
 };
 
@@ -35,7 +33,7 @@ type Payments = {
   id: string;
   status: string;
   value: number;
-  image: string | undefined;
+  image: string;
 }[];
 
 @Injectable()
@@ -78,38 +76,26 @@ export class AnalysisPaymentUsecase
 
     const [payments, total] = await Promise.all([
       this.paymentInscriptionGateway.findToAnalysis(
-        input.inscriptionId,
+        inscription.getId(),
         safePage,
         safePageSize,
       ),
 
       this.paymentInscriptionGateway.countAllFiltered({
-        inscriptionId: input.inscriptionId,
-        status: input.status,
+        inscriptionId: inscription.getId(),
       }),
     ]);
 
     // Processar os pagamentos para obter as URLs públicas
     const enrichedPayments = await Promise.all(
       payments.map(async (p) => {
-        let publicImageUrl: string | undefined = '';
-        const imagePath = p.getImageUrl();
-
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (e) {
-            // Se houver erro, mantém a URL original
-            publicImageUrl = undefined;
-          }
-        }
+        const paymentImageUrl = await this.getPublicUrlOrEmpty(p.getImageUrl());
 
         return {
           id: p.getId(),
           status: p.getStatus(),
           value: Number(p.getValue()),
-          image: publicImageUrl,
+          image: paymentImageUrl,
         };
       }),
     );
@@ -129,5 +115,17 @@ export class AnalysisPaymentUsecase
       pageCount: Math.ceil(total / safePageSize),
     };
     return output;
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

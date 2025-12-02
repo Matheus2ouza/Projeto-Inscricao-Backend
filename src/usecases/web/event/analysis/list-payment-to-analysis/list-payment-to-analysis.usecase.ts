@@ -7,29 +7,40 @@ import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
 export type ListPaymentToAnalysisInput = {
+  page?: number;
+  pageSize?: number;
   eventId: string;
 };
 
 export type ListPaymentToAnalysisOutput = {
-  account: {
-    id: string;
-    username: string;
-    inscriptions: {
-      id: string;
-      responsible: string;
-      totalValue: number;
-      countPayments: number;
-    }[];
-  }[];
+  inscriptions: Inscriptions[];
+  total: number;
+  page: number;
+  pageCount: number;
+};
+
+type Inscriptions = {
+  id: string;
+  accountName?: string;
+  responsible: string;
+  totalValue: number;
+  countPayments: number;
+  payments: Payments[];
+};
+
+type Payments = {
+  id: string;
+  value: number;
+  date: Date;
 };
 
 @Injectable()
 export class ListPaymentToAnalysisUsecase
   implements Usecase<ListPaymentToAnalysisInput, ListPaymentToAnalysisOutput>
 {
-  public constructor(
+  constructor(
+    private readonly accountGateway: AccountGateway,
     private readonly eventGateway: EventGateway,
-    private readonly userGateway: AccountGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
   ) {}
@@ -37,9 +48,14 @@ export class ListPaymentToAnalysisUsecase
   async execute(
     input: ListPaymentToAnalysisInput,
   ): Promise<ListPaymentToAnalysisOutput> {
-    const eventExists = await this.eventGateway.findById(input.eventId);
+    const safePage = Math.max(1, Math.floor(input.page || 1));
+    const safePageSize = Math.max(
+      1,
+      Math.min(25, Math.floor(input.pageSize || 10)),
+    );
 
-    if (!eventExists) {
+    const event = await this.eventGateway.findById(input.eventId);
+    if (!event) {
       throw new EventNotFoundUsecaseException(
         `attempt to create on-site registration for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
@@ -47,60 +63,50 @@ export class ListPaymentToAnalysisUsecase
       );
     }
 
-    const inscriptions = await this.inscriptionGateway.findByEventId({
-      eventId: eventExists.getId(),
-      status: ['UNDER_REVIEW'],
-    });
+    const [inscriptions, total] = await Promise.all([
+      this.inscriptionGateway.findInscriptionsWithPayments(
+        safePage,
+        safePageSize,
+        event.getId(),
+      ),
+      this.inscriptionGateway.countInscriptionsWithPayments(event.getId()),
+    ]);
 
-    // Organizar inscrições por conta
-    const accountsMap = new Map<
-      string,
-      {
-        id: string;
-        username: string;
-        inscriptions: {
-          id: string;
-          responsible: string;
-          totalValue: number;
-          countPayments: number;
-        }[];
-      }
-    >();
-
-    for (const inscription of inscriptions) {
-      const accountId = inscription.getAccountId();
-
-      if (!accountsMap.has(accountId)) {
-        // Buscar dados da conta usando o método existente
-        const account = await this.userGateway.findById(accountId);
-        if (account) {
-          accountsMap.set(accountId, {
-            id: account.getId(),
-            username: account.getUsername(),
-            inscriptions: [],
-          });
-        }
-      }
-
-      const accountData = accountsMap.get(accountId);
-      if (accountData) {
-        // Buscar pagamentos para esta inscrição
+    const enriched = await Promise.all(
+      inscriptions.map(async (inscription) => {
         const payments =
           await this.paymentInscriptionGateway.findbyInscriptionId(
             inscription.getId(),
           );
 
-        accountData.inscriptions.push({
-          id: inscription.getId(),
-          responsible: inscription.getResponsible(),
-          totalValue: inscription.getTotalValue(),
-          countPayments: payments ? payments.length : 0,
-        });
-      }
-    }
+        const paymentDtos = payments.map<Payments>((payment) => ({
+          id: payment.getId(),
+          value: Number(payment.getValue()),
+          date: payment.getCreatedAt(),
+        }));
 
-    return {
-      account: Array.from(accountsMap.values()),
+        const account = await this.accountGateway.findById(
+          inscription.getAccountId(),
+        );
+
+        return {
+          id: inscription.getId(),
+          accountName: account?.getUsername(),
+          responsible: inscription.getResponsible(),
+          totalValue: Number(inscription.getTotalValue()),
+          countPayments: paymentDtos.length,
+          payments: paymentDtos,
+        };
+      }),
+    );
+
+    const output: ListPaymentToAnalysisOutput = {
+      inscriptions: enriched,
+      total,
+      page: safePage,
+      pageCount: Math.ceil(total / safePageSize),
     };
+
+    return output;
   }
 }
