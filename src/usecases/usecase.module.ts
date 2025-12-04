@@ -16,6 +16,8 @@ import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { ListPaymentToAnalysisUsecase } from './web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
+import { FindAccountsDetailsUseCase } from './web/event/check-in/find-accounts-details/find-accounts-details.usecase';
+import { FindAccountsToCheckInUsecase } from './web/event/check-in/find-accounts-to-checkin/find-accounts-to-checkin.usecase';
 import { CreateEventUseCase } from './web/event/create/create-event.usecase';
 import { DeleteEventUsecase } from './web/event/delete/delete-event/delete-event.usecase';
 import { DeleteImageEventUsecase } from './web/event/delete/delete-image/delete-image-event.usecase';
@@ -155,6 +157,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ListPaymentToAnalysisUsecase,
     FindAllPaginatedEventToInscriptionUsecase,
     FindAllPaginatedEventToPaymentUsecase,
+    FindAccountsToCheckInUsecase,
+    FindAccountsDetailsUseCase,
     DeleteEventResponsibleUseCase,
     FindAllToParticipantsUsecase,
 
@@ -260,6 +264,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     UpdateLocationEventUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    FindAccountsToCheckInUsecase,
+    FindAccountsDetailsUseCase,
     DeleteLogoEventUsecase,
     DeleteImageEventUsecase,
 

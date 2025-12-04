@@ -13,4 +13,6 @@ export abstract class TypeInscriptionGateway {
   abstract findAll(): Promise<TypesInscription[]>;
   abstract findByEventId(eventId: string): Promise<TypesInscription[]>;
   abstract findAllDescription(): Promise<TypesInscription[]>;
+
+  abstract countAllByEvent(eventId: string): Promise<number>;
 }

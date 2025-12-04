@@ -51,6 +51,8 @@ export abstract class InscriptionGateway {
     limit: number,
   ): Promise<Inscription[]>;
 
+  abstract findInscriptionsWithPaid(eventId: string): Promise<Inscription[]>;
+
   // Agregações e contagens
   abstract contTotalDebtByEvent(eventId: string): Promise<number>;
   abstract countAll(filters: {

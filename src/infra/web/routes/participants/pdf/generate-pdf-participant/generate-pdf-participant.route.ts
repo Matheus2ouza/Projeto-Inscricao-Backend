@@ -10,9 +10,11 @@ import {
 import type {
   GeneratePdfAllParticipantsAllRequest,
   GeneratePdfAllParticipantsAllResponse,
+  GeneratePdfParticipantsAllBody,
 } from './dto/generate-pdf-participants-all.dto';
 import type {
-  GeneratePdfParticipantsSelectedAccountsRequest,
+  GeneratePdfParticipantsSelectedAccountsBody,
+  GeneratePdfParticipantsSelectedAccountsParams,
   GeneratePdfParticipantsSelectedAccountsResponse,
 } from './dto/generate-pdf-participants-selected-accounts.dto';
 import { GeneratePdfParticipantsAllPresenter } from './presenter/generate-pdf-participants-all.presenter';
@@ -28,9 +30,11 @@ export class GeneratePdfSelectedParticipantRoute {
   @Post(':eventId/list-participants/all')
   async handleAll(
     @Param() params: GeneratePdfAllParticipantsAllRequest,
+    @Body() body?: GeneratePdfParticipantsAllBody,
   ): Promise<GeneratePdfAllParticipantsAllResponse> {
     const input: GeneratePdfParticipantsAllInput = {
       eventId: params.eventId,
+      genders: body?.genders,
     };
 
     const response =
@@ -40,12 +44,13 @@ export class GeneratePdfSelectedParticipantRoute {
 
   @Post(':eventId/list-participants/selected')
   async handleSelected(
-    @Param() params: GeneratePdfParticipantsSelectedAccountsRequest,
-    @Body() body: GeneratePdfParticipantsSelectedAccountsRequest,
+    @Param() params: GeneratePdfParticipantsSelectedAccountsParams,
+    @Body() body: GeneratePdfParticipantsSelectedAccountsBody,
   ): Promise<GeneratePdfParticipantsSelectedAccountsResponse> {
     const input: GeneratePdfParticipantsSelectedAccountsInput = {
       eventId: params.eventId,
       accountsId: body.accountsId,
+      genders: body.genders,
     };
     const response =
       await this.generatePdfParticipantsSelectedAccountsUsecase.execute(input);

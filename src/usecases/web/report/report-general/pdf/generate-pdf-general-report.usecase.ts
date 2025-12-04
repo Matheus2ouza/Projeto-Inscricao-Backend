@@ -24,9 +24,7 @@ export class GeneratePdfGeneralReportUsecase {
   }: GeneratePdfGeneralReportInput): Promise<GeneratePdfGeneralReportOutput> {
     // Fetch report data
     const reportData = await this.reportGeneralUsecase.execute({ eventId });
-    const eventImageDataUrl = await this.loadEventImage(
-      reportData.event.imageUrl,
-    );
+    const eventImageDataUrl = await this.loadEventImage(reportData.image);
 
     // Generate PDF using pdfmake
     const pdfBuffer = await ReportGeneralPdfGeneratorUtils.generateReportPdf(
@@ -34,7 +32,7 @@ export class GeneratePdfGeneralReportUsecase {
       { eventImageDataUrl },
     );
 
-    const filename = `Relatório-${reportData.event.name
+    const filename = `Relatório-${reportData.name
       .replace(/\s+/g, '-')
       .toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
 

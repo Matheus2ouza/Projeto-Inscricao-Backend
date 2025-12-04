@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentMethod } from 'generated/prisma';
-import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
-import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { OnSiteParticipantGateway } from 'src/domain/repositories/on-site-participant.gateway';
-import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
-import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
@@ -17,421 +12,121 @@ export type ReportGeneralInput = {
 };
 
 export type ReportGeneralOutput = {
-  event: {
-    id: string;
-    name: string;
-    startDate: Date;
-    endDate: Date;
-    location: string | null;
-    amountCollected: number;
-    imageUrl: string | null;
-  };
-  totais: {
-    totalGeral: number;
-    totalArrecadado: number;
-    totalDinheiro: number;
-    totalPix: number;
-    totalCartao: number;
-    totalGastos: number;
-    totalInscricoesGrupo: number;
-    totalParticipantesGrupo: number;
-    totalInscricoesAvulsas: number;
-    totalParticipantesAvulsos: number;
-    totalParticipantes: number;
-  };
-  inscricoes: {
-    total: number;
-    totalDinheiro: number;
-    totalPix: number;
-    totalCartao: number;
-    totalParticipantes: number;
-    inscricoes: Array<{
-      id: string;
-      responsible: string;
-      countParticipants: number;
-      totalValue: number;
-      status: string;
-      createdAt: Date;
-    }>;
-  };
-  inscricoesAvulsas: {
-    total: number;
-    totalDinheiro: number;
-    totalPix: number;
-    totalCartao: number;
-    totalParticipantes: number;
-    inscricoes: Array<{
-      id: string;
-      responsible: string;
-      countParticipants: number;
-      totalValue: number;
-      status: string;
-      createdAt: Date;
-    }>;
-  };
-  tickets: {
-    total: number;
-    totalDinheiro: number;
-    totalPix: number;
-    totalCartao: number;
-    vendas: Array<{
-      id: string;
-      name: string;
-      quantitySold: number;
-      totalValue: number;
-      createdAt: Date;
-    }>;
-  };
-  gastos: {
-    total: number;
-    totalDinheiro: number;
-    totalPix: number;
-    totalCartao: number;
-    gastos: Array<{
-      id: string;
-      description: string;
-      value: number;
-      paymentMethod: string;
-      responsible: string;
-      createdAt: Date;
-    }>;
-  };
+  id: string;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  image: string;
+  totalInscriptions: number;
+  countTypeInscription: number;
+  countParticipants: number;
+  totalValue: number;
+  totalDebt: number;
+  typeInscription: TypeInscription;
 };
+
+type TypeInscription = {
+  id: string;
+  description: string;
+  amount: number;
+  countParticipants: number;
+  totalValue: number;
+}[];
 
 @Injectable()
 export class ReportGeneralUsecase
   implements Usecase<ReportGeneralInput, ReportGeneralOutput>
 {
-  public constructor(
+  constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
-    private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
-    private readonly onSiteParticipantGateway: OnSiteParticipantGateway,
-    private readonly eventTicketsGateway: EventTicketsGateway,
-    private readonly ticketSaleGateway: TicketSaleGateway,
-    private readonly eventExpensesGateway: EventExpensesGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
-  public async execute({
-    eventId,
-  }: ReportGeneralInput): Promise<ReportGeneralOutput> {
-    // Verificar se o evento existe
-    const event = await this.eventGateway.findById(eventId);
+  public async execute(
+    input: ReportGeneralInput,
+  ): Promise<ReportGeneralOutput> {
+    const event = await this.eventGateway.findById(input.eventId);
+
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with id: ${eventId}`,
+        `Event not found with id ${input.eventId} in ${ReportGeneralUsecase.name}`,
         `Evento não encontrado`,
         ReportGeneralUsecase.name,
       );
     }
 
-    // Buscar dados das inscrições
-    const inscricoes = await this.inscriptionGateway.findMany(eventId);
+    const image = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
-    // Buscar dados das inscrições avulsas
-    const inscricoesAvulsas =
-      await this.onSiteRegistrationGateway.findMany(eventId);
+    const [inscriptions, total, typeInscriptions, totalDebt] =
+      await Promise.all([
+        this.inscriptionGateway.findInscriptionsWithPaid(event.getId()),
+        this.inscriptionGateway.countAllByEvent(event.getId()),
+        this.typeInscriptionGateway.findByEventId(event.getId()),
+        this.inscriptionGateway.contTotalDebtByEvent(event.getId()),
+      ]);
 
-    // Buscar dados dos tickets
-    const tickets = await this.ticketSaleGateway.findByEventId(eventId);
+    console.log('total de inscrições');
+    console.log(inscriptions.length);
+    const inscriptionIds = inscriptions.map((i) => i.getId());
 
-    // Buscar dados dos event tickets
-    const eventTickets = await this.eventTicketsGateway.findAll(eventId);
+    // Buscar todos os participantes de todas as inscrições pagas
+    const participants =
+      await this.participantGateway.findManyByInscriptionIds(inscriptionIds);
 
-    // Buscar dados dos gastos
-    const gastos = await this.eventExpensesGateway.findMany(eventId);
+    console.log('total de participantes');
+    console.log(participants.length);
 
-    // Calcular totais das inscrições
-    const inscricoesTotais = await this.calcularTotaisInscricoes(inscricoes);
+    const participantCountMap = new Map<string, number>();
 
-    // Calcular totais das inscrições avulsas
-    const inscricoesAvulsasTotais =
-      await this.onSiteRegistrationGateway.sumPaymentsByMethod(eventId);
-
-    // Calcular totais dos tickets
-    const ticketsTotais = this.calcularTotaisTickets(tickets);
-
-    // Calcular totais dos gastos
-    const gastosTotais = this.calcularTotaisGastos(gastos);
-
-    const totalInscricoesGrupo = inscricoes.length;
-    const totalParticipantesGrupo = inscricoesTotais.totalParticipantes;
-    const totalInscricoesAvulsas = inscricoesAvulsas.length;
-    const totalParticipantesAvulsos =
-      await this.calcularTotalParticipantesAvulsas(inscricoesAvulsas);
-
-    // Calcular totais gerais
-    const totais = {
-      totalGeral:
-        inscricoesTotais.total +
-        inscricoesAvulsasTotais.totalGeral +
-        ticketsTotais.total,
-      totalArrecadado:
-        inscricoesTotais.total +
-        inscricoesAvulsasTotais.totalGeral +
-        ticketsTotais.total -
-        gastosTotais.total,
-      totalDinheiro:
-        inscricoesTotais.totalDinheiro +
-        inscricoesAvulsasTotais.totalDinheiro +
-        ticketsTotais.totalDinheiro -
-        gastosTotais.totalDinheiro,
-      totalPix:
-        inscricoesTotais.totalPix +
-        inscricoesAvulsasTotais.totalPix +
-        ticketsTotais.totalPix -
-        gastosTotais.totalPix,
-      totalCartao:
-        inscricoesTotais.totalCartao +
-        inscricoesAvulsasTotais.totalCartao +
-        ticketsTotais.totalCartao -
-        gastosTotais.totalCartao,
-      totalGastos: gastosTotais.total,
-      totalInscricoesGrupo,
-      totalParticipantesGrupo,
-      totalInscricoesAvulsas,
-      totalParticipantesAvulsos,
-      totalParticipantes: totalParticipantesGrupo + totalParticipantesAvulsos,
-    };
-
-    return {
-      event: {
-        id: event.getId(),
-        name: event.getName(),
-        startDate: event.getStartDate(),
-        endDate: event.getEndDate(),
-        location: event.getLocation() || null,
-        amountCollected: event.getAmountCollected(),
-        imageUrl: event.getImageUrl() || null,
-      },
-      totais,
-      inscricoes: {
-        ...inscricoesTotais,
-        inscricoes: await Promise.all(
-          inscricoes.map(async (inscricao) => {
-            const [countParticipants, pagamentos] = await Promise.all([
-              this.participantGateway.countByInscriptionId(inscricao.getId()),
-              this.paymentInscriptionGateway.findbyInscriptionId(
-                inscricao.getId(),
-              ),
-            ]);
-            const totalPago =
-              pagamentos?.reduce((total, pagamento) => {
-                return total + pagamento.getValue().toNumber();
-              }, 0) ?? 0;
-            return {
-              id: inscricao.getId(),
-              responsible: inscricao.getResponsible(),
-              countParticipants,
-              totalValue: totalPago,
-              status: String(inscricao.getStatus()),
-              createdAt: inscricao.getCreatedAt(),
-            };
-          }),
-        ),
-      },
-      inscricoesAvulsas: {
-        total: inscricoesAvulsasTotais.totalGeral,
-        totalDinheiro: inscricoesAvulsasTotais.totalDinheiro,
-        totalPix: inscricoesAvulsasTotais.totalPix,
-        totalCartao: inscricoesAvulsasTotais.totalCartao,
-        totalParticipantes: totalParticipantesAvulsos,
-        inscricoes: await Promise.all(
-          inscricoesAvulsas.map(async (inscricao) => {
-            const countParticipants =
-              await this.onSiteParticipantGateway.countParticipantsByOnSiteRegistrationId(
-                inscricao.getId(),
-              );
-            return {
-              id: inscricao.getId(),
-              responsible: inscricao.getResponsible(),
-              countParticipants,
-              totalValue: Number(inscricao.getTotalValue()),
-              status: String(inscricao.getStatus()),
-              createdAt: inscricao.getCreatedAt(),
-            };
-          }),
-        ),
-      },
-      tickets: {
-        ...ticketsTotais,
-        vendas: await this.agruparVendasPorEventTicket(eventTickets, tickets),
-      },
-      gastos: {
-        ...gastosTotais,
-        gastos: gastos.map((gasto) => ({
-          id: gasto.getId(),
-          description: gasto.getDescription(),
-          value: Number(gasto.getValue()),
-          paymentMethod: String(gasto.getPaymentMethod()),
-          responsible: gasto.getResponsible(),
-          createdAt: gasto.getCreatedAt(),
-        })),
-      },
-    };
-  }
-
-  private async calcularTotaisInscricoes(inscricoes: any[]) {
-    const totais = {
-      total: 0,
-      totalDinheiro: 0,
-      totalPix: 0,
-      totalCartao: 0,
-      totalParticipantes: 0,
-    };
-
-    for (const inscricao of inscricoes) {
-      const pagamentos =
-        (await this.paymentInscriptionGateway.findbyInscriptionId(
-          inscricao.getId(),
-        )) ?? [];
-
-      const valorPago = pagamentos.reduce((total, pagamento) => {
-        return total + pagamento.getValue().toNumber();
-      }, 0);
-
-      totais.total += valorPago;
-
-      // Inscrições em grupo são liquidadas via PIX
-      totais.totalPix += valorPago;
-
-      // Contar participantes da inscrição
-      const countParticipants =
-        await this.participantGateway.countByInscriptionId(inscricao.getId());
-      totais.totalParticipantes += countParticipants;
+    for (const participant of participants) {
+      const typeId = participant.getTypeInscriptionId();
+      const previousCount = participantCountMap.get(typeId) ?? 0;
+      participantCountMap.set(typeId, previousCount + 1);
     }
 
-    return totais;
-  }
+    // Montar o array final (valor total = quantidade * valor do tipo)
+    const typeInscriptionOutput = typeInscriptions.map((type) => {
+      const count = participantCountMap.get(type.getId()) ?? 0;
+      const amount = type.getValue();
 
-  private calcularTotaisTickets(tickets: any[]) {
-    const totais = {
-      total: 0,
-      totalDinheiro: 0,
-      totalPix: 0,
-      totalCartao: 0,
-    };
-
-    tickets.forEach((ticket) => {
-      const valor = ticket.getTotalValue();
-      totais.total += valor;
-
-      switch (ticket.getPaymentMethod()) {
-        case PaymentMethod.DINHEIRO:
-          totais.totalDinheiro += valor;
-          break;
-        case PaymentMethod.PIX:
-          totais.totalPix += valor;
-          break;
-        case PaymentMethod.CARTAO:
-          totais.totalCartao += valor;
-          break;
-      }
+      return {
+        id: type.getId(),
+        description: type.getDescription(),
+        amount,
+        countParticipants: count,
+        totalValue: count * amount,
+      };
     });
 
-    return totais;
-  }
-
-  private calcularTotaisGastos(gastos: any[]) {
-    const totais = {
-      total: 0,
-      totalDinheiro: 0,
-      totalPix: 0,
-      totalCartao: 0,
+    const output: ReportGeneralOutput = {
+      id: event.getId(),
+      name: event.getName(),
+      startDate: event.getStartDate(),
+      endDate: event.getEndDate(),
+      image,
+      totalInscriptions: total,
+      countTypeInscription: typeInscriptions.length,
+      countParticipants: event.getQuantityParticipants(),
+      totalValue: event.getAmountCollected(),
+      totalDebt: totalDebt,
+      typeInscription: typeInscriptionOutput,
     };
 
-    gastos.forEach((gasto) => {
-      const valor = gasto.getValue();
-      totais.total += valor;
-
-      switch (gasto.getPaymentMethod()) {
-        case PaymentMethod.DINHEIRO:
-          totais.totalDinheiro += valor;
-          break;
-        case PaymentMethod.PIX:
-          totais.totalPix += valor;
-          break;
-        case PaymentMethod.CARTAO:
-          totais.totalCartao += valor;
-          break;
-      }
-    });
-
-    return totais;
+    return output;
   }
 
-  private async calcularTotalParticipantesAvulsas(
-    inscricoesAvulsas: any[],
-  ): Promise<number> {
-    let totalParticipantes = 0;
-
-    for (const inscricao of inscricoesAvulsas) {
-      const countParticipants =
-        await this.onSiteParticipantGateway.countParticipantsByOnSiteRegistrationId(
-          inscricao.getId(),
-        );
-      totalParticipantes += countParticipants;
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
     }
 
-    return totalParticipantes;
-  }
-
-  private async agruparVendasPorEventTicket(
-    eventTickets: any[],
-    ticketSales: any[],
-  ): Promise<
-    Array<{
-      id: string;
-      name: string;
-      quantitySold: number;
-      totalValue: number;
-      createdAt: Date;
-    }>
-  > {
-    const vendasAgrupadas: Array<{
-      id: string;
-      name: string;
-      quantitySold: number;
-      totalValue: number;
-      createdAt: Date;
-    }> = [];
-
-    for (const eventTicket of eventTickets) {
-      // Filtrar vendas para este EventTicket
-      const vendasDoTicket = ticketSales.filter(
-        (sale) => sale.getTicketId() === eventTicket.getId(),
-      );
-
-      if (vendasDoTicket.length > 0) {
-        // Calcular quantidade total vendida
-        const quantitySold = vendasDoTicket.reduce(
-          (total, sale) => total + sale.getQuantity(),
-          0,
-        );
-
-        // Calcular valor total vendido
-        const totalValue = vendasDoTicket.reduce(
-          (total, sale) => total + Number(sale.getTotalValue()),
-          0,
-        );
-
-        // Pegar a data de criação mais antiga (primeira venda)
-        const createdAt = vendasDoTicket.reduce((oldest, sale) => {
-          return sale.getCreatedAt() < oldest ? sale.getCreatedAt() : oldest;
-        }, vendasDoTicket[0].getCreatedAt());
-
-        vendasAgrupadas.push({
-          id: eventTicket.getId(),
-          name: eventTicket.getName(),
-          quantitySold,
-          totalValue,
-          createdAt,
-        });
-      }
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
     }
-
-    return vendasAgrupadas;
   }
 }

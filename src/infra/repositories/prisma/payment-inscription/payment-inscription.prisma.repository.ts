@@ -44,6 +44,16 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return aModel.map(PrismaToEntity.map);
   }
 
+  public async findManyByInscriptionIds(
+    inscriptionIds: string[],
+  ): Promise<PaymentInscription[]> {
+    const aModel = await this.prisma.paymentInscription.findMany({
+      where: { inscriptionId: { in: inscriptionIds } },
+    });
+
+    return aModel.map(PrismaToEntity.map);
+  }
+
   public async findToAnalysis(
     id: string,
     page: number,

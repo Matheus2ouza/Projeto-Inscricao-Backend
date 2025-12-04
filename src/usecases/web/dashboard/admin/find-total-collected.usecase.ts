@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindTotalCollectedAdminInput = {
@@ -15,7 +16,10 @@ export class FindTotalCollectedAdminUsecase
   implements
     Usecase<FindTotalCollectedAdminInput, FindTotalCollectedAdminOutput>
 {
-  public constructor(private readonly eventGateway: EventGateway) {}
+  public constructor(
+    private readonly eventGateway: EventGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
+  ) {}
 
   public async execute(
     input: FindTotalCollectedAdminInput,

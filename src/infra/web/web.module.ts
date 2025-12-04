@@ -20,6 +20,8 @@ import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find
 import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
+import { FindAccountsDetailsRoute } from './routes/event/check-in/find-accounts-details/find-accounts-details.route';
+import { FindAccountsToCheckInRoute } from './routes/event/check-in/find-accounts-to-checkin/find-accounts-to-checkin.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
 import { DeleteEventRoute } from './routes/event/delete/delete-event/delete-event.route';
 import { DeleteImageEventRoute } from './routes/event/delete/delete-image/delete-image-event.route';
@@ -135,7 +137,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     GeneratePdfSelectedInscriptionRoute,
     ListInscriptonToAnalysisRoute,
     ListPaymentToAnalysisRoute,
-    FindByIdEventRoute, // keep generic :id route last to avoid collisions with static paths
+    FindByIdEventRoute,
+    FindAccountsToCheckInRoute,
+    FindAccountsDetailsRoute,
 
     // Events - Create & Update
     CreateEventRoute,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -12,9 +13,17 @@ import {
 } from 'src/shared/utils/pdfs/participants/participants-by-account-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
+import {
+  countGenderBreakdown,
+  GenderFilterInput,
+  matchesAllowedGender,
+  resolveGenderFilters,
+} from './gender-filter.helper';
+import { buildTypeCounts } from './type-count.helper';
 
 export type GeneratePdfParticipantsAllInput = {
   eventId: string;
+  genders?: GenderFilterInput;
 };
 
 export type GeneratePdfParticipantsAllOutput = {
@@ -67,8 +76,13 @@ export class GeneratePdfParticipantsAllUsecase
       ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
       : [];
 
+    const allowedGenders = resolveGenderFilters(input.genders);
+    const filteredParticipants = allParticipants.filter((participant) =>
+      matchesAllowedGender(participant.getGender(), allowedGenders),
+    );
+
     const typeIds = [
-      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+      ...new Set(filteredParticipants.map((p) => p.getTypeInscriptionId())),
     ];
 
     const allTypes = typeIds.length
@@ -81,7 +95,7 @@ export class GeneratePdfParticipantsAllUsecase
 
     const participantMap = new Map<string, any[]>();
 
-    for (const p of allParticipants) {
+    for (const p of filteredParticipants) {
       const entry = participantMap.get(p.getInscriptionId()) || [];
       entry.push({
         id: p.getId(),
@@ -104,10 +118,17 @@ export class GeneratePdfParticipantsAllUsecase
           (ins) => participantMap.get(ins.getId()) || [],
         );
 
+        const { totalMale, totalFemale } = countGenderBreakdown(participants);
+
+        const typeCounts = buildTypeCounts(participants);
+
         return {
           accountId: account.getId(),
           username: userMap.get(account.getId()) ?? 'Usuário não identificado',
           totalParticipants: participants.length,
+          totalMale,
+          totalFemale,
+          typeCounts,
           participants,
         };
       })
@@ -118,6 +139,9 @@ export class GeneratePdfParticipantsAllUsecase
         accountId: account.accountId,
         username: account.username,
         totalParticipants: account.totalParticipants,
+        totalMale: account.totalMale,
+        totalFemale: account.totalFemale,
+        typeCounts: account.typeCounts,
         participants: account.participants,
       }),
     );
