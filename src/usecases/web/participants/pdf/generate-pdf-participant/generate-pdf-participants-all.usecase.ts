@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -11,26 +10,21 @@ import {
   ParticipantsByAccountPdfGenerator,
 } from 'src/shared/utils/pdfs/participants/participants-by-account-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
-import { EventNotFoundUsecaseException } from '../../../exceptions/events/event-not-found.usecase.exception';
-import { MissingParticipantIdsUsecaseException } from '../../../exceptions/participants/missing-participant-ids.usecase.exception';
+import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
-export type GeneratePdfSelectedParticipantInput = {
+export type GeneratePdfParticipantsAllInput = {
   eventId: string;
-  accountsId: string[];
 };
 
-export type GeneratePdfSelectedParticipantOutput = {
+export type GeneratePdfParticipantsAllOutput = {
   pdfBase64: string;
   filename: string;
 };
 
 @Injectable()
-export class GeneratePdfSelectedParticipantUsecase
+export class GeneratePdfParticipantsAllUsecase
   implements
-    Usecase<
-      GeneratePdfSelectedParticipantInput,
-      GeneratePdfSelectedParticipantOutput
-    >
+    Usecase<GeneratePdfParticipantsAllInput, GeneratePdfParticipantsAllOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
@@ -41,61 +35,31 @@ export class GeneratePdfSelectedParticipantUsecase
   ) {}
 
   public async execute(
-    input: GeneratePdfSelectedParticipantInput,
-  ): Promise<GeneratePdfSelectedParticipantOutput> {
-    if (!input.accountsId || input.accountsId.length < 1) {
-      throw new MissingParticipantIdsUsecaseException(
-        `Missing accountsId when executing ${GeneratePdfSelectedParticipantUsecase.name}`,
-        `Selecione ao menos uma conta para gerar o PDF`,
-        GeneratePdfSelectedParticipantUsecase.name,
-      );
-    }
+    input: GeneratePdfParticipantsAllInput,
+  ): Promise<GeneratePdfParticipantsAllOutput> {
+    const event = await this.eventGateway.findById(input.eventId);
 
-    const eventDetails = await this.eventGateway.findById(input.eventId);
-
-    if (!eventDetails) {
+    if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found when searching with eventId: ${input.eventId} in ${GeneratePdfSelectedParticipantUsecase.name}`,
+        `Event not found when searching with eventId: ${input.eventId} in ${GeneratePdfParticipantsAllUsecase.name}`,
         `Evento não encontrado ou invalido`,
-        GeneratePdfSelectedParticipantUsecase.name,
+        GeneratePdfParticipantsAllUsecase.name,
       );
     }
+    const imagePath = await this.getImageBase64(event.getLogoUrl());
 
-    let publicImageUrl = '';
-    const imagePath = eventDetails?.getImageUrl();
-    if (imagePath) {
-      try {
-        publicImageUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-      } catch {
-        publicImageUrl = '';
-      }
-    }
+    const accounts = await this.userGateway.findAll();
 
-    let eventImageBase64 = '';
-    if (publicImageUrl) {
-      try {
-        const response = await axios.get<ArrayBuffer>(publicImageUrl, {
-          responseType: 'arraybuffer',
-        });
-        const base64Image = Buffer.from(response.data).toString('base64');
-        eventImageBase64 = `data:image/jpeg;base64,${base64Image}`;
-      } catch {
-        eventImageBase64 = '';
-      }
-    }
-
-    // Buscar dados das contas selecionadas
-    const accountsData = await Promise.all(
-      input.accountsId.map(async (accountId) => {
+    const accountData = await Promise.all(
+      accounts.map(async (account) => {
         // Buscar informações da conta
-        const user = await this.userGateway.findById(accountId);
+        const accoundInfo = await this.userGateway.findById(account.getId());
 
-        // Buscar todas as inscrições dessa conta no evento
+        // Search all accounts
         const accountInscriptions =
           await this.inscriptionGateway.findByEventIdAndAccountId(
-            input.eventId,
-            accountId,
+            event.getId(),
+            account.getId(),
           );
 
         // Para cada inscrição, buscar participantes
@@ -124,8 +88,8 @@ export class GeneratePdfSelectedParticipantUsecase
         }
 
         return {
-          accountId,
-          username: user?.getUsername() ?? 'Usuário não identificado',
+          accountId: account.getId(),
+          username: accoundInfo?.getUsername() ?? 'Usuário não identificado',
           totalParticipants: allParticipants.length,
           participants: allParticipants,
         };
@@ -133,7 +97,7 @@ export class GeneratePdfSelectedParticipantUsecase
     );
 
     // Filtrar contas que não têm inscrições no evento
-    const validAccountsData = accountsData.filter(
+    const validAccountsData = accountData.filter(
       (account) => account.totalParticipants > 0,
     );
 
@@ -153,13 +117,13 @@ export class GeneratePdfSelectedParticipantUsecase
 
     const participantsPdfData: ParticipantsByAccountPdfData = {
       header: {
-        title: eventDetails?.getName() ?? 'Evento',
+        title: event?.getName() ?? 'Evento',
         titleDetail: this.formatEventPeriod(
-          eventDetails.getStartDate(),
-          eventDetails.getEndDate(),
+          event.getStartDate(),
+          event.getEndDate(),
         ),
-        subtitle: `Lista de participantes por conta`,
-        image: eventImageBase64 || undefined,
+        subtitle: `Lista de participantes`,
+        image: imagePath || undefined,
       },
       items: accountsPdfData,
     };
@@ -169,10 +133,7 @@ export class GeneratePdfSelectedParticipantUsecase
         participantsPdfData,
       );
 
-    const filename = this.buildFilename(
-      eventDetails.getName(),
-      eventDetails.getId(),
-    );
+    const filename = this.buildFilename(event.getName(), event.getId());
 
     return {
       pdfBase64: pdfBuffer.toString('base64'),
@@ -180,21 +141,36 @@ export class GeneratePdfSelectedParticipantUsecase
     };
   }
 
-  private buildFilename(
-    eventName: string | undefined | null,
-    eventId: string,
-  ): string {
-    const sanitizedEventName = eventName
-      ? eventName
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^\w\s-]/g, '')
-          .trim()
-          .replace(/\s+/g, '-')
-          .toLowerCase()
-      : 'evento';
+  private async getImageBase64(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
 
-    return `lista-participantes-${sanitizedEventName}-${eventId}.pdf`;
+    try {
+      // get image
+      const publicUrl = await this.supabaseStorageService.getPublicUrl(path);
+
+      if (!publicUrl) {
+        throw new Error('Image not found');
+      }
+
+      // Download image in ArrayBuffer
+      const response = await axios.get<ArrayBuffer>(publicUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      // Detect image type (png, jpg, jpeg)
+      const contentType = response.headers['content-type'] || 'image/jpeg';
+
+      // Convert to base64
+      const base64 = Buffer.from(response.data).toString('base64');
+
+      // Return in correct format for PDFMake
+      return `data:${contentType};base64,${base64}`;
+    } catch (error) {
+      console.error('Error converting image to base64:', error);
+      return '';
+    }
   }
 
   private formatEventPeriod(
@@ -213,5 +189,22 @@ export class GeneratePdfSelectedParticipantUsecase
     }
 
     return formattedStart ?? formattedEnd ?? undefined;
+  }
+
+  private buildFilename(
+    eventName: string | undefined | null,
+    eventId: string,
+  ): string {
+    const sanitizedEventName = eventName
+      ? eventName
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^\w\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .toLowerCase()
+      : 'evento';
+
+    return `lista-participantes-${sanitizedEventName}-${eventId}.pdf`;
   }
 }

@@ -12,6 +12,7 @@ export abstract class AccountGateway {
     pageSize: number,
     regionId?: string,
   ): Promise<Account[]>;
+  abstract findAll(): Promise<Account[]>;
   abstract countAll(regionId?: string): Promise<number>;
   // Buscar múltiplos usuários por IDs
   abstract findByIds(ids: string[]): Promise<Account[]>;

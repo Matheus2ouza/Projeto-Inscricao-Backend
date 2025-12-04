@@ -7,6 +7,8 @@ export class ListParticipantsPresenter {
   ): ListParticipantsResponse {
     return {
       account: output.account,
+      countAccounts: output.countAccounts,
+      countParticipants: output.countParticipants,
       total: output.total,
       page: output.page,
       pageCount: output.pageCount,

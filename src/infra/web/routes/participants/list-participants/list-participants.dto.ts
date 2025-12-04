@@ -5,6 +5,8 @@ export type ListParticipantsRequest = {
 
 export type ListParticipantsResponse = {
   account: Accounts;
+  countAccounts: number;
+  countParticipants: number;
   total: number;
   page: number;
   pageCount: number;
