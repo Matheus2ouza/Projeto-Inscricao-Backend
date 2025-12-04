@@ -27,6 +27,7 @@ const printer = new PdfPrinter(fonts);
 export type ParticipantPdfEntry = {
   id: string;
   name: string;
+  typeInscription: string;
   birthDate: Date;
   gender: string;
 };

@@ -3,6 +3,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   AccountParticipantsPdfBlock,
@@ -32,6 +33,7 @@ export class GeneratePdfParticipantsAllUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly userGateway: AccountGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
   public async execute(
@@ -41,83 +43,88 @@ export class GeneratePdfParticipantsAllUsecase
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found when searching with eventId: ${input.eventId} in ${GeneratePdfParticipantsAllUsecase.name}`,
-        `Evento não encontrado ou invalido`,
+        `Event not found with eventId: ${input.eventId}`,
+        `Evento não encontrado ou inválido`,
         GeneratePdfParticipantsAllUsecase.name,
       );
     }
+
     const imagePath = await this.getImageBase64(event.getLogoUrl());
 
     const accounts = await this.userGateway.findAll();
+    const accountIds = accounts.map((a) => a.getId());
+    const userMap = new Map(accounts.map((a) => [a.getId(), a.getUsername()]));
 
-    const accountData = await Promise.all(
-      accounts.map(async (account) => {
-        // Buscar informações da conta
-        const accoundInfo = await this.userGateway.findById(account.getId());
+    const allInscriptions =
+      await this.inscriptionGateway.findManyByEventAndAccountIds(
+        input.eventId,
+        accountIds,
+      );
 
-        // Search all accounts
-        const accountInscriptions =
-          await this.inscriptionGateway.findByEventIdAndAccountId(
-            event.getId(),
-            account.getId(),
-          );
+    const inscriptionIds = allInscriptions.map((i) => i.getId());
 
-        // Para cada inscrição, buscar participantes
-        const allParticipants: Array<{
-          id: string;
-          name: string;
-          birthDate: Date;
-          gender: string;
-        }> = [];
+    const allParticipants = inscriptionIds.length
+      ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
+      : [];
 
-        for (const inscription of accountInscriptions) {
-          const participants =
-            await this.participantGateway.findByInscriptionId(
-              inscription.getId(),
-            );
+    const typeIds = [
+      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+    ];
 
-          // Converter participantes para o formato do PDF
-          const formattedParticipants = participants.map((p) => ({
-            id: p.getId(),
-            name: p.getName(),
-            birthDate: p.getBirthDate(),
-            gender: p.getGender(),
-          }));
+    const allTypes = typeIds.length
+      ? await this.typeInscriptionGateway.findByIds(typeIds)
+      : [];
 
-          allParticipants.push(...formattedParticipants);
-        }
+    const typeMap = new Map(
+      allTypes.map((t) => [t.getId(), t.getDescription()]),
+    );
+
+    const participantMap = new Map<string, any[]>();
+
+    for (const p of allParticipants) {
+      const entry = participantMap.get(p.getInscriptionId()) || [];
+      entry.push({
+        id: p.getId(),
+        name: p.getName(),
+        birthDate: p.getBirthDate(),
+        typeInscription:
+          typeMap.get(p.getTypeInscriptionId()) ?? 'Não informado',
+        gender: p.getGender(),
+      });
+      participantMap.set(p.getInscriptionId(), entry);
+    }
+
+    const accountsData = accounts
+      .map((account) => {
+        const inscriptions = allInscriptions.filter(
+          (ins) => ins.getAccountId() === account.getId(),
+        );
+
+        const participants = inscriptions.flatMap(
+          (ins) => participantMap.get(ins.getId()) || [],
+        );
 
         return {
           accountId: account.getId(),
-          username: accoundInfo?.getUsername() ?? 'Usuário não identificado',
-          totalParticipants: allParticipants.length,
-          participants: allParticipants,
+          username: userMap.get(account.getId()) ?? 'Usuário não identificado',
+          totalParticipants: participants.length,
+          participants,
         };
-      }),
-    );
+      })
+      .filter((a) => a.totalParticipants > 0);
 
-    // Filtrar contas que não têm inscrições no evento
-    const validAccountsData = accountData.filter(
-      (account) => account.totalParticipants > 0,
-    );
-
-    // Converter para o formato do PDF
-    const accountsPdfData: AccountParticipantsPdfBlock[] =
-      validAccountsData.map((account) => ({
+    const accountsPdfData: AccountParticipantsPdfBlock[] = accountsData.map(
+      (account) => ({
         accountId: account.accountId,
         username: account.username,
         totalParticipants: account.totalParticipants,
-        participants: account.participants.map((p) => ({
-          id: p.id,
-          name: p.name,
-          birthDate: p.birthDate,
-          gender: p.gender,
-        })),
-      }));
+        participants: account.participants,
+      }),
+    );
 
     const participantsPdfData: ParticipantsByAccountPdfData = {
       header: {
-        title: event?.getName() ?? 'Evento',
+        title: event.getName(),
         titleDetail: this.formatEventPeriod(
           event.getStartDate(),
           event.getEndDate(),
@@ -133,11 +140,9 @@ export class GeneratePdfParticipantsAllUsecase
         participantsPdfData,
       );
 
-    const filename = this.buildFilename(event.getName(), event.getId());
-
     return {
       pdfBase64: pdfBuffer.toString('base64'),
-      filename,
+      filename: this.buildFilename(event.getName(), event.getId()),
     };
   }
 

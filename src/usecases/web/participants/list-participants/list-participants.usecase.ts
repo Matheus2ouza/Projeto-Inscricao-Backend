@@ -3,6 +3,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 
@@ -31,7 +32,8 @@ export type Accounts = {
 export type Participants = {
   id: string;
   name: string;
-  birthDate: string;
+  birthDate: Date;
+  typeInscription: string;
   gender: string;
 }[];
 
@@ -44,6 +46,7 @@ export class ListParticipantsUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly userGateway: AccountGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
   public async execute(
@@ -84,11 +87,11 @@ export class ListParticipantsUsecase
       };
     }
 
-    //Buscar informações das contas (UM SELECT)
+    // Buscar informações das contas
     const users = await this.userGateway.findByIds(accountIds);
     const userMap = new Map(users.map((u) => [u.getId(), u.getUsername()]));
 
-    // Buscar TODAS as inscrições dessas contas (UM SELECT)
+    // Buscar todas as inscrições das contas
     const allInscriptions =
       await this.inscriptionGateway.findManyByEventAndAccountIds(
         input.eventId,
@@ -97,13 +100,26 @@ export class ListParticipantsUsecase
 
     const inscriptionIds = allInscriptions.map((i) => i.getId());
 
-    // Buscar TODOS os participantes dessas inscrições (UM SELECT)
+    // Buscar todos os participantes dessas inscrições
     const allParticipants =
       inscriptionIds.length > 0
         ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
         : [];
 
-    // Indexar participantes por inscrição
+    const typeIds = [
+      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+    ];
+
+    const allTypes =
+      typeIds.length > 0
+        ? await this.typeInscriptionGateway.findByIds(typeIds)
+        : [];
+
+    // Map: id -> description
+    const typeMap = new Map(
+      allTypes.map((t) => [t.getId(), t.getDescription()]),
+    );
+
     const participantMap = new Map<string, Participants>();
 
     for (const p of allParticipants) {
@@ -112,7 +128,9 @@ export class ListParticipantsUsecase
       entry.push({
         id: p.getId(),
         name: p.getName(),
-        birthDate: p.getBirthDate().toISOString(),
+        birthDate: p.getBirthDate(),
+        typeInscription:
+          typeMap.get(p.getTypeInscriptionId()) ?? 'Não informado',
         gender: p.getGender(),
       });
 
