@@ -14,10 +14,18 @@ import {
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../../exceptions/events/event-not-found.usecase.exception';
 import { MissingParticipantIdsUsecaseException } from '../../../exceptions/participants/missing-participant-ids.usecase.exception';
+import {
+  countGenderBreakdown,
+  GenderFilterInput,
+  matchesAllowedGender,
+  resolveGenderFilters,
+} from './gender-filter.helper';
+import { buildTypeCounts } from './type-count.helper';
 
 export type GeneratePdfParticipantsSelectedAccountsInput = {
   eventId: string;
   accountsId: string[];
+  genders?: GenderFilterInput;
 };
 
 export type GeneratePdfParticipantsSelectedAccountsOutput = {
@@ -77,8 +85,13 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
       ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
       : [];
 
+    const allowedGenders = resolveGenderFilters(input.genders);
+    const filteredParticipants = allParticipants.filter((participant) =>
+      matchesAllowedGender(participant.getGender(), allowedGenders),
+    );
+
     const typeIds = [
-      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+      ...new Set(filteredParticipants.map((p) => p.getTypeInscriptionId())),
     ];
 
     const allTypes = typeIds.length
@@ -89,7 +102,7 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
       allTypes.map((t) => [t.getId(), t.getDescription()]),
     );
 
-    const participantMap = allParticipants.reduce((map, p) => {
+    const participantMap = filteredParticipants.reduce((map, p) => {
       const list = map.get(p.getInscriptionId()) || [];
 
       list.push({
@@ -121,10 +134,17 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
           (ins) => participantMap.get(ins.getId()) || [],
         );
 
+        const { totalMale, totalFemale } = countGenderBreakdown(participants);
+
+        const typeCounts = buildTypeCounts(participants);
+
         return {
           accountId,
           username,
           totalParticipants: participants.length,
+          totalMale,
+          totalFemale,
+          typeCounts,
           participants,
         };
       })
@@ -135,6 +155,9 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
         accountId: account.accountId,
         username: account.username,
         totalParticipants: account.totalParticipants,
+        totalMale: account.totalMale,
+        totalFemale: account.totalFemale,
+        typeCounts: account.typeCounts,
         participants: account.participants,
       }));
 

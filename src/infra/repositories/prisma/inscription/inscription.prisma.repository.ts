@@ -82,6 +82,11 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         accountId: { in: accountIds },
       },
       include: { participants: true },
+      orderBy: {
+        account: {
+          username: 'asc',
+        },
+      },
     });
 
     return found.map((item) => PrismaToEntity.map(item));
@@ -179,6 +184,15 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         createdAt: 'desc',
       },
       take: limit,
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findInscriptionsWithPaid(eventId: string): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId,
+      },
     });
     return found.map(PrismaToEntity.map);
   }

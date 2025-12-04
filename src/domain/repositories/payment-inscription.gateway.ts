@@ -13,6 +13,9 @@ export abstract class PaymentInscriptionGateway {
 
   // Buscas por relacionamento
   abstract findbyInscriptionId(id: string): Promise<PaymentInscription[]>;
+  abstract findManyByInscriptionIds(
+    inscriptionIds: string[],
+  ): Promise<PaymentInscription[]>;
   abstract findToAnalysis(
     id: string,
     page: number,

@@ -72,4 +72,10 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
 
     return found.map(PrismaToEntity.map);
   }
+
+  async countAllByEvent(eventId: string): Promise<number> {
+    return await this.prisma.typeInscriptions.count({
+      where: { eventId },
+    });
+  }
 }

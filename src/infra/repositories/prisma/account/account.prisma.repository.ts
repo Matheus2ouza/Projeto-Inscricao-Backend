@@ -48,6 +48,36 @@ export class AccountPrismaRepository implements AccountGateway {
     return region;
   }
 
+  public async findByEventIdWithPagination(
+    page: number,
+    pageSize: number,
+    eventId: string,
+    id?: string,
+    debit?: boolean,
+  ): Promise<Account[]> {
+    const skip = (page - 1) * pageSize;
+    const inscriptionFilter: Record<string, any> = { eventId };
+    if (debit) {
+      inscriptionFilter.status = {
+        not: 'PAID',
+      };
+    }
+    const where = {
+      id,
+      Inscription: {
+        some: inscriptionFilter,
+      },
+    };
+    const found = await this.prisma.accounts.findMany({
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { username: 'asc' },
+    });
+
+    return found.map(AccountPrismaModelToUserEntityMapper.map);
+  }
+
   public async create(user: Account): Promise<void> {
     const aModel = AccountEntityToUserPrismaModelMapper.map(user);
     await this.prisma.accounts.create({
@@ -81,7 +111,9 @@ export class AccountPrismaRepository implements AccountGateway {
   }
 
   async findAll(): Promise<Account[]> {
-    const found = await this.prisma.accounts.findMany();
+    const found = await this.prisma.accounts.findMany({
+      orderBy: { username: 'asc' },
+    });
     return found.map(AccountPrismaModelToUserEntityMapper.map);
   }
 
@@ -103,6 +135,28 @@ export class AccountPrismaRepository implements AccountGateway {
       where,
     });
     return total;
+  }
+
+  public async countAllFiltered(
+    eventId: string,
+    id?: string,
+    debit?: boolean,
+  ): Promise<number> {
+    const inscriptionFilter: Record<string, any> = { eventId };
+    if (debit) {
+      inscriptionFilter.status = {
+        not: 'PAID',
+      };
+    }
+    const count = await this.prisma.accounts.count({
+      where: {
+        id,
+        Inscription: {
+          some: inscriptionFilter,
+        },
+      },
+    });
+    return count;
   }
 
   public async findByIds(ids: string[]): Promise<Account[]> {
@@ -133,5 +187,13 @@ export class AccountPrismaRepository implements AccountGateway {
     });
 
     return models.map(AccountPrismaModelToUserEntityMapper.map);
+  }
+
+  private buildWhereClauseAccount(filter?: { eventId: string; id?: string }) {
+    const { eventId, id } = filter || {};
+    return {
+      eventId,
+      id,
+    };
   }
 }

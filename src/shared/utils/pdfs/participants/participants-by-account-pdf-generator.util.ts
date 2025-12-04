@@ -36,7 +36,10 @@ export type AccountParticipantsPdfBlock = {
   accountId: string;
   username: string;
   totalParticipants: number;
+  totalMale: number;
+  totalFemale: number;
   participants: ParticipantPdfEntry[];
+  typeCounts: { type: string; count: number }[];
 };
 
 export type ParticipantsByAccountPdfData = {
@@ -156,8 +159,37 @@ export class ParticipantsByAccountPdfGenerator {
             {
               text: `Total de participantes: ${account.totalParticipants}`,
               style: 'labelText',
-              margin: [0, 4, 0, 8],
+              margin: [0, 4, 0, 2],
             },
+            {
+              columns: [
+                {
+                  text: `Masculinos: ${account.totalMale}`,
+                  style: 'valueText',
+                },
+                {
+                  text: `Femininos: ${account.totalFemale}`,
+                  style: 'valueText',
+                },
+              ],
+              margin: [0, 0, 0, 6],
+            },
+            ...(account.typeCounts.length
+              ? [
+                  {
+                    text: 'Inscrições por tipo:',
+                    style: 'labelText',
+                    margin: [0, 0, 0, 2],
+                  },
+                  {
+                    stack: account.typeCounts.map((typeCount) => ({
+                      text: `${typeCount.type}: ${typeCount.count}`,
+                      style: 'valueText',
+                    })),
+                    margin: [0, 0, 0, 8],
+                  },
+                ]
+              : []),
           ],
           margin: [0, 0, 0, 4],
         },
@@ -183,7 +215,7 @@ export class ParticipantsByAccountPdfGenerator {
             { text: '#', style: 'tableHeader', alignment: 'center' },
             { text: 'Nome completo', style: 'tableHeader', alignment: 'left' },
             {
-              text: 'Data Nasc.',
+              text: 'Inscrição',
               style: 'tableHeader',
               alignment: 'center',
             },
@@ -238,7 +270,7 @@ export class ParticipantsByAccountPdfGenerator {
         },
         { text: participant.name.toUpperCase(), style: 'tableRow' },
         {
-          text: formatDate(birthDate),
+          text: participant.typeInscription,
           alignment: 'center',
           style: 'tableRow',
         },
