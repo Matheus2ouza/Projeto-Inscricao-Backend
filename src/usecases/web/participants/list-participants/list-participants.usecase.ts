@@ -14,6 +14,8 @@ export type ListParticipantsInput = {
 
 export type ListParticipantsOutput = {
   account: Accounts;
+  countAccounts: number;
+  countParticipants: number;
   total: number;
   page: number;
   pageCount: number;
@@ -37,7 +39,7 @@ export type Participants = {
 export class ListParticipantsUsecase
   implements Usecase<ListParticipantsInput, ListParticipantsOutput>
 {
-  public constructor(
+  constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly userGateway: AccountGateway,
@@ -52,89 +54,98 @@ export class ListParticipantsUsecase
       1,
       Math.min(10, Math.floor(input.pageSize || 10)),
     );
+
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with finding event with id ${input.eventId} in ${ListParticipantsUsecase.name}`,
+        `Event not found with id ${input.eventId}`,
         `Evento não encontrado`,
         ListParticipantsUsecase.name,
       );
     }
 
-    // 1. Buscar contas que têm inscrições no evento (com paginação)
-    const { accountIds: paginatedAccountIds, total } =
+    // Buscar contas (com paginação)
+    const { accountIds, total } =
       await this.inscriptionGateway.findUniqueAccountIdsPaginatedByEventId(
         input.eventId,
         safePage,
         safePageSize,
       );
 
-    if (!paginatedAccountIds.length) {
+    if (accountIds.length === 0) {
       return {
         account: [],
+        countAccounts: 0,
+        countParticipants: 0,
         total: 0,
         page: safePage,
         pageCount: 0,
       };
     }
 
-    // Buscar informações das contas (usernames)
-    const users = await this.userGateway.findByIds(paginatedAccountIds);
-    const userMap = new Map(
-      users.map((user) => [user.getId(), user.getUsername()]),
-    );
+    //Buscar informações das contas (UM SELECT)
+    const users = await this.userGateway.findByIds(accountIds);
+    const userMap = new Map(users.map((u) => [u.getId(), u.getUsername()]));
 
-    const pageCount = Math.ceil(total / safePageSize);
+    // Buscar TODAS as inscrições dessas contas (UM SELECT)
+    const allInscriptions =
+      await this.inscriptionGateway.findManyByEventAndAccountIds(
+        input.eventId,
+        accountIds,
+      );
 
-    // 2. Para cada conta paginada, buscar suas inscrições e participantes
-    const accountsData = await Promise.all(
-      paginatedAccountIds.map(async (accountId) => {
-        const username = userMap.get(accountId) || 'Usuário não identificado';
+    const inscriptionIds = allInscriptions.map((i) => i.getId());
 
-        // 2.1. Buscar todas as inscrições dessa conta no evento
-        const accountInscriptions =
-          await this.inscriptionGateway.findByEventIdAndAccountId(
-            input.eventId,
-            accountId,
-          );
+    // Buscar TODOS os participantes dessas inscrições (UM SELECT)
+    const allParticipants =
+      inscriptionIds.length > 0
+        ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
+        : [];
 
-        // 2.2. Para cada inscrição, buscar participantes
-        const allParticipants: Participants = [];
-        for (const inscription of accountInscriptions) {
-          const participants =
-            await this.participantGateway.findByInscriptionId(
-              inscription.getId(),
-            );
+    // Indexar participantes por inscrição
+    const participantMap = new Map<string, Participants>();
 
-          // Converter participantes para o formato de saída
-          const formattedParticipants: Participants = participants.map((p) => ({
-            id: p.getId(),
-            name: p.getName(),
-            birthDate: p.getBirthDate().toISOString(),
-            gender: p.getGender(),
-          }));
+    for (const p of allParticipants) {
+      const entry = participantMap.get(p.getInscriptionId()) || [];
 
-          allParticipants.push(...formattedParticipants);
-        }
+      entry.push({
+        id: p.getId(),
+        name: p.getName(),
+        birthDate: p.getBirthDate().toISOString(),
+        gender: p.getGender(),
+      });
 
-        // Listar todos os participantes da conta
-        const countParticipants = allParticipants.length;
+      participantMap.set(p.getInscriptionId(), entry);
+    }
 
-        return {
-          id: accountId,
-          username,
-          countParticipants,
-          participants: allParticipants,
-        };
-      }),
-    );
+    // Organizar o resultado por conta
+    const accountsData = accountIds.map((accountId) => {
+      const username = userMap.get(accountId) ?? 'Usuário não identificado';
+
+      const inscriptions = allInscriptions.filter(
+        (ins) => ins.getAccountId() === accountId,
+      );
+
+      const participants = inscriptions.flatMap(
+        (ins) => participantMap.get(ins.getId()) || [],
+      );
+
+      return {
+        id: accountId,
+        username,
+        countParticipants: participants.length,
+        participants,
+      };
+    });
 
     return {
       account: accountsData,
+      countAccounts: total,
+      countParticipants: event.getQuantityParticipants(),
       total,
       page: safePage,
-      pageCount,
+      pageCount: Math.ceil(total / safePageSize),
     };
   }
 }
