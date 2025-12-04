@@ -4,6 +4,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   AccountParticipantsPdfBlock,
@@ -38,12 +39,13 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly userGateway: AccountGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
   public async execute(
     input: GeneratePdfParticipantsSelectedAccountsInput,
   ): Promise<GeneratePdfParticipantsSelectedAccountsOutput> {
-    if (!input.accountsId || input.accountsId.length < 1) {
+    if (!input.accountsId || input.accountsId.length === 0) {
       throw new MissingParticipantIdsUsecaseException(
         `Missing accountsId when executing ${GeneratePdfParticipantsSelectedAccountsUsecase.name}`,
         `Selecione ao menos uma conta para gerar o PDF`,
@@ -55,83 +57,90 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found when searching with eventId: ${input.eventId} in ${GeneratePdfParticipantsSelectedAccountsUsecase.name}`,
-        `Evento não encontrado ou invalido`,
+        `Event not found with eventId: ${input.eventId}`,
+        `Evento não encontrado ou inválido`,
         GeneratePdfParticipantsSelectedAccountsUsecase.name,
       );
     }
 
     const imagePath = await this.getImageBase64(event.getLogoUrl());
 
-    // Buscar dados das contas selecionadas
-    const accountsData = await Promise.all(
-      input.accountsId.map(async (accountId) => {
-        // Buscar informações da conta
-        const user = await this.userGateway.findById(accountId);
+    const allInscriptions =
+      await this.inscriptionGateway.findManyByEventAndAccountIds(
+        input.eventId,
+        input.accountsId,
+      );
 
-        // Buscar todas as inscrições dessa conta no evento
-        const accountInscriptions =
-          await this.inscriptionGateway.findByEventIdAndAccountId(
-            input.eventId,
-            accountId,
-          );
+    const inscriptionIds = allInscriptions.map((i) => i.getId());
 
-        // Para cada inscrição, buscar participantes
-        const allParticipants: Array<{
-          id: string;
-          name: string;
-          birthDate: Date;
-          gender: string;
-        }> = [];
+    const allParticipants = inscriptionIds.length
+      ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
+      : [];
 
-        for (const inscription of accountInscriptions) {
-          const participants =
-            await this.participantGateway.findByInscriptionId(
-              inscription.getId(),
-            );
+    const typeIds = [
+      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+    ];
 
-          // Converter participantes para o formato do PDF
-          const formattedParticipants = participants.map((p) => ({
-            id: p.getId(),
-            name: p.getName(),
-            birthDate: p.getBirthDate(),
-            gender: p.getGender(),
-          }));
+    const allTypes = typeIds.length
+      ? await this.typeInscriptionGateway.findByIds(typeIds)
+      : [];
 
-          allParticipants.push(...formattedParticipants);
-        }
+    const typeMap = new Map(
+      allTypes.map((t) => [t.getId(), t.getDescription()]),
+    );
+
+    const participantMap = allParticipants.reduce((map, p) => {
+      const list = map.get(p.getInscriptionId()) || [];
+
+      list.push({
+        id: p.getId(),
+        name: p.getName(),
+        birthDate: p.getBirthDate(),
+        typeInscription:
+          typeMap.get(p.getTypeInscriptionId()) ?? 'Não informado',
+        gender: p.getGender(),
+      });
+
+      map.set(p.getInscriptionId(), list);
+      return map;
+    }, new Map<string, any[]>());
+
+    const users = await this.userGateway.findByIds(input.accountsId);
+
+    const userMap = new Map(users.map((u) => [u.getId(), u.getUsername()]));
+
+    const validAccountsData = input.accountsId
+      .map((accountId) => {
+        const username = userMap.get(accountId) ?? 'Usuário não identificado';
+
+        const inscriptions = allInscriptions.filter(
+          (ins) => ins.getAccountId() === accountId,
+        );
+
+        const participants = inscriptions.flatMap(
+          (ins) => participantMap.get(ins.getId()) || [],
+        );
 
         return {
           accountId,
-          username: user?.getUsername() ?? 'Usuário não identificado',
-          totalParticipants: allParticipants.length,
-          participants: allParticipants,
+          username,
+          totalParticipants: participants.length,
+          participants,
         };
-      }),
-    );
+      })
+      .filter((acc) => acc.totalParticipants > 0);
 
-    // Filtrar contas que não têm inscrições no evento
-    const validAccountsData = accountsData.filter(
-      (account) => account.totalParticipants > 0,
-    );
-
-    // Converter para o formato do PDF
     const accountsPdfData: AccountParticipantsPdfBlock[] =
       validAccountsData.map((account) => ({
         accountId: account.accountId,
         username: account.username,
         totalParticipants: account.totalParticipants,
-        participants: account.participants.map((p) => ({
-          id: p.id,
-          name: p.name,
-          birthDate: p.birthDate,
-          gender: p.gender,
-        })),
+        participants: account.participants,
       }));
 
     const participantsPdfData: ParticipantsByAccountPdfData = {
       header: {
-        title: event?.getName() ?? 'Evento',
+        title: event.getName(),
         titleDetail: this.formatEventPeriod(
           event.getStartDate(),
           event.getEndDate(),
@@ -147,11 +156,9 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
         participantsPdfData,
       );
 
-    const filename = this.buildFilename(event.getName(), event.getId());
-
     return {
       pdfBase64: pdfBuffer.toString('base64'),
-      filename,
+      filename: this.buildFilename(event.getName(), event.getId()),
     };
   }
 

@@ -22,6 +22,7 @@ export type Accounts = {
 export type Participants = {
   id: string;
   name: string;
-  birthDate: string;
+  birthDate: Date;
+  typeInscription: string;
   gender: string;
 }[];
