@@ -1,33 +1,55 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import {
-  GeneratePdfSelectedParticipantInput,
-  GeneratePdfSelectedParticipantUsecase,
-} from 'src/usecases/web/participants/pdf/generate-pdf-participant/generate-pdf-participant.usecase';
+  GeneratePdfParticipantsAllInput,
+  GeneratePdfParticipantsAllUsecase,
+} from 'src/usecases/web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
+import {
+  GeneratePdfParticipantsSelectedAccountsInput,
+  GeneratePdfParticipantsSelectedAccountsUsecase,
+} from 'src/usecases/web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
 import type {
-  GeneratePdfSelectedParticipantRequest,
-  GeneratePdfSelectedParticipantResponse,
-} from './generate-pdf-participant.dto';
-import { GeneratePdfSelectedParticipantPresenter } from './generate-pdf-participant.presenter';
+  GeneratePdfAllParticipantsAllRequest,
+  GeneratePdfAllParticipantsAllResponse,
+} from './dto/generate-pdf-participants-all.dto';
+import type {
+  GeneratePdfParticipantsSelectedAccountsRequest,
+  GeneratePdfParticipantsSelectedAccountsResponse,
+} from './dto/generate-pdf-participants-selected-accounts.dto';
+import { GeneratePdfParticipantsAllPresenter } from './presenter/generate-pdf-participants-all.presenter';
+import { GeneratePdfParticipantsSelectedAccountsPresenter } from './presenter/generate-pdf-participants-selected-accounts.presenter';
 
 @Controller('participants/pdf')
 export class GeneratePdfSelectedParticipantRoute {
   public constructor(
-    private readonly generatePdfSelectedParticipantUsecase: GeneratePdfSelectedParticipantUsecase,
+    private readonly generatePdfParticipantsAllUsecase: GeneratePdfParticipantsAllUsecase,
+    private readonly generatePdfParticipantsSelectedAccountsUsecase: GeneratePdfParticipantsSelectedAccountsUsecase,
   ) {}
 
-  @Post(':id/list-participants')
-  async handle(
-    @Param('id') eventId: string,
-    @Body() body: GeneratePdfSelectedParticipantRequest,
-  ): Promise<GeneratePdfSelectedParticipantResponse> {
-    const input: GeneratePdfSelectedParticipantInput = {
-      eventId,
-      accountsId: body.accountIds,
+  @Post(':eventId/list-participants/all')
+  async handleAll(
+    @Param() params: GeneratePdfAllParticipantsAllRequest,
+  ): Promise<GeneratePdfAllParticipantsAllResponse> {
+    const input: GeneratePdfParticipantsAllInput = {
+      eventId: params.eventId,
     };
-    console;
-    const response =
-      await this.generatePdfSelectedParticipantUsecase.execute(input);
 
-    return GeneratePdfSelectedParticipantPresenter.toHttp(response);
+    const response =
+      await this.generatePdfParticipantsAllUsecase.execute(input);
+    return GeneratePdfParticipantsAllPresenter.toHttp(response);
+  }
+
+  @Post(':eventId/list-participants/selected')
+  async handleSelected(
+    @Param() params: GeneratePdfParticipantsSelectedAccountsRequest,
+    @Body() body: GeneratePdfParticipantsSelectedAccountsRequest,
+  ): Promise<GeneratePdfParticipantsSelectedAccountsResponse> {
+    const input: GeneratePdfParticipantsSelectedAccountsInput = {
+      eventId: params.eventId,
+      accountsId: body.accountsId,
+    };
+    const response =
+      await this.generatePdfParticipantsSelectedAccountsUsecase.execute(input);
+
+    return GeneratePdfParticipantsSelectedAccountsPresenter.toHttp(response);
   }
 }
