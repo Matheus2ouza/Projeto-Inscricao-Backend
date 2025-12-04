@@ -108,7 +108,9 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return total;
   }
 
-  async findByInscriptionIds(inscriptionIds: string[]): Promise<Participant[]> {
+  async findManyByInscriptionIds(
+    inscriptionIds: string[],
+  ): Promise<Participant[]> {
     if (inscriptionIds.length === 0) {
       return [];
     }

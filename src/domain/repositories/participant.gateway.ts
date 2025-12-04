@@ -21,7 +21,7 @@ export abstract class ParticipantGateway {
   ): Promise<Participant[]>;
   abstract countAllByInscriptionId(inscriptionId: string): Promise<number>;
   // Buscar participantes de múltiplas inscrições
-  abstract findByInscriptionIds(
+  abstract findManyByInscriptionIds(
     inscriptionIds: string[],
   ): Promise<Participant[]>;
   // Buscar participantes de uma conta em um evento (limitado)
