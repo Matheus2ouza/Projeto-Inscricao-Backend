@@ -62,6 +62,7 @@ import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pd
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
+import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
 import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
 import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
@@ -209,6 +210,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     DeleteParticipantsUsecase,
     GeneratePdfParticipantsSelectedAccountsUsecase,
     GeneratePdfParticipantsAllUsecase,
+    GeneratePdfEtiquetaUseCase,
 
     // Tickets
     CreateTicketUsecase,
@@ -334,6 +336,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     DeleteParticipantsUsecase,
     GeneratePdfParticipantsSelectedAccountsUsecase,
     GeneratePdfParticipantsAllUsecase,
+    GeneratePdfEtiquetaUseCase,
 
     // Tickets
     CreateTicketUsecase,

@@ -65,6 +65,7 @@ import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-p
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
+import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
@@ -209,6 +210,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     UpdateParticipantsRoute,
     DeleteParticipantsRoute,
     GeneratePdfSelectedParticipantRoute,
+    GeneratePdfEtiquetaRoute,
 
     // Tickets
     CreateTicketRoute,
