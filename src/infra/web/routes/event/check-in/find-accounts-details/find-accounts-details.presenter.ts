@@ -8,11 +8,11 @@ export class FindAccountsDetailsPresenter {
     return {
       id: output.id,
       username: output.username,
-      email: output.email,
       status: output.status,
       countDebt: output.countDebt,
       countPay: output.countPay,
       countInscriptions: output.countInscriptions,
+      countParticipants: output.countParticipants,
       inscriptions: output.inscriptions,
     };
   }

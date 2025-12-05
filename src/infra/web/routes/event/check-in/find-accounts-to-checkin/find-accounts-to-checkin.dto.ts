@@ -1,7 +1,8 @@
 export type FindAccountsToCheckInRequest = {
   eventId: string;
   accountId?: string;
-  withDebt?: boolean;
+  withDebt?: boolean | string;
+  onlyWithDebt?: boolean | string;
   page: number;
   pageSize: number;
 };

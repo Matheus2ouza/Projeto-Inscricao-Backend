@@ -10,6 +10,29 @@ import type {
 } from './find-accounts-to-checkin.dto';
 import { FindAccountsToCheckInPresenter } from './find-accounts-to-checkin.presenter';
 
+const parseBooleanQueryValue = (
+  value?: boolean | string,
+): boolean | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true') {
+    return true;
+  }
+
+  if (normalized === 'false') {
+    return false;
+  }
+
+  return undefined;
+};
+
 @Controller('events')
 export class FindAccountsToCheckInRoute {
   constructor(
@@ -41,14 +64,14 @@ export class FindAccountsToCheckInRoute {
     const input: FindAccountsToCheckInInput = {
       eventId,
       accountId: query.accountId,
-      withDebt: query.withDebt,
+      withDebt:
+        parseBooleanQueryValue(query.withDebt) ??
+        parseBooleanQueryValue(query.onlyWithDebt),
       page: Number(query.page ?? 1),
       pageSize: Number(query.pageSize ?? 10),
     };
 
-    console.log(input);
     const result = await this.findAccountsToCheckInUsecase.execute(input);
-
     return FindAccountsToCheckInPresenter.toAccountsPaginated(result);
   }
 }
