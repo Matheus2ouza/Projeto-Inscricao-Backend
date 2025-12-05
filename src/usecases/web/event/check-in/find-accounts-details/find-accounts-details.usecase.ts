@@ -20,22 +20,24 @@ export type FindAccountsDetailsInput = {
 export type FindAccountsDetailsOutput = {
   id: string;
   username: string;
-  email: string;
   status: string;
   countDebt: number;
   countPay: number;
   countInscriptions: number;
+  countParticipants: number;
   inscriptions: Inscriptions;
 };
 
 type Inscriptions = {
   id: string;
+  responsible: string;
+  email?: string;
   status: InscriptionStatus;
   totalPayd: number;
   totalDebt: number;
   createdAt: Date;
   participants: Participants;
-  paymentInscription: PaymentInscriptionOutput[];
+  paymentInscription: PaymentInscription;
 }[];
 
 type Participants = {
@@ -45,12 +47,12 @@ type Participants = {
   typeInscription: string;
 }[];
 
-type PaymentInscriptionOutput = {
+type PaymentInscription = {
   value: number;
   status: StatusPayment;
   image: string;
   createdAt: Date;
-};
+}[];
 
 @Injectable()
 export class FindAccountsDetailsUseCase
@@ -110,14 +112,19 @@ export class FindAccountsDetailsUseCase
         account.getId(),
       );
 
-    const [participants, paymentInscriptionRecords] = await Promise.all([
-      this.participantGateway.findManyByInscriptionIds(
-        inscriptions.map((inscription) => inscription.getId()),
-      ),
-      this.paymentInscriptionGateway.findManyByInscriptionIds(
-        inscriptions.map((inscription) => inscription.getId()),
-      ),
-    ]);
+    const [participants, paymentInscriptionRecords, countParticipants] =
+      await Promise.all([
+        this.participantGateway.findManyByInscriptionIds(
+          inscriptions.map((inscription) => inscription.getId()),
+        ),
+        this.paymentInscriptionGateway.findManyByInscriptionIds(
+          inscriptions.map((inscription) => inscription.getId()),
+        ),
+        this.participantGateway.countByAccountIdAndEventId(
+          input.accountId,
+          event.getId(),
+        ),
+      ]);
 
     const participantList = participants;
     const typeIds = [
@@ -162,18 +169,19 @@ export class FindAccountsDetailsUseCase
           0,
         );
 
-        const paymentInscriptionData: PaymentInscriptionOutput[] =
-          await Promise.all(
-            payments.map(async (payment) => ({
-              value: payment.getValue().toNumber(),
-              status: payment.getStatus(),
-              createdAt: payment.getCreatedAt(),
-              image: await this.getPublicUrlOrEmpty(payment.getImageUrl()),
-            })),
-          );
+        const paymentInscriptionData: PaymentInscription = await Promise.all(
+          payments.map(async (payment) => ({
+            value: payment.getValue().toNumber(),
+            status: payment.getStatus(),
+            createdAt: payment.getCreatedAt(),
+            image: await this.getPublicUrlOrEmpty(payment.getImageUrl()),
+          })),
+        );
 
         return {
           id: inscription.getId(),
+          responsible: inscription.getResponsible(),
+          email: inscription.getEmail(),
           status: inscription.getStatus(),
           totalPayd,
           totalDebt: inscription.getTotalValue(),
@@ -187,11 +195,11 @@ export class FindAccountsDetailsUseCase
     const output: FindAccountsDetailsOutput = {
       id: account.getId(),
       username: account.getUsername(),
-      email: account.getEmail() ?? '',
       status: countDebt > 0 ? 'PENDENTE' : 'PAGO',
       countDebt,
       countPay,
       countInscriptions,
+      countParticipants,
       inscriptions: detailedInscriptions,
     };
 

@@ -8,22 +8,24 @@ export type FindAccountsDetailsRequest = {
 export type FindAccountsDetailsResponse = {
   id: string;
   username: string;
-  email: string;
   status: string;
   countDebt: number;
   countPay: number;
   countInscriptions: number;
+  countParticipants: number;
   inscriptions: Inscriptions;
 };
 
 type Inscriptions = {
   id: string;
+  responsible: string;
+  email?: string;
   status: InscriptionStatus;
   totalPayd: number;
   totalDebt: number;
   createdAt: Date;
   participants: Participants;
-  paymentInscription: PaymentInscriptionOutput[];
+  paymentInscription: PaymentInscription;
 }[];
 
 type Participants = {
@@ -33,9 +35,9 @@ type Participants = {
   typeInscription: string;
 }[];
 
-type PaymentInscriptionOutput = {
+type PaymentInscription = {
   value: number;
   status: StatusPayment;
   image: string;
   createdAt: Date;
-};
+}[];
