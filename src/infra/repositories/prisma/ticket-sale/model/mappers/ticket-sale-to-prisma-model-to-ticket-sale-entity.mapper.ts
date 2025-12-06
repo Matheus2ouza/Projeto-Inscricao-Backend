@@ -7,7 +7,7 @@ export class TicketSaleToPrismaModelToTicketSaleEntityMapper {
       id: ticketSale.id,
       eventId: ticketSale.eventId,
       name: ticketSale.name,
-      email: ticketSale.email,
+      email: ticketSale.email ?? undefined,
       phone: ticketSale.phone ?? undefined,
       status: ticketSale.status,
       totalValue: Number(ticketSale.totalValue),

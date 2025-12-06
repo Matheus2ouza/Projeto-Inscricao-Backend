@@ -13,6 +13,7 @@ async function bootstrap() {
     origin: [
       'https://sistema-inscricao-five.vercel.app',
       'http://localhost:3333',
+      'http://localhost:8081',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,

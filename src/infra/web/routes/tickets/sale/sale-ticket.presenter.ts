@@ -4,9 +4,9 @@ import { SaleTicketResponse } from './sale-ticket.dto';
 export class SaleTicketPresenter {
   public static toHttp(output: SaleTicketOutput): SaleTicketResponse {
     return {
-      id: output.id,
-      ticketQuantity: output.ticketQuantity,
-      ticketPdfBase64: output.ticketPdfBase64,
+      id: output.saleId,
+      ticketQuantity: output.totalUnits,
+      ticketPdfBase64: output.pdfBase64,
     };
   }
 }
