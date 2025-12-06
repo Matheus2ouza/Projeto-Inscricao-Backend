@@ -131,8 +131,8 @@ export class GenerateTicketPdfSecondCopyUsecase
       saleInfo: {
         saleId: ticketSale.getId(),
         buyerName: ticketSale.getName(),
-        buyerEmail: ticketSale.getEmail(),
-        buyerPhone: ticketSale.getPhone(),
+        buyerEmail: ticketSale?.getEmail() ?? '',
+        buyerPhone: ticketSale?.getPhone() ?? '',
         totalTickets: ticketUnits.length,
         totalValue: Number(ticketSale.getTotalValue()),
       },

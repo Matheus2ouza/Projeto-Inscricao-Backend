@@ -75,11 +75,11 @@ export class GroupUploadUsecase
             !['de', 'da', 'do', 'dos', 'das', 'e'].includes(word.toLowerCase()),
         );
       const hasValidName = nameParts && nameParts.length >= 2;
-      if (!hasValidName)
-        errors.push({
-          line: row.line,
-          reason: 'Nome deve conter nome e sobrenome válidos',
-        });
+      // if (!hasValidName)
+      //   errors.push({
+      //     line: row.line,
+      //     reason: 'Nome deve conter nome e sobrenome válidos',
+      //   });
 
       // valida data nascimento formato DD/MM/AAAA
       let birthDateISO = '';

@@ -18,10 +18,8 @@ export class SaleTicketRoute {
     const input: SaleTicketInput = {
       eventId: id,
       name: request.name,
-      email: request.email,
-      phone: request.phone,
-      totalValue: request.totalValue,
-      quantity: request.quantity,
+      items: request.items,
+      payments: request.payments,
     };
 
     const response = await this.saleTicketUsecase.execute(input);

@@ -89,6 +89,7 @@ import { FindAllTicketsUsecase } from './web/tickets/findAll/find-all-ticket.use
 import { GenerateTicketPdfSecondCopyUsecase } from './web/tickets/generate-ticket-pdf-second-copy/generate-ticket-pdf-second-copy.usecase';
 import { PreSaleUseCase } from './web/tickets/pre-sale/pre-sale.usecase';
 import { RejectPreSaleUseCase } from './web/tickets/reject-pre-sale/reject-pre-sale.usecase';
+import { SaleGrupUsecase } from './web/tickets/sale-group/sale-group.usecase';
 import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
@@ -224,6 +225,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindTicketDetailsUsecase,
     SaleTicketUsecase,
     GenerateTicketPdfSecondCopyUsecase,
+    SaleGrupUsecase,
 
     // Event Expenses
     CreateEventExpensesUsecase,
@@ -350,6 +352,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     SaleTicketUsecase,
     PreSaleUseCase,
     GenerateTicketPdfSecondCopyUsecase,
+    SaleGrupUsecase,
 
     // Event Expenses
     CreateEventExpensesUsecase,

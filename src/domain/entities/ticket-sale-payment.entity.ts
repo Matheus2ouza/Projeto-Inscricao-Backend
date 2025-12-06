@@ -6,7 +6,7 @@ export type TicketSalePaymentCreateDto = {
   ticketSaleId: string;
   paymentMethod: PaymentMethod;
   value: number;
-  imageUrl: string;
+  imageUrl?: string;
   financialMovementId?: string;
 };
 
@@ -15,7 +15,7 @@ export type TicketSalePaymentWithDto = {
   ticketSaleId: string;
   paymentMethod: PaymentMethod;
   value: number;
-  imageUrl: string;
+  imageUrl?: string;
   financialMovementId?: string;
   createdAt: Date;
 };
@@ -26,8 +26,8 @@ export class TicketSalePayment extends Entity {
     private ticketSaleId: string,
     private paymentMethod: PaymentMethod,
     private value: number,
-    private imageUrl: string,
     createdAt: Date,
+    private imageUrl?: string,
     private financialMovementId?: string,
   ) {
     super(id, createdAt, createdAt);
@@ -49,8 +49,8 @@ export class TicketSalePayment extends Entity {
       ticketSaleId,
       paymentMethod,
       value,
-      imageUrl,
       createdAt,
+      imageUrl,
       financialMovementId,
     );
   }
@@ -69,8 +69,8 @@ export class TicketSalePayment extends Entity {
       ticketSaleId,
       paymentMethod,
       value,
-      imageUrl,
       createdAt,
+      imageUrl,
       financialMovementId,
     );
   }
@@ -86,10 +86,6 @@ export class TicketSalePayment extends Entity {
 
     if (this.value <= 0) {
       throw new Error('O valor do pagamento deve ser maior que zero.');
-    }
-
-    if (!this.imageUrl) {
-      throw new Error('A URL da imagem é obrigatória.');
     }
   }
 
@@ -109,7 +105,7 @@ export class TicketSalePayment extends Entity {
     return this.value;
   }
 
-  public getImageUrl(): string {
+  public getImageUrl(): string | undefined {
     return this.imageUrl;
   }
 

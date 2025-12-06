@@ -5,7 +5,7 @@ import { Entity } from '../shared/entities/entity';
 export type TicketSaleCreateDto = {
   eventId: string;
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   status: TicketSaleStatus;
   totalValue: number;
@@ -15,7 +15,7 @@ export type TicketSaleWithDto = {
   id: string;
   eventId: string;
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   status: TicketSaleStatus;
   totalValue: number;
@@ -29,11 +29,11 @@ export class TicketSale extends Entity {
     id: string,
     private eventId: string,
     private name: string,
-    private email: string,
     private status: TicketSaleStatus,
     private totalValue: number,
     createdAt: Date,
     updatedAt: Date,
+    private email?: string,
     private phone?: string,
     private approvedBy?: string,
   ) {
@@ -57,11 +57,11 @@ export class TicketSale extends Entity {
       id,
       eventId,
       name,
-      email,
       status,
       totalValue,
       createdAt,
       updatedAt,
+      email,
       phone,
     );
   }
@@ -82,11 +82,11 @@ export class TicketSale extends Entity {
       id,
       eventId,
       name,
-      email,
       status,
       totalValue,
       createdAt,
       updatedAt,
+      email,
       phone,
       approvedBy,
     );
@@ -98,9 +98,6 @@ export class TicketSale extends Entity {
     }
     if (!this.name) {
       throw new Error('O nome é obrigatório');
-    }
-    if (!this.email) {
-      throw new Error('O email é obrigatório');
     }
     if (this.totalValue <= 0) {
       throw new Error('O valor total deve ser maior que zero');
@@ -122,7 +119,7 @@ export class TicketSale extends Entity {
     return this.name;
   }
 
-  public getEmail(): string {
+  public getEmail(): string | undefined {
     return this.email;
   }
 

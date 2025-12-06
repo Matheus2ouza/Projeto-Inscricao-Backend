@@ -41,6 +41,12 @@ const LETTER_MARGINS_MM = {
 
 const LABEL_COLUMN_SPACING_EXTRA_MM = 3;
 const LABEL_COLUMN_SPACING_EXTRA_PT = mmToPt(LABEL_COLUMN_SPACING_EXTRA_MM);
+const LABEL_CELL_HORIZONTAL_PADDING_MM = 5;
+const LABEL_CELL_HORIZONTAL_PADDING_PT = mmToPt(
+  LABEL_CELL_HORIZONTAL_PADDING_MM,
+);
+const LABEL_CELL_VERTICAL_PADDING_MM = 5;
+const LABEL_CELL_VERTICAL_PADDING_PT = mmToPt(LABEL_CELL_VERTICAL_PADDING_MM);
 
 const NAME_AND_SURNAME_REGEX =
   /^\s*([^\s]+)(?:\s+(?:(?:de|da|do|dos|das)|[^\s]+))*\s+(?!de|da|do|dos|das)([^\s]+)\s*$/i;
@@ -148,11 +154,17 @@ export class EtiquetaPdfGenerator {
   }
 
   private static buildEmptyCell(columnIndex: number) {
-    const extraSpacing = columnIndex === 1 ? LABEL_COLUMN_SPACING_EXTRA_PT : 0;
+    const [leftMargin, rightMargin] =
+      this.getCellHorizontalMargins(columnIndex);
 
     return {
       text: '',
-      margin: [2 + extraSpacing, 0, 2, 0],
+      margin: [
+        leftMargin,
+        LABEL_CELL_VERTICAL_PADDING_PT,
+        rightMargin,
+        LABEL_CELL_VERTICAL_PADDING_PT,
+      ],
       alignment: 'center',
     };
   }
@@ -161,7 +173,8 @@ export class EtiquetaPdfGenerator {
     entry: ParticipantEtiquetaEntry,
     columnIndex: number,
   ) {
-    const extraSpacing = columnIndex === 1 ? LABEL_COLUMN_SPACING_EXTRA_PT : 0;
+    const [leftMargin, rightMargin] =
+      this.getCellHorizontalMargins(columnIndex);
     const displayName = this.extractFirstAndLastName(entry.participantName);
 
     return {
@@ -170,18 +183,34 @@ export class EtiquetaPdfGenerator {
           text: displayName.toUpperCase(),
           fontSize: 14,
           bold: true,
-          margin: [2 + extraSpacing, 4, 2, 0],
+          margin: [0, 0, 0, 2],
           lineHeight: 1.1,
         },
         {
           text: entry.accountName.toUpperCase(),
           fontSize: 12,
-          margin: [2 + extraSpacing, 2, 2, 0],
+          margin: [0, 0, 0, 0],
           color: '#4a5568',
         },
       ],
+      margin: [
+        leftMargin,
+        LABEL_CELL_VERTICAL_PADDING_PT,
+        rightMargin,
+        LABEL_CELL_VERTICAL_PADDING_PT,
+      ],
       alignment: 'center',
     };
+  }
+
+  private static getCellHorizontalMargins(columnIndex: number) {
+    const extraLeft = columnIndex === 1 ? LABEL_COLUMN_SPACING_EXTRA_PT : 0;
+    const extraRight = columnIndex === 0 ? LABEL_COLUMN_SPACING_EXTRA_PT : 0;
+
+    const left = LABEL_CELL_HORIZONTAL_PADDING_PT + extraLeft;
+    const right = LABEL_CELL_HORIZONTAL_PADDING_PT + extraRight;
+
+    return [left, right];
   }
 
   private static extractFirstAndLastName(fullName: string) {

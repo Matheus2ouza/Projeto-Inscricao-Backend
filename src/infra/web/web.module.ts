@@ -89,6 +89,7 @@ import { FindAllTicketRoute } from './routes/tickets/findAll/find-all-ticket.rou
 import { GenerateTicketPdfSecondCopyRoute } from './routes/tickets/generate-second-copy/generate-second-copy.route';
 import { PreSaleRoute } from './routes/tickets/pre-sale/pre-sale.route';
 import { RejectPreSaleRoute } from './routes/tickets/reject-pre-sale/reject-pre-sale.route';
+import { SaleGrupRoute } from './routes/tickets/sale-group/sale-group.route';
 import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
@@ -224,6 +225,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     PreSaleRoute,
     ApprovePreSaleRoute,
     RejectPreSaleRoute,
+    SaleGrupRoute,
 
     // Event Expenses
     CreateEventExpensesRoute,

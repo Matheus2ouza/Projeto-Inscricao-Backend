@@ -149,7 +149,7 @@ export class AnalysisPreSaleUseCase
         return {
           id: sale.getId(),
           name: sale.getName(),
-          email: sale.getEmail(),
+          email: sale.getEmail() ?? '',
           phone: sale.getPhone() ?? '',
           status: sale.getStatus(),
           totalValue: sale.getTotalValue(),

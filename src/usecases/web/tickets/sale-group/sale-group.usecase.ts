@@ -1,21 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentMethod, TicketSaleStatus } from 'generated/prisma';
-import { Buffer } from 'node:buffer';
+import Decimal from 'decimal.js';
+import {
+  PaymentMethod,
+  TicketSaleStatus,
+  TransactionType,
+} from 'generated/prisma';
+import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
-import { MiniTicketPdfGenerator } from 'src/shared/utils/pdfs/tickets/mini-ticket-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { TicketNotFoundUsecaseException } from '../../exceptions/tickets/ticket-not-found.usecase.exception';
 
-export type SaleTicketInput = {
+export type SaleGrupInput = {
   eventId: string;
+  accountId: string;
   name: string;
 
   items: TicketSaleItemInput[];
@@ -32,32 +38,30 @@ export type TicketSalePaymentInput = {
   value: number;
 };
 
-export type SaleTicketOutput = {
+export type SaleGrupOutput = {
   saleId: string;
   totalUnits: number;
-  pdfBase64: string;
 };
 
 @Injectable()
-export class SaleTicketUsecase
-  implements Usecase<SaleTicketInput, SaleTicketOutput>
-{
+export class SaleGrupUsecase implements Usecase<SaleGrupInput, SaleGrupOutput> {
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly eventTicketsGateway: EventTicketsGateway,
     private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly ticketSalePaymentGateway: TicketSalePaymentGateway,
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
+    private readonly financialMovementGateway: FinancialMovementGateway,
   ) {}
 
-  async execute(input: SaleTicketInput): Promise<SaleTicketOutput> {
+  public async execute(input: SaleGrupInput): Promise<SaleGrupOutput> {
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Event with id ${input.eventId} not found.`,
         `Evento não encontrado.`,
-        SaleTicketUsecase.name,
+        SaleGrupUsecase.name,
       );
     }
 
@@ -65,7 +69,7 @@ export class SaleTicketUsecase
       throw new TicketNotFoundUsecaseException(
         'Nenhum ticket informado.',
         'Nenhum ticket informado.',
-        SaleTicketUsecase.name,
+        SaleGrupUsecase.name,
       );
     }
 
@@ -88,7 +92,7 @@ export class SaleTicketUsecase
         throw new TicketNotFoundUsecaseException(
           `Ticket not found with ticketId: ${item.ticketId}`,
           `Ticket não encontrado.`,
-          SaleTicketUsecase.name,
+          SaleGrupUsecase.name,
         );
       }
 
@@ -103,7 +107,7 @@ export class SaleTicketUsecase
         throw new TicketNotFoundUsecaseException(
           `Ticket ${ticket.getName()} has expired`,
           `Ticket expirado.`,
-          SaleTicketUsecase.name,
+          SaleGrupUsecase.name,
         );
       }
 
@@ -111,19 +115,19 @@ export class SaleTicketUsecase
         throw new TicketNotFoundUsecaseException(
           `Insufficient stock for ticketId: ${item.ticketId}. Requested ${item.quantity}, available ${ticket.getAvailable()}`,
           `Quantidade insuficiente do ticket ${ticket.getName()}`,
-          SaleTicketUsecase.name,
+          SaleGrupUsecase.name,
         );
       }
 
-      const unitPriceCents = SaleTicketUsecase.toCents(ticket.getPrice());
+      const unitPriceCents = SaleGrupUsecase.toCents(ticket.getPrice());
       const totalValueCents = unitPriceCents * item.quantity;
 
       return {
         ticketId: item.ticketId,
         ticketName: ticket.getName(),
         quantity: item.quantity,
-        unitPrice: SaleTicketUsecase.centsToNumber(unitPriceCents),
-        totalValue: SaleTicketUsecase.centsToNumber(totalValueCents),
+        unitPrice: SaleGrupUsecase.centsToNumber(unitPriceCents),
+        totalValue: SaleGrupUsecase.centsToNumber(totalValueCents),
       };
     });
 
@@ -134,19 +138,19 @@ export class SaleTicketUsecase
 
       return {
         paymentMethod: payment.paymentMethod,
-        value: SaleTicketUsecase.centsToNumber(
-          SaleTicketUsecase.toCents(payment.value),
+        value: SaleGrupUsecase.centsToNumber(
+          SaleGrupUsecase.toCents(payment.value),
         ),
       };
     });
 
     const saleTotalCents = normalizedItems.reduce(
-      (sum, item) => sum + SaleTicketUsecase.toCents(item.totalValue),
+      (sum, item) => sum + SaleGrupUsecase.toCents(item.totalValue),
       0,
     );
 
     const paymentsTotalCents = normalizedPayments.reduce(
-      (sum, payment) => sum + SaleTicketUsecase.toCents(payment.value),
+      (sum, payment) => sum + SaleGrupUsecase.toCents(payment.value),
       0,
     );
 
@@ -156,7 +160,7 @@ export class SaleTicketUsecase
       );
     }
 
-    const saleTotalValue = SaleTicketUsecase.centsToNumber(saleTotalCents);
+    const saleTotalValue = SaleGrupUsecase.centsToNumber(saleTotalCents);
     const totalUnits = normalizedItems.reduce(
       (sum, item) => sum + item.quantity,
       0,
@@ -198,26 +202,18 @@ export class SaleTicketUsecase
       );
     }
 
-    const ticketEntries = normalizedItems.flatMap((item) =>
-      Array.from({ length: item.quantity }, () => ({
-        ticketId: item.ticketId,
-        ticketName: item.ticketName,
-      })),
-    );
-
-    const pdfBytes = await MiniTicketPdfGenerator.generate({
-      saleId: sale.getId(),
-      buyerName: input.name,
-      saleDate: new Date(),
-      tickets: ticketEntries,
+    const transaction = FinancialMovement.create({
+      eventId: event.getId(),
+      accountId: input.accountId,
+      type: TransactionType.INCOME,
+      value: Decimal(saleTotalValue),
     });
 
-    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
+    await this.financialMovementGateway.create(transaction);
 
     return {
       saleId: sale.getId(),
       totalUnits,
-      pdfBase64,
     };
   }
 
