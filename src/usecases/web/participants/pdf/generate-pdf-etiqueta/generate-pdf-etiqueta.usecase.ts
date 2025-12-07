@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
@@ -26,7 +25,6 @@ export class GeneratePdfEtiquetaUseCase
 {
   constructor(
     private readonly eventGateway: EventGateway,
-    private readonly accountGateway: AccountGateway,
     private readonly incriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
   ) {}
@@ -56,33 +54,10 @@ export class GeneratePdfEtiquetaUseCase
       ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
       : [];
 
-    const inscriptionMap = new Map(
-      allInscriptions.map((inscription) => [inscription.getId(), inscription]),
-    );
-
-    const accountIds = [
-      ...new Set(
-        allInscriptions.map((inscription) => inscription.getAccountId()),
-      ),
-    ];
-
-    const accounts = accountIds.length
-      ? await this.accountGateway.findByIds(accountIds)
-      : [];
-
-    const accountMap = new Map(
-      accounts.map((account) => [account.getId(), account.getUsername()]),
-    );
     const labelEntries: ParticipantEtiquetaEntry[] = allParticipants.map(
       (participant) => {
-        const inscription = inscriptionMap.get(participant.getInscriptionId());
-        const accountId = inscription?.getAccountId();
-        const accountName =
-          (accountId && accountMap.get(accountId)) ?? 'Conta não identificada';
-
         return {
           participantName: participant.getName(),
-          accountName,
         };
       },
     );
