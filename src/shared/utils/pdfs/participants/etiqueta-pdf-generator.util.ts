@@ -48,9 +48,6 @@ const LABEL_CELL_HORIZONTAL_PADDING_PT = mmToPt(
 const LABEL_CELL_VERTICAL_PADDING_MM = 5;
 const LABEL_CELL_VERTICAL_PADDING_PT = mmToPt(LABEL_CELL_VERTICAL_PADDING_MM);
 
-const NAME_AND_SURNAME_REGEX =
-  /^\s*([^\s]+)(?:\s+(?:(?:de|da|do|dos|das)|[^\s]+))*\s+(?!de|da|do|dos|das)([^\s]+)\s*$/i;
-
 const tableLayout: TableLayout = {
   hLineWidth: () => 0,
   vLineWidth: () => 0,
@@ -62,7 +59,6 @@ const tableLayout: TableLayout = {
 
 export type ParticipantEtiquetaEntry = {
   participantName: string;
-  accountName: string;
 };
 
 export class EtiquetaPdfGenerator {
@@ -175,22 +171,16 @@ export class EtiquetaPdfGenerator {
   ) {
     const [leftMargin, rightMargin] =
       this.getCellHorizontalMargins(columnIndex);
-    const displayName = this.extractFirstAndLastName(entry.participantName);
+    const displayName = entry.participantName;
 
     return {
       stack: [
         {
-          text: displayName.toUpperCase(),
+          text: displayName,
           fontSize: 14,
           bold: true,
           margin: [0, 0, 0, 2],
           lineHeight: 1.1,
-        },
-        {
-          text: entry.accountName.toUpperCase(),
-          fontSize: 12,
-          margin: [0, 0, 0, 0],
-          color: '#4a5568',
         },
       ],
       margin: [
@@ -213,9 +203,4 @@ export class EtiquetaPdfGenerator {
     return [left, right];
   }
 
-  private static extractFirstAndLastName(fullName: string) {
-    const normalized = fullName.trim();
-    const match = normalized.match(NAME_AND_SURNAME_REGEX);
-    return match ? `${match[1]} ${match[2]}` : normalized;
-  }
 }
