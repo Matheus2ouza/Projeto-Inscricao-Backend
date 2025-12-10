@@ -239,7 +239,7 @@ export class EventPrismaRepository implements EventGateway {
     const result = await this.prisma.events.findFirst({
       where: {
         regionId,
-        status: 'OPEN',
+        status: { in: ['OPEN', 'CLOSE', 'FINALIZED'] },
         OR: [
           {
             startDate: { lte: now },

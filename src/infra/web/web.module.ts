@@ -49,6 +49,7 @@ import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-pa
 import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/update-tickets-sale.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
+import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
 import { AnalysisInscriptionRoute } from './routes/inscription/analysis/analysis-inscription/analysis-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/analysis/update-status-inscription/update-status-inscription.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
@@ -197,6 +198,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions - Avul
     CreateInscriptionAvulRoute,
     FindAllPaginatedOnSiteRegistrationRoute,
+    findDetailsInscriptionAvulRoute,
 
     // Payment Inscriptions
     CreatePaymentInscriptionRoute,

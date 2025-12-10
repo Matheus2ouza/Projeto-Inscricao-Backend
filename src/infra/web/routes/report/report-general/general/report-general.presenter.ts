@@ -15,6 +15,10 @@ export class RelatorioGeralPresenter {
       totalValue: output.totalValue,
       totalDebt: output.totalDebt,
       typeInscription: output.typeInscription,
+      inscriptionAvuls: output.inscriptionAvuls,
+      ticketSale: output.ticketSale,
+      expenses: output.expenses,
+      gastos: output.gastos,
     };
   }
 }

@@ -24,7 +24,6 @@ export abstract class PaymentInscriptionGateway {
       status?: StatusPayment[];
     },
   ): Promise<PaymentInscription[]>;
-
   abstract findByEventIdWithPagination(
     page: number,
     pageSize: number,
@@ -36,6 +35,11 @@ export abstract class PaymentInscriptionGateway {
       eventId?: string;
       status?: StatusPayment[];
     },
+  ): Promise<PaymentInscription[]>;
+  abstract findDistinctDatesByEventId(eventId: string): Promise<string[]>;
+  abstract findByEventIdAndDate(
+    eventId: string,
+    date: string,
   ): Promise<PaymentInscription[]>;
 
   // Agregações e contagens

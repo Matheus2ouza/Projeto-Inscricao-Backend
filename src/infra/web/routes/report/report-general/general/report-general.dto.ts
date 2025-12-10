@@ -1,3 +1,5 @@
+import { PaymentMethod } from 'generated/prisma';
+
 export type ReportGeneralRequest = {
   eventId: string;
 };
@@ -14,6 +16,10 @@ export type ReportGeneralResponse = {
   totalValue: number;
   totalDebt: number;
   typeInscription: TypeInscription;
+  inscriptionAvuls: InscriptionAvuls;
+  ticketSale: TicketSale;
+  expenses: ExpensesReport;
+  gastos: ExpensesReport;
 };
 
 type TypeInscription = {
@@ -23,3 +29,53 @@ type TypeInscription = {
   countParticipants: number;
   totalValue: number;
 }[];
+
+type InscriptionAvuls = {
+  countParticipants: number;
+  totalValue: number;
+  byPaymentMethod: AvulsoPaymentMethodReport[];
+};
+
+type AvulsoPaymentMethodReport = {
+  paymentMethod: PaymentMethod;
+  countParticipants: number;
+  totalValue: number;
+};
+
+type TicketSale = {
+  totalSales: number;
+  totalTicketsSold: number;
+  byTicket: TicketSaleByTicket[];
+  byPaymentMethod: TicketSaleByPaymentMethod[];
+};
+
+type TicketSaleByTicket = {
+  ticketId: string;
+  ticketName: string;
+  quantity: number;
+  totalValue: number;
+};
+
+type TicketSaleByPaymentMethod = {
+  paymentMethod: PaymentMethod;
+  count: number;
+  totalValue: number;
+};
+
+type ExpensesReport = {
+  total: number;
+  totalDinheiro: number;
+  totalPix: number;
+  totalCartao: number;
+  gastos: ExpenseDetail[];
+};
+
+type ExpenseDetail = {
+  id: string;
+  description: string;
+  value: number;
+  paymentMethod: PaymentMethod;
+  responsible: string;
+  createdAt: Date;
+  updatedAt: Date;
+};

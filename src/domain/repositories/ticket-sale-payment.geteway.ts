@@ -1,6 +1,14 @@
+import { PaymentMethod } from 'generated/prisma';
 import { TicketSalePayment } from '../entities/ticket-sale-payment.entity';
 
+export type TicketSalePaymentSummary = {
+  paymentMethod: PaymentMethod;
+  totalValue: number;
+  count: number;
+};
+
 export abstract class TicketSalePaymentGateway {
+
   // CRUD básico
   abstract create(
     ticketSalePayment: TicketSalePayment,
@@ -19,4 +27,8 @@ export abstract class TicketSalePaymentGateway {
 
   // Remoções
   abstract deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number>;
+
+  abstract sumByEventId(
+    eventId: string,
+  ): Promise<TicketSalePaymentSummary[]>;
 }

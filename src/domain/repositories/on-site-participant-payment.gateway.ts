@@ -6,7 +6,9 @@ export abstract class OnSiteParticipantPaymentGateway {
   ): Promise<OnSiteParticipantPayment>;
 
   abstract findById(id: string): Promise<OnSiteParticipantPayment | null>;
-
+  abstract findManyByOnSiteParticipantsPayment(
+    id: string,
+  ): Promise<OnSiteParticipantPayment[]>;
   abstract findByParticipantId(
     participantId: string,
   ): Promise<OnSiteParticipantPayment[]>;

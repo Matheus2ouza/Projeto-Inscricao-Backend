@@ -4,8 +4,8 @@ import { ListAllPaymentsResponse } from './list-all-payments.dto';
 export class ListAllPaymentsPresenter {
   public static toHttp(output: ListAllPaymentsOutput): ListAllPaymentsResponse {
     return {
-      paymentsInscriptions: output.paymentsInscriptions,
-      total: output.total,
+      groups: output.groups,
+      totalDates: output.totalDates,
       page: output.page,
       pageCount: output.pageCount,
     };

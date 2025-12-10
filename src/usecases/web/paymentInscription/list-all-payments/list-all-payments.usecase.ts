@@ -14,10 +14,15 @@ export type ListAllPaymentsInput = {
 };
 
 export type ListAllPaymentsOutput = {
-  paymentsInscriptions: PaymentsInscriptions;
-  total: number;
+  groups: PaymentGroup[];
+  totalDates: number;
   page: number;
   pageCount: number;
+};
+
+export type PaymentGroup = {
+  date: string;
+  payments: PaymentsInscriptions;
 };
 
 type PaymentsInscriptions = {
@@ -45,82 +50,87 @@ export class ListAllPaymentsUsecase
     input: ListAllPaymentsInput,
   ): Promise<ListAllPaymentsOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
-    const safePageSize = Math.max(
-      1,
-      Math.min(6, Math.floor(input.pageSize || 10)),
-    );
+    const datesPerPage = Math.max(5, Math.floor(input.pageSize || 5));
 
     const event = await this.eventGateway.findById(input.eventId);
-
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with finding event with id ${input.eventId} in ${ListAllPaymentsUsecase.name}`,
+        `Event not found with id ${input.eventId}`,
         `Evento não encontrado`,
         ListAllPaymentsUsecase.name,
       );
     }
 
-    const [payments, total] = await Promise.all([
-      this.paymentInscriptionGateway.findByEventIdWithPagination(
-        safePage,
-        safePageSize,
-        {
-          field: 'createdAt',
-          direction: 'desc',
-        },
-        {
-          eventId: event.getId(),
-        },
-      ),
+    // 1. Buscar todas as datas distintas (ordenadas da mais recente para a mais antiga)
+    const allDates =
+      await this.paymentInscriptionGateway.findDistinctDatesByEventId(
+        event.getId(),
+      );
 
-      this.paymentInscriptionGateway.countAllFiltered({
-        eventId: event.getId(),
-      }),
-    ]);
+    const totalDates = allDates.length;
+    const pageCount = Math.ceil(totalDates / datesPerPage);
 
-    const enrichedPayments = await Promise.all(
-      payments.map(async (payment) => {
-        let publicImageUrl: string | undefined;
-        let approvedByName: string | undefined;
-        const imagePath = payment.getImageUrl();
-        const approvedBy = payment.getApprovedBy();
+    // 2. Selecionar o bloco de datas da página atual
+    const start = (safePage - 1) * datesPerPage;
+    const end = start + datesPerPage;
 
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (error) {
-            publicImageUrl = undefined;
-          }
-        }
+    const pageDates = allDates.slice(start, end); // ex: 5 datas
 
-        const account = await this.accountGateway.findById(
-          payment.getAccountId(),
+    // 3. Buscar todos os pagamentos de cada data
+    const groups = await Promise.all(
+      pageDates.map(async (date) => {
+        const payments =
+          await this.paymentInscriptionGateway.findByEventIdAndDate(
+            event.getId(),
+            date,
+          );
+
+        const enrichedPayments = await Promise.all(
+          payments.map(async (payment) => {
+            let publicImageUrl: string | undefined;
+            let approvedByName: string | undefined;
+
+            const imagePath = payment.getImageUrl();
+            const approvedBy = payment.getApprovedBy();
+
+            if (imagePath) {
+              publicImageUrl =
+                await this.supabaseStorageService.getPublicUrl(imagePath);
+            }
+
+            const account = await this.accountGateway.findById(
+              payment.getAccountId(),
+            );
+
+            if (approvedBy) {
+              const acc = await this.accountGateway.findById(approvedBy);
+              approvedByName = acc?.getUsername();
+            }
+
+            return {
+              id: payment.getId(),
+              accountName: account?.getUsername(),
+              imageUrl: publicImageUrl,
+              value: Number(payment.getValue()),
+              status: payment.getStatus(),
+              approvedBy: approvedByName,
+              createdAt: payment.getCreatedAt(),
+            };
+          }),
         );
 
-        if (approvedBy) {
-          const approvedAccount =
-            await this.accountGateway.findById(approvedBy);
-          approvedByName = approvedAccount?.getUsername();
-        }
-
         return {
-          id: payment.getId(),
-          accountName: account?.getUsername(),
-          imageUrl: publicImageUrl,
-          value: Number(payment.getValue()),
-          status: payment.getStatus(),
-          approvedBy: approvedByName,
-          createdAt: payment.getCreatedAt(),
+          date,
+          payments: enrichedPayments,
         };
       }),
     );
-    const output: ListAllPaymentsOutput = {
-      paymentsInscriptions: enrichedPayments,
-      total,
+
+    return {
+      groups,
+      totalDates,
       page: safePage,
-      pageCount: Math.ceil(total / safePageSize),
+      pageCount,
     };
-    return output;
   }
 }

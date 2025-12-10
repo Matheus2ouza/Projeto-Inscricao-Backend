@@ -49,11 +49,11 @@ export class FindAllWithPaymentsUsecase
 
     const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
-        status: ['OPEN'],
+        status: ['OPEN', 'FINALIZED'],
         regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
-        status: ['OPEN'],
+        status: ['OPEN', 'FINALIZED'],
         regionId: input.regionId,
       }),
     ]);

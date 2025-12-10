@@ -2,7 +2,6 @@ import { PaymentMethod } from 'generated/prisma';
 
 export type SaleGrupRequest = {
   eventId: string;
-  accountId: string;
   name: string;
 
   items: TicketSaleItemInput[];

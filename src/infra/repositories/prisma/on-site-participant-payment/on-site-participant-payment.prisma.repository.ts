@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteParticipantPaymentGateway } from 'src/domain/repositories/on-site-participant-payment.gateway';
 import { PrismaService } from '../prisma.service';
-import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from './model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
-import { OnSiteParticipantPaymentPrismaModelToOnSiteParticipantPaymentEntityMapper } from './model/mappers/on-site-participant-payment-prisma-model-to-on-site-participant-payment-entity.mapper';
+import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper as PrismaToEntity } from './model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
+import { OnSiteParticipantPaymentPrismaModelToOnSiteParticipantPaymentEntityMapper as EntityToPrisma } from './model/mappers/on-site-participant-payment-prisma-model-to-on-site-participant-payment-entity.mapper';
 
 @Injectable()
 export class OnSiteParticipantPaymentPrismaRepository
@@ -14,18 +14,13 @@ export class OnSiteParticipantPaymentPrismaRepository
   public async create(
     payment: OnSiteParticipantPayment,
   ): Promise<OnSiteParticipantPayment> {
-    const data =
-      OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper.map(
-        payment,
-      );
+    const data = PrismaToEntity.map(payment);
 
     const created = await this.prisma.onSiteParticipantPayment.create({
       data,
     });
 
-    return OnSiteParticipantPaymentPrismaModelToOnSiteParticipantPaymentEntityMapper.map(
-      created,
-    );
+    return EntityToPrisma.map(created);
   }
 
   public async findById(id: string): Promise<OnSiteParticipantPayment | null> {
@@ -33,11 +28,7 @@ export class OnSiteParticipantPaymentPrismaRepository
       where: { id },
     });
 
-    return aModel
-      ? OnSiteParticipantPaymentPrismaModelToOnSiteParticipantPaymentEntityMapper.map(
-          aModel,
-        )
-      : null;
+    return aModel ? EntityToPrisma.map(aModel) : null;
   }
 
   public async findByParticipantId(
@@ -48,8 +39,18 @@ export class OnSiteParticipantPaymentPrismaRepository
       orderBy: { createdAt: 'desc' },
     });
 
-    return models.map(
-      OnSiteParticipantPaymentPrismaModelToOnSiteParticipantPaymentEntityMapper.map,
-    );
+    return models.map(EntityToPrisma.map);
+  }
+
+  async findManyByOnSiteParticipantsPayment(
+    id: string,
+  ): Promise<OnSiteParticipantPayment[]> {
+    const found = await this.prisma.onSiteParticipantPayment.findMany({
+      where: {
+        participantId: id,
+      },
+    });
+
+    return found.map(EntityToPrisma.map);
   }
 }
