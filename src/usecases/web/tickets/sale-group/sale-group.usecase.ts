@@ -106,7 +106,7 @@ export class SaleGrupUsecase implements Usecase<SaleGrupInput, SaleGrupOutput> {
       ) {
         throw new TicketNotFoundUsecaseException(
           `Ticket ${ticket.getName()} has expired`,
-          `Ticket expirado.`,
+          `O ticket: ${ticket.getName().toUpperCase()} já esta expirado.`,
           SaleGrupUsecase.name,
         );
       }
@@ -183,6 +183,17 @@ export class SaleGrupUsecase implements Usecase<SaleGrupInput, SaleGrupOutput> {
       });
 
       await this.ticketSalePaymentGateway.create(paymentEntity);
+
+      const transaction = FinancialMovement.create({
+        eventId: event.getId(),
+        accountId: input.accountId,
+        type: TransactionType.INCOME,
+        value: Decimal(payment.value),
+      });
+
+      await this.financialMovementGateway.create(transaction);
+      paymentEntity.attachFinancialMovement(transaction.getId());
+      await this.ticketSalePaymentGateway.update(paymentEntity);
     }
 
     for (const item of normalizedItems) {
@@ -202,14 +213,10 @@ export class SaleGrupUsecase implements Usecase<SaleGrupInput, SaleGrupOutput> {
       );
     }
 
-    const transaction = FinancialMovement.create({
-      eventId: event.getId(),
-      accountId: input.accountId,
-      type: TransactionType.INCOME,
-      value: Decimal(saleTotalValue),
-    });
-
-    await this.financialMovementGateway.create(transaction);
+    await this.eventGateway.incrementAmountCollected(
+      event.getId(),
+      saleTotalValue,
+    );
 
     return {
       saleId: sale.getId(),

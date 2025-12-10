@@ -6,6 +6,9 @@ export abstract class OnSiteParticipantGateway {
   ): Promise<OnSiteParticipant>;
 
   abstract createMany(participants: OnSiteParticipant[]): Promise<void>;
+  abstract findManyByOnSiteRegistrationId(
+    OnSiteRegistrationId: string,
+  ): Promise<OnSiteParticipant[]>;
   abstract countByOnSiteRegistrationId(
     OnSiteRegistrationId: string,
   ): Promise<OnSiteParticipant[]>;

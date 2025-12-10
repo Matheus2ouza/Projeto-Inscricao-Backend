@@ -5,6 +5,7 @@ import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entit
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
 import {
   OnSiteRegistrationGateway,
+  OnSiteRegistrationParticipantCountByMethod,
   OnSiteRegistrationPaymentTotals,
 } from 'src/domain/repositories/on-site-registration.gateway';
 import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from '../on-site-participant-payment/model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
@@ -74,6 +75,20 @@ export class OnSiteRegistrationPrismaRepository
 
     return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
       created,
+    );
+  }
+
+  async findById(id: string): Promise<OnSiteRegistration | null> {
+    const model = await this.prisma.onSiteRegistration.findUnique({
+      where: { id },
+    });
+
+    if (!model) {
+      return null;
+    }
+
+    return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
+      model,
     );
   }
 
@@ -162,5 +177,47 @@ export class OnSiteRegistrationPrismaRepository
       totals.totalDinheiro + totals.totalCartao + totals.totalPix;
 
     return totals;
+  }
+
+  async countParticipantsByEventId(eventId: string): Promise<number> {
+    return this.prisma.onSiteParticipant.count({
+      where: {
+        onSiteRegistration: {
+          eventId,
+        },
+      },
+    });
+  }
+
+  async countParticipantsByPaymentMethod(
+    eventId: string,
+  ): Promise<OnSiteRegistrationParticipantCountByMethod[]> {
+    const grouped = await this.prisma.onSiteParticipantPayment.groupBy({
+      by: ['paymentMethod', 'participantId'],
+      where: {
+        participant: {
+          onSiteRegistration: {
+            eventId,
+          },
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const counts = new Map<PaymentMethod, number>();
+
+    grouped.forEach((row) => {
+      const current = counts.get(row.paymentMethod) ?? 0;
+      counts.set(row.paymentMethod, current + 1);
+    });
+
+    return Array.from(counts.entries()).map(
+      ([paymentMethod, countParticipants]) => ({
+        paymentMethod,
+        countParticipants,
+      }),
+    );
   }
 }

@@ -46,6 +46,7 @@ import { UpdateTicketsSaleUsecase } from './web/event/update-tickets-sale/update
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
+import { FindDetailsInscriptionAvulUsecase } from './web/inscription/avul/find-details-inscription-avul/find-details-inscription-avul.usecase';
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
 import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/delete-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
@@ -194,6 +195,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+    FindDetailsInscriptionAvulUsecase,
 
     // Payment Inscriptions
     CreatePaymentInscriptionUsecase,
@@ -321,6 +323,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
+    FindDetailsInscriptionAvulUsecase,
 
     // Payment Inscriptions
     CreatePaymentInscriptionUsecase,

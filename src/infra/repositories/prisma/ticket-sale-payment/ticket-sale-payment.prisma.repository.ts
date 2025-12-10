@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { TicketSaleStatus } from 'generated/prisma';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
-import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
+import {
+  TicketSalePaymentGateway,
+  TicketSalePaymentSummary,
+} from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { PrismaService } from '../prisma.service';
 import { TicketSalePaymentToEntityToTicketSalePaymentPrismaModelMapper as EntityToPrisma } from './model/mapper/ticket-sale-payment-to-entity-to-ticket-sale-payment-prisma-model.mapper';
 import { TicketSalePaymentToPrismaModelToTicketSalePaymentEntityMapper as PrismaToEntity } from './model/mapper/ticket-sale-payment-to-prisma-model-to-ticket-sale-payment-entity.mapper';
@@ -59,6 +63,30 @@ export class TicketSalePaymentPrismaRepository
     });
 
     return found.map(PrismaToEntity.map);
+  }
+
+  async sumByEventId(eventId: string): Promise<TicketSalePaymentSummary[]> {
+    const grouped = await this.prisma.ticketSalePayment.groupBy({
+      by: ['paymentMethod'],
+      _sum: {
+        value: true,
+      },
+      _count: {
+        _all: true,
+      },
+      where: {
+        sale: {
+          eventId,
+          status: TicketSaleStatus.PAID,
+        },
+      },
+    });
+
+    return grouped.map((row) => ({
+      paymentMethod: row.paymentMethod,
+      totalValue: Number(row._sum.value ?? 0),
+      count: row._count._all ?? 0,
+    }));
   }
 
   async deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number> {

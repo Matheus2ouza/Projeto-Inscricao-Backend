@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { TicketSaleStatus } from 'generated/prisma';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { PrismaService } from '../prisma.service';
@@ -20,6 +21,19 @@ export class TicketSaleItemPrismaRepository implements TicketSaleItemGateway {
   async findByTicketSaleId(ticketSaleId: string): Promise<TicketSaleItem[]> {
     const found = await this.prisma.ticketSaleItem.findMany({
       where: { ticketSaleId },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByEventId(eventId: string): Promise<TicketSaleItem[]> {
+    const found = await this.prisma.ticketSaleItem.findMany({
+      where: {
+        sale: {
+          eventId,
+          status: TicketSaleStatus.PAID,
+        },
+      },
     });
 
     return found.map(PrismaToEntity.map);

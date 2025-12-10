@@ -15,7 +15,7 @@ export type OnSiteRegistrationwithDto = {
   id: string;
   eventId: string;
   responsible: string;
-  phone?: string; // ✅ agora opcional
+  phone?: string;
   totalValue: Decimal;
   status: InscriptionStatus;
   createdAt: Date;
@@ -27,7 +27,7 @@ export class OnSiteRegistration extends Entity {
     id: string,
     private eventId: string,
     private responsible: string,
-    private phone: string | undefined, // ✅ pode ser undefined
+    private phone: string | undefined,
     private totalValue: Decimal,
     private status: InscriptionStatus,
     createdAt: Date,
@@ -95,10 +95,6 @@ export class OnSiteRegistration extends Entity {
       throw new Error('O status é obrigatório');
     }
   }
-
-  // ============
-  // 🔹 GETTERS
-  // ============
 
   public getId(): string {
     return this.id;

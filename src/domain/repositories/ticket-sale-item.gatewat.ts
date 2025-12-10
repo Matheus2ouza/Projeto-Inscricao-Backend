@@ -6,6 +6,7 @@ export abstract class TicketSaleItemGateway {
 
   // Busca e listagens
   abstract findByTicketSaleId(ticketSaleId: string): Promise<TicketSaleItem[]>;
+  abstract findByEventId(eventId: string): Promise<TicketSaleItem[]>;
 
   // Agregações e contagens
   abstract countItemsByTicketSaleId(ticketSaleId: string): Promise<number>;

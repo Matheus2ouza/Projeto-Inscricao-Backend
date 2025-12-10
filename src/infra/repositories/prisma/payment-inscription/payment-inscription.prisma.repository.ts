@@ -94,6 +94,34 @@ export class PaymentInscriptionRepository implements PaymentInscriptionGateway {
     return data.map(PrismaToEntity.map);
   }
 
+  async findDistinctDatesByEventId(eventId: string): Promise<string[]> {
+    const dates = await this.prisma.paymentInscription.groupBy({
+      by: ['createdAt'],
+      where: { eventId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return dates.map((r) => r.createdAt.toISOString().substring(0, 10));
+  }
+
+  async findByEventIdAndDate(
+    eventId: string,
+    date: string,
+  ): Promise<PaymentInscription[]> {
+    const start = new Date(date + 'T00:00:00.000Z');
+    const end = new Date(date + 'T23:59:59.999Z');
+    const data = await this.prisma.paymentInscription.findMany({
+      where: {
+        eventId,
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+    return data.map(PrismaToEntity.map);
+  }
+
   // Agregações e contagens
   async countAllFiltered(filters: {
     eventId: string;

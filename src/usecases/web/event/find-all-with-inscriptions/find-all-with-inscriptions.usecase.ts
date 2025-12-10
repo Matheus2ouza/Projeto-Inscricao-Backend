@@ -58,10 +58,10 @@ export class FindAllWithInscriptionsUsecase
 
     const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
-        status: ['OPEN'],
+        status: ['OPEN', 'CLOSE', 'FINALIZED'],
       }),
       this.eventGateway.countAllFiltered({
-        status: ['OPEN'],
+        status: ['OPEN', 'CLOSE', 'FINALIZED'],
       }),
     ]);
 

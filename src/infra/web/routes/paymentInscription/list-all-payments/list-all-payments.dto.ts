@@ -7,13 +7,18 @@ export type ListAllPaymentsRequest = {
 };
 
 export type ListAllPaymentsResponse = {
-  paymentsInscriptions: PaymentsInscriptions;
-  total: number;
+  groups: PaymentGroup[];
+  totalDates: number;
   page: number;
   pageCount: number;
 };
 
-type PaymentsInscriptions = {
+export type PaymentGroup = {
+  date: string;
+  payments: PaymentsInscriptions;
+};
+
+export type PaymentsInscriptions = {
   id: string;
   accountName?: string;
   imageUrl?: string;
