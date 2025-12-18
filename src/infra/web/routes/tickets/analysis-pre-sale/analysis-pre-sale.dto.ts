@@ -17,14 +17,14 @@ type Event = {
   id: string;
   name: string;
   imageUrl: string;
-  TicketSales: TicketSale[];
+  TicketSales?: TicketSale[];
 };
 
 type TicketSale = {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   status: TicketSaleStatus;
   totalValue: number;
   payments: TicketSalePayment;

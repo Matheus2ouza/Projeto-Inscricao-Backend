@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedEventToInscriptionInput = {
+  regionId?: string;
   page: number;
   pageSize: number;
+  status: statusEvent[];
 };
 
 export type FindAllPaginatedEventToInscriptionOutput = {
@@ -14,6 +17,7 @@ export type FindAllPaginatedEventToInscriptionOutput = {
     id: string;
     name: string;
     imageUrl?: string;
+    status: statusEvent;
     countInscriptions: number;
     countInscriptionsAnalysis: number;
   }[];
@@ -45,39 +49,34 @@ export class FindAllPaginatedEventToInscriptionUsecase
       Math.min(6, Math.floor(input.pageSize || 10)),
     );
 
-    const allEvents = await this.eventGateway.findAll();
-
-    const total = allEvents.length;
-
-    const start = (safePage - 1) * safePageSize;
-    const end = start + safePageSize;
-    const pageRegions = allEvents.slice(start, end);
+    // Buscar eventos filtrados e paginados diretamente do banco
+    const [events, total] = await Promise.all([
+      this.eventGateway.findAllPaginated(safePage, safePageSize, {
+        status: input.status,
+        regionId: input.regionId,
+      }),
+      this.eventGateway.countAllFiltered({
+        status: input.status,
+        regionId: input.regionId,
+      }),
+    ]);
 
     const enriched = await Promise.all(
-      pageRegions.map(async (event: any) => {
-        let publicImageUrl: string | undefined = undefined;
-        const imagePath =
-          event.getImageUrl?.() || event.imageUrl || event.imagePath;
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (e) {
-            publicImageUrl = undefined;
-          }
-        }
+      events.map(async (e: any) => {
+        const imagePath = await this.getPublicUrlOrEmpty(e.getImageUrl());
 
         const countInscriptions = await this.inscriptionGateway.countAllByEvent(
-          event.getId(),
+          e.getId(),
         );
 
         const countInscriptionsAnalysis =
-          await this.inscriptionGateway.countAllInAnalysis(event.getId());
+          await this.inscriptionGateway.countAllInAnalysis(e.getId());
 
         return {
-          id: event.getId(),
-          name: event.getName(),
-          imageUrl: publicImageUrl,
+          id: e.getId(),
+          name: e.getName(),
+          imageUrl: imagePath,
+          status: e.getStatus(),
           countInscriptions,
           countInscriptionsAnalysis,
         };
@@ -90,5 +89,17 @@ export class FindAllPaginatedEventToInscriptionUsecase
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),
     };
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

@@ -18,4 +18,7 @@ export abstract class EventTicketsGateway {
   abstract findById(id: string): Promise<EventTicket | null>;
   abstract findByIds(ids: string[]): Promise<EventTicket[]>;
   abstract findAll(eventId: string): Promise<EventTicket[]>;
+
+  // Agregações e contagens
+  abstract countByEventId(eventId: string): Promise<number>;
 }

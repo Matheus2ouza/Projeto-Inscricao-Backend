@@ -8,5 +8,7 @@ export abstract class EventExpensesGateway {
     pageSize: number,
     eventId: string,
   ): Promise<EventExpenses[]>;
+
   abstract countAll(eventId: string): Promise<number>;
+  abstract countTotalExpense(eventId: string): Promise<number>;
 }

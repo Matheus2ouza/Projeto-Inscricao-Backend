@@ -3,10 +3,14 @@ import { Usecase } from 'src/usecases/usecase';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
+import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
+import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 
 export type FindAllWithTicketsInput = {
   regionId?: string;
+  status?: statusEvent[];
   page: number;
   pageSize: number;
 };
@@ -24,7 +28,9 @@ export type Events = {
   imageUrl: string;
   startDate: string;
   endDate: string;
-  ticketEnabled: boolean;
+  ticketEnabled?: boolean;
+  countTickets: number;
+  countSaleTickets: number;
 }[];
 
 @Injectable()
@@ -33,6 +39,8 @@ export class FindAllWithTicketsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly eventTicketsGateway: EventTicketsGateway,
+    private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -47,36 +55,33 @@ export class FindAllWithTicketsUsecase
 
     const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
-        status: ['OPEN', 'CLOSE', 'FINALIZED'],
+        status: input.status,
         regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
-        status: ['OPEN', 'CLOSE', 'FINALIZED'],
+        status: input.status,
         regionId: input.regionId,
       }),
     ]);
 
     const events = await Promise.all(
       allEvents.map(async (event) => {
-        // Obter URL pública da imagem
-        let publicImageUrl = '';
-        const imagePath = event.getImageUrl();
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch {
-            publicImageUrl = '';
-          }
-        }
+        const imagePath = await this.getPublicImageUrl(event.getImageUrl());
+
+        const [countTickets, countSaleTickets] = await Promise.all([
+          this.eventTicketsGateway.countByEventId(event.getId()),
+          this.ticketSaleGateway.countSalesByEventId(event.getId()),
+        ]);
 
         return {
           id: event.getId(),
           name: event.getName(),
-          imageUrl: publicImageUrl,
+          imageUrl: imagePath,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
-          ticketEnabled: event.getTicketEnabled() || false,
+          ticketEnabled: event.getTicketEnabled(),
+          countTickets,
+          countSaleTickets,
         };
       }),
     );
@@ -89,5 +94,16 @@ export class FindAllWithTicketsUsecase
     };
 
     return output;
+  }
+  private async getPublicImageUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

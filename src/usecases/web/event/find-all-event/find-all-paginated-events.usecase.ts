@@ -66,17 +66,7 @@ export class FindAllPaginatedEventsUsecase
 
     const enriched = await Promise.all(
       events.map(async (event: any) => {
-        let publicImageUrl: string | undefined = undefined;
-        const imagePath =
-          event.getImageUrl?.() || event.imageUrl || event.imagePath;
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (e) {
-            publicImageUrl = undefined;
-          }
-        }
+        const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
         const countTypeIncriptions =
           await this.eventGateway.countTypesInscriptions(event.getId());
@@ -88,7 +78,7 @@ export class FindAllPaginatedEventsUsecase
           amountCollected: event.getAmountCollected(),
           startDate: event.getStartDate(),
           endDate: event.getEndDate(),
-          imageUrl: publicImageUrl,
+          imageUrl: imagePath,
           location: event.getLocation() || event.location || '',
           longitude: event.getLongitude?.() ?? event.longitude ?? null,
           latitude: event.getLatitude?.() ?? event.latitude ?? null,
@@ -107,5 +97,17 @@ export class FindAllPaginatedEventsUsecase
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),
     };
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

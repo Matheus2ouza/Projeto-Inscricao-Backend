@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
+import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
-export type FindAllWithInscriptionsInput = {
+export type FindAllWithExpensesInput = {
   regionId?: string;
   status?: statusEvent[];
   page: number;
   pageSize: number;
 };
 
-export type FindAllWithInscriptionsOutput = {
+export type FindAllWithExpensesOutPut = {
   events: Events;
   total: number;
   page: number;
@@ -27,27 +26,23 @@ export type Events = {
   status: string;
   startDate: string;
   endDate: string;
-  countInscriptions: number;
-  countInscriptionsAnalysis: number;
-  countSingleInscriptions: number;
-  countSingleDebit: number;
+  countExpenses: number;
+  countTotalExpenses: number;
 }[];
 
 @Injectable()
-export class FindAllWithInscriptionsUsecase
-  implements
-    Usecase<FindAllWithInscriptionsInput, FindAllWithInscriptionsOutput>
+export class FindAllWithExpensesUsecase
+  implements Usecase<FindAllWithExpensesInput, FindAllWithExpensesOutPut>
 {
-  public constructor(
+  constructor(
     private readonly eventGateway: EventGateway,
-    private readonly inscriptionGateway: InscriptionGateway,
-    private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
+    private readonly eventExpensesGateway: EventExpensesGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
-    input: FindAllWithInscriptionsInput,
-  ): Promise<FindAllWithInscriptionsOutput> {
+    input: FindAllWithExpensesInput,
+  ): Promise<FindAllWithExpensesOutPut> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
@@ -69,15 +64,9 @@ export class FindAllWithInscriptionsUsecase
       events.map(async (event) => {
         const imagePath = await this.getPublicImageUrl(event.getImageUrl());
 
-        const [countInscriptions, countInscriptionsAnalysis] =
-          await Promise.all([
-            this.inscriptionGateway.countAllByEvent(event.getId()),
-            this.inscriptionGateway.countAllInAnalysis(event.getId()),
-          ]);
-
-        const [countSingleInscriptions, countSingleDebit] = await Promise.all([
-          this.onSiteRegistrationGateway.countAll(event.getId()),
-          this.onSiteRegistrationGateway.countAllinDebt(event.getId()),
+        const [countExpenses, countTotalExpenses] = await Promise.all([
+          this.eventExpensesGateway.countAll(event.getId()),
+          this.eventExpensesGateway.countTotalExpense(event.getId()),
         ]);
 
         return {
@@ -87,10 +76,8 @@ export class FindAllWithInscriptionsUsecase
           imageUrl: imagePath,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
-          countInscriptions,
-          countInscriptionsAnalysis,
-          countSingleInscriptions,
-          countSingleDebit,
+          countExpenses,
+          countTotalExpenses,
         };
       }),
     );

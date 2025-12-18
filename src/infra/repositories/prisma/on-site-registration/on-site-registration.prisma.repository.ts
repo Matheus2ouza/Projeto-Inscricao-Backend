@@ -133,6 +133,17 @@ export class OnSiteRegistrationPrismaRepository
     return total;
   }
 
+  async countAllinDebt(eventId: string): Promise<number> {
+    const total = await this.prisma.onSiteRegistration.count({
+      where: {
+        eventId,
+        status: 'PENDING',
+      },
+    });
+
+    return total;
+  }
+
   async sumPaymentsByMethod(
     eventId: string,
   ): Promise<OnSiteRegistrationPaymentTotals> {

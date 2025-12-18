@@ -38,7 +38,7 @@ export class FindAllPaginatedEventsRoute {
       pageSize,
     };
 
-    const result = await this.findAllPaginatedEventsUsecase.execute(input);
-    return FindAllPaginatedEventsPresenter.toHttp(result);
+    const response = await this.findAllPaginatedEventsUsecase.execute(input);
+    return FindAllPaginatedEventsPresenter.toHttp(response);
   }
 }

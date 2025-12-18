@@ -75,4 +75,13 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
 
     return aModal.map(EventTicketToPrismaModelToEnvetTicketEntityMapper.map);
   }
+
+  // Agregações e contagens
+  async countByEventId(eventId: string): Promise<number> {
+    const total = await this.prisma.eventTickets.count({
+      where: { eventId },
+    });
+
+    return total;
+  }
 }

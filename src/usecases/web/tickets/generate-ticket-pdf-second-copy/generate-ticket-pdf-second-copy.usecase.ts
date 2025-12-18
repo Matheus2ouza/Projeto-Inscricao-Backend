@@ -83,14 +83,6 @@ export class GenerateTicketPdfSecondCopyUsecase
     const ticketUnits =
       await this.ticketUnitGateway.findByTicketSaleItemIds(ticketSaleItemIds);
 
-    if (!ticketUnits.length) {
-      throw new TicketUnitsNotFoundUsecaseException(
-        `TicketSale ${ticketSale.getId()} does not have ticket units generated`,
-        'Os tickets desta venda ainda não foram liberados.',
-        GenerateTicketPdfSecondCopyUsecase.name,
-      );
-    }
-
     const saleItemMap = new Map(saleItems.map((item) => [item.getId(), item]));
     const ticketIds = [...new Set(saleItems.map((item) => item.getTicketId()))];
 

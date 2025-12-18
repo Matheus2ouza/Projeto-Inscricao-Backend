@@ -1,6 +1,9 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindAllPaginatedEventToInscriptionRequest = {
   page?: number;
   pageSize?: number;
+  status: statusEvent[];
 };
 
 export type FindAllPaginatedEventToInscriptionResponse = {
@@ -8,6 +11,7 @@ export type FindAllPaginatedEventToInscriptionResponse = {
     id: string;
     name: string;
     imageUrl?: string;
+    status: statusEvent;
     countInscriptions: number;
     countInscriptionsAnalysis: number;
   }[];
