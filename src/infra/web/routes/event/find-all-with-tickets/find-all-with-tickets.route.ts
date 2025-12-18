@@ -1,4 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
+import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindAllWithTicketsInput,
   FindAllWithTicketsUsecase,
@@ -15,11 +18,19 @@ export class FindAllWithTicketsRoute {
     private readonly findAllWithTicketsUsecase: FindAllWithTicketsUsecase,
   ) {}
 
-  @Get('/tickets')
+  @Get('tickets')
   async handle(
     @Query() query: FindAllWithTicketsRequest,
+    @UserInfo() userInfo: UserInfoType,
   ): Promise<FindAllWithTicketsResponse> {
+    const status = Array.isArray(query.status)
+      ? query.status.map((s) => s as statusEvent)
+      : query.status
+        ? [query.status as statusEvent]
+        : [];
     const input: FindAllWithTicketsInput = {
+      regionId: userInfo.userRole === 'SUPER' ? undefined : userInfo.regionId,
+      status,
       page: query.page,
       pageSize: query.pageSize,
     };

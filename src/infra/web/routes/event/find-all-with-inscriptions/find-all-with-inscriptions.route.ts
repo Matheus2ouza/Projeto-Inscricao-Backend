@@ -1,5 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import { statusEvent } from 'generated/prisma';
+import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindAllWithInscriptionsInput,
   FindAllWithInscriptionsUsecase,
@@ -19,10 +21,17 @@ export class FindAllWithInscriptionsRoute {
   @Get('inscriptions')
   public async handle(
     @Query() query: FindAllWithInscriptionsRequest,
-    @UserId() accountId: string,
+    @UserInfo() userInfo: UserInfoType,
   ): Promise<FindAllWithInscriptionsResponse> {
+    const status = Array.isArray(query.status)
+      ? query.status.map((s) => s as statusEvent)
+      : query.status
+        ? [query.status as statusEvent]
+        : [];
+
     const input: FindAllWithInscriptionsInput = {
-      accountId,
+      regionId: userInfo.userRole === 'SUPER' ? undefined : userInfo.regionId,
+      status,
       page: query.page,
       pageSize: query.pageSize,
     };

@@ -26,6 +26,7 @@ import { FindAllPaginatedEventsUsecase } from './web/event/find-all-event/find-a
 import { FindAllnamesEventUsecase } from './web/event/find-all-names/find-all-names.usecase';
 import { FindAllPaginatedEventToInscriptionUsecase } from './web/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.usecase';
 import { FindAllPaginatedEventToPaymentUsecase } from './web/event/find-all-to-analysis/payments/find-all-paginated-events-to-payment.usecase';
+import { FindAllWithExpensesUsecase } from './web/event/find-all-with-expenses/find-all-with-expenses.usecase';
 import { FindAllWithInscriptionsUsecase } from './web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
 import { FindAllWithPaymentsUsecase } from './web/event/find-all-with-payments/find-all-with-payments.usecase';
 import { FindAllWithTicketsUsecase } from './web/event/find-all-with-tickets/find-all-with-tickets.usecase';
@@ -154,6 +155,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllWithInscriptionsUsecase,
     FindAllWithPaymentsUsecase,
     FindAllWithTicketsUsecase,
+    FindAllWithExpensesUsecase,
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
     ListInscriptionToAnalysisUsecase,
@@ -284,6 +286,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllWithInscriptionsUsecase,
     FindAllWithPaymentsUsecase,
     FindAllWithTicketsUsecase,
+    FindAllWithExpensesUsecase,
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
     ListInscriptionToAnalysisUsecase,

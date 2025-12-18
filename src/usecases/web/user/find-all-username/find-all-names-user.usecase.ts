@@ -4,7 +4,8 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllNamesUserInput = {
-  roles?: roleType[];
+  regionId?: string;
+  role: roleType;
 };
 
 export type FindAllNamesUserOutput = {
@@ -12,6 +13,13 @@ export type FindAllNamesUserOutput = {
   username: string;
   role: string;
 }[];
+
+const ROLE_HIERARCHY: Record<roleType, number> = {
+  USER: 1,
+  MANAGER: 2,
+  ADMIN: 3,
+  SUPER: 4,
+};
 
 @Injectable()
 export class FindAllNamesUserUsecase
@@ -22,12 +30,25 @@ export class FindAllNamesUserUsecase
   public async execute(
     input: FindAllNamesUserInput,
   ): Promise<FindAllNamesUserOutput> {
-    const allUsers = await this.userGateway.findAllNames(input.roles);
+    const allowedRoles = this.getAllowedRoles(input.role);
+
+    const allUsers = await this.userGateway.findAllNames(
+      allowedRoles,
+      input.regionId,
+    );
 
     return allUsers.map((user) => ({
       id: user.getId(),
       username: user.getUsername(),
       role: user.getRole(),
     }));
+  }
+
+  private getAllowedRoles(callerRole: roleType): roleType[] {
+    const callerLevel = ROLE_HIERARCHY[callerRole];
+
+    return (Object.keys(ROLE_HIERARCHY) as roleType[]).filter(
+      (role) => ROLE_HIERARCHY[role] <= callerLevel,
+    );
   }
 }

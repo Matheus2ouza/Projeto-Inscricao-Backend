@@ -1,4 +1,7 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindAllWithTicketsRequest = {
+  status?: statusEvent[];
   page: number;
   pageSize: number;
 };
@@ -16,5 +19,7 @@ export type Events = {
   imageUrl: string;
   startDate: string;
   endDate: string;
-  ticketEnabled: boolean;
+  ticketEnabled?: boolean;
+  countTickets: number;
+  countSaleTickets: number;
 }[];

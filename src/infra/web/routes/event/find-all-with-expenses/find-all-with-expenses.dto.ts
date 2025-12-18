@@ -1,12 +1,13 @@
 import { statusEvent } from 'generated/prisma';
 
-export type FindAllWithInscriptionsRequest = {
+export type FindAllWithExpensesRequest = {
+  regionId?: string;
+  status?: statusEvent[];
   page: number;
   pageSize: number;
-  status: statusEvent;
 };
 
-export type FindAllWithInscriptionsResponse = {
+export type FindAllWithExpensesResponse = {
   events: Events;
   total: number;
   page: number;
@@ -20,8 +21,6 @@ export type Events = {
   status: string;
   startDate: string;
   endDate: string;
-  countInscriptions: number;
-  countInscriptionsAnalysis: number;
-  countSingleInscriptions: number;
-  countSingleDebit: number;
+  countExpenses: number;
+  countTotalExpenses: number;
 }[];

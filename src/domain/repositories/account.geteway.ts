@@ -12,7 +12,10 @@ export abstract class AccountGateway {
     id?: string,
     debit?: boolean,
   ): Promise<Account[]>;
-  abstract findAllNames(roles?: roleType[]): Promise<Account[]>;
+  abstract findAllNames(
+    role: roleType[],
+    regionId?: string,
+  ): Promise<Account[]>;
   abstract create(username: Account): Promise<void>;
   abstract findManyPaginated(
     page: number,

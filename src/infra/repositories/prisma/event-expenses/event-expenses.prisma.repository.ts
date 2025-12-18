@@ -48,4 +48,17 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
       where: { eventId },
     });
   }
+
+  async countTotalExpense(eventId: string): Promise<number> {
+    const total = await this.prisma.eventExpenses.aggregate({
+      where: {
+        eventId,
+      },
+      _sum: {
+        value: true,
+      },
+    });
+
+    return Number(total);
+  }
 }

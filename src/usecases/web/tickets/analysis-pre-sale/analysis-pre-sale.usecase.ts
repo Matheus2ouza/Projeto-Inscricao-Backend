@@ -27,14 +27,14 @@ type Event = {
   id: string;
   name: string;
   imageUrl: string;
-  TicketSales: TicketSale[];
+  TicketSales?: TicketSale[];
 };
 
 type TicketSale = {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   status: TicketSaleStatus;
   totalValue: number;
   payments: TicketSalePayment;
@@ -101,17 +101,7 @@ export class AnalysisPreSaleUseCase
       this.ticketSaleGateway.countSalesByEventId(event.getId()),
     ]);
 
-    if (!ticketSales.length) {
-      throw new TicketSaleNotFoundUsecaseException(
-        `Ticket sales with event id ${input.eventId} not found.`,
-        `Nenhuma pré-venda encontrada para este evento.`,
-        AnalysisPreSaleUseCase.name,
-      );
-    }
-
-    const pageCount = Math.ceil(total / safePageSize);
-
-    const publicImageUrl = await this.getPublicUrlOrEmpty(event.getImageUrl());
+    const publicImageUrl = await this.getPublicImageUrl(event.getImageUrl());
 
     const ticketNameMap = new Map(
       eventTickets.map((ticket) => [ticket.getId(), ticket.getName()]),
@@ -134,7 +124,7 @@ export class AnalysisPreSaleUseCase
           );
         }
 
-        const paymentImageUrl = await this.getPublicUrlOrEmpty(
+        const paymentImageUrl = await this.getPublicImageUrl(
           payment.getImageUrl(),
         );
 
@@ -149,8 +139,8 @@ export class AnalysisPreSaleUseCase
         return {
           id: sale.getId(),
           name: sale.getName(),
-          email: sale.getEmail() ?? '',
-          phone: sale.getPhone() ?? '',
+          email: sale.getEmail(),
+          phone: sale.getPhone(),
           status: sale.getStatus(),
           totalValue: sale.getTotalValue(),
           payments: {
@@ -174,11 +164,11 @@ export class AnalysisPreSaleUseCase
       },
       total,
       page: safePage,
-      pageCount,
+      pageCount: Math.ceil(total / safePageSize),
     };
   }
 
-  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+  private async getPublicImageUrl(path?: string): Promise<string> {
     if (!path) {
       return '';
     }

@@ -37,7 +37,7 @@ export abstract class OnSiteRegistrationGateway {
   ): Promise<OnSiteRegistration[]>;
 
   abstract countAll(eventId: string): Promise<number>;
-
+  abstract countAllinDebt(eventId: string): Promise<number>;
   abstract sumPaymentsByMethod(
     eventId: string,
   ): Promise<OnSiteRegistrationPaymentTotals>;
