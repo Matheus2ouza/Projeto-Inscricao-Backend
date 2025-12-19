@@ -31,4 +31,8 @@ export abstract class AccountGateway {
   ): Promise<number>;
   // Buscar múltiplos usuários por IDs
   abstract findByIds(ids: string[]): Promise<Account[]>;
+
+  abstract countAccountsWithInscriptionsByEvent(
+    eventId: string,
+  ): Promise<number>;
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
@@ -26,7 +27,7 @@ export type FindAllPaginatedEventsOutput = {
     status: statusEvent;
     createdAt: Date;
     updatedAt: Date;
-    regionName: string;
+    regionName?: string;
     countTypeInscriptions: number;
   }[];
   total: number;
@@ -40,6 +41,7 @@ export class FindAllPaginatedEventsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly regionGateway: RegionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -71,6 +73,8 @@ export class FindAllPaginatedEventsUsecase
         const countTypeIncriptions =
           await this.eventGateway.countTypesInscriptions(event.getId());
 
+        const region = await this.regionGateway.findById(event.getRegionId());
+
         return {
           id: event.getId(),
           name: event.getName(),
@@ -85,7 +89,7 @@ export class FindAllPaginatedEventsUsecase
           status: event.getStatus(),
           createdAt: event.getCreatedAt(),
           updatedAt: event.getUpdatedAt(),
-          regionName: event.region?.name || '',
+          regionName: region?.getName(),
           countTypeInscriptions: countTypeIncriptions,
         };
       }),

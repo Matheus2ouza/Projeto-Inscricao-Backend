@@ -1,3 +1,5 @@
+import { statusEvent } from 'generated/prisma';
+
 export type FindAllWithPaymentsRequest = {
   regionId?: string;
   page: number;
@@ -15,7 +17,7 @@ type Events = {
   id: string;
   name: string;
   imageUrl: string;
-  status: string;
+  status: statusEvent;
   totalPayments: number;
   totalDebt: number;
 }[];

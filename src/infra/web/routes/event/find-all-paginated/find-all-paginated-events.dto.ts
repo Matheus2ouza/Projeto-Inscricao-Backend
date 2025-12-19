@@ -21,7 +21,7 @@ export type FindAllPaginatedEventResponse = {
     status: statusEvent;
     createdAt: Date;
     updatedAt: Date;
-    regionName: string;
+    regionName?: string;
   }[];
   total: number;
   page: number;

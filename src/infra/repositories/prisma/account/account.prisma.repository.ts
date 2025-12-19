@@ -193,6 +193,22 @@ export class AccountPrismaRepository implements AccountGateway {
     return models.map(AccountPrismaModelToUserEntityMapper.map);
   }
 
+  public async countAccountsWithInscriptionsByEvent(
+    eventId: string,
+  ): Promise<number> {
+    const total = await this.prisma.accounts.count({
+      where: {
+        Inscription: {
+          some: {
+            eventId,
+          },
+        },
+      },
+    });
+
+    return total;
+  }
+
   private buildWhereClauseAccount(filter?: { eventId: string; id?: string }) {
     const { eventId, id } = filter || {};
     return {

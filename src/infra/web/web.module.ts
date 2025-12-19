@@ -30,6 +30,7 @@ import { FindAllNamesEventRoute } from './routes/event/find-all-names/find-all-n
 import { FindAllPaginatedEventsRoute } from './routes/event/find-all-paginated/find-all-paginated-events.route';
 import { FindAllPaginatedEventToInscriptionRoute } from './routes/event/find-all-to-analysis/inscriptions/find-all-paginated-events-to-inscription.route';
 import { FindAllPaginatedEventToPaymentRoute } from './routes/event/find-all-to-analysis/payments/find-all-paginated-events-to-payments.route';
+import { FindAllWithAccountRoute } from './routes/event/find-all-with-account/find-all-with-account.route';
 import { FindAllWithExpensesRoute } from './routes/event/find-all-with-expenses/find-all-with-expenses.route';
 import { FindAllWithInscriptionsRoute } from './routes/event/find-all-with-inscriptions/find-all-with-inscriptions.route';
 import { FindAllWithPaymentsRoute } from './routes/event/find-all-with-payments/find-all-with-payments.route';
@@ -131,6 +132,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllWithPaymentsRoute,
     FindAllWithTicketsRoute,
     FindAllWithExpensesRoute,
+    FindAllWithAccountRoute,
     FindAllPaginatedEventToInscriptionRoute,
     FindAllPaginatedEventToPaymentRoute,
     FindEventDateRoute,
