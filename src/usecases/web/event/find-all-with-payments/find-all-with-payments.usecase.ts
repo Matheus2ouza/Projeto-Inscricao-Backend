@@ -3,6 +3,7 @@ import { Usecase } from 'src/usecases/usecase';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 
@@ -23,7 +24,7 @@ type Events = {
   id: string;
   name: string;
   imageUrl: string;
-  status: string;
+  status: statusEvent;
   totalPayments: number;
   totalDebt: number;
 }[];
