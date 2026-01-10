@@ -9,6 +9,7 @@ import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
+import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
@@ -60,12 +61,16 @@ import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-i
 import { GroupCancelRoute } from './routes/inscription/inscription-group/cancel/group-cancel.route';
 import { GroupConfirmRoute } from './routes/inscription/inscription-group/confirm/group-confirm.route';
 import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find-cache/group-find-cache.route';
+import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
 import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
-import { IndivCancelRoute } from './routes/inscription/inscription-indiv/cancel/indiv-cancel.route';
 import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
+import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
 import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
+import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
+import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
+import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
@@ -73,10 +78,10 @@ import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/g
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
-import { CreatePaymentInscriptionRoute } from './routes/paymentInscription/create/create-payment-inscription.route';
 import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
-import { ListAllPaymentsRoute } from './routes/paymentInscription/list-all-payments/list-all-payments.route';
 import { PaymentDetailsRoute } from './routes/paymentInscription/payment-details/payment-details.route';
+import { CreatePaymentRoute } from './routes/payments/create/create-payment.route';
+import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -125,6 +130,11 @@ import { WelcomeRoute } from './routes/welcome.route';
     UserProfileRoute,
     FindAllPaginatedUsersRoute,
     FindAllNamesUserRoute,
+
+    // Members
+    CreateMembersRoute,
+    FindAllPaginatedMembersRoute,
+    FindAllMembersByAccountRoute,
 
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
@@ -185,15 +195,17 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindDetailsInscriptionRoute,
 
     // Inscriptions - Group
+    RegisterGroupInscriptionRoute,
     GroupUploadRoute,
     GroupConfirmRoute,
     GroupCancelRoute,
     GroupFindCacheRoute,
 
     // Inscriptions - Individual
+    ListAllPaymentsRoute,
+    RegisterIndivInscriptionRoute,
     IndivUploadRoute,
     IndivConfirmRoute,
-    IndivCancelRoute,
 
     // Inscriptions - Analysis
     AnalysisInscriptionRoute,
@@ -205,11 +217,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     findDetailsInscriptionAvulRoute,
 
     // Payment Inscriptions
-    CreatePaymentInscriptionRoute,
     AnalysisPaymentRoute,
+    CreatePaymentRoute,
     UpdatePaymentRoute,
     DeletePaymentInscriptionRoute,
-    ListAllPaymentsRoute,
     PaymentDetailsRoute,
 
     // Participants
@@ -244,6 +255,7 @@ import { WelcomeRoute } from './routes/welcome.route';
   providers: [
     AuthGuardProvider,
     RoleGuardProvider,
+    MemberAlreadyInscribedUsecaseExceptionFilterProvider,
     ValidatorDomainExceptionFilterProvider,
     DomainExceptionFilterProvider,
     UsecaseExceptionFilterProvider,

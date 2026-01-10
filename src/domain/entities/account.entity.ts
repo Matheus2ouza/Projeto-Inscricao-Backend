@@ -1,7 +1,7 @@
 import { roleType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
-import { UserPasswordZodValidatorFactory } from '../factories/user-password.validator.factory';
-import { UserValidatorFactory } from '../factories/user.validator.factory';
+import { AccountPasswordZodValidatorFactory } from '../factories/account/account-password.validator.factory';
+import { AccountValidatorFactory } from '../factories/account/account.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type AccountCreateDto = {
@@ -12,7 +12,7 @@ export type AccountCreateDto = {
   email: string;
 };
 
-export type AccountwithDto = {
+export type AccountWithDto = {
   id: string;
   username: string;
   password: string;
@@ -51,7 +51,7 @@ export class Account extends Entity {
   }: AccountCreateDto): Account {
     const id = Utils.generateUUID();
 
-    UserPasswordZodValidatorFactory.create().validate(password);
+    AccountPasswordZodValidatorFactory.create().validate(password);
 
     const encryptedPassword = Utils.encryptPassword(password);
     const createdAt = new Date();
@@ -80,7 +80,7 @@ export class Account extends Entity {
     regionName,
     email,
     imageUrl,
-  }: AccountwithDto): Account {
+  }: AccountWithDto): Account {
     return new Account(
       id,
       username,
@@ -96,7 +96,7 @@ export class Account extends Entity {
   }
 
   protected validate(): void {
-    UserValidatorFactory.create().validate(this);
+    AccountValidatorFactory.create().validate(this);
   }
 
   public getUsername(): string {

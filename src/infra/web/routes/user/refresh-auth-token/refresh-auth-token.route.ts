@@ -28,7 +28,6 @@ export class RefreshAuthTokenRoute {
     };
 
     const result = await this.refreshAuthTokenUsecase.execute(input);
-
     const response = RefreshAuthTokenPresenter.toHttp(result);
 
     return response;

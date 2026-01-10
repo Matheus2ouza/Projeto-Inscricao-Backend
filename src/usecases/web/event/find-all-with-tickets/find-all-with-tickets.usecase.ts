@@ -25,7 +25,9 @@ export type FindAllWithTicketsOutput = {
 export type Events = {
   id: string;
   name: string;
+  status: statusEvent;
   imageUrl: string;
+  logoUrl: string;
   startDate: string;
   endDate: string;
   ticketEnabled?: boolean;
@@ -47,10 +49,16 @@ export class FindAllWithTicketsUsecase
   public async execute(
     input: FindAllWithTicketsInput,
   ): Promise<FindAllWithTicketsOutput> {
+    console.log('Input recebido:', input, 'no findAllWithTickets');
+
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
       Math.min(5, Math.floor(input.pageSize || 5)),
+    );
+
+    console.log(
+      `Parâmetros paginação: page=${safePage}, pageSize=${safePageSize}, no findAllWithTickets`,
     );
 
     const [allEvents, total] = await Promise.all([
@@ -64,9 +72,14 @@ export class FindAllWithTicketsUsecase
       }),
     ]);
 
+    console.log(
+      `Resultado: ${allEvents.length} eventos, total=${total}, no findAllWithTickets`,
+    );
+
     const events = await Promise.all(
       allEvents.map(async (event) => {
         const imagePath = await this.getPublicImageUrl(event.getImageUrl());
+        const logoPath = await this.getPublicImageUrl(event.getLogoUrl());
 
         const [countTickets, countSaleTickets] = await Promise.all([
           this.eventTicketsGateway.countByEventId(event.getId()),
@@ -76,7 +89,9 @@ export class FindAllWithTicketsUsecase
         return {
           id: event.getId(),
           name: event.getName(),
+          status: event.getStatus(),
           imageUrl: imagePath,
+          logoUrl: logoPath,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
           ticketEnabled: event.getTicketEnabled(),

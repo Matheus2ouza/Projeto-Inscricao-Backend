@@ -20,7 +20,6 @@ export const PaymentReviewNotificationEmail = ({
 
   const paymentRows = [
     { label: 'Código do pagamento', value: paymentData.paymentId },
-    { label: 'Inscrição', value: paymentData.inscriptionId },
     { label: 'Data do envio', value: formattedPaymentDate },
     { label: 'Hora do envio', value: formattedPaymentTime },
     { label: 'Valor registrado', value: formattedPaymentValue },
@@ -30,18 +29,6 @@ export const PaymentReviewNotificationEmail = ({
     paymentRows.push({
       label: 'Conta que enviou',
       value: paymentData.accountUsername,
-    });
-  }
-
-  const responsibleRows = [
-    { label: 'Responsável pela inscrição', value: paymentData.payerName },
-    { label: 'Telefone', value: paymentData.payerPhone },
-  ];
-
-  if (paymentData.payerEmail) {
-    responsibleRows.push({
-      label: 'E-mail',
-      value: paymentData.payerEmail,
     });
   }
 
@@ -83,17 +70,44 @@ export const PaymentReviewNotificationEmail = ({
 
       <Section style={sectionSpacingStyle}>
         <div style={infoCardStyle}>
-          <Text style={sectionTitleStyle}>Dados do responsável</Text>
-          <table style={infoTableStyle} cellPadding={0} cellSpacing={0}>
-            <tbody>
-              {responsibleRows.map((row) => (
-                <tr key={row.label}>
-                  <td style={infoLabelCellStyle}>{row.label}</td>
-                  <td style={infoValueCellStyle}>{row.value ?? '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Text style={sectionTitleStyle}>Inscrições associadas</Text>
+          {paymentData.inscriptions.map((inscription, index) => (
+            <div key={inscription.inscriptionId} style={inscriptionCardStyle}>
+              <Text style={inscriptionTitleStyle}>
+                Inscrição {index + 1} - {inscription.inscriptionId}
+              </Text>
+              <table style={infoTableStyle} cellPadding={0} cellSpacing={0}>
+                <tbody>
+                  <tr>
+                    <td style={infoLabelCellStyle}>Responsável</td>
+                    <td style={infoValueCellStyle}>{inscription.payerName}</td>
+                  </tr>
+                  {inscription.payerEmail && (
+                    <tr>
+                      <td style={infoLabelCellStyle}>E-mail</td>
+                      <td style={infoValueCellStyle}>
+                        {inscription.payerEmail}
+                      </td>
+                    </tr>
+                  )}
+                  {inscription.payerPhone && (
+                    <tr>
+                      <td style={infoLabelCellStyle}>Telefone</td>
+                      <td style={infoValueCellStyle}>
+                        {inscription.payerPhone}
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td style={infoLabelCellStyle}>Valor da inscrição</td>
+                    <td style={infoValueCellStyle}>
+                      {formatCurrency(inscription.totalValue)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       </Section>
 
@@ -220,6 +234,21 @@ const footerMetaTextStyle: React.CSSProperties = {
   fontSize: '12px',
   color: '#7c86a7',
   textAlign: 'center' as const,
+};
+
+const inscriptionCardStyle: React.CSSProperties = {
+  backgroundColor: '#f8faff',
+  border: '1px solid #e2e7f5',
+  borderRadius: '12px',
+  padding: '16px',
+  marginBottom: '16px',
+};
+
+const inscriptionTitleStyle: React.CSSProperties = {
+  fontSize: '16px',
+  fontWeight: 600,
+  color: '#4556d4',
+  margin: '0 0 12px 0',
 };
 
 const formatCurrency = (value: number): string =>

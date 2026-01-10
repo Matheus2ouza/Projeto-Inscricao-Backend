@@ -51,13 +51,13 @@ export class CreateUserUsecase
 
     if (userExists) {
       throw new UserAlreadyExistsUsecaseException(
-        `User already exists while creating user with user: ${username}`,
-        `A usuario ${username} já existe`,
+        `Account already exists while creating account with username: ${username}`,
+        `A conta ${username} já existe`,
         CreateUserUsecase.name,
       );
     }
 
-    const anUser = Account.create({
+    const anAccount = Account.create({
       username,
       password,
       role,
@@ -65,10 +65,10 @@ export class CreateUserUsecase
       email,
     });
 
-    await this.userGateway.create(anUser);
+    await this.userGateway.create(anAccount);
 
     const output: CreateUserOutput = {
-      id: anUser.getId(),
+      id: anAccount.getId(),
     };
 
     return output;

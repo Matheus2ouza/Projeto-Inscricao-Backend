@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { MailService } from '../../mail.service';
 import type { EventResponsibleEmailData } from '../../types/inscription/inscription-email.types';
 import type { PaymentReviewNotificationEmailData } from '../../types/payment/payment-review-notification-email.types';
-import { MailService } from '../../mail.service';
 
 @Injectable()
 export class PaymentReviewNotificationEmailHandler {

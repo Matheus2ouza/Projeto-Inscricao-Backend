@@ -3,7 +3,7 @@ services:
     image: backend-sistema-inscricao:1.0
     container_name: backend1
     env_file:
-      - .env
+      - .env.dev
     command: ["dist/main.js"]
     ports:
       - "3000:3000"
@@ -14,12 +14,14 @@ services:
       - CONTAINER_NAME=backend1
     mem_limit: 512m
     cpus: 1.0
+    networks:
+      - inscricao_net
 
   backend2:
     image: backend-sistema-inscricao:1.0
     container_name: backend2
     env_file:
-      - .env
+      - .env.dev
     command: ["dist/main.js"]
     ports:
       - "3001:3000"
@@ -30,6 +32,8 @@ services:
       - CONTAINER_NAME=backend2
     mem_limit: 512m
     cpus: 1.0
+    networks:
+      - inscricao_net
 
   nginx:
     image: nginx:alpine
@@ -41,3 +45,9 @@ services:
     depends_on:
       - backend1
       - backend2
+    networks:
+      - inscricao_net
+
+networks:
+  inscricao_net:
+    external: true

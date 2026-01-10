@@ -123,6 +123,28 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  //COM O NOVA TABELA DE INSCRIÇÃO
+  async findInscriptionsPending(
+    page: number,
+    pageSize: number,
+    eventId: string,
+    accountId: string,
+    filter: { status: InscriptionStatus },
+  ): Promise<Inscription[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId: eventId,
+        accountId,
+        status: filter.status,
+      },
+      skip,
+      take: pageSize,
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   // Buscas paginadas
   async findManyPaginated(
     page: number,
@@ -324,6 +346,17 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
             status: 'UNDER_REVIEW',
           },
         },
+      },
+    });
+    return count;
+  }
+
+  async countTotal(eventId: string, accountId: string): Promise<number> {
+    const count = await this.prisma.inscription.count({
+      where: {
+        eventId,
+        accountId,
+        status: 'PENDING',
       },
     });
     return count;
