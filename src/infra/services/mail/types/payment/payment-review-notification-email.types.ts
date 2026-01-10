@@ -1,18 +1,23 @@
 import type { EventResponsibleEmailData } from '../../types/inscription/inscription-email.types';
 
+export interface InscriptionPaymentData {
+  inscriptionId: string;
+  payerName: string;
+  payerEmail?: string;
+  payerPhone?: string;
+  totalValue: number;
+}
+
 export interface PaymentReviewNotificationEmailData {
   paymentId: string;
-  inscriptionId: string;
   eventName: string;
   eventLocation?: string;
   eventStartDate?: Date;
   eventEndDate?: Date;
   paymentValue: number;
   paymentDate: Date;
-  payerName: string;
-  payerEmail?: string;
-  payerPhone?: string;
   accountUsername?: string;
+  inscriptions: InscriptionPaymentData[];
 }
 
 export interface PaymentReviewNotificationEmailTemplateData

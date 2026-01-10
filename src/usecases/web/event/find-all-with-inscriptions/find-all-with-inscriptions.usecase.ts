@@ -54,19 +54,19 @@ export class FindAllWithInscriptionsUsecase
       Math.min(5, Math.floor(input.pageSize || 5)),
     );
 
-    const [events, total] = await Promise.all([
+    const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
-        regionId: input.regionId,
         status: input.status,
+        regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
-        regionId: input.regionId,
         status: input.status,
+        regionId: input.regionId,
       }),
     ]);
 
     const eventsData = await Promise.all(
-      events.map(async (event) => {
+      allEvents.map(async (event) => {
         const imagePath = await this.getPublicImageUrl(event.getImageUrl());
 
         const [countInscriptions, countInscriptionsAnalysis] =

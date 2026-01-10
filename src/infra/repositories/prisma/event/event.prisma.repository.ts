@@ -191,7 +191,7 @@ export class EventPrismaRepository implements EventGateway {
       orderBy: { createdAt: 'desc' },
       where,
     });
-
+    console.log(found);
     return found.map(PrismaToEntity.map);
   }
 
@@ -349,9 +349,10 @@ export class EventPrismaRepository implements EventGateway {
     ticketEnabled?: boolean;
   }) {
     const { regionId, status, ticketEnabled } = filter || {};
+
     return {
       regionId,
-      status: status ? { in: status } : undefined,
+      status: status && status.length > 0 ? { in: status } : undefined,
       ticketEnabled,
     };
   }

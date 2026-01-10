@@ -31,6 +31,17 @@ export abstract class InscriptionGateway {
     eventId: string,
   ): Promise<Inscription[]>;
 
+  //COM O NOVA TABELA DE INSCRIÇÃO
+  abstract findInscriptionsPending(
+    page: number,
+    pageSize: number,
+    eventId: string,
+    accountId: string,
+    filter: {
+      status: InscriptionStatus;
+    },
+  ): Promise<Inscription[]>;
+
   // Buscas paginadas
   abstract findManyPaginated(
     page: number,
@@ -82,6 +93,13 @@ export abstract class InscriptionGateway {
   ): Promise<number>;
   abstract countTotalDebt(eventId: string, accountId: string): Promise<number>;
   abstract countInscriptionsWithPayments(eventId: string): Promise<number>;
+  abstract countTotal(
+    eventId: string,
+    accountId: string,
+    filter: {
+      status?: InscriptionStatus;
+    },
+  ): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(

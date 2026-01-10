@@ -57,12 +57,16 @@ import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-in
 import { GroupCancelUsecase } from './web/inscription/group/cancel/group-cancel.usecase';
 import { GroupConfirmUsecase } from './web/inscription/group/confirm/group-confirm.usecase';
 import { GroupFindCacheUsecase } from './web/inscription/group/find-cache/group-find-cache.usecase';
+import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
 import { GroupUploadUsecase } from './web/inscription/group/upload/group-upload.usecase';
-import { IndivCancelUsecase } from './web/inscription/indiv/cancel/indiv-cancel.usecase';
 import { IndivConfirmUsecase } from './web/inscription/indiv/confirm/indiv-confirm.usecase';
+import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
 import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
+import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
+import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
+import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
@@ -73,10 +77,10 @@ import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analys
 import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
 import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
 import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
-import { CreatePaymentInscriptionUsecase } from './web/paymentInscription/create/create-payment-inscription.usecase';
 import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
-import { ListAllPaymentsUsecase } from './web/paymentInscription/list-all-payments/list-all-payments.usecase';
 import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
+import { CreatePaymentUsecase } from './web/payments/create/create-payment.usecase';
+import { ListAllPaymentsUsecase } from './web/payments/list-all-payments/list-all-payments.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -134,6 +138,11 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllPaginatedUsersUsecase,
     FindAllNamesUserUsecase,
 
+    // Members
+    CreateMembersUsecase,
+    FindAllPaginatedMembersUsecase,
+    FindAllMembersByAccountUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
     UpdateEventUseCase,
@@ -188,13 +197,14 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindCacheUsecase,
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
+    RegisterGroupInscriptionUsecase,
     GroupUploadUsecase,
     GroupConfirmUsecase,
     GroupCancelUsecase,
     GroupFindCacheUsecase,
+    RegisterIndivInscriptionUsecase,
     IndivUploadValidateUsecase,
     IndivConfirmUsecase,
-    IndivCancelUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
@@ -202,13 +212,13 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindDetailsInscriptionAvulUsecase,
 
     // Payment Inscriptions
-    CreatePaymentInscriptionUsecase,
+    ListAllPaymentsUsecase,
+    CreatePaymentUsecase,
     AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
-    ListAllPaymentsUsecase,
     PaymentDetailsUsecase,
 
     // Participants
@@ -264,6 +274,11 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllPaginatedUsersUsecase,
     FindAllNamesUserUsecase,
 
+    // Members
+    CreateMembersUsecase,
+    FindAllPaginatedMembersUsecase,
+    FindAllMembersByAccountUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
     UpdateEventUseCase,
@@ -318,13 +333,14 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindCacheUsecase,
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
+    RegisterGroupInscriptionUsecase,
     GroupUploadUsecase,
     GroupConfirmUsecase,
     GroupCancelUsecase,
     GroupFindCacheUsecase,
+    RegisterIndivInscriptionUsecase,
     IndivUploadValidateUsecase,
     IndivConfirmUsecase,
-    IndivCancelUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
@@ -332,13 +348,13 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindDetailsInscriptionAvulUsecase,
 
     // Payment Inscriptions
-    CreatePaymentInscriptionUsecase,
+    ListAllPaymentsUsecase,
+    CreatePaymentUsecase,
     AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
     RejectPaymentUsecase,
     RevertApprovedPaymentUsecase,
     DeletePaymentInscriptionUsecase,
-    ListAllPaymentsUsecase,
     PaymentDetailsUsecase,
 
     // Participants

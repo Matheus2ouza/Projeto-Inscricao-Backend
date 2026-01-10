@@ -17,7 +17,6 @@ import { TicketNotFoundUsecaseException } from '../../exceptions/tickets/ticket-
 export type SaleTicketInput = {
   eventId: string;
   name: string;
-
   items: TicketSaleItemInput[];
   payments: TicketSalePaymentInput[];
 };

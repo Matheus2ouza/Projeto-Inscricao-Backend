@@ -69,17 +69,36 @@ const mockInscriptionData = (): InscriptionEmailData => ({
 const mockPaymentReviewNotificationData =
   (): PaymentReviewNotificationEmailData => ({
     paymentId: 'pay_123456',
-    inscriptionId: 'insc_987654',
     eventName: 'Congresso de Tecnologia 2025',
     eventLocation: 'São Paulo Expo, São Paulo - SP',
     eventStartDate: new Date('2025-04-05T08:00:00Z'),
     eventEndDate: new Date('2025-04-07T18:00:00Z'),
-    paymentValue: 259.9,
+    paymentValue: 789.7, // Total de 3 inscrições
     paymentDate: new Date('2025-03-18T10:30:00Z'),
-    payerName: 'Marina Costa',
-    payerEmail: 'marina.costa@example.com',
-    payerPhone: '+55 (11) 91234-5678',
     accountUsername: 'tech-events-admin',
+    inscriptions: [
+      {
+        inscriptionId: 'insc_987654',
+        payerName: 'Marina Costa',
+        payerEmail: 'marina.costa@example.com',
+        payerPhone: '+55 (11) 91234-5678',
+        totalValue: 259.9,
+      },
+      {
+        inscriptionId: 'insc_987655',
+        payerName: 'João Silva',
+        payerEmail: 'joao.silva@example.com',
+        payerPhone: '+55 (21) 99876-5432',
+        totalValue: 289.9,
+      },
+      {
+        inscriptionId: 'insc_987656',
+        payerName: 'Ana Santos',
+        payerEmail: 'ana.santos@example.com',
+        payerPhone: '+55 (31) 98765-4321',
+        totalValue: 239.9,
+      },
+    ],
   });
 
 const mockTicketReleaseData = (): TicketReleaseEmailData => ({

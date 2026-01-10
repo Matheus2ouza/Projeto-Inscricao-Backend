@@ -16,7 +16,9 @@ export type FindAllWithTicketsResponse = {
 export type Events = {
   id: string;
   name: string;
+  status: statusEvent;
   imageUrl: string;
+  logoUrl: string;
   startDate: string;
   endDate: string;
   ticketEnabled?: boolean;
