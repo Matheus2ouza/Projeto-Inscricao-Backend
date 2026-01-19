@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CacheRecord } from 'src/domain/entities/cache-record.entity';
 import { CacheRecordGateway } from 'src/domain/repositories/cache-record.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { RedisService } from 'src/infra/services/redis/redis.service';
 import { v4 as uuidv4 } from 'uuid';
 

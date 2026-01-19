@@ -202,5 +202,4 @@ export class EtiquetaPdfGenerator {
 
     return [left, right];
   }
-
 }

@@ -1,23 +1,36 @@
 export type ListAllPaymentsRequest = {
-  accountId: string;
   eventId: string;
+  accountId: string;
   page: number;
   pageSize: number;
 };
 
 export type ListAllPaymentsResponse = {
-  inscriptions: Inscriptions[];
+  summary: PaymentsSummary;
+  payments: Payment[];
   total: number;
   page: number;
   pageCount: number;
 };
 
-type Inscriptions = {
+export type PaymentsSummary = {
+  totalPayments: number;
+  totalPaidValue: number;
+  totalUnderReviewValue: number;
+  totalRefusedValue: number;
+};
+
+type Payment = {
   id: string;
-  eventId: string;
-  accountId: string;
-  totalValue: number;
   status: string;
-  createAt: Date;
-  canPay: boolean;
+  totalValue: number;
+  createdAt: Date;
+  imageUrl: string;
+  rejectionReason?: string;
+  allocation?: PaymentAllocation[];
+};
+
+type PaymentAllocation = {
+  value: number;
+  inscriptionId: string;
 };

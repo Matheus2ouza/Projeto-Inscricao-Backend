@@ -12,6 +12,7 @@ export class InscriptionEntityToInscriptionPrismaModelMapper {
       email: inscription.getEmail() ?? null,
       phone: inscription.getPhone(),
       totalValue: new Decimal(inscription.getTotalValue()),
+      totalPaid: new Decimal(inscription.getTotalPaid()),
       status: inscription.getStatus(),
       createdAt: inscription.getCreatedAt(),
       updatedAt: inscription.getUpdatedAt(),

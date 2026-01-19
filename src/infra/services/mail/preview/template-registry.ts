@@ -108,22 +108,21 @@ const mockTicketReleaseData = (): TicketReleaseEmailData => ({
   saleId: 'sale_ABC123',
 });
 
-const mockTicketSaleNotificationData =
-  (): TicketSaleNotificationEmailData => ({
-    saleId: 'sale_ABC123',
-    paymentId: 'pay_123456',
-    eventName: 'Congresso de Tecnologia 2025',
-    eventLocation: 'São Paulo Expo, São Paulo - SP',
-    eventStartDate: new Date('2025-04-05T08:00:00Z'),
-    eventEndDate: new Date('2025-04-07T18:00:00Z'),
-    buyerName: 'Carolina Dias',
-    buyerEmail: 'carolina@example.com',
-    buyerPhone: '+55 (11) 91234-5678',
-    totalValue: 129.9,
-    paymentMethod: 'PIX',
-    paymentValue: 129.9,
-    submittedAt: new Date(),
-  });
+const mockTicketSaleNotificationData = (): TicketSaleNotificationEmailData => ({
+  saleId: 'sale_ABC123',
+  paymentId: 'pay_123456',
+  eventName: 'Congresso de Tecnologia 2025',
+  eventLocation: 'São Paulo Expo, São Paulo - SP',
+  eventStartDate: new Date('2025-04-05T08:00:00Z'),
+  eventEndDate: new Date('2025-04-07T18:00:00Z'),
+  buyerName: 'Carolina Dias',
+  buyerEmail: 'carolina@example.com',
+  buyerPhone: '+55 (11) 91234-5678',
+  totalValue: 129.9,
+  paymentMethod: 'PIX',
+  paymentValue: 129.9,
+  submittedAt: new Date(),
+});
 
 const mockInscriptionStatusData = (): InscriptionStatusEmailData => ({
   inscriptionId: 'insc_987654',
@@ -289,7 +288,7 @@ export const templateDefinitions: TemplateDefinition[] = [
 
 export const categories = Array.from(
   new Set(templateDefinitions.map((template) => template.category)),
-) as TemplateCategory[];
+);
 
 export const templatesByCategory = templateDefinitions.reduce<
   Record<TemplateCategory, TemplateDefinition[]>

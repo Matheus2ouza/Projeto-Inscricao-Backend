@@ -15,7 +15,7 @@ export class UpdateInscriptionRoute {
     private readonly updateInscriptionUsecase: UpdateInscriptionUsecase,
   ) {}
 
-  @Put(':id/update')
+  @Put(':id')
   public async handle(
     @Param('id') inscriptionId: string,
     @Body() body: UpdateInscriptionRequest,

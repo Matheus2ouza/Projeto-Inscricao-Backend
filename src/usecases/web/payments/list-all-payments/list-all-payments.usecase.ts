@@ -1,101 +1,133 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
-import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
+import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
 export type ListAllPaymentsInput = {
-  accountId: string;
   eventId: string;
+  accountId: string;
   page: number;
   pageSize: number;
 };
 
 export type ListAllPaymentsOutput = {
-  inscriptions: Inscriptions[];
+  summary: PaymentsSummary;
+  payments: Payment[];
   total: number;
   page: number;
   pageCount: number;
 };
 
-type Inscriptions = {
+export type PaymentsSummary = {
+  totalPayments: number;
+  totalPaidValue: number;
+  totalUnderReviewValue: number;
+  totalRefusedValue: number;
+};
+
+type Payment = {
   id: string;
-  eventId: string;
-  accountId: string;
-  totalValue: number;
   status: string;
-  createAt: Date;
-  canPay: boolean;
+  totalValue: number;
+  createdAt: Date;
+  imageUrl: string;
+  rejectionReason?: string;
+  allocation?: PaymentAllocation[];
+};
+
+type PaymentAllocation = {
+  value: number;
+  inscriptionId: string;
 };
 
 @Injectable()
-export class ListAllPaymentsUsecase
+export class ListAllPaymentsUseCase
   implements Usecase<ListAllPaymentsInput, ListAllPaymentsOutput>
 {
   constructor(
     private readonly eventGateway: EventGateway,
-    private readonly inscriptionGateway: InscriptionGateway,
-    private readonly paymentAllocation: PaymentAllocationGateway,
+    private readonly paymentGateway: PaymentGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
-  async execute(input: ListAllPaymentsInput): Promise<ListAllPaymentsOutput> {
+  public async execute(
+    input: ListAllPaymentsInput,
+  ): Promise<ListAllPaymentsOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
-    const safePageSize = Math.max(5, Math.floor(input.pageSize || 5));
+    const safePageSize = Math.max(
+      1,
+      Math.min(5, Math.floor(input.pageSize || 5)),
+    );
 
     const event = await this.eventGateway.findById(input.eventId);
+
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with id ${input.eventId}`,
-        `Evento não encontrado`,
-        ListAllPaymentsUsecase.name,
+        `Event not found when searching with eventId: ${input.eventId} in ${ListAllPaymentsUseCase.name}`,
+        `Evento não encontrado ou invalido`,
+        ListAllPaymentsUseCase.name,
       );
     }
 
-    const [inscriptions, total] = await Promise.all([
-      this.inscriptionGateway.findInscriptionsPending(
+    const [summary, payments, total] = await Promise.all([
+      this.paymentGateway.countAllOrdered(input.accountId, input.eventId),
+      this.paymentGateway.findAllPaginated(
+        input.accountId,
+        input.eventId,
         safePage,
         safePageSize,
-        event.getId(),
-        input.accountId,
-        {
-          status: 'PENDING',
-        },
       ),
-
-      this.inscriptionGateway.countTotal(event.getId(), input.accountId, {
-        status: 'PENDING',
-      }),
+      this.paymentGateway.countAllFiltered(input.accountId, input.eventId),
     ]);
 
-    const inscriptionsData = await Promise.all(
-      inscriptions.map(async (i) => {
-        const paidValue =
-          await this.paymentAllocation.sumPaidValueByInscription(i.getId());
+    const paymentsPaginated = await Promise.all(
+      payments.map(async (p) => {
+        const PaymentAllocation =
+          await this.paymentAllocationGateway.findByPaymentId(p.getId());
 
-        const totalValue = i.getTotalValue();
+        const imagePath = await this.getPublicUrlOrEmpty(p.getImageUrl());
 
-        const canPay = paidValue < totalValue;
+        const allocation = PaymentAllocation?.map((a) => ({
+          value: a.getValue(),
+          inscriptionId: a.getInscriptionId(),
+        }));
 
         return {
-          id: i.getId(),
-          eventId: i.getEventId(),
-          accountId: i.getAccountId(),
-          totalValue: i.getTotalValue(),
-          status: i.getStatus(),
-          createAt: i.getCreatedAt(),
-          canPay,
+          id: p.getId(),
+          status: p.getStatus(),
+          totalValue: p.getTotalValue(),
+          createdAt: p.getCreatedAt(),
+          imageUrl: imagePath,
+          rejectionReason: p.getRejectionReason(),
+          allocation: allocation,
         };
       }),
     );
 
     const output: ListAllPaymentsOutput = {
-      inscriptions: inscriptionsData,
+      summary,
+      payments: paymentsPaginated,
       total,
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),
     };
 
     return output;
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

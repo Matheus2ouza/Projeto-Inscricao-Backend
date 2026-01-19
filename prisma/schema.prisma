@@ -10,16 +10,16 @@ datasource db {
 }
 
 model Accounts {
-  id                   String               @id @default(uuid())
-  username             String               @unique
-  role                 roleType
-  password             String
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
-  regionId             String?
-  email                String?
-  imageUrl             String?
-  region               Regions?             @relation(fields: [regionId], references: [id])
+  id        String   @id @default(uuid())
+  username  String   @unique
+  role      roleType
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  regionId  String?
+  email     String?
+  imageUrl  String?
+  region    Regions? @relation(fields: [regionId], references: [id])
 
   CacheRecords         CacheRecords[]
   responsibleForEvents EventResponsibles[]
@@ -28,21 +28,21 @@ model Accounts {
   PaymentInscription   PaymentInscription[]
   payments             Payment[]
 
-  participants         AccountParticipant[] @relation("AccountToParticipants")
+  participants AccountParticipant[] @relation("AccountToParticipants")
 
   @@map("accounts")
 }
 
 model AccountParticipant {
-  id        String      @id @default(uuid())
-  accountId String      @map("account_id")
+  id        String     @id @default(uuid())
+  accountId String     @map("account_id")
   name      String
-  birthDate DateTime    @map("birth_date")
+  birthDate DateTime   @map("birth_date")
   gender    genderType
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
 
-  account   Accounts   @relation("AccountToParticipants", fields: [accountId], references: [id], onDelete: Cascade)
+  account Accounts @relation("AccountToParticipants", fields: [accountId], references: [id], onDelete: Cascade)
 
   eventLinks AccountParticipantInEvent[] @relation("ParticipantToEvent")
 
@@ -50,21 +50,20 @@ model AccountParticipant {
 }
 
 model AccountParticipantInEvent {
-  id                   String               @id @default(uuid())
-  accountParticipantId String               @map("account_participant_id")
-  inscriptionId        String               @map("inscription_id")
-  typeInscriptionId    String               @map("type_inscription_id")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
+  id                   String   @id @default(uuid())
+  accountParticipantId String   @map("account_participant_id")
+  inscriptionId        String   @map("inscription_id")
+  typeInscriptionId    String   @map("type_inscription_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 
   participant     AccountParticipant @relation("ParticipantToEvent", fields: [accountParticipantId], references: [id], onDelete: Cascade)
-  inscription     Inscription       @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
-  typeInscription TypeInscriptions  @relation(fields: [typeInscriptionId], references: [id])
+  inscription     Inscription        @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  typeInscription TypeInscriptions   @relation(fields: [typeInscriptionId], references: [id])
 
   @@unique([accountParticipantId, inscriptionId])
   @@map("account_participant_in_event")
 }
-
 
 model Regions {
   id                 String     @id @default(uuid())
@@ -122,37 +121,38 @@ model EventResponsibles {
 }
 
 model TypeInscriptions {
-  id          String        @id @default(uuid())
-  description String
-  value       Decimal       @db.Decimal(10, 2)
-  eventId     String        @map("event_id")
-  specialType Boolean       @default(false) @map("special_type")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
-  Participant Participant[]
-  event       Events        @relation(fields: [eventId], references: [id])
+  id                        String                      @id @default(uuid())
+  description               String
+  value                     Decimal                     @db.Decimal(10, 2)
+  eventId                   String                      @map("event_id")
+  specialType               Boolean                     @default(false) @map("special_type")
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  Participant               Participant[]
+  event                     Events                      @relation(fields: [eventId], references: [id])
   accountParticipantInEvent AccountParticipantInEvent[]
 
   @@map("type_inscriptions")
 }
 
 model Inscription {
-  id                 String               @id @default(uuid())
-  accountId          String               @map("account_id")
-  eventId            String               @map("event_id")
-  totalValue         Decimal              @db.Decimal(10, 2)
-  status             InscriptionStatus    @default(PENDING)
-  createdAt          DateTime             @default(now()) @map("created_at")
-  updatedAt          DateTime             @updatedAt @map("updated_at")
-  phone              String
-  responsible        String
-  email              String?
-  account            Accounts             @relation(fields: [accountId], references: [id])
-  event              Events               @relation(fields: [eventId], references: [id])
-  participants       Participant[]
-  PaymentInscription PaymentInscription[]
+  id                        String                      @id @default(uuid())
+  accountId                 String                      @map("account_id")
+  eventId                   String                      @map("event_id")
+  totalValue                Decimal                     @db.Decimal(10, 2)
+  totalPaid                 Decimal                     @default(0.00) @map("total_paid") @db.Decimal(10, 2)
+  status                    InscriptionStatus           @default(PENDING)
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  phone                     String
+  responsible               String
+  email                     String?
+  account                   Accounts                    @relation(fields: [accountId], references: [id])
+  event                     Events                      @relation(fields: [eventId], references: [id])
+  participants              Participant[]
+  PaymentInscription        PaymentInscription[]
   accountParticipantInEvent AccountParticipantInEvent[]
-  payments   PaymentAllocation[]
+  payments                  PaymentAllocation[]
 
   @@map("inscriptions")
 }
@@ -246,36 +246,36 @@ model PaymentInscription {
 }
 
 model Payment {
-  id                  String          @id @default(uuid())
-  eventId             String          @map("event_id")
-  accountId           String          @map("account_id")
+  id                  String        @id @default(uuid())
+  eventId             String        @map("event_id")
+  accountId           String        @map("account_id")
   status              StatusPayment
-  totalValue          Decimal         @db.Decimal(10, 2)
+  totalValue          Decimal       @db.Decimal(10, 2)
   rejectionReason     String?
-  createdAt           DateTime        @default(now()) @map("created_at")
-  updatedAt           DateTime        @updatedAt @map("updated_at")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
   imageUrl            String
   financialMovementId String?
   approvedBy          String?
 
-  account             Accounts        @relation(fields: [accountId], references: [id])
-  event               Events          @relation(fields: [eventId], references: [id])
-  financialMovement   FinancialMovement? @relation(fields: [financialMovementId], references: [id])
+  account           Accounts           @relation(fields: [accountId], references: [id])
+  event             Events             @relation(fields: [eventId], references: [id])
+  financialMovement FinancialMovement? @relation(fields: [financialMovementId], references: [id])
 
-  allocations         PaymentAllocation[]
+  allocations PaymentAllocation[]
 
   @@map("payments")
 }
 
 model PaymentAllocation {
-  id            String      @id @default(uuid())
-  paymentId     String      @map("payment_id")
-  inscriptionId String      @map("inscription_id")
-  value         Decimal     @db.Decimal(10, 2)
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id            String   @id @default(uuid())
+  paymentId     String   @map("payment_id")
+  inscriptionId String   @map("inscription_id")
+  value         Decimal  @db.Decimal(10, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  payment       Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  inscription   Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  payment     Payment     @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  inscription Inscription @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
 
   @@unique([paymentId, inscriptionId])
   @@map("payment_allocations")

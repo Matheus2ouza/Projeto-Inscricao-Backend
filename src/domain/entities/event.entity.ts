@@ -314,14 +314,8 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
-  public updateLocation(
-    location: string,
-    longitude: number,
-    latitude: number,
-  ): void {
+  public updateLocation(location: string): void {
     this.location = location;
-    this.longitude = longitude;
-    this.latitude = latitude;
   }
 
   public deleteImage(): void {

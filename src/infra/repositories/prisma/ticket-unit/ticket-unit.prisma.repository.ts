@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TicketUnit } from 'src/domain/entities/ticket-unit.entity';
-import { TicketUnitGateway } from 'src/domain/repositories/ticket-unit.gatewat';
+import { TicketUnitGateway } from 'src/domain/repositories/ticket-unit.gateway';
 import { PrismaService } from '../prisma.service';
 import { TicketUnitToEntityToTicketUnitPrismaModelMapper as EntityToPrisma } from './model/mapper/ticket-unit-to-entity-to-ticket-unit-to-prisma-model.mapper';
 import { TicketUnitToPrismaModelToTicketUnitEntityMapper as PrismaToEntity } from './model/mapper/ticket-unit-to-prisma-model-to-ticket-unit-to-entity.mapper';

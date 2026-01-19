@@ -17,14 +17,9 @@ export type CleanupCancelledTicketSalesOutput = {
 @Injectable()
 export class CleanupCancelledTicketSalesUsecase
   implements
-    Usecase<
-      CleanupCancelledTicketSalesInput,
-      CleanupCancelledTicketSalesOutput
-    >
+    Usecase<CleanupCancelledTicketSalesInput, CleanupCancelledTicketSalesOutput>
 {
-  private readonly logger = new Logger(
-    CleanupCancelledTicketSalesUsecase.name,
-  );
+  private readonly logger = new Logger(CleanupCancelledTicketSalesUsecase.name);
 
   public constructor(
     private readonly ticketSaleGateway: TicketSaleGateway,
@@ -39,9 +34,8 @@ export class CleanupCancelledTicketSalesUsecase
       `Iniciando limpeza de TicketSales canceladas antes de ${cutoffDate.toISOString()}`,
     );
 
-    const cancelledSales = await this.ticketSaleGateway.findCancelledBefore(
-      cutoffDate,
-    );
+    const cancelledSales =
+      await this.ticketSaleGateway.findCancelledBefore(cutoffDate);
 
     if (!cancelledSales.length) {
       this.logger.log('Nenhuma TicketSale cancelada encontrada para limpeza');

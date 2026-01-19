@@ -8,7 +8,6 @@ export type TicketSalePaymentSummary = {
 };
 
 export abstract class TicketSalePaymentGateway {
-
   // CRUD básico
   abstract create(
     ticketSalePayment: TicketSalePayment,
@@ -28,7 +27,5 @@ export abstract class TicketSalePaymentGateway {
   // Remoções
   abstract deleteByTicketSaleIds(ticketSaleIds: string[]): Promise<number>;
 
-  abstract sumByEventId(
-    eventId: string,
-  ): Promise<TicketSalePaymentSummary[]>;
+  abstract sumByEventId(eventId: string): Promise<TicketSalePaymentSummary[]>;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TypesInscription } from 'src/domain/entities/typesInscription.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/typeInscription/description-already-exists.usecase.exception';

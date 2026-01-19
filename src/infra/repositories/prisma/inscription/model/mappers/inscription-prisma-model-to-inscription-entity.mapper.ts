@@ -10,6 +10,7 @@ export class InscriptionPrismaModalToInscriptionEntityMapper {
       responsible: inscription.responsible,
       phone: inscription.phone,
       totalValue: Number(inscription.totalValue),
+      totalPaid: Number(inscription.totalPaid),
       status: inscription.status,
       createdAt: inscription.createdAt,
       updatedAt: inscription.updatedAt,

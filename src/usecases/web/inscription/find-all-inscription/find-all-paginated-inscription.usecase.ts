@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
-export type FindAllPaginatedInscriptionsInput = {
+export type FindAllPaginatedInscriptionInput = {
   eventId: string;
   userId: string;
   limitTime?: string;
@@ -13,127 +15,127 @@ export type FindAllPaginatedInscriptionsInput = {
   pageSize: number;
 };
 
-export type FindAllPaginatedInscriptionsOutput = {
-  events: Events;
+export type FindAllPaginatedInscriptionOutput = {
+  event: Event;
   total: number;
   page: number;
   pageCount: number;
-  totalInscription: number;
-  totalParticipant: number;
-  totalDebt: number;
 };
 
-export type Events = {
+export type Event = {
   id: string;
   name: string;
   image: string;
   startDate: string;
   endDate: string;
-  totalParticipant: number;
-  totalDebt: number;
-  inscriptions: Inscriptions;
-}[];
+  totalInscription: number;
+  totalPaid: number;
+  inscriptions: Inscription[];
+};
 
-export type Inscriptions = {
+export type Inscription = {
   id: string;
   responsible: string;
-  totalValue: number;
   status: string;
-}[];
+  totalParticipant: number;
+};
 
 @Injectable()
 export class FindAllPaginatedInscriptionsUsecase
   implements
-    Usecase<
-      FindAllPaginatedInscriptionsInput,
-      FindAllPaginatedInscriptionsOutput
-    >
+    Usecase<FindAllPaginatedInscriptionInput, FindAllPaginatedInscriptionOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
+    private readonly paymentGateway: PaymentGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
-    input: FindAllPaginatedInscriptionsInput,
-  ): Promise<FindAllPaginatedInscriptionsOutput> {
-    const event = await this.eventGateway.findById(input.eventId);
-
-    if (!event) {
-      throw new EventNotFoundUsecaseException(
-        `Event not found with finding event with id ${input.eventId} in ${FindAllPaginatedInscriptionsUsecase.name}`,
-        `Evento não encontrado`,
-        FindAllPaginatedInscriptionsUsecase.name,
-      );
-    }
-
+    input: FindAllPaginatedInscriptionInput,
+  ): Promise<FindAllPaginatedInscriptionOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
       Math.min(20, Math.floor(input.pageSize || 10)),
     );
 
+    const event = await this.eventGateway.findById(input.eventId);
+
+    if (!event) {
+      throw new EventNotFoundUsecaseException(
+        `Event not found with finding event with id ${input.eventId}`,
+        `Evento não encontrado`,
+        FindAllPaginatedInscriptionsUsecase.name,
+      );
+    }
+
     const filters = {
-      userId: input.userId, // Sempre obrigatório
-      eventId: input.eventId, // Obrigatório - vem do parâmetro da rota
       limitTime: input.limitTime, // Opcional
     };
 
-    const [inscriptions, totalInscription, totalParticipant, totalDebt] =
-      await Promise.all([
-        this.inscriptionGateway.findManyPaginated(
-          safePage,
-          safePageSize,
-          filters,
-        ),
-        this.inscriptionGateway.countAll(filters),
-        this.inscriptionGateway.countParticipants(filters),
-        this.inscriptionGateway.sumTotalDebt(filters),
-      ]);
+    const [inscriptions, totalInscription, totalPaid] = await Promise.all([
+      this.inscriptionGateway.findManyPaginated(
+        input.userId,
+        event.getId(),
+        safePage,
+        safePageSize,
+        filters,
+      ),
+      this.inscriptionGateway.countAll(input.userId, event.getId(), filters),
+      this.paymentGateway.countTotalPaid(input.userId, event.getId(), filters),
+    ]);
 
-    // Obter URL pública da imagem do evento
-    let publicImageUrl = '';
-    const imagePath = event.getImageUrl();
-    if (imagePath) {
-      try {
-        publicImageUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-      } catch (e) {
-        publicImageUrl = '';
-      }
-    }
+    const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
-    // Mapear inscrições
-    const mappedInscriptions = inscriptions.map((insc) => ({
-      id: insc.getId(),
-      responsible: insc.getResponsible(),
-      totalValue: Number(insc.getTotalValue()),
-      status: insc.getStatus(),
-    }));
+    const inscriptionData = await Promise.all(
+      inscriptions.map(async (i) => {
+        const totalParticipant =
+          await this.accountParticipantInEventGateway.countByInscriptionId(
+            i.getId(),
+          );
 
-    // Criar evento com inscrições paginadas
-    const eventData = {
+        return {
+          id: i.getId(),
+          responsible: i.getResponsible(),
+          status: i.getStatus(),
+          totalParticipant,
+        };
+      }),
+    );
+
+    const eventData: Event = {
       id: event.getId(),
       name: event.getName(),
-      image: publicImageUrl,
+      image: imagePath,
       startDate: event.getStartDate().toISOString(),
       endDate: event.getEndDate().toISOString(),
-      totalParticipant: event.getQuantityParticipants(),
-      totalDebt,
-      inscriptions: mappedInscriptions,
-    };
-
-    const total = totalInscription; // Total de inscrições para paginação
-
-    return {
-      events: [eventData],
-      total,
-      page: safePage,
-      pageCount: Math.ceil(total / safePageSize),
       totalInscription,
-      totalParticipant,
-      totalDebt,
+      totalPaid,
+      inscriptions: inscriptionData,
     };
+
+    const output: FindAllPaginatedInscriptionOutput = {
+      event: eventData,
+      total: totalInscription,
+      page: safePage,
+      pageCount: Math.ceil(totalInscription / safePageSize),
+    };
+
+    return output;
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

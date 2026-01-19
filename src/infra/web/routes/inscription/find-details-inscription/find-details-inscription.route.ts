@@ -2,7 +2,10 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
-import { FindDetailsInscriptionUsecase } from 'src/usecases/web/inscription/find-details-inscription/find-details-inscription.usecase';
+import {
+  FindDetailsInscriptionInput,
+  FindDetailsInscriptionUsecase,
+} from 'src/usecases/web/inscription/find-details-inscription/find-details-inscription.usecase';
 import type {
   FindDetailsInscriptionRequest,
   FindDetailsInscriptionResponse,
@@ -23,11 +26,12 @@ export class FindDetailsInscriptionRoute {
       'Busca e retorna todas as informações relacionadas a uma inscrição específica com base no seu ID. Inclui dados do responsável, participantes e pagamentos vinculados.',
   })
   async handle(
-    @Param() params: FindDetailsInscriptionRequest,
+    @Param() param: FindDetailsInscriptionRequest,
   ): Promise<FindDetailsInscriptionResponse> {
-    const id = String(params.id);
-    const result = await this.findDetailsInscriptionUsecase.execute({ id });
-    const response = FindDetailsInscriptionPresenter.toHttp(result);
-    return response;
+    const input: FindDetailsInscriptionInput = {
+      id: param.id,
+    };
+    const result = await this.findDetailsInscriptionUsecase.execute(input);
+    return FindDetailsInscriptionPresenter.toHttp(result);
   }
 }

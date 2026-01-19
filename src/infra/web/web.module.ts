@@ -58,14 +58,8 @@ import { UpdateStatusInscriptionRoute } from './routes/inscription/analysis/upda
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
-import { GroupCancelRoute } from './routes/inscription/inscription-group/cancel/group-cancel.route';
-import { GroupConfirmRoute } from './routes/inscription/inscription-group/confirm/group-confirm.route';
-import { GroupFindCacheRoute } from './routes/inscription/inscription-group/find-cache/group-find-cache.route';
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
-import { GroupUploadRoute } from './routes/inscription/inscription-group/upload/group-upload.route';
-import { IndivConfirmRoute } from './routes/inscription/inscription-indiv/confirm/indiv-confirm.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
-import { IndivUploadRoute } from './routes/inscription/inscription-indiv/upload/indiv-upload.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
@@ -80,8 +74,10 @@ import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analy
 import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
 import { PaymentDetailsRoute } from './routes/paymentInscription/payment-details/payment-details.route';
-import { CreatePaymentRoute } from './routes/payments/create/create-payment.route';
+import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
+import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
+import { RegisterPaymentRoute } from './routes/payments/register/register-payment.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -196,16 +192,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Inscriptions - Group
     RegisterGroupInscriptionRoute,
-    GroupUploadRoute,
-    GroupConfirmRoute,
-    GroupCancelRoute,
-    GroupFindCacheRoute,
 
     // Inscriptions - Individual
-    ListAllPaymentsRoute,
     RegisterIndivInscriptionRoute,
-    IndivUploadRoute,
-    IndivConfirmRoute,
 
     // Inscriptions - Analysis
     AnalysisInscriptionRoute,
@@ -218,7 +207,11 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Payment Inscriptions
     AnalysisPaymentRoute,
-    CreatePaymentRoute,
+    ListAllPaymentsRoute,
+    ListAllPaymentsPendingRoute,
+    RegisterPaymentRoute,
+    DeletePaymentRoute,
+
     UpdatePaymentRoute,
     DeletePaymentInscriptionRoute,
     PaymentDetailsRoute,

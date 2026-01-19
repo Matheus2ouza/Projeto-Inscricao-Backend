@@ -8,7 +8,14 @@ export abstract class AccountParticipantGateway {
 
   // Buscas e listagens
   abstract findById(id: string): Promise<AccountParticipant | null>;
-  abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
+  abstract findByIds(ids: string[]): Promise<AccountParticipant[]>;
+  abstract findAllByAccountId(
+    accountId: string,
+    eventId: string,
+  ): Promise<AccountParticipant[]>;
+  abstract findByInscriptionId(
+    inscriptionId: string,
+  ): Promise<AccountParticipant[]>;
   abstract findAllPaginated(
     page: number,
     pageSize: number,

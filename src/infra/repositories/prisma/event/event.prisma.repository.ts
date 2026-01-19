@@ -191,7 +191,6 @@ export class EventPrismaRepository implements EventGateway {
       orderBy: { createdAt: 'desc' },
       where,
     });
-    console.log(found);
     return found.map(PrismaToEntity.map);
   }
 

@@ -5,7 +5,7 @@ import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gatew
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
-import { TicketUnitGateway } from 'src/domain/repositories/ticket-unit.gatewat';
+import { TicketUnitGateway } from 'src/domain/repositories/ticket-unit.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   TicketUnitCard,

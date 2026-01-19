@@ -6,7 +6,11 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { DeleteInscriptionUsecase } from 'src/usecases/web/inscription/delete-inscription/delete-inscription.usecase';
+import {
+  DeleteInscriptionInput,
+  DeleteInscriptionUsecase,
+} from 'src/usecases/web/inscription/delete-inscription/delete-inscription.usecase';
+import type { DeleteInscriptionRequest } from './delete-inscription.dto';
 
 @Controller('inscriptions')
 export class DeleteInscriptionRoute {
@@ -14,7 +18,7 @@ export class DeleteInscriptionRoute {
     private readonly deleteInscriptionUsecase: DeleteInscriptionUsecase,
   ) {}
 
-  @Delete(':id/delete')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Exclui uma inscrição',
@@ -30,7 +34,10 @@ export class DeleteInscriptionRoute {
     status: 404,
     description: 'Inscrição não encontrada.',
   })
-  async handle(@Param('id') id: string): Promise<void> {
-    await this.deleteInscriptionUsecase.execute({ inscriptionId: id });
+  async handle(@Param() param: DeleteInscriptionRequest): Promise<void> {
+    const input: DeleteInscriptionInput = {
+      id: param.id,
+    };
+    await this.deleteInscriptionUsecase.execute(input);
   }
 }

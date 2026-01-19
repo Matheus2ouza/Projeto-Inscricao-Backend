@@ -1,33 +1,32 @@
 export type FindAllPaginatedInscriptionRequest = {
+  eventId: string;
+  userId: string;
   limitTime?: string;
-  page?: string;
-  pageSize?: string;
+  page: number;
+  pageSize: number;
 };
 
 export type FindAllPaginatedInscriptionResponse = {
-  events: Events;
+  event: Event;
   total: number;
   page: number;
   pageCount: number;
-  totalInscription: number;
-  totalParticipant: number;
-  totalDebt: number;
 };
 
-export type Events = {
+export type Event = {
   id: string;
   name: string;
   image: string;
   startDate: string;
   endDate: string;
-  totalParticipant: number;
-  totalDebt: number;
-  inscriptions: Inscriptions;
-}[];
+  totalInscription: number;
+  totalPaid: number;
+  inscriptions: Inscription[];
+};
 
-export type Inscriptions = {
+export type Inscription = {
   id: string;
   responsible: string;
-  totalValue: number;
   status: string;
-}[];
+  totalParticipant: number;
+};

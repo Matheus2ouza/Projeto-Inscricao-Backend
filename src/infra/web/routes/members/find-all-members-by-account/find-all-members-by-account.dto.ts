@@ -1,5 +1,6 @@
 export type FindAllMembersByAccountUsecaseRequest = {
-  id: string;
+  userId: string;
+  eventId: string;
 };
 
 export type FindAllMembersByAccountUsecaseResponse = {
@@ -7,4 +8,5 @@ export type FindAllMembersByAccountUsecaseResponse = {
   name: string;
   birthDate: Date;
   gender: string;
+  registered?: boolean;
 }[];
