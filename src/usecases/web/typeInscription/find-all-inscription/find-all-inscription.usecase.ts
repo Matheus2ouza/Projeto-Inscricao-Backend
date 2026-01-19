@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 
 export type FindAllInscriptionOutput = {
   id: string;

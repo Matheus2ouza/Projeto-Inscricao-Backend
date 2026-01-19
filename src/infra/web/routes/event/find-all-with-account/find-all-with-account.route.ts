@@ -26,7 +26,7 @@ export class FindAllWithAccountRoute {
     const page = Number(query.page ?? '1');
     const pageSize = Number(query.pageSize ?? '4');
     const status = Array.isArray(query.status)
-      ? query.status.map((s) => s as statusEvent)
+      ? query.status.map((s) => s)
       : query.status
         ? [query.status as statusEvent]
         : [];

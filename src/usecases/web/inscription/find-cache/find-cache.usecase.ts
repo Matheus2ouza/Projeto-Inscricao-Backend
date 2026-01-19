@@ -58,8 +58,9 @@ export class FindCacheUsecase
       ? Math.max(1, input.pageSize)
       : 10;
 
-    const records =
-      await this.cacheRecordGateway.findActiveByAccountId(input.accountId);
+    const records = await this.cacheRecordGateway.findActiveByAccountId(
+      input.accountId,
+    );
 
     const activeRecords = records.filter((record) => !record.isExpired());
 
@@ -79,9 +80,7 @@ export class FindCacheUsecase
     };
   }
 
-  private async buildEventsResponse(
-    records: CacheRecord[],
-  ): Promise<Events> {
+  private async buildEventsResponse(records: CacheRecord[]): Promise<Events> {
     const eventIds = Array.from(
       new Set(
         records

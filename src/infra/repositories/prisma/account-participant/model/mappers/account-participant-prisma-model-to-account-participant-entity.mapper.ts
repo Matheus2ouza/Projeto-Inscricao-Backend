@@ -3,7 +3,9 @@ import AccountParticipantPrismaModel from '../account-participant.prisma.model';
 
 export class AccountParticipantPrismaModelToAccountParticipantEntityMapper {
   public static map(
-    accountParticipant: AccountParticipantPrismaModel,
+    accountParticipant: AccountParticipantPrismaModel & {
+      eventLinks?: { id: string }[];
+    },
   ): AccountParticipant {
     return AccountParticipant.with({
       id: accountParticipant.id,
@@ -13,6 +15,9 @@ export class AccountParticipantPrismaModelToAccountParticipantEntityMapper {
       gender: accountParticipant.gender,
       createdAt: accountParticipant.createdAt,
       updatedAt: accountParticipant.updatedAt,
+      isRegistered:
+        accountParticipant.eventLinks &&
+        accountParticipant.eventLinks.length > 0,
     });
   }
 }

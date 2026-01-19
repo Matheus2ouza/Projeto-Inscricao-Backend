@@ -1,8 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   ListAllPaymentsInput,
-  ListAllPaymentsUsecase,
+  ListAllPaymentsUseCase,
 } from 'src/usecases/web/payments/list-all-payments/list-all-payments.usecase';
 import type {
   ListAllPaymentsRequest,
@@ -13,18 +14,18 @@ import { ListAllPaymentsPresenter } from './list-all-payments.presenter';
 @Controller('payments')
 export class ListAllPaymentsRoute {
   constructor(
-    private readonly listAllPaymentsUsecase: ListAllPaymentsUsecase,
+    private readonly listAllPaymentsUsecase: ListAllPaymentsUseCase,
   ) {}
 
   @Get(':eventId/list')
   async handle(
     @Param() param: ListAllPaymentsRequest,
+    @UserInfo() userInfo: UserInfoType,
     @Query() query: ListAllPaymentsRequest,
-    @UserId() accountId: string,
   ): Promise<ListAllPaymentsResponse> {
     const input: ListAllPaymentsInput = {
       eventId: param.eventId,
-      accountId,
+      accountId: userInfo.userId,
       page: query.page,
       pageSize: query.pageSize,
     };

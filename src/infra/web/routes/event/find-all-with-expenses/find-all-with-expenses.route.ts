@@ -22,7 +22,7 @@ export class FindAllWithExpensesRoute {
     @UserInfo() userInfo: UserInfoType,
   ): Promise<FindAllWithExpensesResponse> {
     const status = Array.isArray(query.status)
-      ? query.status.map((s) => s as statusEvent)
+      ? query.status.map((s) => s)
       : query.status
         ? [query.status as statusEvent]
         : [];

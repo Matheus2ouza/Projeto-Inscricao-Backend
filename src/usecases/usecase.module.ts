@@ -54,14 +54,8 @@ import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/d
 import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindCacheUsecase } from './web/inscription/find-cache/find-cache.usecase';
 import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-inscription/find-details-inscription.usecase';
-import { GroupCancelUsecase } from './web/inscription/group/cancel/group-cancel.usecase';
-import { GroupConfirmUsecase } from './web/inscription/group/confirm/group-confirm.usecase';
-import { GroupFindCacheUsecase } from './web/inscription/group/find-cache/group-find-cache.usecase';
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
-import { GroupUploadUsecase } from './web/inscription/group/upload/group-upload.usecase';
-import { IndivConfirmUsecase } from './web/inscription/indiv/confirm/indiv-confirm.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
-import { IndivUploadValidateUsecase } from './web/inscription/indiv/upload/indiv-upload-valide.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
@@ -79,8 +73,10 @@ import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-s
 import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
 import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
-import { CreatePaymentUsecase } from './web/payments/create/create-payment.usecase';
-import { ListAllPaymentsUsecase } from './web/payments/list-all-payments/list-all-payments.usecase';
+import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
+import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
+import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
+import { RegisterPaymentUsecase } from './web/payments/register/register-payment.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -198,22 +194,18 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
-    GroupUploadUsecase,
-    GroupConfirmUsecase,
-    GroupCancelUsecase,
-    GroupFindCacheUsecase,
     RegisterIndivInscriptionUsecase,
-    IndivUploadValidateUsecase,
-    IndivConfirmUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
 
-    // Payment Inscriptions
-    ListAllPaymentsUsecase,
-    CreatePaymentUsecase,
+    // Payment
+    ListAllPaymentsUseCase,
+    ListAllPaymentsPendingUsecase,
+    RegisterPaymentUsecase,
+    DeletePaymentUsecase,
     AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
     RejectPaymentUsecase,
@@ -334,22 +326,18 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
-    GroupUploadUsecase,
-    GroupConfirmUsecase,
-    GroupCancelUsecase,
-    GroupFindCacheUsecase,
     RegisterIndivInscriptionUsecase,
-    IndivUploadValidateUsecase,
-    IndivConfirmUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
 
-    // Payment Inscriptions
-    ListAllPaymentsUsecase,
-    CreatePaymentUsecase,
+    // Payment
+    ListAllPaymentsUseCase,
+    ListAllPaymentsPendingUsecase,
+    RegisterPaymentUsecase,
+    DeletePaymentUsecase,
     AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
     RejectPaymentUsecase,

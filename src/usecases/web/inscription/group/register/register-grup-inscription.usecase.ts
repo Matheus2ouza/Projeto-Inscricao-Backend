@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEvent as AccountParticipantInEventEntity } from 'src/domain/entities/account-participant-in-event.entity';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
@@ -8,12 +8,11 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
-import { MemberAlreadyInscribedUsecaseException } from 'src/usecases/web/exceptions/members/member-already-inscriptibed.usecase.exception';
 import { MemberNotFoundUsecaseException } from 'src/usecases/web/exceptions/members/member-not-found.usecase.exception';
 
 export type RegisterGroupInscriptionUsecaseInput = {
@@ -42,6 +41,7 @@ export class RegisterGroupInscriptionUsecase
       RegisterGroupInscriptionUsecaseOutput
     >
 {
+  private readonly logger = new Logger(RegisterGroupInscriptionUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -56,9 +56,7 @@ export class RegisterGroupInscriptionUsecase
   async execute(
     input: RegisterGroupInscriptionUsecaseInput,
   ): Promise<RegisterGroupInscriptionUsecaseOutput> {
-    // FASE 1: VALIDAÇÕES (antes de qualquer inserção)
-
-    // 1. Verificar evento
+    // Verificar evento
     const eventExists = await this.eventGateway.findById(input.eventId);
     if (!eventExists) {
       throw new EventNotFoundUsecaseException(
@@ -68,19 +66,23 @@ export class RegisterGroupInscriptionUsecase
       );
     }
 
-    // 2. Extrair IDs
-    const memberIds = input.members.map((m) => m.accountParticipantId);
-    const typeInscriptionIds = input.members.map((m) => m.typeInscriptionId);
+    // Extrair IDs
+    const memberIds = [
+      ...new Set(input.members.map((m) => m.accountParticipantId)),
+    ];
+    const typeInscriptionIds = [
+      ...new Set(input.members.map((m) => m.typeInscriptionId)),
+    ];
 
-    // 3. Verificar membros
-    const accountParticipants = await Promise.all(
-      memberIds.map((id) => this.accountParticipantGateway.findById(id)),
+    // Buscar membros em lote
+    const accountParticipants =
+      await this.accountParticipantGateway.findByIds(memberIds);
+
+    const participantMap = new Map(
+      accountParticipants.map((p) => [p.getId(), p]),
     );
 
-    const missingMembers = accountParticipants
-      .map((participant, index) => ({ participant, id: memberIds[index] }))
-      .filter((item) => !item.participant)
-      .map((item) => item.id);
+    const missingMembers = memberIds.filter((id) => !participantMap.has(id));
 
     if (missingMembers.length > 0) {
       throw new MemberNotFoundUsecaseException(
@@ -90,38 +92,15 @@ export class RegisterGroupInscriptionUsecase
       );
     }
 
-    // 4. Verificar duplicações
-    const memberInscriptionChecks = await Promise.all(
-      memberIds.map((id) =>
-        this.accountParticipantInEventGateway.findByParticipantAndEvent(
-          id,
-          input.eventId,
-        ),
-      ),
+    // Buscar tipos de inscrição em lote
+    const typeInscriptions =
+      await this.typeInscriptionGateway.findByIds(typeInscriptionIds);
+
+    const typeMap = new Map(typeInscriptions.map((t) => [t.getId(), t]));
+
+    const missingTypeInscriptions = typeInscriptionIds.filter(
+      (id) => !typeMap.has(id),
     );
-
-    const alreadyInscribedMembers = memberInscriptionChecks
-      .map((check, index) => ({ check, id: memberIds[index] }))
-      .filter((item) => item.check)
-      .map((item) => item.id);
-
-    if (alreadyInscribedMembers.length > 0) {
-      throw new MemberAlreadyInscribedUsecaseException(
-        `attempt to create group inscription for members: ${alreadyInscribedMembers.join(', ')} but they are already inscribed in event: ${input.eventId}`,
-        `Membros já inscritos no evento: ${alreadyInscribedMembers.join(', ')}`,
-        RegisterGroupInscriptionUsecase.name,
-      );
-    }
-
-    // 5. Verificar tipos de inscrição
-    const typeInscriptions = await Promise.all(
-      typeInscriptionIds.map((id) => this.typeInscriptionGateway.findById(id)),
-    );
-
-    const missingTypeInscriptions = typeInscriptions
-      .map((type, index) => ({ type, id: typeInscriptionIds[index] }))
-      .filter((item) => !item.type)
-      .map((item) => item.id);
 
     if (missingTypeInscriptions.length > 0) {
       throw new TypeInscriptionNotFoundUsecaseException(
@@ -131,13 +110,15 @@ export class RegisterGroupInscriptionUsecase
       );
     }
 
-    // FASE 2: INSERÇÕES (após todas as validações passarem)
-
-    const hasSpecialType = typeInscriptions.some((type) =>
-      type?.getSpecialType(),
+    // Verificar se há inscrição especial
+    const hasSpecialType = input.members.some((member) =>
+      typeMap.get(member.typeInscriptionId)!.getSpecialType(),
     );
-    const totalValue = typeInscriptions.reduce((sum, type) => {
-      return sum + (type?.getValue() || 0);
+
+    // Soma continua considerando todos os valores, mesmo que nulos
+    const totalValue = input.members.reduce((sum, member) => {
+      const type = typeMap.get(member.typeInscriptionId)!;
+      return sum + type.getValue();
     }, 0);
 
     const inscription = InscriptionEntity.create({
@@ -154,32 +135,31 @@ export class RegisterGroupInscriptionUsecase
 
     await this.inscriptionGateway.create(inscription);
 
-    await Promise.all(
-      input.members.map(async (member) => {
-        const accountParticipantInEvent =
-          AccountParticipantInEventEntity.create({
-            accountParticipantId: member.accountParticipantId,
-            inscriptionId: inscription.getId(),
-            typeInscriptionId: member.typeInscriptionId,
-          });
-
-        await this.accountParticipantInEventGateway.create(
-          accountParticipantInEvent,
-        );
+    const participantLinks = input.members.map((member) =>
+      AccountParticipantInEventEntity.create({
+        accountParticipantId: member.accountParticipantId,
+        inscriptionId: inscription.getId(),
+        typeInscriptionId: member.typeInscriptionId,
       }),
     );
+
+    await this.accountParticipantInEventGateway.createMany(participantLinks);
 
     await this.eventGateway.incrementQuantityParticipants(
       eventExists.getId(),
       input.members.length,
     );
 
-    // FASE 3: E-MAIL (após tudo inserido)
-    await this.sendInscriptionNotificationEmail(
+    void this.sendInscriptionNotificationEmail(
       eventExists.getId(),
       inscription,
       input.members.length,
-    );
+    ).catch((error) => {
+      this.logger.error(
+        `(BG) Erro ao enviar email de inscrição em grupo para ${inscription.getEmail()}: ${error.message}`,
+        error,
+      );
+    });
 
     return {
       id: inscription.getId(),
@@ -197,7 +177,9 @@ export class RegisterGroupInscriptionUsecase
     try {
       const event = await this.eventGateway.findById(eventId);
       if (!event) {
-        console.warn(`Evento ${eventId} não encontrado para envio de e-mail`);
+        this.logger.warn(
+          `Evento ${eventId} não encontrado para envio de e-mail de inscrição em grupo`,
+        );
         return;
       }
 
@@ -205,7 +187,9 @@ export class RegisterGroupInscriptionUsecase
         await this.eventResponsibleGateway.findByEventId(eventId);
 
       if (eventResponsibles.length === 0) {
-        console.warn(`Evento ${eventId} não possui responsáveis cadastrados`);
+        this.logger.warn(
+          `Evento ${eventId} não possui responsáveis cadastrados para envio de e-mail de inscrição em grupo`,
+        );
         return;
       }
 
@@ -246,9 +230,9 @@ export class RegisterGroupInscriptionUsecase
         responsibleUsers,
       );
     } catch (error) {
-      console.error(
-        'Erro ao enviar e-mail de notificação de inscrição em grupo:',
-        error,
+      this.logger.error(
+        `Erro ao enviar e-mail de notificação de inscrição em grupo ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
+        error.stack,
       );
     }
   }

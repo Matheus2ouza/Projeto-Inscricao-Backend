@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEvent as AccountParticipantInEventEntity } from 'src/domain/entities/account-participant-in-event.entity';
 import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
@@ -8,7 +8,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
 import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription/inscription-email.types';
 import { Usecase } from 'src/usecases/usecase';
@@ -43,6 +43,7 @@ export class RegisterIndivInscriptionUsecase
       RegisterIndivInscriptionUsecaseOutput
     >
 {
+  private readonly logger = new Logger(RegisterIndivInscriptionUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -144,10 +145,14 @@ export class RegisterIndivInscriptionUsecase
     );
 
     // 9. Enviar e-mail de notificação
-    await this.sendInscriptionNotificationEmail(
+    void this.sendInscriptionNotificationEmail(
       eventExists.getId(),
       inscription,
-    );
+    ).catch((error) => {
+      this.logger.error(
+        `Erro ao enviar e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventExists.getId()}: ${error.message}`,
+      );
+    });
 
     const output: RegisterIndivInscriptionUsecaseOutput = {
       id: inscription.getId(),
@@ -164,9 +169,15 @@ export class RegisterIndivInscriptionUsecase
     inscription: InscriptionEntity,
   ): Promise<void> {
     try {
+      this.logger.log(
+        `Iniciando envio de e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}`,
+      );
       // Buscar dados do evento
       const event = await this.eventGateway.findById(eventId);
       if (!event) {
+        this.logger.warn(
+          `Evento ${eventId} não encontrado para envio de e-mail de inscrição individual`,
+        );
         return;
       }
 
@@ -215,9 +226,9 @@ export class RegisterIndivInscriptionUsecase
         responsibleUsers,
       );
     } catch (error) {
-      console.error(
-        '[EMAIL] Erro ao enviar e-mail de notificação de inscrição:',
-        error,
+      this.logger.error(
+        `Erro ao enviar e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
+        error.stack,
       );
       // Não lançar exceção para não interromper o fluxo principal
     }

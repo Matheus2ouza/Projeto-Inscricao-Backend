@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { genderType } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from '../../exceptions/inscription/find/inscription-not-found.usecase.exception';
 import { InvalidTypeInscriptionUsecaseException } from '../../exceptions/participants/invalid-type-inscription.usecase.exception';

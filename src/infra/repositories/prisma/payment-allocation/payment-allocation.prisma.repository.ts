@@ -11,10 +11,37 @@ export class PaymentAllocationPrismaRepository
 {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   async create(payment: PaymentAllocation): Promise<PaymentAllocation> {
     const data = EntityToPrisma.map(payment);
     const created = await this.prisma.paymentAllocation.create({ data });
     return PrismaToEntity.map(created);
+  }
+
+  async createMany(payments: PaymentAllocation[]): Promise<void> {
+    const data = payments.map(EntityToPrisma.map);
+    await this.prisma.paymentAllocation.createMany({ data });
+  }
+
+  // Buscas e listagens
+  async findByPaymentId(paymentId: string): Promise<PaymentAllocation[]> {
+    const found = await this.prisma.paymentAllocation.findMany({
+      where: {
+        paymentId,
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findbyInscriptionId(
+    inscriptionId: string,
+  ): Promise<PaymentAllocation[]> {
+    const found = await this.prisma.paymentAllocation.findMany({
+      where: {
+        inscriptionId,
+      },
+    });
+    return found.map(PrismaToEntity.map);
   }
 
   async sumPaidValueByInscription(inscriptionId: string): Promise<number> {

@@ -3,7 +3,7 @@ import { statusEvent } from 'generated/prisma';
 export type FindAllWithInscriptionsRequest = {
   page: number;
   pageSize: number;
-  status: statusEvent;
+  status?: statusEvent[];
 };
 
 export type FindAllWithInscriptionsResponse = {

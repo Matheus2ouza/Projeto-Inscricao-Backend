@@ -18,6 +18,7 @@ export type AccountParticipantWithDto = {
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
+  isRegistered?: boolean;
 };
 
 export class AccountParticipant extends Entity {
@@ -29,6 +30,7 @@ export class AccountParticipant extends Entity {
     private gender: genderType,
     createdAt: Date,
     updatedAt: Date,
+    private isRegistered?: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -63,6 +65,7 @@ export class AccountParticipant extends Entity {
     gender,
     createdAt,
     updatedAt,
+    isRegistered,
   }: AccountParticipantWithDto): AccountParticipant {
     return new AccountParticipant(
       id,
@@ -72,11 +75,16 @@ export class AccountParticipant extends Entity {
       gender,
       createdAt,
       updatedAt,
+      isRegistered,
     );
   }
 
   protected validate(): void {
     AccountParticipantValidatorFactory.create().validate(this);
+  }
+
+  public getIsRegistered(): boolean | undefined {
+    return this.isRegistered;
   }
 
   public getId(): string {

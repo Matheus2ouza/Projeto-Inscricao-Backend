@@ -9,7 +9,7 @@ import { AccountParticipantInEventPrismaModelToAccountParticipantInEventEntityMa
 export class AccountParticipantInEventPrismaRepository
   implements AccountParticipantInEventGateway
 {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
   // CRUD básico
   async create(
@@ -17,10 +17,19 @@ export class AccountParticipantInEventPrismaRepository
   ): Promise<AccountParticipantInEvent> {
     const data = EntityToPrisma.map(accountParticipant);
     const accountParticipantInEvent =
-      await this.prismaService.accountParticipantInEvent.create({
+      await this.prisma.accountParticipantInEvent.create({
         data,
       });
     return PrismaToEntity.map(accountParticipantInEvent);
+  }
+
+  async createMany(
+    accountParticipants: AccountParticipantInEvent[],
+  ): Promise<void> {
+    const data = accountParticipants.map(EntityToPrisma.map);
+    await this.prisma.accountParticipantInEvent.createMany({
+      data,
+    });
   }
 
   // Buscas e listagens
@@ -29,7 +38,7 @@ export class AccountParticipantInEventPrismaRepository
     eventId: string,
   ): Promise<AccountParticipantInEvent | null> {
     const accountParticipantInEvent =
-      await this.prismaService.accountParticipantInEvent.findFirst({
+      await this.prisma.accountParticipantInEvent.findFirst({
         where: {
           accountParticipantId,
           inscription: {
@@ -39,5 +48,43 @@ export class AccountParticipantInEventPrismaRepository
       });
     if (!accountParticipantInEvent) return null;
     return PrismaToEntity.map(accountParticipantInEvent);
+  }
+
+  async findParticipantDetailsByInscriptionId(inscriptionId: string): Promise<
+    {
+      participantId: string;
+      name: string;
+      birthDate: Date;
+      gender: import('generated/prisma').genderType;
+      typeInscriptionDescription?: string;
+    }[]
+  > {
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: { inscriptionId },
+      include: {
+        participant: true,
+        typeInscription: {
+          select: { description: true },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return found.map((item) => ({
+      participantId: item.accountParticipantId,
+      name: item.participant.name,
+      birthDate: item.participant.birthDate,
+      gender: item.participant.gender,
+      typeInscriptionDescription: item.typeInscription?.description,
+    }));
+  }
+
+  // Agregações e contagens
+  async countByInscriptionId(inscriptionId: string): Promise<number> {
+    return this.prisma.accountParticipantInEvent.count({
+      where: {
+        inscriptionId,
+      },
+    });
   }
 }

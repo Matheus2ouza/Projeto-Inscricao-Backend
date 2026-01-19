@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 

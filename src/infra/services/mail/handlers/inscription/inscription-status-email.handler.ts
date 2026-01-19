@@ -6,8 +6,7 @@ import { RedisService } from '../../../redis/redis.service';
 @Injectable()
 export class InscriptionStatusEmailHandler {
   private readonly logger = new Logger(InscriptionStatusEmailHandler.name);
-  private readonly EMAIL_COOLDOWN_KEY =
-    'inscription_status_email_cooldown';
+  private readonly EMAIL_COOLDOWN_KEY = 'inscription_status_email_cooldown';
   private readonly COOLDOWN_DURATION = 10 * 60; // 10 minutos em segundos
 
   public constructor(

@@ -20,7 +20,7 @@ import { InscriptionNotReleasedForPaymentUsecaseException } from '../../exceptio
 import { InvalidInscriptionIdUsecaseException } from '../../exceptions/paymentInscription/invalid-inscription-id.usecase.exception ';
 import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/paymentInscription/overpayment-not-allowed.usecase.exception';
 
-export type CreatePaymentInput = {
+export type RegisterPaymentInput = {
   eventId: string;
   accountId: string;
   totalValue: number;
@@ -32,15 +32,18 @@ type inscription = {
   id: string;
 };
 
-export type CreatePaymentOutput = {
+export type RegisterPaymentOutput = {
   id: string;
+  totalValue: number;
+  status: StatusPayment;
+  createdAt: Date;
 };
 
 @Injectable()
-export class CreatePaymentUsecase
-  implements Usecase<CreatePaymentInput, CreatePaymentOutput>
+export class RegisterPaymentUsecase
+  implements Usecase<RegisterPaymentInput, RegisterPaymentOutput>
 {
-  private readonly logger = new Logger(CreatePaymentUsecase.name);
+  private readonly logger = new Logger(RegisterPaymentUsecase.name);
   constructor(
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
@@ -53,7 +56,7 @@ export class CreatePaymentUsecase
     private readonly paymentReviewNotificationEmailHandler: PaymentReviewNotificationEmailHandler,
   ) {}
 
-  async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
+  async execute(input: RegisterPaymentInput): Promise<RegisterPaymentOutput> {
     // Validação do Evento
     const event = await this.eventGateway.findById(input.eventId);
 
@@ -61,42 +64,43 @@ export class CreatePaymentUsecase
       throw new EventNotFoundUsecaseException(
         `tentativa de registro de pagamento para o id: ${input.eventId} but it was not found`,
         'Evento não encontrado',
-        CreatePaymentUsecase.name,
+        RegisterPaymentUsecase.name,
+      );
+    }
+
+    const inscriptionIds = input.inscriptions.map((i) => i.id);
+
+    const inscriptionsEntities =
+      await this.inscriptionGateway.findManyByIds(inscriptionIds);
+
+    // validação de quantidade (ID inválido)
+    if (inscriptionsEntities.length !== inscriptionIds.length) {
+      throw new InvalidInscriptionIdUsecaseException(
+        'One or more inscription IDs are invalid',
+        'Um ou mais IDs de inscrição são inválidos',
+        RegisterPaymentUsecase.name,
       );
     }
 
     let totalDue = 0;
-    const inscriptionsEntities: Inscription[] = [];
 
-    // Validação das inscrições e cálculo do totalDue
-    for (const insc of input.inscriptions) {
-      const inscription = await this.inscriptionGateway.findById(insc.id);
-
-      if (!inscription) {
-        throw new InvalidInscriptionIdUsecaseException(
-          `attempt to register a payment but the inscriptionId does not refer to any inscription: ${insc.id}`,
-          `ID da inscrição é invalido`,
-          CreatePaymentUsecase.name,
-        );
-      }
-
+    for (const inscription of inscriptionsEntities) {
       if (inscription.getStatus() === StatusPayment.UNDER_REVIEW) {
         throw new InscriptionNotReleasedForPaymentUsecaseException(
-          `Attempted payment before inscription release id: ${inscription.getId()}, status: ${inscription.getStatus()}`,
+          `Attempted payment before inscription release id: ${inscription.getId()}`,
           'O pagamento ainda não está liberado para esta inscrição.',
-          CreatePaymentUsecase.name,
+          RegisterPaymentUsecase.name,
         );
       }
 
       totalDue += inscription.getTotalValue();
-      inscriptionsEntities.push(inscription);
     }
 
     if (input.totalValue > totalDue) {
       throw new OverpaymentNotAllowedUsecaseException(
         `attempted payment but the amount passed (${input.totalValue}) exceeds the debt amount (${totalDue})`,
         `O valor passado é maior que a dívida`,
-        CreatePaymentUsecase.name,
+        RegisterPaymentUsecase.name,
       );
     }
 
@@ -104,7 +108,7 @@ export class CreatePaymentUsecase
       throw new InvalidImageFormatUsecaseException(
         'Payment proof image is required',
         'A imagem do comprovante é obrigatória',
-        CreatePaymentUsecase.name,
+        RegisterPaymentUsecase.name,
       );
     }
 
@@ -127,36 +131,56 @@ export class CreatePaymentUsecase
 
     await this.paymentGateway.create(payment);
 
-    // Alocação do valor para as inscrições na ordem enviada pelo front
+    // Alocação do valor + incremento do totalPaid
     let remainingValue = input.totalValue;
+    const allocations: PaymentAllocation[] = [];
+    const increments: { inscriptionId: string; value: number }[] = [];
+
     for (const inscription of inscriptionsEntities) {
       const allocationValue = Math.min(
         inscription.getTotalValue(),
         remainingValue,
       );
 
-      const paymentAllocation = PaymentAllocation.create({
-        paymentId: payment.getId(),
+      allocations.push(
+        PaymentAllocation.create({
+          paymentId: payment.getId(),
+          inscriptionId: inscription.getId(),
+          value: allocationValue,
+        }),
+      );
+
+      increments.push({
         inscriptionId: inscription.getId(),
         value: allocationValue,
       });
 
-      await this.paymentAllocationGateway.create(paymentAllocation);
-
       remainingValue -= allocationValue;
-      if (remainingValue <= 0) break; // Para se o valor total já tiver sido alocado
+      if (remainingValue <= 0) break;
     }
+
+    // Criação das alocações
+    await this.paymentAllocationGateway.createMany(allocations);
+    await this.inscriptionGateway.incrementTotalPaidMany(increments);
 
     // Notificação aos responsáveis do evento (opcional)
     if (inscriptionsEntities.length > 0) {
-      await this.notifyEventResponsiblesAboutPayment(
+      void this.notifyEventResponsiblesAboutPayment(
         payment,
         inscriptionsEntities,
-      );
+      ).catch((error) => {
+        this.logger.error(
+          `(BG) Erro ao enviar email de pagamento ${payment.getId()}: ${error.message}`,
+          error,
+        );
+      });
     }
 
-    const output: CreatePaymentOutput = {
+    const output: RegisterPaymentOutput = {
       id: payment.getId(),
+      totalValue: payment.getTotalValue(),
+      status: payment.getStatus(),
+      createdAt: payment.getCreatedAt(),
     };
 
     return output;
@@ -167,6 +191,9 @@ export class CreatePaymentUsecase
     inscriptions: Inscription[],
   ): Promise<void> {
     try {
+      this.logger.log(
+        `Iniciando envio de e-mail de notificação de pagamento ${payment.getId()} para o evento ${payment.getEventId()}`,
+      );
       const event = await this.eventGateway.findById(payment.getEventId());
 
       if (!event) {
@@ -226,6 +253,9 @@ export class CreatePaymentUsecase
         },
         responsibles,
       );
+      this.logger.log(
+        `E-mail de notificação de pagamento ${payment.getId()} enviado para ${responsibles.length} responsáveis do evento ${payment.getEventId()}`,
+      );
     } catch (error) {
       this.logger.error(
         `Erro ao notificar responsáveis sobre novo pagamento: ${error.message}`,
@@ -254,7 +284,7 @@ export class CreatePaymentUsecase
       throw new InvalidImageFormatUsecaseException(
         'invalid image format',
         'Formato da imagem inválido',
-        CreatePaymentUsecase.name,
+        RegisterPaymentUsecase.name,
       );
     }
 
@@ -270,11 +300,20 @@ export class CreatePaymentUsecase
       },
     );
 
+    // Busca o nome do evento para incluir no nome do arquivo
     const eventName = await this.eventGateway.findById(eventId);
+
+    //Busca o nome da conta para incluir no nome do arquivo
+    const accountName = await this.userGateway.findById(accountId);
 
     // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
     const sanitizedEventName = sanitizeFileName(
       eventName?.getName() || 'evento',
+    );
+
+    // Sanitiza o nome da conta para evitar caracteres inválidos no Supabase
+    const sanitizedAccountName = sanitizeFileName(
+      accountName?.getUsername() || 'conta',
     );
 
     // Cria nome do arquivo: payment+valor+hora formatada
@@ -290,7 +329,7 @@ export class CreatePaymentUsecase
 
     // Faz upload no Supabase
     const imageUrl = await this.supabaseStorageService.uploadFile({
-      folderName: `payments/${sanitizedEventName}`,
+      folderName: `payments/${sanitizedEventName}/${sanitizedAccountName}`,
       fileName: fileName,
       fileBuffer: optimizedImage.buffer,
       contentType: this.imageOptimizerService.getMimeType(

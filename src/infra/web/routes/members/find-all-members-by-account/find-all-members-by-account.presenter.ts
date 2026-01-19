@@ -10,6 +10,7 @@ export class FindAllMembersByAccountPresenter {
       name: member.name,
       birthDate: member.birthDate,
       gender: member.gender,
+      registered: member.registered ?? false,
     }));
   }
 }

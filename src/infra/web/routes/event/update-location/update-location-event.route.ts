@@ -23,8 +23,6 @@ export class UpdateLocationEventRoute {
     const input: UpdateLocationEventInput = {
       eventId: id,
       location: body.location,
-      longitude: body.longitude,
-      latitude: body.latitude,
     };
 
     const result = await this.updateLocationEventUsecase.execute(input);

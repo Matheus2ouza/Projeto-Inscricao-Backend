@@ -32,14 +32,56 @@ export class AccountParticipantPrismaRepository
     return found ? PrismaModelToEntity.map(found) : null;
   }
 
-  async findAllByAccountId(accountId: string): Promise<AccountParticipant[]> {
+  async findByIds(ids: string[]): Promise<AccountParticipant[]> {
+    const accountParticipantPrismaModel =
+      await this.prisma.accountParticipant.findMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+    return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+  }
+
+  async findAllByAccountId(
+    accountId: string,
+    eventId: string,
+  ): Promise<AccountParticipant[]> {
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.findMany({
         where: {
           accountId,
         },
+        include: {
+          eventLinks: {
+            where: {
+              inscription: {
+                eventId,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
+        },
       });
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+  }
+
+  async findByInscriptionId(
+    inscriptionId: string,
+  ): Promise<AccountParticipant[]> {
+    const find = await this.prisma.accountParticipant.findMany({
+      where: {
+        eventLinks: {
+          some: {
+            inscriptionId,
+          },
+        },
+      },
+    });
+    return find.map(PrismaModelToEntity.map);
   }
 
   async findAllPaginated(
@@ -53,6 +95,9 @@ export class AccountParticipantPrismaRepository
         skip: (page - 1) * pageSize,
         take: pageSize,
         where,
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
   }

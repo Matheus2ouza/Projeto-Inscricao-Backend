@@ -3,28 +3,33 @@ export type FindDetailsInscriptionRequest = {
 };
 
 export type FindDetailsInscriptionResponse = {
+  inscription: Inscription;
+  participants: Participant[];
+  payments: Payment[];
+};
+
+type Inscription = {
   id: string;
   responsible: string;
   email?: string;
-  phone: string;
-  totalValue: number;
+  phone?: string;
   status: string;
+  totalValue: number;
+  totalPaid: number;
+  totalDebt: number;
   createdAt: Date;
-  payments?: {
-    id: string;
-    status: string;
-    value: number;
-    image: string;
-    rejectionReason: string | null;
-    createdAt: string;
-    updatedAt: string;
-  }[];
-  participants: {
-    id: string;
-    typeInscription: string | undefined;
-    name: string;
-    birthDate: Date;
-    gender: string;
-  }[];
-  countParticipants: number;
+};
+
+type Participant = {
+  id: string;
+  typeInscription: string | undefined;
+  name: string;
+  birthDate: Date;
+  gender: string;
+};
+
+type Payment = {
+  id: string;
+  value: number;
+  createdAt: Date;
 };

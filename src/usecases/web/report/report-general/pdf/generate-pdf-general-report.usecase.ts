@@ -127,7 +127,8 @@ export class GeneratePdfGeneralReportUsecase {
           0,
         ),
         totalInscricoesAvulsas: reportData.ticketSale.byTicket.length,
-        totalParticipantesAvulsos: reportData.inscriptionAvuls.countParticipants,
+        totalParticipantesAvulsos:
+          reportData.inscriptionAvuls.countParticipants,
         totalParticipantes: reportData.countParticipants,
         totalGeral: reportData.totalValue + expensesTotals.total,
         totalArrecadado: reportData.totalValue,

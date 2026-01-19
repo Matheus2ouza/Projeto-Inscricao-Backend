@@ -1,10 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import { Controller, Get, Param } from '@nestjs/common';
+import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindAllMembersByAccountUsecase,
   FindAllMembersByAccountUsecaseInput,
 } from 'src/usecases/web/members/find-all-members-by-account/find-all-members-by-account.usecase';
-import type { FindAllMembersByAccountUsecaseResponse } from './find-all-members-by-account.dto';
+import type {
+  FindAllMembersByAccountUsecaseRequest,
+  FindAllMembersByAccountUsecaseResponse,
+} from './find-all-members-by-account.dto';
 import { FindAllMembersByAccountPresenter } from './find-all-members-by-account.presenter';
 
 @Controller('members')
@@ -13,12 +16,14 @@ export class FindAllMembersByAccountRoute {
     private readonly findAllMembersByAccountUsecase: FindAllMembersByAccountUsecase,
   ) {}
 
-  @Get('all/names')
+  @Get(':eventId/all/names')
   async handle(
-    @UserId() userId: string,
+    @Param() param: FindAllMembersByAccountUsecaseRequest,
+    @UserInfo() user: FindAllMembersByAccountUsecaseRequest,
   ): Promise<FindAllMembersByAccountUsecaseResponse> {
     const input: FindAllMembersByAccountUsecaseInput = {
-      accountId: userId,
+      eventId: param.eventId,
+      accountId: user.userId,
     };
 
     const response = await this.findAllMembersByAccountUsecase.execute(input);

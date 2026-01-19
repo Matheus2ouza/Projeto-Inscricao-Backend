@@ -24,7 +24,7 @@ export class FindAllWithInscriptionsRoute {
     @UserInfo() userInfo: UserInfoType,
   ): Promise<FindAllWithInscriptionsResponse> {
     const status = Array.isArray(query.status)
-      ? query.status.map((s) => s as statusEvent)
+      ? query.status.map((s) => s)
       : query.status
         ? [query.status as statusEvent]
         : [];

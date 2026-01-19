@@ -156,10 +156,7 @@ export class MailService {
       );
     }
 
-    const element = createElement(
-      TemplateComponent,
-      context as Record<string, unknown>,
-    );
+    const element = createElement(TemplateComponent, context);
 
     return await render(element);
   }

@@ -5,9 +5,7 @@ import { MailService } from '../../mail.service';
 
 @Injectable()
 export class TicketSaleNotificationEmailHandler {
-  private readonly logger = new Logger(
-    TicketSaleNotificationEmailHandler.name,
-  );
+  private readonly logger = new Logger(TicketSaleNotificationEmailHandler.name);
 
   public constructor(private readonly mailService: MailService) {}
 

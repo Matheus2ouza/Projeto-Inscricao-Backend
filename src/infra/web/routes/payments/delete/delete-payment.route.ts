@@ -1,0 +1,21 @@
+import { Controller, Delete, HttpCode, Param } from '@nestjs/common';
+import {
+  DeletePaymentInput,
+  DeletePaymentUsecase,
+} from 'src/usecases/web/payments/delete/delete-payment.usecase';
+import type { DeletePaymentRequest } from './delete-payment.dto';
+
+@Controller('payments')
+export class DeletePaymentRoute {
+  constructor(private readonly deletePaymentUsecase: DeletePaymentUsecase) {}
+
+  @Delete('/:paymentId')
+  @HttpCode(204)
+  async handle(@Param() param: DeletePaymentRequest): Promise<void> {
+    const input: DeletePaymentInput = {
+      paymentId: param.paymentId,
+    };
+
+    await this.deletePaymentUsecase.execute(input);
+  }
+}

@@ -4,7 +4,9 @@ import type { ParticipantPdfEntry } from 'src/shared/utils/pdfs/participants/par
 export type GenderFilter = genderType;
 export type GenderFilterInput = Array<GenderFilter | string>;
 
-const toGenderFilter = (value: string | undefined | null): GenderFilter | null => {
+const toGenderFilter = (
+  value: string | undefined | null,
+): GenderFilter | null => {
   if (!value) {
     return null;
   }

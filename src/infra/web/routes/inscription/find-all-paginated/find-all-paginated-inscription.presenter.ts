@@ -1,18 +1,15 @@
-import { FindAllPaginatedInscriptionsOutput } from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
+import { FindAllPaginatedInscriptionOutput } from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindAllPaginatedInscriptionResponse } from './find-all-paginated-inscription.dto';
 
 export class FindAllPaginatedInscriptionPresenter {
   public static toHttp(
-    output: FindAllPaginatedInscriptionsOutput,
+    output: FindAllPaginatedInscriptionOutput,
   ): FindAllPaginatedInscriptionResponse {
     return {
-      events: output.events,
+      event: output.event,
       total: output.total,
       page: output.page,
       pageCount: output.pageCount,
-      totalInscription: output.totalInscription,
-      totalParticipant: output.totalParticipant,
-      totalDebt: output.totalDebt,
     };
   }
 }

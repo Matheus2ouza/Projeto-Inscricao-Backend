@@ -5,7 +5,7 @@ export abstract class InscriptionGateway {
   // CRUD básico
   abstract create(inscription: Inscription): Promise<Inscription>;
   abstract update(inscription: Inscription): Promise<Inscription>;
-  abstract deleteInscription(id: string): Promise<void>;
+  abstract delete(id: string): Promise<void>;
 
   // Buscas por identificador único
   abstract findById(id: string): Promise<Inscription | null>;
@@ -25,6 +25,7 @@ export abstract class InscriptionGateway {
     accountIds: string[],
   ): Promise<Inscription[]>;
   abstract findMany(eventId: string): Promise<Inscription[]>;
+  abstract findManyByIds(ids: string[]): Promise<Inscription[]>;
   abstract findInscriptionsWithPayments(
     page: number,
     pageSize: number,
@@ -44,12 +45,12 @@ export abstract class InscriptionGateway {
 
   // Buscas paginadas
   abstract findManyPaginated(
+    accoundId: string,
+    eventId: string,
     page: number,
     pageSize: number,
     filters: {
-      userId: string; // obrigatório
-      eventId: string; // obrigatório
-      limitTime?: string; // opcional
+      limitTime?: string;
     },
   ): Promise<Inscription[]>;
   abstract findManyPaginatedByEvent(
@@ -66,23 +67,15 @@ export abstract class InscriptionGateway {
 
   // Agregações e contagens
   abstract contTotalDebtByEvent(eventId: string): Promise<number>;
-  abstract countAll(filters: {
-    userId: string; // obrigatório
-    eventId: string; // obrigatório
-    limitTime?: string; // opcional
-  }): Promise<number>;
+  abstract countAll(
+    accountId: string,
+    eventId: string,
+    filters: {
+      limitTime?: string; // opcional
+    },
+  ): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
-  abstract countParticipants(filters: {
-    userId: string; // obrigatório
-    eventId: string; // obrigatório
-    limitTime?: string; // opcional
-  }): Promise<number>;
-  abstract sumTotalDebt(filters: {
-    userId: string; // obrigatório
-    eventId: string; // obrigatório
-    limitTime?: string; // opcional
-  }): Promise<number>;
   abstract countTotalInscriptions(
     eventId: string,
     accountId: string,
@@ -109,6 +102,10 @@ export abstract class InscriptionGateway {
   abstract paidRegistration(id: string): Promise<Inscription>;
   abstract updateValue(id: string, value: number): Promise<Inscription>;
   abstract decrementValue(id: string, value: number): Promise<Inscription>; // Update do saldo devedor
+  abstract incrementTotalPaid(id: string, value: number): Promise<Inscription>; // Incrementa o valor total pago
+  abstract incrementTotalPaidMany(
+    increments: { inscriptionId: string; value: number }[],
+  ): Promise<void>;
 
   // Buscas de contas relacionadas
   abstract findUniqueAccountIdsByEventId(eventId: string): Promise<string[]>;

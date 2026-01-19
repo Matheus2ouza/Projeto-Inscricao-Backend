@@ -1,8 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
-  FindAllPaginatedInscriptionsInput,
+  FindAllPaginatedInscriptionInput,
   FindAllPaginatedInscriptionsUsecase,
 } from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import type {
@@ -17,7 +18,7 @@ export class FindAllPaginatedInscriptionsRoute {
     private readonly findAllPaginatedInscriptionsUsecase: FindAllPaginatedInscriptionsUsecase,
   ) {}
 
-  @Get(':id')
+  @Get(':eventId')
   @ApiOperation({
     summary:
       'Lista todas as inscrições do usuário autenticado para um evento específico (paginadas)',
@@ -26,16 +27,16 @@ export class FindAllPaginatedInscriptionsRoute {
       'É possível filtrar os resultados opcionalmente por **período de tempo (`limitTime`)**. O `eventId` é obrigatório e vem como parâmetro da rota.',
   })
   public async handle(
-    @Param('id') eventId: string,
+    @Param() param: FindAllPaginatedInscriptionRequest,
     @Query() query: FindAllPaginatedInscriptionRequest,
-    @UserId() accountId: string,
+    @UserInfo() user: UserInfoType,
   ): Promise<FindAllPaginatedInscriptionResponse> {
     const page = Number(query.page ?? '1');
     const pageSize = Number(query.pageSize ?? '10');
 
-    const input: FindAllPaginatedInscriptionsInput = {
-      eventId: eventId,
-      userId: accountId,
+    const input: FindAllPaginatedInscriptionInput = {
+      eventId: param.eventId,
+      userId: user.userId,
       page,
       pageSize,
       limitTime: query.limitTime,

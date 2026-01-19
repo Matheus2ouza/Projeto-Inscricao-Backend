@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 
@@ -11,30 +10,35 @@ export type FindDetailsInscriptionInput = {
 };
 
 export type FindDetailsInscriptionOutput = {
+  inscription: Inscription;
+  participants: Participant[];
+  payments: Payment[];
+};
+
+type Inscription = {
   id: string;
   responsible: string;
   email?: string;
-  phone: string;
-  totalValue: number;
+  phone?: string;
   status: string;
+  totalValue: number;
+  totalPaid: number;
+  totalDebt: number;
   createdAt: Date;
-  payments?: {
-    id: string;
-    status: string;
-    value: number;
-    image: string;
-    rejectionReason: string | null;
-    createdAt: string;
-    updatedAt: string;
-  }[];
-  participants: {
-    id: string;
-    typeInscription: string | undefined;
-    name: string;
-    birthDate: Date;
-    gender: string;
-  }[];
-  countParticipants: number;
+};
+
+type Participant = {
+  id: string;
+  typeInscription: string | undefined;
+  name: string;
+  birthDate: Date;
+  gender: string;
+};
+
+type Payment = {
+  id: string;
+  value: number;
+  createdAt: Date;
 };
 
 @Injectable()
@@ -43,9 +47,8 @@ export class FindDetailsInscriptionUsecase
 {
   public constructor(
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly participantGateway: ParticipantGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
-    private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
   ) {}
 
   public async execute(
@@ -55,63 +58,56 @@ export class FindDetailsInscriptionUsecase
 
     if (!inscription) {
       throw new InscriptionNotFoundUsecaseException(
-        `User not found with finding user with id ${input.id} in ${FindDetailsInscriptionUsecase.name}`,
+        `User not found with finding user with id ${input.id}`,
         `Inscrição não encontrada`,
         FindDetailsInscriptionUsecase.name,
       );
     }
 
-    const [payments, participants, countAll] = await Promise.all([
-      this.paymentInscriptionGateway.findbyInscriptionId(input.id),
-      this.participantGateway.findByInscriptionId(input.id),
-      this.participantGateway.countByInscriptionId(input.id),
+    const [payments, participantLinks] = await Promise.all([
+      this.paymentAllocationGateway.findbyInscriptionId(input.id),
+      this.accountParticipantInEventGateway.findParticipantDetailsByInscriptionId(
+        input.id,
+      ),
     ]);
+
+    let totalPaid = 0;
 
     // Processar os pagamentos para obter as URLs públicas
     const enrichedPayments = await Promise.all(
       payments.map(async (p) => {
-        let publicImageUrl = '';
-        const imagePath = p.getImageUrl();
-
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (e) {
-            // Se houver erro, mantém a URL original
-            publicImageUrl = imagePath;
-          }
-        }
-
-        return {
+        const payment: Payment = {
           id: p.getId(),
-          status: p.getStatus(),
-          value: p.getValue().toNumber(),
-          image: publicImageUrl, // URL pública
-          rejectionReason: p.getRejectionReason() || null,
-          createdAt: p.getCreatedAt().toISOString(),
-          updatedAt: p.getUpdatedAt().toISOString(),
+          value: p.getValue(),
+          createdAt: p.getCreatedAt(),
         };
-      }) || [],
+        totalPaid += p.getValue();
+        return payment;
+      }),
     );
 
+    const participantsData: Participant[] = participantLinks.map((p) => ({
+      id: p.participantId,
+      typeInscription: p.typeInscriptionDescription || undefined,
+      name: p.name,
+      birthDate: p.birthDate,
+      gender: p.gender,
+    }));
+
     const output: FindDetailsInscriptionOutput = {
-      id: inscription.getId(),
-      responsible: inscription.getResponsible(),
-      email: inscription.getEmail(),
-      phone: inscription.getPhone(),
-      totalValue: inscription.getTotalValue(),
-      status: inscription.getStatus(),
-      createdAt: inscription.getCreatedAt(),
+      inscription: {
+        id: inscription.getId(),
+        responsible: inscription.getResponsible(),
+        email: inscription.getEmail(),
+        phone: inscription.getPhone(),
+        status: inscription.getStatus(),
+        totalValue: inscription.getTotalValue(),
+        totalPaid: totalPaid,
+        totalDebt: inscription.getTotalValue() - totalPaid,
+        createdAt: inscription.getCreatedAt(),
+      },
       payments: enrichedPayments,
-      participants: participants?.map((p) => ({
-        id: p.getId(),
-        typeInscription: p.getTypeInscriptionDescription(),
-        name: p.getName(),
-        birthDate: p.getBirthDate(),
-        gender: p.getGender(),
-      })),
-      countParticipants: countAll,
+      participants: participantsData,
     };
 
     return output;

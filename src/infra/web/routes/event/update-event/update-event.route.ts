@@ -30,6 +30,8 @@ export class UpdateEventRoute {
       responsibles: request.responsibles,
     };
 
+    console.log(input);
+
     const result = await this.updateEventUseCase.execute(input);
 
     const response = UpdateEventPresenter.toHttp(result);

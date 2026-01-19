@@ -6,8 +6,6 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 export type UpdateLocationEventInput = {
   eventId: string;
   location: string;
-  longitude: number;
-  latitude: number;
 };
 
 export type UpdateLocationEventOutput = {
@@ -33,7 +31,7 @@ export class UpdateLocationEventUsecase
       );
     }
 
-    event.updateLocation(input.location, input.longitude, input.latitude);
+    event.updateLocation(input.location);
 
     await this.eventGateway.update(event);
 

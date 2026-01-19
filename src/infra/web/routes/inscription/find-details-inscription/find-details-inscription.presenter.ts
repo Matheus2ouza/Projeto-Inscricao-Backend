@@ -6,16 +6,9 @@ export class FindDetailsInscriptionPresenter {
     input: FindDetailsInscriptionOutput,
   ): FindDetailsInscriptionResponse {
     const aInscription: FindDetailsInscriptionResponse = {
-      id: input.id,
-      responsible: input.responsible,
-      phone: input.phone,
-      email: input.email,
-      totalValue: input.totalValue,
-      status: input.status,
-      createdAt: input.createdAt,
-      payments: input.payments,
+      inscription: input.inscription,
       participants: input.participants,
-      countParticipants: input.countParticipants,
+      payments: input.payments,
     };
     return aInscription;
   }

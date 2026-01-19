@@ -25,7 +25,6 @@ const testLogoPath = path.resolve(
 );
 
 function logPreview(message: string, payload?: unknown) {
-  // eslint-disable-next-line no-console
   console.log(`[PDF PREVIEW] ${message}`, payload ?? '');
 }
 
@@ -98,7 +97,7 @@ export const pdfDefinitions: PdfDefinition[] = [
 
 export const categories = Array.from(
   new Set(pdfDefinitions.map((definition) => definition.category)),
-) as PdfCategory[];
+);
 
 export const pdfsByCategory = pdfDefinitions.reduce<
   Record<PdfCategory, PdfDefinition[]>

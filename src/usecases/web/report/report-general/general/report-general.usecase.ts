@@ -9,7 +9,7 @@ import { ParticipantGateway } from 'src/domain/repositories/participant.gateway'
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';

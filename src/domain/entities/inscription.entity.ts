@@ -1,5 +1,6 @@
 import { InscriptionStatus } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
+import { InscriptionValidatorFactory } from '../factories/inscription/inscription.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type InscriptionCreateDto = {
@@ -20,6 +21,7 @@ export type InscriptionWithDto = {
   email?: string;
   phone: string;
   totalValue: number;
+  totalPaid: number;
   status: InscriptionStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -33,6 +35,7 @@ export class Inscription extends Entity {
     private responsible: string,
     private phone: string,
     private totalValue: number,
+    private totalPaid: number,
     private status: InscriptionStatus,
     createdAt: Date,
     updatedAt: Date,
@@ -54,6 +57,7 @@ export class Inscription extends Entity {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
+    const totalPaid = 0;
 
     return new Inscription(
       id,
@@ -62,6 +66,7 @@ export class Inscription extends Entity {
       responsible,
       phone,
       totalValue,
+      totalPaid,
       status,
       createdAt,
       updatedAt,
@@ -76,6 +81,7 @@ export class Inscription extends Entity {
     responsible,
     phone,
     totalValue,
+    totalPaid,
     status,
     createdAt,
     updatedAt,
@@ -88,6 +94,7 @@ export class Inscription extends Entity {
       responsible,
       phone,
       totalValue,
+      totalPaid,
       status,
       createdAt,
       updatedAt,
@@ -124,6 +131,10 @@ export class Inscription extends Entity {
     return this.totalValue;
   }
 
+  public getTotalPaid(): number {
+    return this.totalPaid;
+  }
+
   public getStatus(): InscriptionStatus {
     return this.status;
   }
@@ -137,25 +148,7 @@ export class Inscription extends Entity {
   }
 
   protected validate(): void {
-    if (!this.accountId) {
-      throw new Error('Id do Usuario é obrigatório');
-    }
-
-    if (!this.eventId) {
-      throw new Error('Id do Evento é obrigatório');
-    }
-
-    if (!this.responsible || this.responsible.trim().length === 0) {
-      throw new Error('O responsavel pela inscrição é obrigatório');
-    }
-
-    if (!this.phone || this.phone.trim().length === 0) {
-      throw new Error('O telefone do responsavel pela inscrição é obrigatorio');
-    }
-
-    if (!this.status) {
-      throw new Error('O Status é obrigatório');
-    }
+    InscriptionValidatorFactory.create().validate(this);
   }
 
   public setResponsible(responsible: string): void {
