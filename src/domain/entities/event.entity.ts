@@ -15,6 +15,7 @@ export type EventCreateDto = {
   status: statusEvent;
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
+  allowCard?: boolean;
 };
 
 export type EventWithDto = {
@@ -33,6 +34,7 @@ export type EventWithDto = {
   status: statusEvent;
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
+  allowCard?: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -56,6 +58,7 @@ export class Event extends Entity {
     private location?: string,
     private longitude?: number | null,
     private latitude?: number | null,
+    private allowCard?: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -80,7 +83,7 @@ export class Event extends Entity {
     const updatedAt = new Date();
     const quantityParticipants = 0;
     const amountCollected = 0;
-
+    const allowCard = false;
     return new Event(
       id,
       name,
@@ -99,6 +102,7 @@ export class Event extends Entity {
       location,
       longitude,
       latitude,
+      allowCard,
     );
   }
 
@@ -118,6 +122,7 @@ export class Event extends Entity {
     status,
     paymentEnabled,
     ticketEnabled,
+    allowCard,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -139,6 +144,7 @@ export class Event extends Entity {
       location,
       longitude,
       latitude,
+      allowCard,
     );
   }
 
@@ -151,9 +157,6 @@ export class Event extends Entity {
     }
     if (!this.regionId || this.regionId.trim().length === 0) {
       throw new Error('ID da região é obrigatório');
-    }
-    if (!this.updatedAt) {
-      throw new Error('Data de atualização é obrigatória');
     }
   }
 
@@ -222,6 +225,10 @@ export class Event extends Entity {
     return this.ticketEnabled;
   }
 
+  public getAllowCard(): boolean | undefined {
+    return this.allowCard;
+  }
+
   public setName(name: string): void {
     this.name = name;
     this.updatedAt = new Date();
@@ -252,6 +259,11 @@ export class Event extends Entity {
 
   public setLatitude(latitude?: number | null): void {
     this.latitude = latitude;
+    this.updatedAt = new Date();
+  }
+
+  public setAllowCard(allowCard: boolean): void {
+    this.allowCard = allowCard;
     this.updatedAt = new Date();
   }
 

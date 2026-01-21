@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
 import { Usecase } from 'src/usecases/usecase';
-import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/users/credentials-no-valid.usecase.exception';
+import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/accounts/credentials-no-valid.usecase.exception';
 
 export type RefreshAuthTokenUserUsecaseInput = {
   refreshToken: string;

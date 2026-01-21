@@ -15,7 +15,6 @@ import { CreateEventExpensesUsecase } from './web/event-expenses/create/create-e
 import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
-import { ListPaymentToAnalysisUsecase } from './web/event/analysis/list-payment-to-analysis/list-payment-to-analysis.usecase';
 import { FindAccountsDetailsUseCase } from './web/event/check-in/find-accounts-details/find-accounts-details.usecase';
 import { FindAccountsToCheckInUsecase } from './web/event/check-in/find-accounts-to-checkin/find-accounts-to-checkin.usecase';
 import { CreateEventUseCase } from './web/event/create/create-event.usecase';
@@ -38,6 +37,7 @@ import { FindEventDateUsecase } from './web/event/find-event-dates/find-event-da
 import { FindAccountWithInscriptionsUsecase } from './web/event/inscription/find-accounts-with-inscriptions.usecase';
 import { FindAllToParticipantsUsecase } from './web/event/participants/find-all-to-participants/find-all-to-participants.usecase';
 import { GeneratePdfSelectedInscriptionUsecase } from './web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
+import { UpdateAllowCardUseCase } from './web/event/update-allow-card/update-allow-card.usecase';
 import { UpdateEventUseCase } from './web/event/update-event/update-event.usecase';
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
 import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/update-inscription-event.usecase';
@@ -68,15 +68,18 @@ import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/genera
 import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
-import { ApprovePaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/approve-payment.usecase';
-import { RejectPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/reject-payment.usecase';
-import { RevertApprovedPaymentUsecase } from './web/paymentInscription/analysis/update-status-payment/revert-approved-inscription.usecase';
 import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
 import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
+import { AnalysisPaymentsPendingDetailsUsecase } from './web/payments/analysis-payments-pending-details/analysis-payments-pending-details.usecase';
+import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
+import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
+import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
 import { RegisterPaymentUsecase } from './web/payments/register/register-payment.usecase';
+import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
+import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -143,6 +146,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
+    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
@@ -166,7 +170,6 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
     ListInscriptionToAnalysisUsecase,
-    ListPaymentToAnalysisUsecase,
     FindAllPaginatedEventToInscriptionUsecase,
     FindAllPaginatedEventToPaymentUsecase,
     FindAccountsToCheckInUsecase,
@@ -204,12 +207,16 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     // Payment
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
+    ListPaymentPendingDetailsUsecase,
     RegisterPaymentUsecase,
     DeletePaymentUsecase,
-    AnalysisPaymentUsecase,
+    AnalysisPaymentsPendingUsecase,
+    AnalysisPaymentsPendingDetailsUsecase,
     ApprovePaymentUsecase,
-    RejectPaymentUsecase,
-    RevertApprovedPaymentUsecase,
+    RejectedPaymentUsecase,
+    ReversePaymentUsecase,
+
+    AnalysisPaymentUsecase,
     DeletePaymentInscriptionUsecase,
     PaymentDetailsUsecase,
 
@@ -275,6 +282,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     CreateEventUseCase,
     UpdateEventUseCase,
     DeleteEventUsecase,
+    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateTicketsSaleUsecase,
@@ -300,7 +308,6 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindEventDateUsecase,
     FindAccountWithInscriptionsUsecase,
     ListInscriptionToAnalysisUsecase,
-    ListPaymentToAnalysisUsecase,
     FindAllPaginatedEventToInscriptionUsecase,
     FindAllPaginatedEventToPaymentUsecase,
     DeleteEventResponsibleUseCase,
@@ -336,12 +343,16 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     // Payment
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
+    ListPaymentPendingDetailsUsecase,
     RegisterPaymentUsecase,
     DeletePaymentUsecase,
+    AnalysisPaymentsPendingUsecase,
+    AnalysisPaymentsPendingDetailsUsecase,
     AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
-    RejectPaymentUsecase,
-    RevertApprovedPaymentUsecase,
+    RejectedPaymentUsecase,
+    ReversePaymentUsecase,
+
     DeletePaymentInscriptionUsecase,
     PaymentDetailsUsecase,
 

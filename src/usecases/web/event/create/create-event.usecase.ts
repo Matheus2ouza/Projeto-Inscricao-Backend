@@ -8,12 +8,12 @@ import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
+import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/region-not-found.usecase.exception';
 import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/events/event-name-already-exists.usecase.exception';
 import { InvalidEventDateRangeUsecaseException } from 'src/usecases/web/exceptions/events/invalid-event-date-range.usecase.exception';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/events/invalid-image-format.usecase.exception';
 import { MissingRegionIdUsecaseException } from 'src/usecases/web/exceptions/events/missing-region-id.usecase.exception';
 import { missingStartDateOrEndDateUsecaseException } from 'src/usecases/web/exceptions/events/missing-start-date-or-end-date.usecase.exception';
-import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/region-not-found.usecase.exception';
 
 export type CreateEventInput = {
   name: string;

@@ -1,10 +1,11 @@
 export type ListParticipantsRequest = {
+  eventId: string;
   page: number;
   pageSize: number;
 };
 
 export type ListParticipantsResponse = {
-  account: Accounts;
+  accounts: Account[];
   countAccounts: number;
   countParticipants: number;
   total: number;
@@ -12,12 +13,12 @@ export type ListParticipantsResponse = {
   pageCount: number;
 };
 
-export type Accounts = {
+export type Account = {
   id: string;
   username: string;
   countParticipants: number;
   participants: Participants;
-}[];
+};
 
 export type Participants = {
   id: string;

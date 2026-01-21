@@ -18,6 +18,7 @@ type Events = {
   name: string;
   imageUrl: string;
   status: statusEvent;
+  paymentEnabled: boolean;
   totalPayments: number;
   totalDebt: number;
 }[];

@@ -9,8 +9,8 @@ import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscr
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
+import { AccountNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/account-not-found.usecase.exception';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
-import { UserNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/user-not-found.usecase.exception';
 
 export type FindAccountsDetailsInput = {
   eventId: string;
@@ -84,7 +84,7 @@ export class FindAccountsDetailsUseCase
     const account = await this.accountGateway.findById(input.accountId);
 
     if (!account) {
-      throw new UserNotFoundUsecaseException(
+      throw new AccountNotFoundUsecaseException(
         `Account not found with id ${input.accountId} in ${FindAccountsDetailsUseCase.name}`,
         `Conta não encontrada`,
         FindAccountsDetailsUseCase.name,

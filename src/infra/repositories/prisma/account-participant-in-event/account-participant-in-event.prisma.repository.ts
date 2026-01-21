@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { genderType } from 'generated/prisma';
 import { AccountParticipantInEvent } from 'src/domain/entities/account-participant-in-event.entity';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { PrismaService } from '../prisma.service';
@@ -79,6 +80,109 @@ export class AccountParticipantInEventPrismaRepository
     }));
   }
 
+  async findParticipantDetailsByInscriptionIdPaginated(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<
+    {
+      participantId: string;
+      name: string;
+      birthDate: Date;
+      gender: genderType;
+      typeInscriptionDescription?: string;
+    }[]
+  > {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscriptionId,
+      },
+      include: {
+        participant: true,
+        typeInscription: {
+          select: {
+            description: true,
+          },
+        },
+      },
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return found.map((a) => ({
+      participantId: a.accountParticipantId,
+      name: a.participant.name,
+      birthDate: a.participant.birthDate,
+      gender: a.participant.gender,
+      typeInscriptionDescription: a.typeInscription?.description,
+    }));
+  }
+
+  async findByInscriptionId(
+    inscriptionId: string,
+  ): Promise<AccountParticipantInEvent[]> {
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscriptionId,
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findManyByInscriptionIds(
+    inscriptionIds: string[],
+  ): Promise<AccountParticipantInEvent[]> {
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscriptionId: {
+          in: inscriptionIds,
+        },
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  // account-participant-in-event.prisma.repository.ts
+  async findByEventIdAndAccountIds(
+    eventId: string,
+    accountIds: string[],
+  ): Promise<
+    {
+      accountId: string;
+      participantId: string;
+      participantName: string;
+      participantBirthDate: Date;
+      participantGender: genderType;
+      typeInscriptionId: string;
+      typeInscriptionDescription: string;
+    }[]
+  > {
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscription: {
+          eventId,
+          accountId: { in: accountIds },
+        },
+      },
+      include: {
+        participant: true,
+        typeInscription: true,
+        inscription: true,
+      },
+    });
+    return found.map((a) => ({
+      accountId: a.inscription.accountId,
+      participantId: a.accountParticipantId,
+      participantName: a.participant.name,
+      participantBirthDate: a.participant.birthDate,
+      participantGender: a.participant.gender,
+      typeInscriptionId: a.typeInscription.id,
+      typeInscriptionDescription: a.typeInscription?.description,
+    }));
+  }
+
   // Agregações e contagens
   async countByInscriptionId(inscriptionId: string): Promise<number> {
     return this.prisma.accountParticipantInEvent.count({
@@ -86,5 +190,26 @@ export class AccountParticipantInEventPrismaRepository
         inscriptionId,
       },
     });
+  }
+
+  async countParticipantByInscriptionId(
+    inscriptionId: string,
+  ): Promise<number> {
+    return this.prisma.accountParticipantInEvent.count({
+      where: {
+        inscriptionId,
+      },
+    });
+  }
+
+  async countParticipantsByEventId(eventId: string): Promise<number> {
+    const count = await this.prisma.accountParticipantInEvent.count({
+      where: {
+        inscription: {
+          eventId,
+        },
+      },
+    });
+    return count;
   }
 }

@@ -7,6 +7,7 @@ export type ListAllPaymentsPendingRequest = {
 
 export type ListAllPaymentsPendingResponse = {
   inscriptions: Inscriptions[];
+  allowCard?: boolean;
   total: number;
   page: number;
   pageCount: number;

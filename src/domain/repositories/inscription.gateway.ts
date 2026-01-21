@@ -62,8 +62,12 @@ export abstract class InscriptionGateway {
     eventId: string,
     limit: number,
   ): Promise<Inscription[]>;
-
   abstract findInscriptionsWithPaid(eventId: string): Promise<Inscription[]>;
+  abstract findAccountIdsByEventIdPaginated(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<string[]>;
 
   // Agregações e contagens
   abstract contTotalDebtByEvent(eventId: string): Promise<number>;
@@ -71,7 +75,7 @@ export abstract class InscriptionGateway {
     accountId: string,
     eventId: string,
     filters: {
-      limitTime?: string; // opcional
+      limitTime?: string;
     },
   ): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
@@ -93,6 +97,7 @@ export abstract class InscriptionGateway {
       status?: InscriptionStatus;
     },
   ): Promise<number>;
+  abstract countUniqueAccountIdsByEventId(eventId: string): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(
@@ -109,9 +114,4 @@ export abstract class InscriptionGateway {
 
   // Buscas de contas relacionadas
   abstract findUniqueAccountIdsByEventId(eventId: string): Promise<string[]>;
-  abstract findUniqueAccountIdsPaginatedByEventId(
-    eventId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<{ accountIds: string[]; total: number }>;
 }

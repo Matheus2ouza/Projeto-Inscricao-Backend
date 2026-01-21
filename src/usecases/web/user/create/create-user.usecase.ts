@@ -3,8 +3,8 @@ import { roleType } from 'generated/prisma';
 import { Account } from 'src/domain/entities/account.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
-import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/region-not-found.usecase.exception';
-import { UserAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/users/user-already-exists.usecase.exception';
+import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/region-not-found.usecase.exception';
+import { UserAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/accounts/user-already-exists.usecase.exception';
 
 export type CreateUserInput = {
   username: string;

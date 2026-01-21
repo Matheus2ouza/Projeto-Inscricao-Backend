@@ -76,12 +76,14 @@ export class ListAllPaymentsUseCase
     const [summary, payments, total] = await Promise.all([
       this.paymentGateway.countAllOrdered(input.accountId, input.eventId),
       this.paymentGateway.findAllPaginated(
-        input.accountId,
         input.eventId,
         safePage,
         safePageSize,
+        { accountId: input.accountId },
       ),
-      this.paymentGateway.countAllFiltered(input.accountId, input.eventId),
+      this.paymentGateway.countAllFiltered(input.eventId, {
+        accountId: input.accountId,
+      }),
     ]);
 
     const paymentsPaginated = await Promise.all(

@@ -25,6 +25,7 @@ type Events = {
   name: string;
   imageUrl: string;
   status: statusEvent;
+  paymentEnabled: boolean;
   totalPayments: number;
   totalDebt: number;
 }[];
@@ -72,6 +73,7 @@ export class FindAllWithPaymentsUsecase
           name: events.getName(),
           imageUrl: imagePath,
           status: events.getStatus(),
+          paymentEnabled: events.getPaymentEnabled(),
           totalPayments,
           totalDebt: events.getAmountCollected(),
         };

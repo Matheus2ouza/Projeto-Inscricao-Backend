@@ -6,7 +6,7 @@ export class ListParticipantsPresenter {
     output: ListParticipantsOutput,
   ): ListParticipantsResponse {
     return {
-      account: output.account,
+      accounts: output.accounts,
       countAccounts: output.countAccounts,
       countParticipants: output.countParticipants,
       total: output.total,

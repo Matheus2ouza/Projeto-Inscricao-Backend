@@ -9,22 +9,30 @@ export abstract class PaymentGateway {
   // Buscas e listagens
   abstract findById(id: string): Promise<Payment | null>;
   abstract findAllPaginated(
-    accountId: string,
     eventId: string,
     page: number,
     pageSize: number,
     filter?: {
+      accountId?: string;
       status?: StatusPayment[];
     },
+  ): Promise<Payment[]>;
+  abstract findAllByInscriptionIdPaginated(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
   ): Promise<Payment[]>;
 
   // Agregações e contagens
   abstract countAllFiltered(
-    accountId: string,
     eventId: string,
     filters?: {
+      accountId?: string;
       status?: StatusPayment[];
     },
+  ): Promise<number>;
+  abstract countParticipantByInscriptionId(
+    inscriptionId: string,
   ): Promise<number>;
   abstract countAllOrdered(
     accountId: string,
@@ -37,8 +45,12 @@ export abstract class PaymentGateway {
       limitTime?: string;
     },
   ): Promise<number>;
+  abstract countAllByEventId(eventId: string): Promise<number>;
+  abstract countAllInAnalysis(eventId: string): Promise<number>;
+  abstract countTotalAmountInAnalysis(eventId: string): Promise<number>;
 
   // Atualizações
+  abstract update(payment: Payment): Promise<Payment>;
 
   //Deletes
   abstract delete(id: string): Promise<void>;
