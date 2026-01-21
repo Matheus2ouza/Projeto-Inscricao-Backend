@@ -8,11 +8,14 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { UserNotFoundUsecaseException } from 'src/usecases/web/exceptions/users/user-not-found.usecase.exception';
+import { AccountNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/account-not-found.usecase.exception';
 
-@Catch(UserNotFoundUsecaseException)
-export class UserNotFoundUsecaseExceptionFilter implements ExceptionFilter {
-  public catch(exception: UserNotFoundUsecaseException, host: ArgumentsHost) {
+@Catch(AccountNotFoundUsecaseException)
+export class AccountNotFoundUsecaseExceptionFilter implements ExceptionFilter {
+  public catch(
+    exception: AccountNotFoundUsecaseException,
+    host: ArgumentsHost,
+  ) {
     LogUtils.logException(exception);
 
     const ctx = host.switchToHttp();
@@ -26,7 +29,7 @@ export class UserNotFoundUsecaseExceptionFilter implements ExceptionFilter {
   }
 }
 
-export const UserNotFoundUsecaseExceptionFilterProvider = {
+export const AccountNotFoundUsecaseExceptionFilterProvider = {
   provide: APP_FILTER,
-  useClass: UserNotFoundUsecaseExceptionFilter,
+  useClass: AccountNotFoundUsecaseExceptionFilter,
 };

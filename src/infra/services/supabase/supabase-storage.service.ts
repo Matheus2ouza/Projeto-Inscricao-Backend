@@ -111,7 +111,7 @@ export class SupabaseStorageService {
    * Remove um arquivo do Supabase Storage
    * @param filePath - Caminho completo do arquivo (ex: "events/nome_arquivo.webp")
    */
-  async deleteFile(filePath: string): Promise<void> {
+  async deleteFile(filePath: string | undefined): Promise<void> {
     try {
       if (!filePath || filePath.trim().length === 0) {
         throw new Error('Caminho do arquivo é obrigatório');

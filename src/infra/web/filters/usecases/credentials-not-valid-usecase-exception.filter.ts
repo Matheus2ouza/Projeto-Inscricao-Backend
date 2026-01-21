@@ -8,7 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/users/credentials-no-valid.usecase.exception';
+import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/accounts/credentials-no-valid.usecase.exception';
 
 @Catch(CredentialsNoValidUsecaseException)
 export class CredentialsNotValidUsecaseExcepitonFilter

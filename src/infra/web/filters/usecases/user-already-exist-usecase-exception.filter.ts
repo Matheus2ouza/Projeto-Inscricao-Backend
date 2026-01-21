@@ -8,7 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { UserAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/users/user-already-exists.usecase.exception';
+import { UserAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/accounts/user-already-exists.usecase.exception';
 
 @Catch(UserAlreadyExistsUsecaseException)
 export class UserAlreadyExistsUsecaseExceptionFilter

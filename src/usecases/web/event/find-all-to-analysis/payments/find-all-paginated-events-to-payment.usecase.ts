@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 
@@ -36,6 +37,7 @@ export class FindAllPaginatedEventToPaymentUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly paymentGateway: PaymentGateway,
     private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
@@ -62,31 +64,20 @@ export class FindAllPaginatedEventToPaymentUsecase
 
     const enriched = await Promise.all(
       events.map(async (event: any) => {
-        let publicImageUrl: string | undefined = undefined;
-        const imagePath =
-          event.getImageUrl?.() || event.imageUrl || event.imagePath;
-        if (imagePath) {
-          try {
-            publicImageUrl =
-              await this.supabaseStorageService.getPublicUrl(imagePath);
-          } catch (e) {
-            publicImageUrl = undefined;
-          }
-        }
+        const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
-        const countPayments =
-          await this.paymentInscriptionGateway.countAllByEventId(event.getId());
+        const countPayments = await this.paymentGateway.countAllByEventId(
+          event.getId(),
+        );
 
         const countPaymentsAnalysis =
-          await this.paymentInscriptionGateway.countAllInAnalysis(
-            event.getId(),
-          );
+          await this.paymentGateway.countAllInAnalysis(event.getId());
 
         return {
           id: event.getId(),
           name: event.getName(),
           status: event.getStatus(),
-          imageUrl: publicImageUrl,
+          imageUrl: imagePath,
           countPayments,
           countPaymentsAnalysis,
         };
@@ -99,5 +90,17 @@ export class FindAllPaginatedEventToPaymentUsecase
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),
     };
+  }
+
+  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

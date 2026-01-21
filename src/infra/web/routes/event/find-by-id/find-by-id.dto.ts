@@ -12,12 +12,13 @@ export type FindByIdEventResponse = {
   startDate: Date;
   endDate: Date;
   imageUrl?: string;
-  logUrl?: string;
+  logoUrl?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   paymentEnebled: boolean;
+  allowCard?: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;

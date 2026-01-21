@@ -3,7 +3,7 @@ import { FindByIdEventResponse } from './find-by-id.dto';
 
 export class FindByEventPresenter {
   public static toHttp(output: FindByIdEventOutput): FindByIdEventResponse {
-    const response: FindByIdEventOutput = {
+    return {
       id: output.id,
       name: output.name,
       quantityParticipants: output.quantityParticipants,
@@ -17,12 +17,11 @@ export class FindByEventPresenter {
       latitude: output.latitude,
       status: output.status,
       paymentEnebled: output.paymentEnebled,
+      allowCard: output.allowCard ?? false,
       createdAt: output.createdAt,
       updatedAt: output.updatedAt,
       regionName: output.regionName,
       responsibles: output.responsibles,
     };
-
-    return response;
   }
 }

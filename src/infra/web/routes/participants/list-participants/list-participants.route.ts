@@ -15,13 +15,13 @@ export class ListParticipantsRoute {
     private readonly listParticipantsUsecase: ListParticipantsUsecase,
   ) {}
 
-  @Get(':id')
+  @Get(':eventId')
   async handle(
-    @Param('id') eventId: string,
+    @Param() param: ListParticipantsRequest,
     @Query() query: ListParticipantsRequest,
   ): Promise<ListParticipantsResponse> {
     const input: ListParticipantsInput = {
-      eventId: eventId,
+      eventId: param.eventId,
       page: query.page,
       pageSize: query.pageSize,
     };

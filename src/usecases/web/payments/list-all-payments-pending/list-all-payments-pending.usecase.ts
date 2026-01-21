@@ -14,6 +14,7 @@ export type ListAllPaymentsPendingInput = {
 
 export type ListAllPaymentsPendingOutput = {
   inscriptions: Inscriptions[];
+  allowCard: boolean;
   total: number;
   page: number;
   pageCount: number;
@@ -93,6 +94,7 @@ export class ListAllPaymentsPendingUsecase
 
     const output: ListAllPaymentsPendingOutput = {
       inscriptions: inscriptionsData,
+      allowCard: event.getAllowCard() || false,
       total,
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),

@@ -8,19 +8,18 @@ import { ValidatorDomainExceptionFilterProvider } from './filters/domain/validat
 import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/auth-token-not-valid-service-exception.filter';
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
+import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
-import { UserNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/user-not-found-usecase-exception.filter';
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
-import { ListPaymentToAnalysisRoute } from './routes/event/analysis/list-payment-to-analysis/list-payment-to-analysis.route';
 import { FindAccountsDetailsRoute } from './routes/event/check-in/find-accounts-details/find-accounts-details.route';
 import { FindAccountsToCheckInRoute } from './routes/event/check-in/find-accounts-to-checkin/find-accounts-to-checkin.route';
 import { CreateEventRoute } from './routes/event/create/create-event.route';
@@ -43,6 +42,7 @@ import { FindEventDateRoute } from './routes/event/find-event-dates/find-event-d
 import { FindAccountWithInscriptionsRoute } from './routes/event/inscription/find-accounts-with-inscriptions/find-accounts-with-inscriptions.route';
 import { FindAllToParticipantsRoute } from './routes/event/participants/find-all-to-participants/find-all-to-participants.route';
 import { GeneratePdfSelectedInscriptionRoute } from './routes/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.route';
+import { UpdateAllowCardRoute } from './routes/event/update-allow-card/update-allow-card.route';
 import { UpdateEventRoute } from './routes/event/update-event/update-event.route';
 import { UpdateImageEventRoute } from './routes/event/update-image/update-image.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
@@ -71,13 +71,18 @@ import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentRoute } from './routes/paymentInscription/analysis/analysis-payment/analysis-payment.route';
-import { UpdatePaymentRoute } from './routes/paymentInscription/analysis/update-payment/update-payment.route';
 import { DeletePaymentInscriptionRoute } from './routes/paymentInscription/delete/delete-payment-inscription.route';
 import { PaymentDetailsRoute } from './routes/paymentInscription/payment-details/payment-details.route';
+import { AnalysisPaymentsPendingDetailsRoute } from './routes/payments/analysis-payments-pending-details/analysis-payments-pending-details.route';
+import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
+import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
 import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
+import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
 import { RegisterPaymentRoute } from './routes/payments/register/register-payment.route';
+import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
+import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -149,7 +154,6 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAccountWithInscriptionsRoute,
     GeneratePdfSelectedInscriptionRoute,
     ListInscriptonToAnalysisRoute,
-    ListPaymentToAnalysisRoute,
     FindByIdEventRoute,
     FindAccountsToCheckInRoute,
     FindAccountsDetailsRoute,
@@ -157,6 +161,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Events - Create & Update
     CreateEventRoute,
     UpdateEventRoute,
+    UpdateAllowCardRoute,
     UpdateImageEventRoute,
     UpdateLogoEventRoute,
     UpdateLocationEventRoute,
@@ -209,10 +214,15 @@ import { WelcomeRoute } from './routes/welcome.route';
     AnalysisPaymentRoute,
     ListAllPaymentsRoute,
     ListAllPaymentsPendingRoute,
+    ListPaymentPendingDetailsRoute,
     RegisterPaymentRoute,
     DeletePaymentRoute,
+    AnalysisPaymentsPendingRoute,
+    AnalysisPaymentsPendingDetailsRoute,
+    ApprovePaymentRoute,
+    RejectedPaymentRoute,
+    ReversePaymentRoute,
 
-    UpdatePaymentRoute,
     DeletePaymentInscriptionRoute,
     PaymentDetailsRoute,
 
@@ -254,7 +264,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     UsecaseExceptionFilterProvider,
     CredentialsNotValidUsecaseExcepitonFilterProvider,
     UserAlreadyExistsUsecaseExceptionFilterProvider,
-    UserNotFoundUsecaseExceptionFilterProvider,
+    AccountNotFoundUsecaseExceptionFilterProvider,
     UserNotAllowedToCreateUserUsecaseExceptionFilterProvider,
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,

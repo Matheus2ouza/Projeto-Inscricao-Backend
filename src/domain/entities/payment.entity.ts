@@ -1,4 +1,4 @@
-import { StatusPayment } from 'generated/prisma';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { PaymentValidatorFactory } from '../factories/payment/payment.validator.factory';
 import { Entity } from '../shared/entities/entity';
@@ -7,6 +7,7 @@ export type PaymentCreateDto = {
   eventId: string;
   accountId: string;
   status: StatusPayment;
+  methodPayment?: PaymentMethod;
   totalValue: number;
   imageUrl: string;
 };
@@ -16,9 +17,10 @@ export type PaymentWithDto = {
   eventId: string;
   accountId: string;
   status: StatusPayment;
+  methodPayment: PaymentMethod;
   totalValue: number;
   rejectionReason?: string;
-  imageUrl: string;
+  imageUrl?: string;
   financialMovementId?: string;
   approvedBy?: string;
   createdAt: Date;
@@ -31,10 +33,11 @@ export class Payment extends Entity {
     private eventId: string,
     private accountId: string,
     private status: StatusPayment,
+    private methodPayment: PaymentMethod,
     private totalValue: number,
-    private imageUrl: string,
     createdAt: Date,
     updatedAt: Date,
+    private imageUrl?: string,
     private rejectionReason?: string,
     private financialMovementId?: string,
     private approvedBy?: string,
@@ -49,8 +52,10 @@ export class Payment extends Entity {
     status,
     totalValue,
     imageUrl,
+    methodPayment,
   }: PaymentCreateDto): Payment {
     const id = Utils.generateUUID();
+    const methodPaymentDefault = methodPayment || PaymentMethod.PIX;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -59,10 +64,11 @@ export class Payment extends Entity {
       eventId,
       accountId,
       status,
+      methodPaymentDefault,
       totalValue,
-      imageUrl,
       createdAt,
       updatedAt,
+      imageUrl,
     );
   }
 
@@ -71,6 +77,7 @@ export class Payment extends Entity {
     eventId,
     accountId,
     status,
+    methodPayment,
     totalValue,
     imageUrl,
     createdAt,
@@ -84,10 +91,11 @@ export class Payment extends Entity {
       eventId,
       accountId,
       status,
+      methodPayment,
       totalValue,
-      imageUrl,
       createdAt,
       updatedAt,
+      imageUrl,
       rejectionReason,
       financialMovementId,
       approvedBy,
@@ -114,11 +122,15 @@ export class Payment extends Entity {
     return this.status;
   }
 
+  public getMethodPayment(): PaymentMethod {
+    return this.methodPayment;
+  }
+
   public getTotalValue(): number {
     return this.totalValue;
   }
 
-  public getImageUrl(): string {
+  public getImageUrl(): string | undefined {
     return this.imageUrl;
   }
 
@@ -140,5 +152,36 @@ export class Payment extends Entity {
 
   public getUpdatedAt(): Date {
     return this.updatedAt;
+  }
+
+  public setMethodPayment(methodPayment: PaymentMethod): void {
+    this.methodPayment = methodPayment;
+  }
+
+  public approve(approvedBy: string, financialMovementId: string): void {
+    this.status = StatusPayment.APPROVED;
+    this.financialMovementId = financialMovementId;
+    this.updatedAt = new Date();
+    this.approvedBy = approvedBy;
+    if (this.getRejectionReason()) {
+      this.rejectionReason = undefined;
+    }
+  }
+
+  public recuse(rejectionReason: string): void {
+    this.status = StatusPayment.REFUSED;
+    this.updatedAt = new Date();
+    this.rejectionReason = rejectionReason;
+  }
+
+  public reverse(): void {
+    this.status = StatusPayment.UNDER_REVIEW;
+    this.updatedAt = new Date();
+    if (this.getApprovedBy()) {
+      this.approvedBy = undefined;
+    }
+    if (this.getRejectionReason()) {
+      this.rejectionReason = undefined;
+    }
   }
 }

@@ -25,11 +25,10 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
   async findAllPaginated(
-    accountId: string,
     eventId: string,
     page: number,
     pageSize: number,
-    filter?: { status?: StatusPayment[] },
+    filter?: { accountId?: string; status?: StatusPayment[] },
   ): Promise<Payment[]> {
     const skip = (page - 1) * pageSize;
     const where = this.buildWhereClauseEvent(filter);
@@ -38,7 +37,6 @@ export class PaymentPrismaRepository implements PaymentGateway {
       take: pageSize,
       orderBy: { createdAt: 'desc' },
       where: {
-        accountId,
         eventId,
         ...where,
       },
@@ -46,29 +44,67 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findAllByInscriptionIdPaginated(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Payment[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.payment.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      where: {
+        allocations: {
+          some: {
+            inscriptionId,
+          },
+        },
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
   // Agregações e contagens
   async countAllFiltered(
-    accountId: string,
     eventId: string,
     filters: {
+      accountId?: string;
       status?: StatusPayment[];
     },
   ): Promise<number> {
     const where = this.buildWhereClauseEvent(filters);
-
-    return this.prisma.payment.count({
+    const count = await this.prisma.payment.count({
       where: {
-        accountId,
         eventId,
         ...where,
       },
     });
+    return count;
   }
 
-  private buildWhereClauseEvent(filter?: { status?: StatusPayment[] }) {
-    const { status } = filter || {};
+  async countParticipantByInscriptionId(
+    inscriptionId: string,
+  ): Promise<number> {
+    return this.prisma.payment.count({
+      where: {
+        allocations: {
+          some: {
+            inscriptionId,
+          },
+        },
+      },
+    });
+  }
+
+  private buildWhereClauseEvent(filter?: {
+    accountId?: string;
+    status?: StatusPayment[];
+  }) {
+    const { accountId, status } = filter || {};
 
     return {
+      accountId,
       status: status && status.length > 0 ? { in: status } : undefined,
     };
   }
@@ -128,7 +164,50 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return result;
   }
 
+  async countAllByEventId(eventId: string): Promise<number> {
+    const count = await this.prisma.payment.count({
+      where: {
+        eventId,
+      },
+    });
+
+    return count;
+  }
+
+  async countAllInAnalysis(eventId: string): Promise<number> {
+    const count = await this.prisma.payment.count({
+      where: {
+        eventId,
+        status: StatusPayment.UNDER_REVIEW,
+      },
+    });
+
+    return count;
+  }
+
+  async countTotalAmountInAnalysis(eventId: string): Promise<number> {
+    const count = await this.prisma.payment.aggregate({
+      where: {
+        eventId,
+        status: StatusPayment.UNDER_REVIEW,
+      },
+      _sum: {
+        totalValue: true,
+      },
+    });
+
+    return Number(count._sum.totalValue ?? 0);
+  }
+
   // Atualizações
+  async update(payment: Payment): Promise<Payment> {
+    const data = EntityToPrisma.map(payment);
+    const updated = await this.prisma.payment.update({
+      where: { id: payment.getId() },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
 
   // Deletes
   async delete(id: string): Promise<void> {

@@ -35,6 +35,8 @@ export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
       );
     }
     await this.paymentGateway.delete(payment.getId());
-    await this.supabaseStorageService.deleteFile(payment.getImageUrl());
+    if (payment.getImageUrl()) {
+      await this.supabaseStorageService.deleteFile(payment.getImageUrl());
+    }
   }
 }

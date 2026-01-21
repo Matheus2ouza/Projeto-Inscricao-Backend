@@ -223,13 +223,32 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findAccountIdsByEventIdPaginated(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<string[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId,
+      },
+      skip,
+      take: pageSize,
+      select: {
+        accountId: true,
+      },
+    });
+    return found.map((item) => item.accountId);
+  }
+
   // Agregações e contagens
   async contTotalDebtByEvent(eventId: string): Promise<number> {
     const count = await this.prisma.inscription.aggregate({
       where: {
         eventId,
         status: {
-          not: 'PAID',
+          notIn: [InscriptionStatus.PAID, InscriptionStatus.CANCELLED],
         },
       },
       _sum: {
@@ -337,6 +356,17 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return count;
   }
 
+  async countUniqueAccountIdsByEventId(eventId: string): Promise<number> {
+    const found = await this.prisma.inscription.groupBy({
+      by: ['accountId'],
+      where: {
+        eventId,
+      },
+    });
+
+    return found.length;
+  }
+
   // Atualizações de status e valor
   async updateStatus(
     id: string,
@@ -411,57 +441,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
 
     return result.map((item) => item.accountId);
-  }
-
-  async findUniqueAccountIdsPaginatedByEventId(
-    eventId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<{ accountIds: string[]; total: number }> {
-    // Primeiro, obter todas as contas únicas do evento
-    const uniqueAccountsResult = await this.prisma.inscription.groupBy({
-      by: ['accountId'],
-      where: { eventId },
-    });
-
-    const uniqueAccountIds = uniqueAccountsResult.map((item) => item.accountId);
-    const total = uniqueAccountIds.length;
-
-    if (uniqueAccountIds.length === 0) {
-      return { accountIds: [], total: 0 };
-    }
-
-    // Buscar os usernames das contas para ordenação
-    const accounts = await this.prisma.accounts.findMany({
-      where: {
-        id: { in: uniqueAccountIds },
-      },
-      select: {
-        id: true,
-        username: true,
-      },
-    });
-
-    // Criar mapa de accountId -> username
-    const accountMap = new Map(
-      accounts.map((account) => [account.id, account.username]),
-    );
-
-    // Ordenar accountIds por username
-    const sortedAccountIds = uniqueAccountIds.sort((a, b) => {
-      const usernameA = accountMap.get(a) || '';
-      const usernameB = accountMap.get(b) || '';
-      return usernameA.localeCompare(usernameB);
-    });
-
-    // Aplicar paginação nas contas ordenadas
-    const skip = (page - 1) * pageSize;
-    const paginatedAccountIds = sortedAccountIds.slice(skip, skip + pageSize);
-
-    return {
-      accountIds: paginatedAccountIds,
-      total,
-    };
   }
 
   // Métodos privados

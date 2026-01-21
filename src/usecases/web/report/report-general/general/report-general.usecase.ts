@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentMethod } from 'generated/prisma';
+import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
@@ -103,7 +103,7 @@ export class ReportGeneralUsecase
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly participantGateway: ParticipantGateway,
+    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
@@ -167,7 +167,9 @@ export class ReportGeneralUsecase
 
     // Buscar todos os participantes de todas as inscrições pagas
     const participants =
-      await this.participantGateway.findManyByInscriptionIds(inscriptionIds);
+      await this.accountParticipantInEventGateway.findManyByInscriptionIds(
+        inscriptionIds,
+      );
 
     const participantCountMap = new Map<string, number>();
 

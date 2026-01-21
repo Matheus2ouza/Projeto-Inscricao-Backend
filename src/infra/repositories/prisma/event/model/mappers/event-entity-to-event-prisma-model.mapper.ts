@@ -20,6 +20,7 @@ export class EventEntityToEventPrismaModelMapper {
       longitude: event.getLongitude() ?? null,
       latitude: event.getLatitude() ?? null,
       regionId: event.getRegionId(),
+      allowCard: event.getAllowCard() ?? false,
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
     };

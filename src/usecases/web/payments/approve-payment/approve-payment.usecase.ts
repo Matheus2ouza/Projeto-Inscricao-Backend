@@ -1,0 +1,71 @@
+import { Injectable } from '@nestjs/common';
+import Decimal from 'decimal.js';
+import { TransactionType } from 'generated/prisma';
+import { FinancialMovement } from 'src/domain/entities/financial-movement';
+import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-approved-email.handler';
+import { Usecase } from 'src/usecases/usecase';
+import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
+
+export type ApprovePaymentInput = {
+  paymentId: string;
+  accountId: string;
+};
+
+export type ApprovePaymentOutput = {
+  id: string;
+  status: string;
+};
+
+@Injectable()
+export class ApprovePaymentUsecase
+  implements Usecase<ApprovePaymentInput, ApprovePaymentOutput>
+{
+  constructor(
+    private readonly eventGateway: EventGateway,
+    private readonly paymentGateway: PaymentGateway,
+    private readonly financialMovementGateway: FinancialMovementGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
+  ) {}
+
+  async execute(input: ApprovePaymentInput): Promise<ApprovePaymentOutput> {
+    const payment = await this.paymentGateway.findById(input.paymentId);
+    if (!payment) {
+      throw new PaymentNotFoundUsecaseException(
+        `Payment with id ${input.paymentId} not found`,
+        'Pagamento não encontrado',
+        ApprovePaymentUsecase.name,
+      );
+    }
+
+    // Create financial movement
+    const financialMovement = FinancialMovement.create({
+      eventId: payment.getEventId(),
+      accountId: input.accountId,
+      type: TransactionType.INCOME,
+      value: Decimal(payment.getTotalValue()),
+    });
+
+    await this.financialMovementGateway.create(financialMovement);
+
+    // Approve payment
+    payment.approve(input.accountId, financialMovement.getId());
+    await this.paymentGateway.update(payment);
+
+    await this.eventGateway.incrementAmountCollected(
+      payment.getEventId(),
+      payment.getTotalValue(),
+    );
+
+    const output: ApprovePaymentOutput = {
+      id: payment.getId(),
+      status: payment.getStatus(),
+    };
+
+    return output;
+  }
+}

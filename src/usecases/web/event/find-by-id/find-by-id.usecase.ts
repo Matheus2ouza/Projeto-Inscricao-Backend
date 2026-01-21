@@ -26,6 +26,7 @@ export type FindByIdEventOutput = {
   latitude?: number | null;
   status: statusEvent;
   paymentEnebled: boolean;
+  allowCard?: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;
@@ -107,6 +108,7 @@ export class FindByIdEventUsecase
       latitude: event.getLatitude(),
       status: event.getStatus(),
       paymentEnebled: event.getPaymentEnabled(),
+      allowCard: event.getAllowCard() ?? false,
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
       regionName: region?.getName() || '',

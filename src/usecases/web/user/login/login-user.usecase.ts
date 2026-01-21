@@ -4,7 +4,7 @@ import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
-import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/users/credentials-no-valid.usecase.exception';
+import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/accounts/credentials-no-valid.usecase.exception';
 
 export type loginUserInput = {
   username: string;

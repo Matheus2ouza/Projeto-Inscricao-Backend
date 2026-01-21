@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
@@ -14,7 +14,7 @@ export type ListParticipantsInput = {
 };
 
 export type ListParticipantsOutput = {
-  account: Accounts;
+  accounts: Account[];
   countAccounts: number;
   countParticipants: number;
   total: number;
@@ -22,12 +22,12 @@ export type ListParticipantsOutput = {
   pageCount: number;
 };
 
-export type Accounts = {
+export type Account = {
   id: string;
   username: string;
   countParticipants: number;
-  participants: Participants;
-}[];
+  participants: Participants[];
+};
 
 export type Participants = {
   id: string;
@@ -35,7 +35,7 @@ export type Participants = {
   birthDate: Date;
   typeInscription: string;
   gender: string;
-}[];
+};
 
 @Injectable()
 export class ListParticipantsUsecase
@@ -45,7 +45,7 @@ export class ListParticipantsUsecase
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly userGateway: AccountGateway,
-    private readonly participantGateway: ParticipantGateway,
+    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
@@ -68,17 +68,15 @@ export class ListParticipantsUsecase
       );
     }
 
-    // Buscar contas (com paginação)
-    const { accountIds, total } =
-      await this.inscriptionGateway.findUniqueAccountIdsPaginatedByEventId(
+    const countAccounts =
+      await this.inscriptionGateway.countUniqueAccountIdsByEventId(
         input.eventId,
-        safePage,
-        safePageSize,
       );
+    const pageCount = Math.ceil(countAccounts / safePageSize);
 
-    if (accountIds.length === 0) {
+    if (countAccounts === 0) {
       return {
-        account: [],
+        accounts: [],
         countAccounts: 0,
         countParticipants: 0,
         total: 0,
@@ -87,83 +85,84 @@ export class ListParticipantsUsecase
       };
     }
 
-    // Buscar informações das contas
-    const users = await this.userGateway.findByIds(accountIds);
-    const userMap = new Map(users.map((u) => [u.getId(), u.getUsername()]));
+    /**
+     * 1. Buscar accountIds paginados
+     */
+    const accountIds =
+      await this.inscriptionGateway.findAccountIdsByEventIdPaginated(
+        input.eventId,
+        safePage,
+        safePageSize,
+      );
 
-    // Buscar todas as inscrições das contas
-    const allInscriptions =
-      await this.inscriptionGateway.findManyByEventAndAccountIds(
+    /**
+     * 2. Buscar contas
+     */
+    const accounts = await this.userGateway.findByIds(accountIds);
+
+    /**
+     * 3. Buscar participantes dessas contas no evento
+     */
+    const participantLinks =
+      await this.accountParticipantInEventGateway.findByEventIdAndAccountIds(
         input.eventId,
         accountIds,
       );
 
-    const inscriptionIds = allInscriptions.map((i) => i.getId());
-
-    // Buscar todos os participantes dessas inscrições
-    const allParticipants =
-      inscriptionIds.length > 0
-        ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
-        : [];
-
-    const typeIds = [
-      ...new Set(allParticipants.map((p) => p.getTypeInscriptionId())),
+    /**
+     * 4. Buscar tipos de inscrição
+     */
+    const typeInscriptionIds = [
+      ...new Set(participantLinks.map((p) => p.typeInscriptionId)),
     ];
 
-    const allTypes =
-      typeIds.length > 0
-        ? await this.typeInscriptionGateway.findByIds(typeIds)
-        : [];
+    const typeInscriptions =
+      await this.typeInscriptionGateway.findByIds(typeInscriptionIds);
 
-    // Map: id -> description
-    const typeMap = new Map(
-      allTypes.map((t) => [t.getId(), t.getDescription()]),
+    const typeInscriptionMap = new Map(
+      typeInscriptions.map((t) => [t.getId(), t.getDescription()]),
     );
 
-    const participantMap = new Map<string, Participants>();
+    /**
+     * 5. Agrupar participantes por account
+     */
+    const participantsByAccount = new Map<string, Participants[]>();
 
-    for (const p of allParticipants) {
-      const entry = participantMap.get(p.getInscriptionId()) || [];
+    for (const p of participantLinks) {
+      const list = participantsByAccount.get(p.accountId) ?? [];
 
-      entry.push({
-        id: p.getId(),
-        name: p.getName(),
-        birthDate: p.getBirthDate(),
-        typeInscription:
-          typeMap.get(p.getTypeInscriptionId()) ?? 'Não informado',
-        gender: p.getGender(),
+      list.push({
+        id: p.participantId,
+        name: p.participantName,
+        birthDate: p.participantBirthDate,
+        gender: p.participantGender,
+        typeInscription: typeInscriptionMap.get(p.typeInscriptionId) ?? 'N/A',
       });
 
-      participantMap.set(p.getInscriptionId(), entry);
+      participantsByAccount.set(p.accountId, list);
     }
 
-    // Organizar o resultado por conta
-    const accountsData = accountIds.map((accountId) => {
-      const username = userMap.get(accountId) ?? 'Usuário não identificado';
-
-      const inscriptions = allInscriptions.filter(
-        (ins) => ins.getAccountId() === accountId,
-      );
-
-      const participants = inscriptions.flatMap(
-        (ins) => participantMap.get(ins.getId()) || [],
-      );
+    /**
+     * 6. Montar DTO final
+     */
+    const accountsOutput: Account[] = accounts.map((account) => {
+      const participants = participantsByAccount.get(account.getId()) ?? [];
 
       return {
-        id: accountId,
-        username,
+        id: account.getId(),
+        username: account.getUsername(),
         countParticipants: participants.length,
         participants,
       };
     });
 
     return {
-      account: accountsData,
-      countAccounts: total,
+      accounts: accountsOutput,
+      countAccounts,
       countParticipants: event.getQuantityParticipants(),
-      total,
+      total: countAccounts,
       page: safePage,
-      pageCount: Math.ceil(total / safePageSize),
+      pageCount,
     };
   }
 }
