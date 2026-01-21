@@ -22,9 +22,8 @@ export type ListAllPaymentsPendingOutput = {
 
 type Inscriptions = {
   id: string;
-  eventId: string;
-  accountId: string;
   totalValue: number;
+  totalPaid: number;
   status: string;
   createAt: Date;
   canPay: boolean;
@@ -82,9 +81,8 @@ export class ListAllPaymentsPendingUsecase
 
         return {
           id: i.getId(),
-          eventId: i.getEventId(),
-          accountId: i.getAccountId(),
           totalValue: i.getTotalValue(),
+          totalPaid: i.getTotalPaid(),
           status: i.getStatus(),
           createAt: i.getCreatedAt(),
           canPay,

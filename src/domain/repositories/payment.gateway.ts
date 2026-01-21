@@ -45,6 +45,13 @@ export abstract class PaymentGateway {
       limitTime?: string;
     },
   ): Promise<number>;
+  abstract countTotalDue(
+    accountId: string,
+    eventId: string,
+    filter: {
+      limitTime?: string;
+    },
+  ): Promise<number>;
   abstract countAllByEventId(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   abstract countTotalAmountInAnalysis(eventId: string): Promise<number>;

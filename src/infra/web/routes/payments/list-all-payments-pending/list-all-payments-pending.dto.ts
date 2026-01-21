@@ -15,9 +15,8 @@ export type ListAllPaymentsPendingResponse = {
 
 type Inscriptions = {
   id: string;
-  eventId: string;
-  accountId: string;
   totalValue: number;
+  totalPaid: number;
   status: string;
   createAt: Date;
   canPay: boolean;

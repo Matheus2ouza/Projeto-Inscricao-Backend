@@ -30,6 +30,7 @@ export type Event = {
   endDate: string;
   totalInscription: number;
   totalPaid: number;
+  totalDue: number;
   inscriptions: Inscription[];
 };
 
@@ -73,7 +74,7 @@ export class FindAllPaginatedInscriptionsUsecase
     }
 
     const filters = {
-      limitTime: input.limitTime, // Opcional
+      limitTime: input.limitTime,
     };
 
     const [inscriptions, totalInscription, totalPaid] = await Promise.all([
@@ -90,6 +91,7 @@ export class FindAllPaginatedInscriptionsUsecase
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
+    let totalDue = 0;
     const inscriptionData = await Promise.all(
       inscriptions.map(async (i) => {
         const totalParticipant =
@@ -97,6 +99,8 @@ export class FindAllPaginatedInscriptionsUsecase
             i.getId(),
           );
 
+        totalDue +=
+          Number(i.getTotalValue() ?? 0) - Number(i.getTotalPaid() ?? 0);
         return {
           id: i.getId(),
           responsible: i.getResponsible(),
@@ -114,6 +118,7 @@ export class FindAllPaginatedInscriptionsUsecase
       endDate: event.getEndDate().toISOString(),
       totalInscription,
       totalPaid,
+      totalDue,
       inscriptions: inscriptionData,
     };
 

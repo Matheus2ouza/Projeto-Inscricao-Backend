@@ -4,6 +4,7 @@ import { TransactionType } from 'generated/prisma';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-approved-email.handler';
@@ -29,6 +30,7 @@ export class ApprovePaymentUsecase
     private readonly paymentGateway: PaymentGateway,
     private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly inscriptionGateway: InscriptionGateway,
     private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
   ) {}
 
@@ -56,10 +58,29 @@ export class ApprovePaymentUsecase
     payment.approve(input.accountId, financialMovement.getId());
     await this.paymentGateway.update(payment);
 
+    // Increment amount collected in event
     await this.eventGateway.incrementAmountCollected(
       payment.getEventId(),
       payment.getTotalValue(),
     );
+
+    const allocations = await this.paymentAllocationGateway.findByPaymentId(
+      payment.getId(),
+    );
+
+    const inscriptionIds = allocations.map((allocation) =>
+      allocation.getInscriptionId(),
+    );
+
+    const inscribedAccounts =
+      await this.inscriptionGateway.findManyByIds(inscriptionIds);
+
+    for (const i of inscribedAccounts) {
+      if (i.getTotalValue() === i.getTotalPaid()) {
+        i.inscriptionPaid();
+        await this.inscriptionGateway.update(i);
+      }
+    }
 
     const output: ApprovePaymentOutput = {
       id: payment.getId(),

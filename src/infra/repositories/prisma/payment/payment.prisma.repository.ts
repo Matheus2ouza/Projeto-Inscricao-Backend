@@ -152,16 +152,43 @@ export class PaymentPrismaRepository implements PaymentGateway {
     },
   ): Promise<number> {
     const where = this.buildWhereClause(filter);
-    const result = await this.prisma.payment.count({
+    const result = await this.prisma.payment.aggregate({
       where: {
         accountId,
         eventId,
         status: StatusPayment.APPROVED,
         ...where,
       },
+      _sum: {
+        totalValue: true,
+      },
     });
 
-    return result;
+    return Number(result._sum.totalValue ?? 0);
+  }
+
+  async countTotalDue(
+    accountId: string,
+    eventId: string,
+    filter: { limitTime?: string },
+  ): Promise<number> {
+    const where = this.buildWhereClause(filter);
+    const result = await this.prisma.payment.aggregate({
+      where: {
+        accountId,
+        eventId,
+        status: {
+          in: [StatusPayment.UNDER_REVIEW],
+        },
+        ...where,
+      },
+      _sum: {
+        totalValue: true,
+      },
+    });
+    console.log(result);
+
+    return Number(result._sum.totalValue ?? 0);
   }
 
   async countAllByEventId(eventId: string): Promise<number> {
