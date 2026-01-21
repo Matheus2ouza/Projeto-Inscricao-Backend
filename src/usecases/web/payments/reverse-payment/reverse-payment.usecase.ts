@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { StatusPayment } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
@@ -23,6 +25,8 @@ export class ReversePaymentUsecase
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly paymentGateway: PaymentGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly inscriptionGateway: InscriptionGateway,
     private readonly financialMovementGateway: FinancialMovementGateway,
   ) {}
 
@@ -64,6 +68,25 @@ export class ReversePaymentUsecase
       }
 
       await this.financialMovementGateway.delete(financialMovementId);
+
+      // Update inscribed accounts
+      const allocations = await this.paymentAllocationGateway.findByPaymentId(
+        payment.getId(),
+      );
+
+      const inscriptionIds = allocations.map((allocation) =>
+        allocation.getInscriptionId(),
+      );
+
+      const inscribedAccounts =
+        await this.inscriptionGateway.findManyByIds(inscriptionIds);
+
+      for (const i of inscribedAccounts) {
+        if (i.getTotalValue() === i.getTotalPaid()) {
+          i.inscriptionUnpaid();
+          await this.inscriptionGateway.update(i);
+        }
+      }
     }
 
     const output: ReversePaymentOutput = {

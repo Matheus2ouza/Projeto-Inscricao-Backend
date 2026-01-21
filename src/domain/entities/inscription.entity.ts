@@ -169,6 +169,18 @@ export class Inscription extends Entity {
     this.validate();
   }
 
+  public inscriptionPaid(): void {
+    this.status = InscriptionStatus.PAID;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public inscriptionUnpaid(): void {
+    this.status = InscriptionStatus.PENDING;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
   public update({
     responsible,
     phone,
@@ -187,5 +199,11 @@ export class Inscription extends Entity {
     if (email !== undefined) {
       this.setEmail(email);
     }
+  }
+
+  public decrementTotalPaid(value: number): void {
+    this.totalPaid -= value;
+    this.updatedAt = new Date();
+    this.validate();
   }
 }

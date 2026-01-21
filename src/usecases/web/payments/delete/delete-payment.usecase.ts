@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -13,6 +15,8 @@ export type DeletePaymentInput = {
 export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
   public constructor(
     private readonly paymentGateway: PaymentGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly inscriptionGateway: InscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -34,6 +38,25 @@ export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
         DeletePaymentUsecase.name,
       );
     }
+
+    const allocations = await this.paymentAllocationGateway.findByPaymentId(
+      payment.getId(),
+    );
+
+    const inscriptionIds = allocations.map((allocation) =>
+      allocation.getInscriptionId(),
+    );
+
+    const inscriptions =
+      await this.inscriptionGateway.findManyByIds(inscriptionIds);
+
+    await Promise.all(
+      inscriptions.map(async (i) => {
+        i.decrementTotalPaid(payment.getTotalValue());
+        return i.getAccountId();
+      }),
+    );
+
     await this.paymentGateway.delete(payment.getId());
     if (payment.getImageUrl()) {
       await this.supabaseStorageService.deleteFile(payment.getImageUrl());

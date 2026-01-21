@@ -42,9 +42,9 @@ export class FindAllPaginatedInscriptionsRoute {
       limitTime: query.limitTime,
     };
 
-    const result =
+    const response =
       await this.findAllPaginatedInscriptionsUsecase.execute(input);
-
-    return FindAllPaginatedInscriptionPresenter.toHttp(result);
+    console.log(response);
+    return FindAllPaginatedInscriptionPresenter.toHttp(response);
   }
 }
