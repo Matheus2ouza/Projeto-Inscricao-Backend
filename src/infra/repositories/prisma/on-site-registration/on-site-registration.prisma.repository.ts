@@ -102,6 +102,16 @@ export class OnSiteRegistrationPrismaRepository
     );
   }
 
+  async findManyByEventId(eventId: string): Promise<OnSiteRegistration[]> {
+    const found = await this.prisma.onSiteRegistration.findMany({
+      where: { eventId },
+    });
+
+    return found.map(
+      OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map,
+    );
+  }
+
   async findManyPaginated(
     page: number,
     pageSize: number,

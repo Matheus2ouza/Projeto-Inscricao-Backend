@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionStatus } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PrismaService } from '../prisma.service';
@@ -233,6 +233,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         eventId,
       },
+      distinct: ['accountId'],
+      orderBy: {
+        accountId: 'asc',
+      },
       skip,
       take: pageSize,
       select: {
@@ -369,6 +373,35 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
 
     return found.length;
+  }
+
+  async countUniqueAccountIdsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number> {
+    const links = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscription: {
+          eventId,
+        },
+        participant: {
+          gender,
+        },
+      },
+      select: {
+        inscription: {
+          select: {
+            accountId: true,
+          },
+        },
+      },
+    });
+
+    const uniqueAccountIds = new Set<string>();
+    for (const l of links) {
+      uniqueAccountIds.add(l.inscription.accountId);
+    }
+    return uniqueAccountIds.size;
   }
 
   // Atualizações de status e valor

@@ -1,3 +1,4 @@
+import { PaymentMethod } from 'generated/prisma';
 import { PaymentAllocation } from '../entities/payment-allocation.entity';
 
 export abstract class PaymentAllocationGateway {
@@ -10,5 +11,21 @@ export abstract class PaymentAllocationGateway {
   abstract findbyInscriptionId(
     inscriptionId: string,
   ): Promise<PaymentAllocation[]>;
+  abstract findManyByInscriptionIds(inscriptionIds: string[]): Promise<
+    {
+      id: string;
+      value: number;
+      paymentMethod: PaymentMethod;
+    }[]
+  >;
+  abstract findManyByInscriptionIdsWithMethodAndInscription(
+    inscriptionIds: string[],
+  ): Promise<
+    {
+      inscriptionId: string;
+      value: number;
+      paymentMethod: PaymentMethod;
+    }[]
+  >;
   abstract sumPaidValueByInscription(inscriptionId: string): Promise<number>;
 }

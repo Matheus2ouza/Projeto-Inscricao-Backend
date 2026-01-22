@@ -26,6 +26,14 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findManyByEventId(eventId: string): Promise<EventExpenses[]> {
+    const found = await this.prisma.eventExpenses.findMany({
+      where: { eventId },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async findManyPaginated(
     page: number,
     pageSize: number,

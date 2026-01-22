@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentAllocationEntityToPaymentAllocationPrismaModel as EntityToPrisma } from 'src/infra/repositories/prisma/payment-allocation/model/mappers/payment-allocation-entity-to-payment-allocation-prisma-model.mapper';
@@ -42,6 +43,76 @@ export class PaymentAllocationPrismaRepository
       },
     });
     return found.map(PrismaToEntity.map);
+  }
+
+  async findManyByInscriptionIds(inscriptionIds: string[]): Promise<
+    {
+      id: string;
+      value: number;
+      paymentMethod: PaymentMethod;
+    }[]
+  > {
+    const allocations = await this.prisma.paymentAllocation.findMany({
+      where: {
+        inscriptionId: {
+          in: inscriptionIds,
+        },
+        payment: {
+          status: StatusPayment.APPROVED,
+        },
+      },
+      select: {
+        id: true,
+        value: true,
+        payment: {
+          select: {
+            methodPayment: true,
+          },
+        },
+      },
+    });
+
+    return allocations.map((a) => ({
+      id: a.id,
+      value: Number(a.value),
+      paymentMethod: a.payment.methodPayment,
+    }));
+  }
+
+  async findManyByInscriptionIdsWithMethodAndInscription(
+    inscriptionIds: string[],
+  ): Promise<
+    {
+      inscriptionId: string;
+      value: number;
+      paymentMethod: PaymentMethod;
+    }[]
+  > {
+    const allocations = await this.prisma.paymentAllocation.findMany({
+      where: {
+        inscriptionId: {
+          in: inscriptionIds,
+        },
+        payment: {
+          status: StatusPayment.APPROVED,
+        },
+      },
+      select: {
+        inscriptionId: true,
+        value: true,
+        payment: {
+          select: {
+            methodPayment: true,
+          },
+        },
+      },
+    });
+
+    return allocations.map((a) => ({
+      inscriptionId: a.inscriptionId,
+      value: Number(a.value),
+      paymentMethod: a.payment.methodPayment,
+    }));
   }
 
   async sumPaidValueByInscription(inscriptionId: string): Promise<number> {
