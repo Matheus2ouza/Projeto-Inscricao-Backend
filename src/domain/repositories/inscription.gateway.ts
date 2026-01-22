@@ -1,4 +1,4 @@
-import { InscriptionStatus } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription } from '../entities/inscription.entity';
 
 export abstract class InscriptionGateway {
@@ -98,6 +98,10 @@ export abstract class InscriptionGateway {
     },
   ): Promise<number>;
   abstract countUniqueAccountIdsByEventId(eventId: string): Promise<number>;
+  abstract countUniqueAccountIdsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(

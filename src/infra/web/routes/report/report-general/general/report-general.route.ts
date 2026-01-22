@@ -16,7 +16,7 @@ export class ReportGeneralRoute {
   ) {}
 
   @Roles(RoleTypeHierarchy.ADMIN)
-  @Get('general/:eventId')
+  @Get('/:eventId/general')
   public async handle(
     @Param() params: ReportGeneralRequest,
   ): Promise<ReportGeneralResponse> {

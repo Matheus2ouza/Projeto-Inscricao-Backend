@@ -30,6 +30,8 @@ export abstract class OnSiteRegistrationGateway {
 
   abstract findMany(eventId: string): Promise<OnSiteRegistration[]>;
 
+  abstract findManyByEventId(eventId: string): Promise<OnSiteRegistration[]>;
+
   abstract findManyPaginated(
     page: number,
     pageSize: number,

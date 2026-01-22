@@ -164,10 +164,6 @@ export class AccountPrismaRepository implements AccountGateway {
   }
 
   public async findByIds(ids: string[]): Promise<Account[]> {
-    if (ids.length === 0) {
-      return [];
-    }
-
     const models = await this.prisma.accounts.findMany({
       where: {
         id: { in: ids },
@@ -187,6 +183,9 @@ export class AccountPrismaRepository implements AccountGateway {
             name: true,
           },
         },
+      },
+      orderBy: {
+        username: 'asc',
       },
     });
 

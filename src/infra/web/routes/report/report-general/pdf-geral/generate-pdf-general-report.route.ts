@@ -4,7 +4,7 @@ import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   GeneratePdfGeneralReportInput,
   GeneratePdfGeneralReportUsecase,
-} from 'src/usecases/web/report/report-general/pdf/generate-pdf-general-report.usecase';
+} from 'src/usecases/web/report/report-general/pdf-geral/generate-pdf-general-report.usecase';
 import type { GeneratePdfGeneralReportResponse } from './generate-pdf-general-report.dto';
 import { GeneratePdfGeneralReportPresenter } from './generate-pdf-general-report.presenter';
 
@@ -15,7 +15,7 @@ export class GeneratePdfGeneralReportRoute {
   ) {}
 
   @Roles(RoleTypeHierarchy.ADMIN)
-  @Get('pdf/:eventId')
+  @Get(':eventId/general/pdf/')
   public async handle(
     @Param('eventId') eventId: string,
   ): Promise<GeneratePdfGeneralReportResponse> {

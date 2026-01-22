@@ -83,8 +83,10 @@ import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-pa
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
+import { ReportFinancialUsecase } from './web/report/report-general/financial/report-financial.usecase';
 import { ReportGeneralUsecase } from './web/report/report-general/general/report-general.usecase';
-import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf/generate-pdf-general-report.usecase';
+import { GeneratePdfFinancialReportUsecase } from './web/report/report-general/pdf-financial/generate-pdf-financial-report.usecase';
+import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf-geral/generate-pdf-general-report.usecase';
 import { AnalysisPreSaleUseCase } from './web/tickets/analysis-pre-sale/analysis-pre-sale.usecase';
 import { ApprovePreSaleUseCase } from './web/tickets/approve-pre-sale/approve-pre-sale.usecase';
 import { CreateTicketUsecase } from './web/tickets/create/create-ticket.usecase';
@@ -249,6 +251,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     // Reports
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
+    ReportFinancialUsecase,
+    GeneratePdfFinancialReportUsecase,
 
     // Background tasks
     CleanupExpiredCacheUsecase,
@@ -385,6 +389,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     // Reports
     ReportGeneralUsecase,
     GeneratePdfGeneralReportUsecase,
+    ReportFinancialUsecase,
+    GeneratePdfFinancialReportUsecase,
 
     // Background tasks
     CleanupExpiredCacheUsecase,

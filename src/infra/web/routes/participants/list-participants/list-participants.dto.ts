@@ -8,6 +8,8 @@ export type ListParticipantsResponse = {
   accounts: Account[];
   countAccounts: number;
   countParticipants: number;
+  countParticipantsMale: number;
+  countParticipantsFemale: number;
   total: number;
   page: number;
   pageCount: number;

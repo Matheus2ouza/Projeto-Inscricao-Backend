@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { genderType } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -17,6 +18,8 @@ export type ListParticipantsOutput = {
   accounts: Account[];
   countAccounts: number;
   countParticipants: number;
+  countParticipantsMale: number;
+  countParticipantsFemale: number;
   total: number;
   page: number;
   pageCount: number;
@@ -58,7 +61,18 @@ export class ListParticipantsUsecase
       Math.min(10, Math.floor(input.pageSize || 10)),
     );
 
-    const event = await this.eventGateway.findById(input.eventId);
+    const [event, countParticipantsMale, countParticipantsFemale] =
+      await Promise.all([
+        this.eventGateway.findById(input.eventId),
+        this.inscriptionGateway.countUniqueAccountIdsByEventIdAndGender(
+          input.eventId,
+          genderType.MASCULINO,
+        ),
+        this.inscriptionGateway.countUniqueAccountIdsByEventIdAndGender(
+          input.eventId,
+          genderType.FEMININO,
+        ),
+      ]);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
@@ -79,6 +93,8 @@ export class ListParticipantsUsecase
         accounts: [],
         countAccounts: 0,
         countParticipants: 0,
+        countParticipantsMale: 0,
+        countParticipantsFemale: 0,
         total: 0,
         page: safePage,
         pageCount: 0,
@@ -160,6 +176,8 @@ export class ListParticipantsUsecase
       accounts: accountsOutput,
       countAccounts,
       countParticipants: event.getQuantityParticipants(),
+      countParticipantsMale,
+      countParticipantsFemale,
       total: countAccounts,
       page: safePage,
       pageCount,

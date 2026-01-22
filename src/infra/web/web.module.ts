@@ -86,8 +86,10 @@ import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-p
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
+import { ReportFinancialRoute } from './routes/report/report-general/financial/report-financial.route';
 import { ReportGeneralRoute } from './routes/report/report-general/general/report-general.route';
-import { GeneratePdfGeneralReportRoute } from './routes/report/report-general/pdf/generate-pdf-general-report.route';
+import { GeneratePdfFinancialReportRoute } from './routes/report/report-general/pdf-financial/generate-pdf-financial-report.route';
+import { GeneratePdfGeneralReportRoute } from './routes/report/report-general/pdf-geral/generate-pdf-general-report.route';
 import { AnalysisPreSaleRoute } from './routes/tickets/analysis-pre-sale/analysis-pre-sale.route';
 import { ApprovePreSaleRoute } from './routes/tickets/approve-pre-sale/approve-pre-sale.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
@@ -253,7 +255,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Reports
     ReportGeneralRoute,
+    ReportFinancialRoute,
     GeneratePdfGeneralReportRoute,
+    GeneratePdfFinancialReportRoute,
   ],
   providers: [
     AuthGuardProvider,

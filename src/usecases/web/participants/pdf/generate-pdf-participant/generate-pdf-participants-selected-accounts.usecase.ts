@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   AccountParticipantsPdfBlock,
@@ -43,11 +41,9 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
-    private readonly inscriptionGateway: InscriptionGateway,
-    private readonly participantGateway: ParticipantGateway,
+    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly userGateway: AccountGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
-    private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
   public async execute(
@@ -73,50 +69,16 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
 
     const imagePath = await this.getImageBase64(event.getLogoUrl());
 
-    const allInscriptions =
-      await this.inscriptionGateway.findManyByEventAndAccountIds(
+    const allParticipants =
+      await this.accountParticipantInEventGateway.findByEventIdAndAccountIds(
         input.eventId,
         input.accountsId,
       );
 
-    const inscriptionIds = allInscriptions.map((i) => i.getId());
-
-    const allParticipants = inscriptionIds.length
-      ? await this.participantGateway.findManyByInscriptionIds(inscriptionIds)
-      : [];
-
     const allowedGenders = resolveGenderFilters(input.genders);
-    const filteredParticipants = allParticipants.filter((participant) =>
-      matchesAllowedGender(participant.getGender(), allowedGenders),
+    const filteredParticipants = allParticipants.filter((p) =>
+      matchesAllowedGender(p.participantGender, allowedGenders),
     );
-
-    const typeIds = [
-      ...new Set(filteredParticipants.map((p) => p.getTypeInscriptionId())),
-    ];
-
-    const allTypes = typeIds.length
-      ? await this.typeInscriptionGateway.findByIds(typeIds)
-      : [];
-
-    const typeMap = new Map(
-      allTypes.map((t) => [t.getId(), t.getDescription()]),
-    );
-
-    const participantMap = filteredParticipants.reduce((map, p) => {
-      const list = map.get(p.getInscriptionId()) || [];
-
-      list.push({
-        id: p.getId(),
-        name: p.getName(),
-        birthDate: p.getBirthDate(),
-        typeInscription:
-          typeMap.get(p.getTypeInscriptionId()) ?? 'Não informado',
-        gender: p.getGender(),
-      });
-
-      map.set(p.getInscriptionId(), list);
-      return map;
-    }, new Map<string, any[]>());
 
     const users = await this.userGateway.findByIds(input.accountsId);
 
@@ -126,13 +88,15 @@ export class GeneratePdfParticipantsSelectedAccountsUsecase
       .map((accountId) => {
         const username = userMap.get(accountId) ?? 'Usuário não identificado';
 
-        const inscriptions = allInscriptions.filter(
-          (ins) => ins.getAccountId() === accountId,
-        );
-
-        const participants = inscriptions.flatMap(
-          (ins) => participantMap.get(ins.getId()) || [],
-        );
+        const participants = filteredParticipants
+          .filter((p) => p.accountId === accountId)
+          .map((p) => ({
+            id: p.participantId,
+            name: p.participantName,
+            birthDate: p.participantBirthDate,
+            typeInscription: p.typeInscriptionDescription ?? 'Não informado',
+            gender: p.participantGender,
+          }));
 
         const { totalMale, totalFemale } = countGenderBreakdown(participants);
 
