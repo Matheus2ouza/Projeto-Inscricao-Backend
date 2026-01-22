@@ -43,6 +43,7 @@ export class InscriptionZodValidator implements Validator<Inscription> {
       responsible: z
         .string()
         .min(1, 'O responsavel pela inscrição é obrigatório'),
+      email: z.email('Informe um email válido').optional(),
       phone: z
         .string()
         .regex(

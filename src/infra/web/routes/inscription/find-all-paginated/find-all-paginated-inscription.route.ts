@@ -44,7 +44,6 @@ export class FindAllPaginatedInscriptionsRoute {
 
     const response =
       await this.findAllPaginatedInscriptionsUsecase.execute(input);
-
     return FindAllPaginatedInscriptionPresenter.toHttp(response);
   }
 }
