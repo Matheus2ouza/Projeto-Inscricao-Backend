@@ -3,6 +3,8 @@ import axios from 'axios';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { OnSiteParticipantGateway } from 'src/domain/repositories/on-site-participant.gateway';
+import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   AccountParticipantsPdfBlock,
@@ -39,6 +41,8 @@ export class GeneratePdfParticipantsAllUsecase
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly userGateway: AccountGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
+    private readonly onSiteParticipantGateway: OnSiteParticipantGateway,
   ) {}
 
   public async execute(
@@ -110,6 +114,47 @@ export class GeneratePdfParticipantsAllUsecase
         participants: account.participants,
       }),
     );
+
+    const registrations =
+      await this.onSiteRegistrationGateway.findManyByEventId(input.eventId);
+
+    const avulsParticipantsRaw = (
+      await Promise.all(
+        registrations.map((r) =>
+          this.onSiteParticipantGateway.findManyByOnSiteRegistrationId(
+            r.getId(),
+          ),
+        ),
+      )
+    ).flat();
+
+    const avulsFiltered = avulsParticipantsRaw.filter((p) =>
+      matchesAllowedGender(p.getGender(), allowedGenders),
+    );
+
+    const avulsParticipants = avulsFiltered.map((p) => ({
+      id: p.getId(),
+      name: p.getName(),
+      birthDate: undefined as unknown as Date,
+      typeInscription: 'Avulso',
+      gender: p.getGender(),
+    }));
+
+    const { totalMale: avulsMale, totalFemale: avulsFemale } =
+      countGenderBreakdown(avulsParticipants);
+    const avulsTypeCounts = buildTypeCounts(avulsParticipants);
+
+    if (avulsParticipants.length > 0) {
+      accountsPdfData.push({
+        accountId: 'avulsos',
+        username: 'Participantes avulsos',
+        totalParticipants: avulsParticipants.length,
+        totalMale: avulsMale,
+        totalFemale: avulsFemale,
+        typeCounts: avulsTypeCounts,
+        participants: avulsParticipants,
+      });
+    }
 
     const participantsPdfData: ParticipantsByAccountPdfData = {
       header: {

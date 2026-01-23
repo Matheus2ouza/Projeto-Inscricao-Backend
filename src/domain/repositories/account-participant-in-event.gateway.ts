@@ -68,4 +68,8 @@ export abstract class AccountParticipantInEventGateway {
     inscriptionId: string,
   ): Promise<number>;
   abstract countParticipantsByEventId(eventId: string): Promise<number>;
+  abstract countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number>;
 }

@@ -29,10 +29,10 @@ export type Account = {
   id: string;
   username: string;
   countParticipants: number;
-  participants: Participants[];
+  participants: Participant[];
 };
 
-export type Participants = {
+export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
@@ -61,18 +61,25 @@ export class ListParticipantsUsecase
       Math.min(10, Math.floor(input.pageSize || 10)),
     );
 
-    const [event, countParticipantsMale, countParticipantsFemale] =
-      await Promise.all([
-        this.eventGateway.findById(input.eventId),
-        this.inscriptionGateway.countUniqueAccountIdsByEventIdAndGender(
-          input.eventId,
-          genderType.MASCULINO,
-        ),
-        this.inscriptionGateway.countUniqueAccountIdsByEventIdAndGender(
-          input.eventId,
-          genderType.FEMININO,
-        ),
-      ]);
+    const [
+      event,
+      countParticipantsMale,
+      countParticipantsFemale,
+      countParticipantsTotal,
+    ] = await Promise.all([
+      this.eventGateway.findById(input.eventId),
+      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+        input.eventId,
+        genderType.MASCULINO,
+      ),
+      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+        input.eventId,
+        genderType.FEMININO,
+      ),
+      this.accountParticipantInEventGateway.countParticipantsByEventId(
+        input.eventId,
+      ),
+    ]);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
@@ -142,7 +149,7 @@ export class ListParticipantsUsecase
     /**
      * 5. Agrupar participantes por account
      */
-    const participantsByAccount = new Map<string, Participants[]>();
+    const participantsByAccount = new Map<string, Participant[]>();
 
     for (const p of participantLinks) {
       const list = participantsByAccount.get(p.accountId) ?? [];
@@ -175,7 +182,7 @@ export class ListParticipantsUsecase
     return {
       accounts: accountsOutput,
       countAccounts,
-      countParticipants: event.getQuantityParticipants(),
+      countParticipants: countParticipantsTotal,
       countParticipantsMale,
       countParticipantsFemale,
       total: countAccounts,
