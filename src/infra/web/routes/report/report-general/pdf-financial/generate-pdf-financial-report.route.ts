@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseBoolPipe, Query } from '@nestjs/common';
 import {
   GeneratePdfFinancialReportInput,
   GeneratePdfFinancialReportUsecase,
@@ -18,11 +18,11 @@ export class GeneratePdfFinancialReportRoute {
   @Get(':eventId/financial/pdf/')
   async handle(
     @Param() param: GeneratePdfFinancialReportRequest,
-    @Query() query: GeneratePdfFinancialReportRequest,
+    @Query('details', ParseBoolPipe) details: boolean,
   ): Promise<GeneratePdfFinancialReportResponse> {
     const input: GeneratePdfFinancialReportInput = {
       eventId: param.eventId,
-      details: query.details,
+      details,
     };
 
     const response =

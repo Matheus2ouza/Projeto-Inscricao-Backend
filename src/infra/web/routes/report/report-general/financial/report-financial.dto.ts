@@ -18,6 +18,7 @@ export type ReportFinancialResponse = {
   totalSpent: number;
   inscription: Inscription;
   inscriptionAvuls: InscriptionAvuls;
+  ticketsSale: TicketSale;
   spent: Spent;
 };
 
@@ -55,6 +56,25 @@ export type InscriptionAvulsDetail = {
   paidCash: number;
   paidCard: number;
   paidPix: number;
+};
+
+export type TicketSale = {
+  totalGeral: number;
+  countTickets: number;
+  totalCash: number;
+  totalCard: number;
+  totalPix: number;
+  details?: TicketSaleDetail[];
+};
+
+export type TicketSaleDetail = {
+  id: string;
+  name: string;
+  quantity: number;
+  pricePerTicket: number;
+  totalCash: number;
+  totalCard: number;
+  totalPix: number;
 };
 
 export type Spent = {

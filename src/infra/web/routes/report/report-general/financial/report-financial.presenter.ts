@@ -17,6 +17,7 @@ export class ReportFinancialPresenter {
       totalSpent: output.totalSpent,
       inscription: output.inscription,
       inscriptionAvuls: output.inscriptionAvuls,
+      ticketsSale: output.ticketsSale,
       spent: output.spent,
     };
   }

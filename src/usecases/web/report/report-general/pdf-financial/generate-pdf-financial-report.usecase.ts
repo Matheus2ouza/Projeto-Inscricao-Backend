@@ -37,10 +37,16 @@ export class GeneratePdfFinancialReportUsecase
       reportData.logo ?? reportData.image,
     );
 
-    const pdfBuffer = await ReportFinancialPdfGeneratorUtils.generateReportPdf(
-      this.buildFinancialReportData(reportData),
-      { eventImageDataUrl },
-    );
+    const financialData = this.buildFinancialReportData(reportData);
+    const pdfBuffer = details
+      ? await ReportFinancialPdfGeneratorUtils.generateReportPdfDetailed(
+          financialData,
+          { eventImageDataUrl },
+        )
+      : await ReportFinancialPdfGeneratorUtils.generateReportPdf(
+          financialData,
+          { eventImageDataUrl },
+        );
 
     const filename = `Relatório-Financeiro-${reportData.name
       .replace(/\s+/g, '-')
@@ -138,6 +144,22 @@ export class GeneratePdfFinancialReportUsecase
         totalPix: reportData.inscriptionAvuls.totalPix,
         totalParticipantes: reportData.inscriptionAvuls.countParticipants,
         inscricoes: avulsDetails,
+      },
+      ticketsSale: {
+        totalGeral: reportData.ticketsSale?.totalGeral ?? 0,
+        countTickets: reportData.ticketsSale?.countTickets ?? 0,
+        totalDinheiro: reportData.ticketsSale?.totalCash ?? 0,
+        totalCartao: reportData.ticketsSale?.totalCard ?? 0,
+        totalPix: reportData.ticketsSale?.totalPix ?? 0,
+        details:
+          reportData.ticketsSale?.details?.map((d) => ({
+            name: d.name,
+            quantity: d.quantity,
+            pricePerTicket: d.pricePerTicket,
+            totalCash: d.totalCash,
+            totalCard: d.totalCard,
+            totalPix: d.totalPix,
+          })) ?? [],
       },
       gastos: {
         total: reportData.spent.totalGeral,
