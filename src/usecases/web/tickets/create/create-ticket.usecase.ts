@@ -46,7 +46,6 @@ export class CreateTicketUsecase
       quantity: input.quantity,
       price: input.price,
       expirationDate: input.expirationDate,
-      isActive: input.isActive,
     });
 
     const created = await this.eventTicketsGateway.create(ticket);

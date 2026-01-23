@@ -49,16 +49,10 @@ export class FindAllWithTicketsUsecase
   public async execute(
     input: FindAllWithTicketsInput,
   ): Promise<FindAllWithTicketsOutput> {
-    console.log('Input recebido:', input, 'no findAllWithTickets');
-
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
       Math.min(5, Math.floor(input.pageSize || 5)),
-    );
-
-    console.log(
-      `Parâmetros paginação: page=${safePage}, pageSize=${safePageSize}, no findAllWithTickets`,
     );
 
     const [allEvents, total] = await Promise.all([
@@ -71,10 +65,6 @@ export class FindAllWithTicketsUsecase
         regionId: input.regionId,
       }),
     ]);
-
-    console.log(
-      `Resultado: ${allEvents.length} eventos, total=${total}, no findAllWithTickets`,
-    );
 
     const events = await Promise.all(
       allEvents.map(async (event) => {

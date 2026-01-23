@@ -24,7 +24,6 @@ export class FindAllTicketRoute {
     };
 
     const response = await this.findAllTicketsUsecase.execute(input);
-
     return FindAllTicketsPresenter.toHttp(response);
   }
 }

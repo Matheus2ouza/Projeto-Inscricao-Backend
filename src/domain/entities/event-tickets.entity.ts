@@ -8,7 +8,6 @@ export type EventTicketCreateDto = {
   quantity: number;
   price: number;
   expirationDate: Date;
-  isActive: boolean;
 };
 
 export type EventTicketWithDto = {
@@ -50,11 +49,11 @@ export class EventTicket extends Entity {
     quantity,
     price,
     expirationDate,
-    isActive,
   }: EventTicketCreateDto): EventTicket {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
+    const isActive = true;
     const available = quantity;
 
     return new EventTicket(
