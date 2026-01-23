@@ -93,7 +93,11 @@ export class RegisterPaymentUsecase
         );
       }
 
-      totalDue += inscription.getTotalValue();
+      const remainingDebt = Math.max(
+        0,
+        inscription.getTotalValue() - inscription.getTotalPaid(),
+      );
+      totalDue += remainingDebt;
     }
 
     if (input.totalValue > totalDue) {
@@ -137,26 +141,32 @@ export class RegisterPaymentUsecase
     const increments: { inscriptionId: string; value: number }[] = [];
 
     for (const inscription of inscriptionsEntities) {
+      const remainingInscriptionDebt = Math.max(
+        0,
+        inscription.getTotalValue() - inscription.getTotalPaid(),
+      );
       const allocationValue = Math.min(
-        inscription.getTotalValue(),
+        remainingInscriptionDebt,
         remainingValue,
       );
 
-      allocations.push(
-        PaymentAllocation.create({
-          paymentId: payment.getId(),
+      if (allocationValue > 0) {
+        allocations.push(
+          PaymentAllocation.create({
+            paymentId: payment.getId(),
+            inscriptionId: inscription.getId(),
+            value: allocationValue,
+          }),
+        );
+
+        increments.push({
           inscriptionId: inscription.getId(),
           value: allocationValue,
-        }),
-      );
+        });
 
-      increments.push({
-        inscriptionId: inscription.getId(),
-        value: allocationValue,
-      });
-
-      remainingValue -= allocationValue;
-      if (remainingValue <= 0) break;
+        remainingValue -= allocationValue;
+        if (remainingValue <= 0) break;
+      }
     }
 
     // Criação das alocações
