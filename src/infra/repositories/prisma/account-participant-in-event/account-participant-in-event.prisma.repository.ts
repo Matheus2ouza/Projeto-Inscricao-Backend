@@ -212,4 +212,20 @@ export class AccountParticipantInEventPrismaRepository
     });
     return count;
   }
+
+  async countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number> {
+    return this.prisma.accountParticipantInEvent.count({
+      where: {
+        inscription: {
+          eventId,
+        },
+        participant: {
+          gender,
+        },
+      },
+    });
+  }
 }

@@ -19,13 +19,13 @@ export type Account = {
   id: string;
   username: string;
   countParticipants: number;
-  participants: Participants;
+  participants: Participant[];
 };
 
-export type Participants = {
+export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
   typeInscription: string;
   gender: string;
-}[];
+};
