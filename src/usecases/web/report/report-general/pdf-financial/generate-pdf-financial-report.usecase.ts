@@ -91,7 +91,7 @@ export class GeneratePdfFinancialReportUsecase
   private buildFinancialReportData(reportData: ReportFinancialOutput) {
     const inscricoesDetails =
       reportData.inscription.details?.map((d) => ({
-        id: d.id,
+        id: this.shortenId(d.id),
         createdAt: d.createdAt,
         totalPaid: d.totalPaid,
         paidCash: d.paidCash,
@@ -101,7 +101,7 @@ export class GeneratePdfFinancialReportUsecase
 
     const avulsDetails =
       reportData.inscriptionAvuls.details?.map((d) => ({
-        id: d.id,
+        id: this.shortenId(d.id),
         createdAt: d.createdAt,
         totalPaid: d.totalPaid,
         paidCash: d.paidCash,
@@ -111,7 +111,7 @@ export class GeneratePdfFinancialReportUsecase
 
     const gastosDetails =
       reportData.spent.spentDetails?.map((g) => ({
-        id: g.id,
+        id: this.shortenId(g.id),
         createdAt: g.createdAt,
         totalSpent: g.totalSpent,
       })) ?? [];
@@ -153,9 +153,8 @@ export class GeneratePdfFinancialReportUsecase
         totalPix: reportData.ticketsSale?.totalPix ?? 0,
         details:
           reportData.ticketsSale?.details?.map((d) => ({
-            name: d.name,
-            quantity: d.quantity,
-            pricePerTicket: d.pricePerTicket,
+            id: this.shortenId(d.id),
+            total: d.total,
             totalCash: d.totalCash,
             totalCard: d.totalCard,
             totalPix: d.totalPix,
@@ -169,5 +168,12 @@ export class GeneratePdfFinancialReportUsecase
         gastos: gastosDetails,
       },
     };
+  }
+
+  private shortenId(id: string): string {
+    const trimmed = (id ?? '').trim();
+    if (!trimmed) return '-';
+    const visible = trimmed.slice(0, 5);
+    return `${visible}${trimmed.length > 5 ? '...' : ''}`;
   }
 }

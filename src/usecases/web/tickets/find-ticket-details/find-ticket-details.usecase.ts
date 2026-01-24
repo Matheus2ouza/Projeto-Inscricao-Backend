@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMethod } from 'generated/prisma';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
+import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { TicketNotFoundUsecaseException } from 'src/usecases/web/exceptions/tickets/ticket-not-found.usecase.exception';
 
@@ -18,11 +20,19 @@ export type FindTicketDetailsOutput = {
   expirationDate: Date;
   isActive: boolean;
   TicketSaleItens: TicketSaleItens[];
+  ticketSalePayments: TicketSalePayment[];
 };
 
 export type TicketSaleItens = {
   id: string;
   quantity: number;
+  createdAt: Date;
+};
+
+type TicketSalePayment = {
+  id: string;
+  paymentMethod: PaymentMethod;
+  value: number;
   createdAt: Date;
 };
 
@@ -33,6 +43,7 @@ export class FindTicketDetailsUsecase
   public constructor(
     private readonly eventTicketsGateway: EventTicketsGateway,
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
+    private readonly ticketSalePaymentGateway: TicketSalePaymentGateway,
   ) {}
 
   async execute(
@@ -48,9 +59,22 @@ export class FindTicketDetailsUsecase
       );
     }
 
-    const ticketSaleItens = await this.ticketSaleItemGateway.findByTicketSaleId(
-      ticket.getId(),
+    const allItemsInEvent = await this.ticketSaleItemGateway.findByEventId(
+      ticket.getEventId(),
     );
+    const ticketSaleItens = allItemsInEvent.filter(
+      (item) => item.getTicketId() === ticket.getId(),
+    );
+
+    const saleIds = [
+      ...new Set(ticketSaleItens.map((i) => i.getTicketSaleId())),
+    ];
+    const paymentsBySale = await Promise.all(
+      saleIds.map((saleId) =>
+        this.ticketSalePaymentGateway.findByTicketSaleId(saleId),
+      ),
+    );
+    const ticketSalePayments = paymentsBySale.flat();
 
     return {
       id: ticket.getId(),
@@ -65,6 +89,12 @@ export class FindTicketDetailsUsecase
         id: item.getId(),
         quantity: item.getQuantity(),
         createdAt: item.getCreatedAt(),
+      })),
+      ticketSalePayments: ticketSalePayments.map((p) => ({
+        id: p.getId(),
+        paymentMethod: p.getPaymentMethod(),
+        value: p.getValue(),
+        createdAt: p.getCreatedAt(),
       })),
     };
   }

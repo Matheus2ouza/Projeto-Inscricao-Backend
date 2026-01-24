@@ -19,6 +19,12 @@ export class FindTicketDetailsPresenter {
         quantity: item.quantity,
         createdAt: item.createdAt,
       })),
+      ticketSalePayments: output.ticketSalePayments.map((payment) => ({
+        id: payment.id,
+        paymentMethod: payment.paymentMethod,
+        value: payment.value,
+        createdAt: payment.createdAt,
+      })),
     };
     return aModal;
   }

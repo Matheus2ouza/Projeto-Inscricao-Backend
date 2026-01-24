@@ -1,3 +1,5 @@
+import { PaymentMethod } from 'generated/prisma';
+
 export type ReportFinancialRequest = {
   eventId: string;
   details: boolean;
@@ -69,9 +71,7 @@ export type TicketSale = {
 
 export type TicketSaleDetail = {
   id: string;
-  name: string;
-  quantity: number;
-  pricePerTicket: number;
+  total: number;
   totalCash: number;
   totalCard: number;
   totalPix: number;
@@ -88,5 +88,7 @@ export type Spent = {
 export type SpentDetail = {
   id: string;
   createdAt: Date;
+  paymentMethod: PaymentMethod;
+  responsible: string;
   totalSpent: number;
 };
