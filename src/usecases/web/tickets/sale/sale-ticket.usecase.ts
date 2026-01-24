@@ -205,6 +205,7 @@ export class SaleTicketUsecase
     );
 
     const pdfBytes = await MiniTicketPdfGenerator.generate({
+      eventName: event.getName(),
       saleId: sale.getId(),
       buyerName: input.name,
       saleDate: new Date(),
