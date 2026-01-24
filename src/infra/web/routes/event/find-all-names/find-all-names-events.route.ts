@@ -13,6 +13,7 @@ export class FindAllNamesEventRoute {
   public async handle(): Promise<FindAllNamesEventResponse> {
     const result = await this.findAllnamesEventUsecase.execute();
     const response = FindAllNamesEventPresenter.toHttp(result);
+    console.log(response);
     return response;
   }
 }

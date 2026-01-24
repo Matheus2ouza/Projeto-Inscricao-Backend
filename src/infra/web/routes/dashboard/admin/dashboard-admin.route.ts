@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
@@ -41,9 +41,11 @@ export class DashboardAdminRoute {
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getCompleteDashboard(
     @UserInfo() userInfo: { regionId: string },
+    @Query('eventId') eventId?: string,
   ): Promise<GetDashboardAdminResponse> {
     const input = {
       regionId: userInfo.regionId,
+      eventId,
     };
     const activeEvents = await this.findActiveEventsUsecase.execute(input);
     const totalCollected = await this.findTotalCollectedUsecase.execute(input);
@@ -75,9 +77,11 @@ export class DashboardAdminRoute {
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getCollected(
     @UserInfo() userInfo: { regionId: string },
+    @Query('eventId') eventId?: string,
   ): Promise<FindTotalCollectedAdminResponse> {
     const input: FindTotalCollectedAdminInput = {
       regionId: userInfo.regionId,
+      eventId,
     };
     const totalCollected = await this.findTotalCollectedUsecase.execute(input);
     return FindTotalCollectedAdminPresenter.tohttp(totalCollected);
@@ -87,9 +91,11 @@ export class DashboardAdminRoute {
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getDebt(
     @UserInfo() userInfo: { regionId: string },
+    @Query('eventId') eventId?: string,
   ): Promise<FindTotalDebtAdminResponse> {
     const input: FindTotalDebtAdminInput = {
       regionId: userInfo.regionId,
+      eventId,
     };
 
     const totalDebt = await this.findTotalDebtUsecase.execute(input);
@@ -100,9 +106,11 @@ export class DashboardAdminRoute {
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getActiveParticipants(
     @UserInfo() userInfo: { regionId: string },
+    @Query('eventId') eventId?: string,
   ): Promise<FindActiveParticipantsAdminResponse> {
     const input: FindActiveParticipantsAdminInput = {
       regionId: userInfo.regionId,
+      eventId,
     };
 
     const activeParticipants =

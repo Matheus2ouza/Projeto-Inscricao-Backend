@@ -113,15 +113,23 @@ export class CreateInscriptionAvulUsecase
       }),
     );
 
+    // Incrementar as movimentações financeiras
     await Promise.all(
       financialMovements.map((financialMovement) =>
         this.financialMovementGateway.create(financialMovement),
       ),
     );
 
+    // Incrementar o valor coletado no evento
     await this.eventGateway.incrementAmountCollected(
       eventExists.getId(),
       totalPaymentsValue.toNumber(),
+    );
+
+    // Incrementar a quantidade de participantes no evento
+    await this.eventGateway.incrementQuantityParticipants(
+      eventExists.getId(),
+      participants.length,
     );
 
     return { id: createdRegistration.getId() };

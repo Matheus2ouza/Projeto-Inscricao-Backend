@@ -4,6 +4,7 @@ import { Usecase } from 'src/usecases/usecase';
 
 export type FindActiveParticipantsAdminInput = {
   regionId: string;
+  eventId?: string;
 };
 
 export type FindActiveParticipantsAdminOutput = {
@@ -20,7 +21,9 @@ export class FindActiveParticipantsAdminUsecase
   public async execute(
     input: FindActiveParticipantsAdminInput,
   ): Promise<FindActiveParticipantsAdminOutput> {
-    const event = await this.eventGateway.findNextUpcomingEvent(input.regionId);
+    const event = input.eventId
+      ? await this.eventGateway.findById(input.eventId)
+      : await this.eventGateway.findNextUpcomingEvent(input.regionId);
 
     if (!event) {
       return {

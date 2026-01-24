@@ -213,6 +213,12 @@ export class SaleTicketUsecase
 
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
+    // Incrementa o valor coletado do evento
+    await this.eventGateway.incrementAmountCollected(
+      input.eventId,
+      saleTotalValue,
+    );
+
     return {
       saleId: sale.getId(),
       totalUnits,
