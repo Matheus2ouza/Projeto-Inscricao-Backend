@@ -1,13 +1,15 @@
 import bwipjs from 'bwip-js';
+import fs from 'node:fs';
+import path from 'node:path';
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
 
 const MM_TO_POINTS = 2.83465;
 const PAPER_WIDTH = 58 * MM_TO_POINTS;
-const MARGIN = 8;
-const HEADER_HEIGHT = 0;
+const MARGIN = 2;
+const HEADER_HEIGHT = 12;
 const QR_SIZE = 36 * MM_TO_POINTS;
 const TEXT_BLOCK_HEIGHT = 40;
-const BOTTOM_SPACING = 10;
+const BOTTOM_SPACING = 2;
 const SEPARATOR_HEIGHT = 14;
 
 export type MiniTicketEntry = {
@@ -16,6 +18,7 @@ export type MiniTicketEntry = {
 };
 
 export type MiniTicketPdfData = {
+  eventName: string;
   saleId: string;
   buyerName: string;
   saleDate: Date;
@@ -27,6 +30,7 @@ export class MiniTicketPdfGenerator {
     16 + QR_SIZE + TEXT_BLOCK_HEIGHT + BOTTOM_SPACING;
 
   public static async generate({
+    eventName,
     saleId,
     buyerName,
     saleDate,
@@ -45,7 +49,7 @@ export class MiniTicketPdfGenerator {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    this.drawHeader(page, font, bold, saleId, buyerName, pageHeight);
+    this.drawHeader(page, bold, eventName, pageHeight);
     const { dateLabel, timeLabel } =
       MiniTicketPdfGenerator.formatDateLabels(saleDate);
 
@@ -99,17 +103,42 @@ export class MiniTicketPdfGenerator {
       }
     }
 
-    return pdfDoc.save();
+    const pdfBytes = await pdfDoc.save();
+
+    if (process.env.DEBUG_MINI_TICKET_PDF === 'true') {
+      const debugDir = path.join(process.cwd(), 'tmp');
+      fs.mkdirSync(debugDir, { recursive: true });
+      const safeName = String(eventName ?? 'evento')
+        .replace(/[^\w\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .toLowerCase();
+      const filename = `mini-ticket-${safeName || 'evento'}-${saleId}.pdf`;
+      fs.writeFileSync(path.join(debugDir, filename), Buffer.from(pdfBytes));
+    }
+
+    return pdfBytes;
   }
 
   private static drawHeader(
     page: PDFPage,
-    font: PDFFont,
     bold: PDFFont,
-    saleId: string,
-    buyerName: string,
+    eventName: string,
     pageHeight: number,
-  ) {}
+  ) {
+    const title = String(eventName ?? '').trim();
+    if (!title) return;
+    const size = 11;
+    const displayTitle = title.toUpperCase();
+    const textWidth = bold.widthOfTextAtSize(displayTitle, size);
+    page.drawText(displayTitle, {
+      x: (PAPER_WIDTH - textWidth) / 2,
+      y: pageHeight - MARGIN - size,
+      size,
+      font: bold,
+      color: rgb(0, 0, 0),
+    });
+  }
 
   private static async buildBarcodeImage(pdfDoc: PDFDocument, value: string) {
     const pngBuffer = await bwipjs.toBuffer({
