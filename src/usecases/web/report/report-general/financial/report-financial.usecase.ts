@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionStatus } from 'generated/prisma';
+import { InscriptionStatus, PaymentMethod } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
@@ -86,9 +86,7 @@ export type TicketSale = {
 
 export type TicketSaleDetail = {
   id: string;
-  name: string;
-  quantity: number;
-  pricePerTicket: number;
+  total: number;
   totalCash: number;
   totalCard: number;
   totalPix: number;
@@ -105,6 +103,8 @@ export type Spent = {
 export type SpentDetail = {
   id: string;
   createdAt: Date;
+  paymentMethod: PaymentMethod;
+  responsible: string;
   totalSpent: number;
 };
 
@@ -138,13 +138,10 @@ export class ReportFinancialUsecase
       );
     }
     // Tickets: totais por método e detalhes opcionais
-    const [ticketPaymentSummary, ticketItems, eventTickets] = await Promise.all(
-      [
-        this.ticketSalePaymentGateway.sumByEventId(event.getId()),
-        this.ticketSaleItemGateway.findByEventId(event.getId()),
-        this.eventTicketsGateway.findAll(event.getId()),
-      ],
-    );
+    const [ticketPaymentSummary, ticketItems] = await Promise.all([
+      this.ticketSalePaymentGateway.sumByEventId(event.getId()),
+      this.ticketSaleItemGateway.findByEventId(event.getId()),
+    ]);
 
     const methodTotals = new Map<string, number>();
     for (const s of ticketPaymentSummary) {
@@ -155,13 +152,6 @@ export class ReportFinancialUsecase
     const ticketsCard = methodTotals.get('CARTAO') ?? 0;
     const ticketsPix = methodTotals.get('PIX') ?? 0;
     const ticketsTotal = ticketsCash + ticketsCard + ticketsPix;
-
-    const ticketNameMap = new Map(
-      eventTickets.map((t) => [t.getId(), t.getName()]),
-    );
-    const ticketPriceMap = new Map(
-      eventTickets.map((t) => [t.getId(), Number(t.getPrice())]),
-    );
 
     const ticketAggregate = new Map<
       string,
@@ -183,24 +173,44 @@ export class ReportFinancialUsecase
 
     let ticketDetails: TicketSaleDetail[] | undefined = undefined;
     if (input.details) {
-      ticketDetails = Array.from(ticketAggregate.entries()).map(
-        ([ticketId, agg]) => {
-          const proportion =
-            totalTicketsValue > 0 ? agg.totalValue / totalTicketsValue : 0;
-          const paidCash = ticketsCash * proportion;
-          const paidCard = ticketsCard * proportion;
-          const paidPix = ticketsPix * proportion;
-          return {
-            id: ticketId,
-            name: ticketNameMap.get(ticketId) ?? 'Ticket',
-            quantity: agg.quantity,
-            pricePerTicket: ticketPriceMap.get(ticketId) ?? 0,
-            totalCash: paidCash,
-            totalCard: paidCard,
-            totalPix: paidPix,
-          };
-        },
+      const saleIds = [
+        ...new Set(ticketItems.map((it) => it.getTicketSaleId())),
+      ];
+      const paymentsBySaleEntries = await Promise.all(
+        saleIds.map(async (saleId) => {
+          const payments =
+            await this.ticketSalePaymentGateway.findByTicketSaleId(saleId);
+          const acc = { cash: 0, card: 0, pix: 0 };
+          for (const p of payments) {
+            const v = Number(p.getValue());
+            const m = p.getPaymentMethod();
+            if (m === 'DINHEIRO') acc.cash += v;
+            else if (m === 'CARTAO') acc.card += v;
+            else if (m === 'PIX') acc.pix += v;
+          }
+          return [saleId, acc] as const;
+        }),
       );
+      const paymentsBySale = new Map<
+        string,
+        { cash: number; card: number; pix: number }
+      >(paymentsBySaleEntries);
+
+      ticketDetails = saleIds.map((saleId) => {
+        const pm = paymentsBySale.get(saleId) ?? { cash: 0, card: 0, pix: 0 };
+        const detail: TicketSaleDetail = {
+          id: saleId,
+          total: pm.cash + pm.card + pm.pix,
+          totalCash: pm.cash,
+          totalCard: pm.card,
+          totalPix: pm.pix,
+        };
+        return detail;
+      });
+
+      const sumCash = ticketDetails.reduce((acc, d) => acc + d.totalCash, 0);
+      const sumCard = ticketDetails.reduce((acc, d) => acc + d.totalCard, 0);
+      const sumPix = ticketDetails.reduce((acc, d) => acc + d.totalPix, 0);
     }
 
     const inscriptions = await this.inscriptionGateway.findByEventId({
@@ -328,13 +338,18 @@ export class ReportFinancialUsecase
       spentDetails = expenses.map((e) => ({
         id: e.getId(),
         createdAt: e.getCreatedAt(),
+        paymentMethod: e.getPaymentMethod(),
+        responsible: e.getResponsible(),
         totalSpent: e.getValue(),
       }));
     }
-    const totalCash = inscriptionCash + avulsCash + ticketsCash;
-    const totalCard = inscriptionCard + avulsCard + ticketsCard;
-    const totalPix = inscriptionPix + avulsPix + ticketsPix;
-    const totalGeral = totalCash + totalCard + totalPix - spentTotal;
+    const totalCashIncome = inscriptionCash + avulsCash + ticketsCash;
+    const totalCardIncome = inscriptionCard + avulsCard + ticketsCard;
+    const totalPixIncome = inscriptionPix + avulsPix + ticketsPix;
+    const totalCash = totalCashIncome - spentCash;
+    const totalCard = totalCardIncome - spentCard;
+    const totalPix = totalPixIncome - spentPix;
+    const totalGeral = totalCash + totalCard + totalPix;
     const output: ReportFinancialOutput = {
       id: event.getId(),
       name: event.getName(),

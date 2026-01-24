@@ -1,15 +1,14 @@
-import { Buffer } from 'node:buffer';
+import bwipjs from 'bwip-js';
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
-import QRCode from 'qrcode';
 
 const MM_TO_POINTS = 2.83465;
 const PAPER_WIDTH = 58 * MM_TO_POINTS;
 const MARGIN = 8;
-const HEADER_HEIGHT = 40;
-const QR_SIZE = 32 * MM_TO_POINTS;
-const TEXT_BLOCK_HEIGHT = 32;
-const BOTTOM_SPACING = 6;
-const SEPARATOR_HEIGHT = 8;
+const HEADER_HEIGHT = 0;
+const QR_SIZE = 36 * MM_TO_POINTS;
+const TEXT_BLOCK_HEIGHT = 40;
+const BOTTOM_SPACING = 10;
+const SEPARATOR_HEIGHT = 14;
 
 export type MiniTicketEntry = {
   ticketId: string;
@@ -58,14 +57,15 @@ export class MiniTicketPdfGenerator {
         index * (MiniTicketPdfGenerator.ticketHeight + SEPARATOR_HEIGHT);
       const ticket = tickets[index];
 
-      const qrImage = await MiniTicketPdfGenerator.buildQrImage(
+      const qrImage = await MiniTicketPdfGenerator.buildBarcodeImage(
         pdfDoc,
         ticket.ticketId,
       );
 
-      const titleSize = 9;
-      const textWidth = bold.widthOfTextAtSize(ticket.ticketName, titleSize);
-      page.drawText(ticket.ticketName, {
+      const titleSize = 12;
+      const ticketTitle = ticket.ticketName.toUpperCase();
+      const textWidth = bold.widthOfTextAtSize(ticketTitle, titleSize);
+      page.drawText(ticketTitle, {
         x: (PAPER_WIDTH - textWidth) / 2,
         y: baseY - 16,
         size: titleSize,
@@ -73,7 +73,7 @@ export class MiniTicketPdfGenerator {
         color: rgb(0, 0, 0),
       });
 
-      const qrY = baseY - 16 - QR_SIZE - 6;
+      const qrY = baseY - 16 - QR_SIZE - 14;
       page.drawImage(qrImage, {
         x: (PAPER_WIDTH - QR_SIZE) / 2,
         y: qrY,
@@ -81,19 +81,21 @@ export class MiniTicketPdfGenerator {
         height: QR_SIZE,
       });
 
-      const infoY = qrY - 16;
+      const infoY = qrY - 24;
       const dateText = `${dateLabel}   ${timeLabel}`;
-      const infoWidth = font.widthOfTextAtSize(dateText, 7);
+      const infoWidth = font.widthOfTextAtSize(dateText, 9);
       page.drawText(dateText, {
         x: (PAPER_WIDTH - infoWidth) / 2,
         y: infoY,
-        size: 7,
+        size: 9,
         font,
         color: rgb(0, 0, 0),
       });
 
       if (index < ticketCount - 1) {
-        this.drawDashedSeparator(page, infoY - 8);
+        const separatorY =
+          baseY - (MiniTicketPdfGenerator.ticketHeight + SEPARATOR_HEIGHT / 2);
+        this.drawDashedSeparator(page, separatorY);
       }
     }
 
@@ -107,59 +109,30 @@ export class MiniTicketPdfGenerator {
     saleId: string,
     buyerName: string,
     pageHeight: number,
-  ) {
-    const title = 'INGRESSOS';
-    const titleSize = 12;
-    const titleWidth = bold.widthOfTextAtSize(title, titleSize);
+  ) {}
 
-    page.drawText(title, {
-      x: (PAPER_WIDTH - titleWidth) / 2,
-      y: pageHeight - MARGIN - titleSize,
-      size: titleSize,
-      font: bold,
-      color: rgb(0, 0, 0),
+  private static async buildBarcodeImage(pdfDoc: PDFDocument, value: string) {
+    const pngBuffer = await bwipjs.toBuffer({
+      bcid: 'code128',
+      text: value,
+      scale: 2,
+      height: 10,
+      includetext: false,
+      paddingwidth: 0,
+      paddingheight: 0,
     });
-
-    const saleText = {
-      x: MARGIN,
-      y: pageHeight - MARGIN - titleSize - 16,
-      size: 8,
-      font,
-      color: rgb(0, 0, 0),
-    };
-
-    page.drawText(`Venda: ${saleId}`, saleText);
-    page.drawText(`Comprador: ${buyerName}`, {
-      ...saleText,
-      y: saleText.y - 12,
-    });
-  }
-
-  private static async buildQrImage(pdfDoc: PDFDocument, value: string) {
-    const dataUrl = await QRCode.toDataURL(value, {
-      margin: 0,
-      scale: 4,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF',
-      },
-    });
-    const base64Data = dataUrl.split(',')[1];
-    const imageBytes = Buffer.from(base64Data, 'base64');
-    return pdfDoc.embedPng(imageBytes);
+    return pdfDoc.embedPng(pngBuffer);
   }
 
   private static formatDateLabels(date: Date) {
     const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
       timeZone: 'America/Sao_Paulo',
     });
     const timeFormatter = new Intl.DateTimeFormat('pt-BR', {
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
       hour12: false,
       timeZone: 'America/Sao_Paulo',
     });

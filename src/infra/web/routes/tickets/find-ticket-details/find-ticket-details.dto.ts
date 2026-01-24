@@ -1,3 +1,5 @@
+import { PaymentMethod } from 'generated/prisma';
+
 export type FindTicketDetailsRequest = {
   eventTicketId: string;
 };
@@ -12,6 +14,14 @@ export type FindTicketDetailsResponse = {
   expirationDate: Date;
   isActive: boolean;
   TicketSaleItens: TicketSaleItem[];
+  ticketSalePayments: TicketSalePayment[];
+};
+
+type TicketSalePayment = {
+  id: string;
+  paymentMethod: PaymentMethod;
+  value: number;
+  createdAt: Date;
 };
 
 export type TicketSaleItem = {

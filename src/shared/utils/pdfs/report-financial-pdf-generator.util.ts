@@ -607,20 +607,18 @@ export class ReportFinancialPdfGeneratorUtils {
         ? {
             table: {
               headerRows: 1,
-              widths: ['*', 'auto', 'auto', 'auto', 'auto', 'auto'],
+              widths: ['*', 'auto', 'auto', 'auto', 'auto'],
               body: [
                 [
-                  { text: 'Ticket', style: 'tableHeader' },
-                  { text: 'Quantidade', style: 'tableHeader' },
-                  { text: 'Preço unit.', style: 'tableHeader' },
+                  { text: 'Venda', style: 'tableHeader' },
+                  { text: 'Total', style: 'tableHeader' },
                   { text: 'Dinheiro', style: 'tableHeader' },
                   { text: 'Cartão', style: 'tableHeader' },
                   { text: 'Pix', style: 'tableHeader' },
                 ],
                 ...data.ticketsSale.details.map((d: any) => [
-                  { text: d.name, style: 'cell' },
-                  { text: `${d.quantity}`, style: 'cell' },
-                  { text: formatCurrency(d.pricePerTicket), style: 'cell' },
+                  { text: d.id, style: 'cell' },
+                  { text: formatCurrency(d.total), style: 'cell' },
                   { text: formatCurrency(d.totalCash), style: 'cell' },
                   { text: formatCurrency(d.totalCard), style: 'cell' },
                   { text: formatCurrency(d.totalPix), style: 'cell' },
