@@ -18,8 +18,8 @@ import { PaymentNotFoundUsecaseException } from 'src/usecases/web/exceptions/pay
 export type ConfirmPaymentInput = {
   checkoutSession: string;
   asaasPaymentId: string;
-  description: string;
-  installmentNumber: number;
+  description: string | null;
+  installmentNumber: number | null;
   value: number;
   netValue: number;
   confirmedDate: string;
@@ -50,8 +50,10 @@ export class ConfirmPaymentUsecase
   ) {}
 
   async execute(input: ConfirmPaymentInput): Promise<ConfirmPaymentOutput> {
+    const installmentNumber = input.installmentNumber ?? 1;
+    const description = input.description ?? '';
     this.logger.log(
-      `📨 Confirmando parcela ${input.installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
+      `📨 Confirmando parcela ${installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
     );
 
     // ✅ 1. BUSCAR PAYMENT PELO checkoutSession
@@ -70,8 +72,8 @@ export class ConfirmPaymentUsecase
     this.logger.log(`✅ Payment encontrado: ${payment.getId()}`);
 
     // ✅ 1.5. VALIDAR DESCRIÇÃO E ATUALIZAR TOTAL DE PARCELAS SE FOR A PRIMEIRA
-    if (input.description) {
-      const match = input.description.match(/Parcela (\d+) de (\d+)/i);
+    if (description) {
+      const match = description.match(/Parcela (\d+) de (\d+)/i);
       if (match) {
         const currentInstallment = parseInt(match[1], 10);
         const totalInstallments = parseInt(match[2], 10);
@@ -117,13 +119,13 @@ export class ConfirmPaymentUsecase
     await this.financialMovementGateway.create(financialMovement);
 
     this.logger.log(
-      `💰 Movimento financeiro criado: R$ ${input.netValue.toFixed(2)} (parcela ${input.installmentNumber})`,
+      `💰 Movimento financeiro criado: R$ ${input.netValue.toFixed(2)} (parcela ${installmentNumber})`,
     );
 
     // Registra a parcela paga, associando ao movimento financeiro já criado acima
     const paymentInstallment = PaymentInstallment.create({
       paymentId: payment.getId(),
-      installmentNumber: input.installmentNumber,
+      installmentNumber: installmentNumber,
       value: input.value,
       netValue: input.netValue,
       asaasPaymentId: input.asaasPaymentId,
@@ -137,7 +139,7 @@ export class ConfirmPaymentUsecase
     payment.addPaidInstallment(input.value, input.netValue);
 
     this.logger.log(
-      `💰 Parcela ${input.installmentNumber}/${payment.getInstallments()} paga! ` +
+      `💰 Parcela ${installmentNumber}/${payment.getInstallments()} paga! ` +
         `Valor bruto: R$ ${input.value.toFixed(2)} | ` +
         `Valor líquido: R$ ${input.netValue.toFixed(2)} | ` +
         `Total pago: R$ ${payment.getTotalPaid().toFixed(2)} | ` +
@@ -155,7 +157,7 @@ export class ConfirmPaymentUsecase
         this.logger.log(`🎉 TODAS AS PARCELAS FORAM PAGAS!`);
       } else {
         this.logger.log(
-          `🎉 Pagamento via CARTÃO confirmado na parcela ${input.installmentNumber}. Liberando inscrições...`,
+          `🎉 Pagamento via CARTÃO confirmado na parcela ${installmentNumber}. Liberando inscrições...`,
         );
       }
 

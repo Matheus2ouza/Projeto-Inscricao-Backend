@@ -6,8 +6,8 @@ export type ConfirmPaymentRequest = {
 export type PaymentData = {
   id: string;
   checkoutSession: string;
-  description: string;
-  installmentNumber: number;
+  description: string | null;
+  installmentNumber: number | null;
   value: number;
   netValue: number;
   confirmedDate: string;
