@@ -1,0 +1,74 @@
+// src/infra/web/routes/webhooks/asaas/asaas-webhook.route.ts
+
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
+import {
+  ConfirmPaymentInput,
+  ConfirmPaymentUsecase,
+} from 'src/usecases/web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
+import type {
+  ConfirmPaymentRequest,
+  ConfirmPaymentResponse,
+} from './confirmPayment.dto';
+import { ConfirmPaymentPresenter } from './confirmPayment.presenter';
+
+@Controller('webhooks')
+export class ConfirmPaymentRoute {
+  private readonly logger = new Logger(ConfirmPaymentRoute.name);
+
+  constructor(private readonly confirmPaymentUsecase: ConfirmPaymentUsecase) {}
+
+  @Post('asaas/confirm')
+  @IsPublic()
+  @HttpCode(HttpStatus.OK)
+  async handle(
+    @Body() body: ConfirmPaymentRequest,
+    @Headers('asaas-access-token') asaasToken: string,
+  ): Promise<ConfirmPaymentResponse> {
+    // Validar token
+    if (asaasToken !== process.env.ASAAS_WEBHOOK_TOKEN) {
+      this.logger.warn('❌ Tentativa de acesso com token inválido');
+      throw new UnauthorizedException('Token de webhook inválido');
+    }
+
+    this.logger.log(`📨 Webhook recebido: ${body.event}`);
+    this.logger.debug(`Payload: ${JSON.stringify(body, null, 2)}`);
+
+    // Processar apenas eventos de pagamento confirmado
+    if (
+      body.event === 'PAYMENT_CONFIRMED' ||
+      body.event === 'PAYMENT_RECEIVED'
+    ) {
+      const input: ConfirmPaymentInput = {
+        checkoutSession: body.payment.checkoutSession,
+        asaasPaymentId: body.payment.id,
+        description: body.payment.description,
+        installmentNumber: body.payment.installmentNumber,
+        value: body.payment.value,
+        netValue: body.payment.netValue,
+        confirmedDate: body.payment.confirmedDate,
+      };
+
+      const response = await this.confirmPaymentUsecase.execute(input);
+
+      this.logger.log(
+        `✅ Pagamento ${body.payment.id} confirmado! Status: ${response.status}`,
+      );
+
+      return ConfirmPaymentPresenter.toHttp(response);
+    }
+
+    // ✅ IMPORTANTE: Retornar resposta para outros eventos
+    this.logger.log(`ℹ️ Evento ${body.event} recebido mas não processado`);
+    return ConfirmPaymentPresenter.toEventReceived(body.event);
+  }
+}

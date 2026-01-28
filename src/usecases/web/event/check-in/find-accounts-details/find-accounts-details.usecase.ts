@@ -5,7 +5,6 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -63,7 +62,6 @@ export class FindAccountsDetailsUseCase
     private readonly accountGateway: AccountGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
@@ -95,11 +93,7 @@ export class FindAccountsDetailsUseCase
       event.getId(),
       account.getId(),
     );
-    const countPay =
-      await this.paymentInscriptionGateway.sumPaidByAccountIdAndEventId(
-        account.getId(),
-        event.getId(),
-      );
+
     const countInscriptions =
       await this.inscriptionGateway.countTotalInscriptions(
         event.getId(),
@@ -112,19 +106,16 @@ export class FindAccountsDetailsUseCase
         account.getId(),
       );
 
-    const [participants, paymentInscriptionRecords, countParticipants] =
-      await Promise.all([
-        this.participantGateway.findManyByInscriptionIds(
-          inscriptions.map((inscription) => inscription.getId()),
-        ),
-        this.paymentInscriptionGateway.findManyByInscriptionIds(
-          inscriptions.map((inscription) => inscription.getId()),
-        ),
-        this.participantGateway.countByAccountIdAndEventId(
-          input.accountId,
-          event.getId(),
-        ),
-      ]);
+    const [participants, paymentInscriptionRecords] = await Promise.all([
+      this.participantGateway.findManyByInscriptionIds(
+        inscriptions.map((inscription) => inscription.getId()),
+      ),
+
+      this.participantGateway.countByAccountIdAndEventId(
+        input.accountId,
+        event.getId(),
+      ),
+    ]);
 
     const participantList = participants;
     const typeIds = [
@@ -154,11 +145,11 @@ export class FindAccountsDetailsUseCase
     }
 
     const paymentsByInscription = new Map<string, PaymentInscriptionEntity[]>();
-    for (const payment of paymentInscriptionRecords) {
-      const list = paymentsByInscription.get(payment.getInscriptionId()) || [];
-      list.push(payment);
-      paymentsByInscription.set(payment.getInscriptionId(), list);
-    }
+    // for (const payment of paymentInscriptionRecords) {
+    //   const list = paymentsByInscription.get(payment.getInscriptionId()) || [];
+    //   list.push(payment);
+    //   paymentsByInscription.set(payment.getInscriptionId(), list);
+    // }
 
     const detailedInscriptions = await Promise.all(
       inscriptions.map(async (inscription) => {
@@ -197,9 +188,9 @@ export class FindAccountsDetailsUseCase
       username: account.getUsername(),
       status: countDebt > 0 ? 'PENDENTE' : 'PAGO',
       countDebt,
-      countPay,
+      countPay: 0,
       countInscriptions,
-      countParticipants,
+      countParticipants: 0,
       inscriptions: detailedInscriptions,
     };
 

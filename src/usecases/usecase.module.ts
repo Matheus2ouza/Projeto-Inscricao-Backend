@@ -67,16 +67,15 @@ import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-
 import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
 import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
-import { AnalysisPaymentUsecase } from './web/paymentInscription/analysis/analysis-payment/analysis-payment.usecase';
-import { DeletePaymentInscriptionUsecase } from './web/paymentInscription/delete/delete-inscription.usecase';
-import { PaymentDetailsUsecase } from './web/paymentInscription/payment-details/payment-details.usecase';
 import { AnalysisPaymentsPendingDetailsUsecase } from './web/payments/analysis-payments-pending-details/analysis-payments-pending-details.usecase';
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
+import { ConfirmPaymentUsecase } from './web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
+import { RegisterCredUsecase } from './web/payments/register-cred/register-cred.usecase';
 import { RegisterPaymentUsecase } from './web/payments/register/register-payment.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
@@ -211,16 +210,14 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
     RegisterPaymentUsecase,
+    RegisterCredUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     AnalysisPaymentsPendingDetailsUsecase,
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
-
-    AnalysisPaymentUsecase,
-    DeletePaymentInscriptionUsecase,
-    PaymentDetailsUsecase,
+    ConfirmPaymentUsecase,
 
     // Participants
     ListParticipantsUsecase,
@@ -349,16 +346,14 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
     RegisterPaymentUsecase,
+    RegisterCredUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     AnalysisPaymentsPendingDetailsUsecase,
-    AnalysisPaymentUsecase,
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
-
-    DeletePaymentInscriptionUsecase,
-    PaymentDetailsUsecase,
+    ConfirmPaymentUsecase,
 
     // Participants
     ListParticipantsUsecase,

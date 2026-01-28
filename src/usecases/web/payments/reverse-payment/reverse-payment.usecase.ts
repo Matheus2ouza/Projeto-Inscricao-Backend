@@ -42,7 +42,7 @@ export class ReversePaymentUsecase
 
     // Se houver uma movimentação financeira associada, guarda o id para deletar depois
     // O delete está após do update do payment para não bater com erro de chave estrangeira
-    const financialMovementId = payment.getFinancialMovementId();
+    // const financialMovementId = payment.getFinancialMovementId();
 
     // Decrementar o valor do pagamento no evento
     if (payment.getStatus() === StatusPayment.APPROVED)
@@ -55,39 +55,39 @@ export class ReversePaymentUsecase
     payment.reverse();
     await this.paymentGateway.update(payment);
 
-    if (financialMovementId) {
-      const financialMovement =
-        await this.financialMovementGateway.findById(financialMovementId);
+    // if (financialMovementId) {
+    //   const financialMovement =
+    //     await this.financialMovementGateway.findById(financialMovementId);
 
-      if (!financialMovement) {
-        throw new PaymentNotFoundUsecaseException(
-          `FinancialMovement with id ${financialMovementId} not found`,
-          'Movimentação financeira não encontrada',
-          ReversePaymentUsecase.name,
-        );
-      }
+    //   if (!financialMovement) {
+    //     throw new PaymentNotFoundUsecaseException(
+    //       `FinancialMovement with id ${financialMovementId} not found`,
+    //       'Movimentação financeira não encontrada',
+    //       ReversePaymentUsecase.name,
+    //     );
+    //   }
 
-      await this.financialMovementGateway.delete(financialMovementId);
+    //   await this.financialMovementGateway.delete(financialMovementId);
 
-      // Update inscribed accounts
-      const allocations = await this.paymentAllocationGateway.findByPaymentId(
-        payment.getId(),
-      );
+    //   // Update inscribed accounts
+    //   const allocations = await this.paymentAllocationGateway.findByPaymentId(
+    //     payment.getId(),
+    //   );
 
-      const inscriptionIds = allocations.map((allocation) =>
-        allocation.getInscriptionId(),
-      );
+    //   const inscriptionIds = allocations.map((allocation) =>
+    //     allocation.getInscriptionId(),
+    //   );
 
-      const inscribedAccounts =
-        await this.inscriptionGateway.findManyByIds(inscriptionIds);
+    //   const inscribedAccounts =
+    //     await this.inscriptionGateway.findManyByIds(inscriptionIds);
 
-      for (const i of inscribedAccounts) {
-        if (i.getTotalValue() === i.getTotalPaid()) {
-          i.inscriptionUnpaid();
-          await this.inscriptionGateway.update(i);
-        }
-      }
-    }
+    //   for (const i of inscribedAccounts) {
+    //     if (i.getTotalValue() === i.getTotalPaid()) {
+    //       i.inscriptionUnpaid();
+    //       await this.inscriptionGateway.update(i);
+    //     }
+    //   }
+    // }
 
     const output: ReversePaymentOutput = {
       id: payment.getId(),

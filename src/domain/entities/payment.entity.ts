@@ -9,7 +9,11 @@ export type PaymentCreateDto = {
   status: StatusPayment;
   methodPayment?: PaymentMethod;
   totalValue: number;
-  imageUrl: string;
+  totalPaid?: number;
+  installment: number;
+  asaasCheckoutId?: string;
+  externalReference?: string;
+  imageUrl?: string;
 };
 
 export type PaymentWithDto = {
@@ -19,9 +23,14 @@ export type PaymentWithDto = {
   status: StatusPayment;
   methodPayment: PaymentMethod;
   totalValue: number;
+  totalPaid: number;
+  totalNetValue: number;
+  installments: number;
+  paidInstallments: number;
   rejectionReason?: string;
   imageUrl?: string;
-  financialMovementId?: string;
+  asaasCheckoutId?: string;
+  externalReference?: string;
   approvedBy?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -35,11 +44,16 @@ export class Payment extends Entity {
     private status: StatusPayment,
     private methodPayment: PaymentMethod,
     private totalValue: number,
+    private totalPaid: number,
+    private totalNetValue: number,
+    private installments: number,
+    private paidInstallments: number,
     createdAt: Date,
     updatedAt: Date,
     private imageUrl?: string,
+    private asaasCheckoutId?: string,
+    private externalReference?: string,
     private rejectionReason?: string,
-    private financialMovementId?: string,
     private approvedBy?: string,
   ) {
     super(id, createdAt, updatedAt);
@@ -51,11 +65,19 @@ export class Payment extends Entity {
     accountId,
     status,
     totalValue,
+    totalPaid,
+    installment,
     imageUrl,
+    asaasCheckoutId,
+    externalReference,
     methodPayment,
   }: PaymentCreateDto): Payment {
     const id = Utils.generateUUID();
     const methodPaymentDefault = methodPayment || PaymentMethod.PIX;
+    const totalPaidDefault = totalPaid || 0;
+    const totalNetValueDefault = 0;
+    const installmentsDefault = installment || 1;
+    const paidInstallmentsDefault = 0;
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -66,9 +88,15 @@ export class Payment extends Entity {
       status,
       methodPaymentDefault,
       totalValue,
+      totalPaidDefault,
+      totalNetValueDefault,
+      installmentsDefault,
+      paidInstallmentsDefault,
       createdAt,
       updatedAt,
       imageUrl,
+      asaasCheckoutId,
+      externalReference,
     );
   }
 
@@ -79,11 +107,16 @@ export class Payment extends Entity {
     status,
     methodPayment,
     totalValue,
+    totalPaid,
+    totalNetValue,
+    installments,
+    paidInstallments,
     imageUrl,
+    asaasCheckoutId,
+    externalReference,
     createdAt,
     updatedAt,
     rejectionReason,
-    financialMovementId,
     approvedBy,
   }: PaymentWithDto): Payment {
     return new Payment(
@@ -93,11 +126,16 @@ export class Payment extends Entity {
       status,
       methodPayment,
       totalValue,
+      totalPaid,
+      totalNetValue,
+      installments,
+      paidInstallments,
       createdAt,
       updatedAt,
       imageUrl,
+      asaasCheckoutId,
+      externalReference,
       rejectionReason,
-      financialMovementId,
       approvedBy,
     );
   }
@@ -130,16 +168,36 @@ export class Payment extends Entity {
     return this.totalValue;
   }
 
+  public getTotalPaid(): number {
+    return this.totalPaid;
+  }
+
+  public getTotalNetValue(): number {
+    return this.totalNetValue;
+  }
+
+  public getInstallments(): number {
+    return this.installments;
+  }
+
+  public getPaidInstallments(): number {
+    return this.paidInstallments;
+  }
+
   public getImageUrl(): string | undefined {
     return this.imageUrl;
   }
 
-  public getRejectionReason(): string | undefined {
-    return this.rejectionReason;
+  public getAsaasCheckoutId(): string | undefined {
+    return this.asaasCheckoutId;
   }
 
-  public getFinancialMovementId(): string | undefined {
-    return this.financialMovementId;
+  public getExternalReference(): string | undefined {
+    return this.externalReference;
+  }
+
+  public getRejectionReason(): string | undefined {
+    return this.rejectionReason;
   }
 
   public getApprovedBy(): string | undefined {
@@ -154,13 +212,16 @@ export class Payment extends Entity {
     return this.updatedAt;
   }
 
+  public isFullyPaid(): boolean {
+    return this.paidInstallments >= this.installments;
+  }
+
   public setMethodPayment(methodPayment: PaymentMethod): void {
     this.methodPayment = methodPayment;
   }
 
-  public approve(approvedBy: string, financialMovementId: string): void {
+  public approve(approvedBy: string): void {
     this.status = StatusPayment.APPROVED;
-    this.financialMovementId = financialMovementId;
     this.updatedAt = new Date();
     this.approvedBy = approvedBy;
     if (this.getRejectionReason()) {
@@ -183,5 +244,20 @@ export class Payment extends Entity {
     if (this.getRejectionReason()) {
       this.rejectionReason = undefined;
     }
+  }
+
+  public addPaidInstallment(value: number, netValue: number): void {
+    this.totalPaid += value;
+    this.totalNetValue += netValue;
+    this.paidInstallments += 1;
+  }
+
+  public setTotalNetValue(totalNetValue: number): void {
+    // ✅ ADICIONAR
+    this.totalNetValue = totalNetValue;
+  }
+
+  public setInstallments(installments: number): void {
+    this.installments = installments;
   }
 }

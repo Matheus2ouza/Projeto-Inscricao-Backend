@@ -54,7 +54,7 @@ export class PaymentZodValidator implements Validator<Payment> {
       totalValue: z
         .number()
         .positive({ message: 'O valor total deve ser maior que zero' }),
-      imageUrl: z.string({ message: 'imagem é inválida' }),
+      imageUrl: z.string({ message: 'imagem é inválida' }).optional(),
       createdAt: z.date({ message: 'createdAt é inválido' }),
       updatedAt: z.date({ message: 'updatedAt é inválido' }),
     });

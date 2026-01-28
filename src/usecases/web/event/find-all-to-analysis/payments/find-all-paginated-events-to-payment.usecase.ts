@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -38,7 +37,6 @@ export class FindAllPaginatedEventToPaymentUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly paymentGateway: PaymentGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 

@@ -15,9 +15,9 @@ export class SupabaseStorageService {
   private readonly bucketName: string;
 
   constructor() {
-    const supabaseUrl = process.env.SUPABASE_URL as string;
-    const supabaseKey = process.env.SUPABASE_KEY as string;
-    this.bucketName = process.env.SUPABASE_BUCKET || 'images';
+    const supabaseUrl = process.env.SUPABASE_URL!;
+    const supabaseKey = process.env.SUPABASE_KEY!;
+    this.bucketName = process.env.SUPABASE_BUCKET!;
 
     if (!supabaseUrl || !supabaseKey) {
       this.logger.error('Variáveis de ambiente do Supabase não configuradas');

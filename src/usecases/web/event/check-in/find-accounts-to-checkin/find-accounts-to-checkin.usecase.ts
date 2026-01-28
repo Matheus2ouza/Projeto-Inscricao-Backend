@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../../exceptions/events/event-not-found.usecase.exception';
@@ -48,7 +47,6 @@ export class FindAccountsToCheckInUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly accountGateway: AccountGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
@@ -102,11 +100,7 @@ export class FindAccountsToCheckInUsecase
           event.getId(),
           a.getId(),
         );
-        const countPay =
-          await this.paymentInscriptionGateway.sumPaidByAccountIdAndEventId(
-            a.getId(),
-            event.getId(),
-          );
+
         const countInscriptions =
           await this.inscriptionGateway.countTotalInscriptions(
             event.getId(),
@@ -118,7 +112,7 @@ export class FindAccountsToCheckInUsecase
           username: a.getUsername(),
           status: countDebt > 0 ? 'PENDENTE' : 'PAGO',
           countDebt,
-          countPay,
+          countPay: 0,
           countInscriptions,
         };
       }),

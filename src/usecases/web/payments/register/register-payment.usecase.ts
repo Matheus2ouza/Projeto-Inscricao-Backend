@@ -130,6 +130,8 @@ export class RegisterPaymentUsecase
       accountId: input.accountId,
       status: StatusPayment.UNDER_REVIEW,
       totalValue: input.totalValue,
+      totalPaid: 0,
+      installment: 1,
       imageUrl: imagePath,
     });
 
