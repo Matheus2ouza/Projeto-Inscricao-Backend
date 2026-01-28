@@ -4,7 +4,6 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 
 import { Injectable } from '@nestjs/common';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 
 export type FindTotalDebtUserInput = {
   accountId: string;
@@ -24,7 +23,6 @@ export class FindTotalDebtUserUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
   ) {}
 
   async execute(
@@ -40,18 +38,11 @@ export class FindTotalDebtUserUsecase
       };
     }
 
-    const [totalDebt, totalPaid] = await Promise.all([
+    const [totalDebt] = await Promise.all([
       this.inscriptionGateway.countTotalDebt(event.getId(), input.accountId),
-      this.paymentInscriptionGateway.sumPaidByAccountIdAndEventId(
-        input.accountId,
-        event.getId(),
-      ),
     ]);
 
     let debtCompletionPercentage = 0;
-    if (totalDebt > 0) {
-      debtCompletionPercentage = (totalPaid / totalDebt) * 100;
-    }
 
     if (debtCompletionPercentage > 100) {
       debtCompletionPercentage = 100;
@@ -60,7 +51,7 @@ export class FindTotalDebtUserUsecase
 
     const output: FindTotalDebtUserOutput = {
       countTotalDebt: totalDebt,
-      countTotalPaid: totalPaid,
+      countTotalPaid: 0,
       debtCompletionPercentage,
     };
 

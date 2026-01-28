@@ -24,6 +24,14 @@ export class PaymentPrismaRepository implements PaymentGateway {
     });
     return found ? PrismaToEntity.map(found) : null;
   }
+
+  async findByAsaasCheckout(asaasCheckoutId: string): Promise<Payment | null> {
+    const found = await this.prisma.payment.findFirst({
+      where: { asaasCheckoutId },
+    });
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findAllPaginated(
     eventId: string,
     page: number,

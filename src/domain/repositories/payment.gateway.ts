@@ -8,6 +8,9 @@ export abstract class PaymentGateway {
 
   // Buscas e listagens
   abstract findById(id: string): Promise<Payment | null>;
+  abstract findByAsaasCheckout(
+    asaasCheckoutId: string,
+  ): Promise<Payment | null>;
   abstract findAllPaginated(
     eventId: string,
     page: number,

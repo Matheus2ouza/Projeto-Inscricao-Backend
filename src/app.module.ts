@@ -7,6 +7,7 @@ import { WebModule } from './infra/web/web.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
     DataBaseModule,
     WebModule,

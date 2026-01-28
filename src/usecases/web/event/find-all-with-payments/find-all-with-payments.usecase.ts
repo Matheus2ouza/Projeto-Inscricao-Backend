@@ -4,7 +4,6 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
-import { PaymentInscriptionGateway } from 'src/domain/repositories/payment-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 
 export type FindAllWithPaymentsInput = {
@@ -36,7 +35,6 @@ export class FindAllWithPaymentsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
-    private readonly paymentInscriptionGateway: PaymentInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -63,10 +61,6 @@ export class FindAllWithPaymentsUsecase
     const events = await Promise.all(
       allEvents.map(async (events) => {
         const imagePath = await this.getPublicUrlOrEmpty(events.getImageUrl());
-        const totalPayments =
-          await this.paymentInscriptionGateway.countAllByEventId(
-            events.getId(),
-          );
 
         return {
           id: events.getId(),
@@ -74,7 +68,7 @@ export class FindAllWithPaymentsUsecase
           imageUrl: imagePath,
           status: events.getStatus(),
           paymentEnabled: events.getPaymentEnabled(),
-          totalPayments,
+          totalPayments: 0,
           totalDebt: events.getAmountCollected(),
         };
       }),

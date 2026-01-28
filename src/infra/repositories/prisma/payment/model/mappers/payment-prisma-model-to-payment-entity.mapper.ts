@@ -10,11 +10,16 @@ export class PaymentPrismaModelToPaymentEntityMapper {
       status: payment.status,
       methodPayment: payment.methodPayment,
       totalValue: Number(payment.totalValue),
+      totalPaid: Number(payment.totalPaid),
+      totalNetValue: Number(payment.totalNetValue),
+      installments: payment.installments || 1,
+      paidInstallments: payment.paidInstallments || 0,
       imageUrl: payment.imageUrl || undefined,
+      asaasCheckoutId: payment.asaasCheckoutId || undefined,
+      externalReference: payment.externalReference || undefined,
       createdAt: payment.createdAt,
       updatedAt: payment.updatedAt,
       rejectionReason: payment.rejectionReason || undefined,
-      financialMovementId: payment.financialMovementId || undefined,
       approvedBy: payment.approvedBy || undefined,
     });
   }

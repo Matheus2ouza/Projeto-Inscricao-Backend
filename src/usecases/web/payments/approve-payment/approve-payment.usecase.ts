@@ -1,7 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import Decimal from 'decimal.js';
-import { TransactionType } from 'generated/prisma';
-import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -43,20 +40,6 @@ export class ApprovePaymentUsecase
         ApprovePaymentUsecase.name,
       );
     }
-
-    // Create financial movement
-    const financialMovement = FinancialMovement.create({
-      eventId: payment.getEventId(),
-      accountId: input.accountId,
-      type: TransactionType.INCOME,
-      value: Decimal(payment.getTotalValue()),
-    });
-
-    await this.financialMovementGateway.create(financialMovement);
-
-    // Approve payment
-    payment.approve(input.accountId, financialMovement.getId());
-    await this.paymentGateway.update(payment);
 
     // Increment amount collected in event
     await this.eventGateway.incrementAmountCollected(

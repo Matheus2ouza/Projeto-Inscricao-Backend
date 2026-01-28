@@ -101,11 +101,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId: eventId,
-        PaymentInscription: {
-          some: {
-            status: 'UNDER_REVIEW',
-          },
-        },
       },
       skip,
       take: pageSize,
@@ -343,11 +338,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     const count = await this.prisma.inscription.count({
       where: {
         eventId,
-        PaymentInscription: {
-          some: {
-            status: 'UNDER_REVIEW',
-          },
-        },
       },
     });
     return count;
