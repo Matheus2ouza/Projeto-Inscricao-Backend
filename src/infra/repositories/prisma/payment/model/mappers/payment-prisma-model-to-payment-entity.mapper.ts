@@ -6,7 +6,10 @@ export class PaymentPrismaModelToPaymentEntityMapper {
     return Payment.with({
       id: payment.id,
       eventId: payment.eventId,
-      accountId: payment.accountId,
+      accountId: payment.accountId || undefined,
+      guestEmail: payment.guestEmail || undefined,
+      accessToken: payment.accessToken || undefined,
+      isGuest: payment.isGuest || false,
       status: payment.status,
       methodPayment: payment.methodPayment,
       totalValue: Number(payment.totalValue),

@@ -57,8 +57,10 @@ import { AnalysisInscriptionRoute } from './routes/inscription/analysis/analysis
 import { UpdateStatusInscriptionRoute } from './routes/inscription/analysis/update-status-inscription/update-status-inscription.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
+import { FindDetailsGuestInscriptionRoute } from './routes/inscription/find-details-gues-inscription/find-details-gues-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
+import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
@@ -201,6 +203,10 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Inscriptions - Individual
     RegisterIndivInscriptionRoute,
+
+    // Inscriptions - Guest
+    RegisterGuestInscriptionRoute,
+    FindDetailsGuestInscriptionRoute,
 
     // Inscriptions - Analysis
     AnalysisInscriptionRoute,

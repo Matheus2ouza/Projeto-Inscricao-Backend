@@ -152,6 +152,10 @@ export class ListParticipantsUsecase
     const participantsByAccount = new Map<string, Participant[]>();
 
     for (const p of participantLinks) {
+      if (!p.accountId) {
+        continue;
+      }
+
       const list = participantsByAccount.get(p.accountId) ?? [];
 
       list.push({

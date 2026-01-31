@@ -129,6 +129,8 @@ export class MailService {
       import('./templates/inscription/status-approved/index.js'),
     'inscription/status-rejected': () =>
       import('./templates/inscription/status-rejected/index.js'),
+    'inscription/guest-registration': () =>
+      import('./templates/inscription/guest-registration/index.js'),
     'tickets/pre-sale-approved': () =>
       import('./templates/tickets/pre-sale-approved/index.js'),
     'tickets/pre-sale-notification': () =>

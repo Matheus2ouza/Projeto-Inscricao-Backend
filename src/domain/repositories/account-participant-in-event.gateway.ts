@@ -26,7 +26,7 @@ export abstract class AccountParticipantInEventGateway {
     accountIds: string[],
   ): Promise<
     {
-      accountId: string;
+      accountId: string | null;
       participantId: string;
       participantName: string;
       participantBirthDate: Date;

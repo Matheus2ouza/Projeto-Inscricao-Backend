@@ -63,6 +63,9 @@ export class FindAccountWithInscriptionsUsecase
 
     await Promise.all(
       inscriptions.map(async (inscription) => {
+        const accountId = inscription.getAccountId();
+        if (!accountId) return;
+
         const countParticipants =
           await this.participantGateway.countByInscriptionId(
             inscription.getId(),
@@ -75,12 +78,11 @@ export class FindAccountWithInscriptionsUsecase
           countParticipants,
         };
 
-        const accountInscriptions =
-          accountMap.get(inscription.getAccountId()) ?? [];
+        const accountInscriptions = accountMap.get(accountId) ?? [];
 
         accountInscriptions.push(formattedInscription);
 
-        accountMap.set(inscription.getAccountId(), accountInscriptions);
+        accountMap.set(accountId, accountInscriptions);
       }),
     );
 

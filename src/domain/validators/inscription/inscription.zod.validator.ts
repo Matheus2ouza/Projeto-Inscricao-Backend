@@ -38,8 +38,16 @@ export class InscriptionZodValidator implements Validator<Inscription> {
 
   private getInscriptionZodSchema() {
     const zodSchema = z.object({
-      accountId: z.uuid(),
+      accountId: z.uuid().optional(),
       eventId: z.uuid(),
+      //Dados do guest
+      guestEmail: z.email('Informe um email válido').optional(),
+      guestName: z
+        .string()
+        .min(1, 'O nome do convidado é obrigatório')
+        .optional(),
+      guestLocality: z.string().optional(),
+      isGuest: z.boolean().optional(),
       responsible: z
         .string()
         .min(1, 'O responsavel pela inscrição é obrigatório'),

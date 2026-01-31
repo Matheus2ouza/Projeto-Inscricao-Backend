@@ -116,6 +116,10 @@ export class GeneratePdfSelectedInscriptionUsecase
 
     filteredInscriptions.forEach((entry) => {
       const accountId = entry.inscription.getAccountId();
+      if (!accountId) {
+        return;
+      }
+
       const accountInscriptions = inscriptionsByAccount.get(accountId) ?? [];
       accountInscriptions.push(entry);
       inscriptionsByAccount.set(accountId, accountInscriptions);

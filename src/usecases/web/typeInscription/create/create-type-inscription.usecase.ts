@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TypesInscription } from 'src/domain/entities/typesInscription.entity';
+import { TypeInscription } from 'src/domain/entities/type-Inscription.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
@@ -51,7 +51,7 @@ export class CreateTypeInscriptionUseCase
         CreateTypeInscriptionUseCase.name,
       );
     }
-    const anTypeInscription = TypesInscription.create({
+    const anTypeInscription = TypeInscription.create({
       description: input.description,
       value: input.value,
       eventId: input.eventId,

@@ -70,6 +70,9 @@ export class ListInscriptionToAnalysisUsecase
 
     for (const inscription of inscriptions) {
       const accountId = inscription.getAccountId();
+      if (!accountId) {
+        continue;
+      }
 
       if (!accountsMap.has(accountId)) {
         // Buscar dados da conta usando o método existente

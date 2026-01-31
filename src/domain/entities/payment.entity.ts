@@ -5,7 +5,10 @@ import { Entity } from '../shared/entities/entity';
 
 export type PaymentCreateDto = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  isGuest?: boolean;
+  accessToken?: string;
   status: StatusPayment;
   methodPayment?: PaymentMethod;
   totalValue: number;
@@ -19,7 +22,10 @@ export type PaymentCreateDto = {
 export type PaymentWithDto = {
   id: string;
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  accessToken?: string;
+  isGuest?: boolean;
   status: StatusPayment;
   methodPayment: PaymentMethod;
   totalValue: number;
@@ -40,7 +46,6 @@ export class Payment extends Entity {
   constructor(
     id: string,
     private eventId: string,
-    private accountId: string,
     private status: StatusPayment,
     private methodPayment: PaymentMethod,
     private totalValue: number,
@@ -50,6 +55,10 @@ export class Payment extends Entity {
     private paidInstallments: number,
     createdAt: Date,
     updatedAt: Date,
+    private accountId?: string,
+    private guestEmail?: string,
+    private accessToken?: string,
+    private isGuest?: boolean,
     private imageUrl?: string,
     private asaasCheckoutId?: string,
     private externalReference?: string,
@@ -63,6 +72,8 @@ export class Payment extends Entity {
   public static create({
     eventId,
     accountId,
+    guestEmail,
+    isGuest,
     status,
     totalValue,
     totalPaid,
@@ -81,10 +92,17 @@ export class Payment extends Entity {
     const createdAt = new Date();
     const updatedAt = new Date();
 
+    guestEmail = guestEmail || '';
+    isGuest = isGuest || false;
+
+    let accessToken: string | undefined = undefined;
+    if (isGuest) {
+      accessToken = Utils.generateUUID();
+    }
+
     return new Payment(
       id,
       eventId,
-      accountId,
       status,
       methodPaymentDefault,
       totalValue,
@@ -94,6 +112,10 @@ export class Payment extends Entity {
       paidInstallmentsDefault,
       createdAt,
       updatedAt,
+      accountId,
+      guestEmail,
+      accessToken,
+      isGuest,
       imageUrl,
       asaasCheckoutId,
       externalReference,
@@ -104,6 +126,9 @@ export class Payment extends Entity {
     id,
     eventId,
     accountId,
+    guestEmail,
+    accessToken,
+    isGuest,
     status,
     methodPayment,
     totalValue,
@@ -122,7 +147,6 @@ export class Payment extends Entity {
     return new Payment(
       id,
       eventId,
-      accountId,
       status,
       methodPayment,
       totalValue,
@@ -132,6 +156,10 @@ export class Payment extends Entity {
       paidInstallments,
       createdAt,
       updatedAt,
+      accountId,
+      guestEmail,
+      accessToken,
+      isGuest,
       imageUrl,
       asaasCheckoutId,
       externalReference,
@@ -152,8 +180,20 @@ export class Payment extends Entity {
     return this.eventId;
   }
 
-  public getAccountId(): string {
+  public getAccountId(): string | undefined {
     return this.accountId;
+  }
+
+  public getGuestEmail(): string | undefined {
+    return this.guestEmail;
+  }
+
+  public getAccessToken(): string | undefined {
+    return this.accessToken;
+  }
+
+  public getIsGuest(): boolean | undefined {
+    return this.isGuest;
   }
 
   public getStatus(): StatusPayment {
@@ -253,7 +293,6 @@ export class Payment extends Entity {
   }
 
   public setTotalNetValue(totalNetValue: number): void {
-    // ✅ ADICIONAR
     this.totalNetValue = totalNetValue;
   }
 

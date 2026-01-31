@@ -205,10 +205,16 @@ export class RegisterGroupInscriptionUsecase
           };
         }),
       );
+      const accountId = inscription.getAccountId()!;
 
-      const accountUser = await this.userGateway.findById(
-        inscription.getAccountId(),
-      );
+      if (!accountId) {
+        this.logger.warn(
+          `Inscrição ${inscription.getId()} não possui um ID de conta associado para envio de e-mail de inscrição em grupo`,
+        );
+        return;
+      }
+
+      const accountUser = await this.userGateway.findById(accountId);
 
       const emailData = {
         eventName: event.getName(),

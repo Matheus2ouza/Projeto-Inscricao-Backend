@@ -1,4 +1,5 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
@@ -15,6 +16,7 @@ import { RegisterCredPresenter } from './register-cred.presenter';
 export class RegisterCredRoute {
   constructor(private readonly registerCredUsecase: RegisterCredUsecase) {}
 
+  @IsPublic()
   @Post(':eventId/register/cred')
   async handle(
     @Param() param: RegisterCredRequest,

@@ -238,7 +238,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         accountId: true,
       },
     });
-    return found.map((item) => item.accountId);
+    return found.map((item) => item.accountId ?? '');
+  }
+
+  async findByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<Inscription | null> {
+    const found = await this.prisma.inscription.findUnique({
+      where: {
+        confirmationCode,
+      },
+    });
+    return found ? PrismaToEntity.map(found) : null;
   }
 
   // Agregações e contagens
@@ -389,7 +400,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
 
     const uniqueAccountIds = new Set<string>();
     for (const l of links) {
-      uniqueAccountIds.add(l.inscription.accountId);
+      uniqueAccountIds.add(l.inscription.accountId ?? '');
     }
     return uniqueAccountIds.size;
   }
@@ -464,10 +475,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async findUniqueAccountIdsByEventId(eventId: string): Promise<string[]> {
     const result = await this.prisma.inscription.groupBy({
       by: ['accountId'],
-      where: { eventId },
+      where: { eventId, accountId: { not: null } },
     });
 
-    return result.map((item) => item.accountId);
+    return result.map((item) => item.accountId as string);
   }
 
   // Métodos privados

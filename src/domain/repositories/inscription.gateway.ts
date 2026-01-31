@@ -31,6 +31,9 @@ export abstract class InscriptionGateway {
     pageSize: number,
     eventId: string,
   ): Promise<Inscription[]>;
+  abstract findByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<Inscription | null>;
 
   //COM O NOVA TABELA DE INSCRIÇÃO
   abstract findInscriptionsPending(

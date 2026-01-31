@@ -96,10 +96,21 @@ export class AnalysisPaymentsPendingUsecase
 
     const paymentData = await Promise.all(
       payments.map(async (p) => {
-        const account = await this.accountGateway.findById(p.getAccountId());
+        const accountId = p.getAccountId();
+        if (!accountId) {
+          return {
+            id: p.getId(),
+            responsible: 'Usuário não encontrado',
+            status: p.getStatus(),
+            value: p.getTotalValue(),
+            createdAt: p.getCreatedAt(),
+          };
+        }
+
+        const account = await this.accountGateway.findById(accountId);
         return {
           id: p.getId(),
-          responsible: account?.getUsername(),
+          responsible: account?.getUsername() || 'Usuário não encontrado',
           status: p.getStatus(),
           value: p.getTotalValue(),
           createdAt: p.getCreatedAt(),

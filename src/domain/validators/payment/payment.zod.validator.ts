@@ -40,7 +40,10 @@ export class PaymentZodValidator implements Validator<Payment> {
     const zodSchema = z.object({
       id: z.uuid(),
       eventId: z.uuid(),
-      accountId: z.uuid(),
+      accountId: z.uuid().optional(),
+      guestEmail: z.email({ message: 'Email inválido' }).optional(),
+      accessToken: z.string().optional(),
+      isGuest: z.boolean().optional(),
       status: z.enum(
         [
           StatusPayment.APPROVED,
