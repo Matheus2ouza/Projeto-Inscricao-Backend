@@ -200,10 +200,17 @@ export class RegisterIndivInscriptionUsecase
         }),
       );
 
+      // Verificar se a inscrição possui um ID de conta associado
+      const accountId = inscription.getAccountId();
+      if (!accountId) {
+        this.logger.warn(
+          `Inscrição ${inscription.getId()} não possui um ID de conta associado para envio de e-mail de inscrição individual`,
+        );
+        return;
+      }
+
       // Buscar dados da conta que fez a inscrição
-      const accountUser = await this.userGateway.findById(
-        inscription.getAccountId(),
-      );
+      const accountUser = await this.userGateway.findById(accountId);
 
       // Prepara dados para o e-mail
       const emailData: InscriptionEmailData = {

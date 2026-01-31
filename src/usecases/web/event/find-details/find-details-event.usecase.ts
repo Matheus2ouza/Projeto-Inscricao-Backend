@@ -12,8 +12,10 @@ export type FindDetailsEventInput = {
 };
 
 export type TypeInscription = {
+  id: string;
   description: string;
   value: number;
+  rule?: Date;
 };
 
 export type FindDetailsEventOutput = {
@@ -60,19 +62,14 @@ export class FindDetailsEventUsecase
 
     //Mapeia para retornar somente a descriçao e o valor
     const typeInscriptions = typeInscription.map((type) => ({
+      id: type.getId(),
       description: type.getDescription(),
       value: type.getValue(),
+      rule: type.getRule(),
     }));
 
     //Busca a url da imagem do evento, caso tenha
-    let publicImageUrl: string | undefined = undefined;
-    if (event.getImageUrl) {
-      const imagePath = event.getImageUrl();
-      if (imagePath) {
-        publicImageUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-      }
-    }
+    const imagePath = await this.getPublicUrl(event.getImageUrl());
 
     //Busca o nome da região
     const region = await this.regionGateway.findById(event.getRegionId());
@@ -82,7 +79,7 @@ export class FindDetailsEventUsecase
       name: event.getName(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
-      imageUrl: publicImageUrl,
+      imageUrl: imagePath,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
@@ -92,5 +89,17 @@ export class FindDetailsEventUsecase
       typeInscriptions,
     };
     return output;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

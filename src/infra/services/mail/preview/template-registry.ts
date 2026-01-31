@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import type { GuestInscriptionEmailData } from '../types/inscription/guest-inscription-email.types';
 import type {
   EventResponsibleEmailData,
   InscriptionEmailData,
@@ -64,6 +65,13 @@ const mockInscriptionData = (): InscriptionEmailData => ({
   eventStartDate: new Date('2025-04-05T08:00:00Z'),
   eventEndDate: new Date('2025-04-07T18:00:00Z'),
   eventLocation: 'São Paulo Expo, São Paulo - SP',
+});
+
+const mockGuestInscriptionData = (): GuestInscriptionEmailData => ({
+  eventName: 'Congresso de Tecnologia 2025',
+  guestName: 'Marina Costa',
+  guestEmail: 'marina.costa@example.com',
+  accessUrl: 'https://inscricao.dev/guest/inscription/abc123',
 });
 
 const mockPaymentReviewNotificationData =
@@ -242,6 +250,23 @@ export const templateDefinitions: TemplateDefinition[] = [
     },
     getProps: () => ({
       statusData: mockInscriptionStatusData(),
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'inscription/guest-registration',
+    category: 'inscription',
+    title: 'Inscrição guest registrada',
+    description: 'Confirma ao convidado que a inscrição foi registrada.',
+    previewText: 'Sua inscrição guest foi registrada.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/guest-registration/index.js'
+      );
+      return { default: module.GuestInscriptionEmail };
+    },
+    getProps: () => ({
+      guestData: mockGuestInscriptionData(),
       year: new Date().getFullYear(),
     }),
   },

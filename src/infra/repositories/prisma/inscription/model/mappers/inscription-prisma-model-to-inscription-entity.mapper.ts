@@ -5,8 +5,14 @@ export class InscriptionPrismaModalToInscriptionEntityMapper {
   public static map(inscription: InscriptionPrismaModel): Inscription {
     return Inscription.with({
       id: inscription.id,
-      accountId: inscription.accountId,
+      accountId: inscription.accountId || undefined,
       eventId: inscription.eventId,
+      accessToken: inscription.accessToken || undefined,
+      confirmationCode: inscription.confirmationCode || undefined,
+      guestEmail: inscription.guestEmail || undefined,
+      guestName: inscription.guestName || undefined,
+      guestLocality: inscription.guestLocality || undefined,
+      isGuest: inscription.isGuest,
       responsible: inscription.responsible,
       phone: inscription.phone,
       totalValue: Number(inscription.totalValue),

@@ -144,13 +144,12 @@ export class AccountParticipantInEventPrismaRepository
     return found.map(PrismaToEntity.map);
   }
 
-  // account-participant-in-event.prisma.repository.ts
   async findByEventIdAndAccountIds(
     eventId: string,
     accountIds: string[],
   ): Promise<
     {
-      accountId: string;
+      accountId: string | null;
       participantId: string;
       participantName: string;
       participantBirthDate: Date;
@@ -173,7 +172,7 @@ export class AccountParticipantInEventPrismaRepository
       },
     });
     return found.map((a) => ({
-      accountId: a.inscription.accountId,
+      accountId: a.inscription.accountId ?? null,
       participantId: a.accountParticipantId,
       participantName: a.participant.name,
       participantBirthDate: a.participant.birthDate,

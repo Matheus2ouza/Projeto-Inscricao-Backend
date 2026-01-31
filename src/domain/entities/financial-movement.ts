@@ -1,11 +1,14 @@
 import Decimal from 'decimal.js';
 import { TransactionType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
+import { FinancialMovementValidatorFactory } from '../factories/financial-moviment/financial-moviment.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type FinancialMovementCreateDto = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  inscriptionId?: string;
   type: TransactionType;
   value: Decimal;
 };
@@ -13,7 +16,9 @@ export type FinancialMovementCreateDto = {
 export type FinancialMovementWithDto = {
   id: string;
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  inscriptionId?: string;
   type: TransactionType;
   value: Decimal;
   createdAt: Date;
@@ -24,11 +29,13 @@ export class FinancialMovement extends Entity {
   private constructor(
     id: string,
     private eventId: string,
-    private accountId: string,
     private type: TransactionType,
     private value: Decimal,
     createdAt: Date,
     updatedAt: Date,
+    private accountId?: string,
+    private guestEmail?: string,
+    private inscriptionId?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -37,6 +44,8 @@ export class FinancialMovement extends Entity {
   public static create({
     eventId,
     accountId,
+    guestEmail,
+    inscriptionId,
     type,
     value,
   }: FinancialMovementCreateDto) {
@@ -44,14 +53,19 @@ export class FinancialMovement extends Entity {
     const createdAt = new Date();
     const updatedAt = new Date();
 
+    guestEmail = guestEmail || undefined;
+    inscriptionId = inscriptionId || undefined;
+
     return new FinancialMovement(
       id,
       eventId,
-      accountId,
       type,
       value,
       createdAt,
       updatedAt,
+      accountId,
+      guestEmail,
+      inscriptionId,
     );
   }
 
@@ -59,6 +73,8 @@ export class FinancialMovement extends Entity {
     id,
     eventId,
     accountId,
+    guestEmail,
+    inscriptionId,
     type,
     value,
     createdAt,
@@ -67,21 +83,19 @@ export class FinancialMovement extends Entity {
     return new FinancialMovement(
       id,
       eventId,
-      accountId,
       type,
       value,
       createdAt,
       updatedAt,
+      accountId,
+      guestEmail,
+      inscriptionId,
     );
   }
 
   // Validação da entidade
   protected validate(): void {
-    if (Number(this.value) <= 0) {
-      throw new Error(
-        'O valor da movimentação financeira deve ser maior que zero.',
-      );
-    }
+    FinancialMovementValidatorFactory.create().validate(this);
   }
 
   // Getters
@@ -93,8 +107,16 @@ export class FinancialMovement extends Entity {
     return this.eventId;
   }
 
-  public getAccountId(): string {
+  public getAccountId(): string | undefined {
     return this.accountId;
+  }
+
+  public getGuestEmail(): string | undefined {
+    return this.guestEmail;
+  }
+
+  public getInscriptionId(): string | undefined {
+    return this.inscriptionId;
   }
 
   public getType(): TransactionType {

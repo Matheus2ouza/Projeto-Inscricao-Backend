@@ -34,4 +34,11 @@ export class PaymentInstallmentPrismaRepository
     });
     return found ? PrismaToEntity.map(found) : null;
   }
+
+  async findByPaymentId(paymentId: string): Promise<PaymentInstallment[]> {
+    const found = await this.prisma.paymentInstallment.findMany({
+      where: { paymentId },
+    });
+    return found.map(PrismaToEntity.map);
+  }
 }

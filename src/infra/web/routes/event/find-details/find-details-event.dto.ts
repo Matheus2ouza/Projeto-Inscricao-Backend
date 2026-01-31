@@ -5,8 +5,10 @@ export type FindDetailsEventRequest = {
 };
 
 export type TypeInscription = {
+  id: string;
   description: string;
   value: number;
+  rule?: Date;
 };
 
 export type FindDetailsEventResponse = {

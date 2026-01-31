@@ -4,9 +4,13 @@ import { InscriptionValidatorFactory } from '../factories/inscription/inscriptio
 import { Entity } from '../shared/entities/entity';
 
 export type InscriptionCreateDto = {
-  accountId: string;
+  accountId?: string;
   eventId: string;
   responsible: string;
+  guestEmail?: string;
+  guestName?: string;
+  guestLocality?: string;
+  isGuest?: boolean;
   email?: string;
   phone: string;
   totalValue: number;
@@ -15,8 +19,14 @@ export type InscriptionCreateDto = {
 
 export type InscriptionWithDto = {
   id: string;
-  accountId: string;
+  accountId?: string;
   eventId: string;
+  accessToken?: string;
+  confirmationCode?: string;
+  guestEmail?: string;
+  guestName?: string;
+  guestLocality?: string;
+  isGuest?: boolean;
   responsible: string;
   email?: string;
   phone: string;
@@ -30,7 +40,7 @@ export type InscriptionWithDto = {
 export class Inscription extends Entity {
   private constructor(
     id: string,
-    private accountId: string,
+
     private eventId: string,
     private responsible: string,
     private phone: string,
@@ -39,7 +49,14 @@ export class Inscription extends Entity {
     private status: InscriptionStatus,
     createdAt: Date,
     updatedAt: Date,
+    private accountId?: string,
     private email?: string,
+    private accessToken?: string,
+    private confirmationCode?: string,
+    private guestEmail?: string,
+    private guestName?: string,
+    private guestLocality?: string,
+    private isGuest?: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -48,12 +65,35 @@ export class Inscription extends Entity {
   public static create({
     accountId,
     eventId,
+    guestEmail,
+    guestName,
+    guestLocality,
+    isGuest,
     responsible,
     phone,
     totalValue,
     status,
     email,
   }: InscriptionCreateDto): Inscription {
+    //com a adição do guest a relação com o account se tornou opcional
+    accountId = accountId || undefined;
+
+    //Dados do guest
+    guestEmail = guestEmail || undefined;
+    guestName = guestName || undefined;
+    guestLocality = guestLocality || undefined;
+    isGuest = isGuest || false;
+
+    // Se for convidado, gerar token de acesso e código de confirmação
+    let accessToken: string | undefined = undefined;
+    let confirmationCode: string | undefined = undefined;
+    if (isGuest) {
+      accessToken = Utils.generateUUID();
+      confirmationCode = Utils.generateConfirmationCode();
+    } else {
+      accessToken = undefined;
+      confirmationCode = undefined;
+    }
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
@@ -61,7 +101,6 @@ export class Inscription extends Entity {
 
     return new Inscription(
       id,
-      accountId,
       eventId,
       responsible,
       phone,
@@ -70,7 +109,14 @@ export class Inscription extends Entity {
       status,
       createdAt,
       updatedAt,
+      accountId,
       email,
+      accessToken,
+      confirmationCode,
+      guestEmail,
+      guestName,
+      guestLocality,
+      isGuest,
     );
   }
 
@@ -78,6 +124,12 @@ export class Inscription extends Entity {
     id,
     accountId,
     eventId,
+    accessToken,
+    confirmationCode,
+    guestEmail,
+    guestName,
+    guestLocality,
+    isGuest,
     responsible,
     phone,
     totalValue,
@@ -89,7 +141,6 @@ export class Inscription extends Entity {
   }: InscriptionWithDto): Inscription {
     return new Inscription(
       id,
-      accountId,
       eventId,
       responsible,
       phone,
@@ -98,7 +149,14 @@ export class Inscription extends Entity {
       status,
       createdAt,
       updatedAt,
+      accountId,
       email,
+      accessToken,
+      confirmationCode,
+      guestEmail,
+      guestName,
+      guestLocality,
+      isGuest,
     );
   }
 
@@ -107,12 +165,36 @@ export class Inscription extends Entity {
     return this.id;
   }
 
-  public getAccountId(): string {
+  public getAccountId(): string | undefined {
     return this.accountId;
   }
 
   public getEventId(): string {
     return this.eventId;
+  }
+
+  public getAccessToken(): string | undefined {
+    return this.accessToken;
+  }
+
+  public getConfirmationCode(): string | undefined {
+    return this.confirmationCode;
+  }
+
+  public getGuestEmail(): string | undefined {
+    return this.guestEmail;
+  }
+
+  public getGuestName(): string | undefined {
+    return this.guestName;
+  }
+
+  public getGuestLocality(): string | undefined {
+    return this.guestLocality;
+  }
+
+  public getIsGuest(): boolean {
+    return this.isGuest || false;
   }
 
   public getResponsible(): string {

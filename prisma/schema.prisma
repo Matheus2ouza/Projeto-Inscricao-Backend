@@ -124,6 +124,7 @@ model TypeInscriptions {
   description               String
   value                     Decimal                     @db.Decimal(10, 2)
   eventId                   String                      @map("event_id")
+  rule                      DateTime?                   @map("rule")
   specialType               Boolean                     @default(false) @map("special_type")
   createdAt                 DateTime                    @default(now()) @map("created_at")
   updatedAt                 DateTime                    @updatedAt @map("updated_at")
@@ -135,8 +136,15 @@ model TypeInscriptions {
 }
 
 model Inscription {
-  id                        String                      @id @default(uuid())
-  accountId                 String                      @map("account_id")
+  id        String  @id @default(uuid())
+  accountId String? @map("account_id")
+
+  accessToken               String?                     @unique @default(uuid())
+  confirmationCode          String?                     @unique
+  guestEmail                String?
+  guestName                 String?
+  guestLocality             String?
+  isGuest                   Boolean                     @default(false)
   eventId                   String                      @map("event_id")
   totalValue                Decimal                     @db.Decimal(10, 2)
   totalPaid                 Decimal                     @default(0.00) @map("total_paid") @db.Decimal(10, 2)
@@ -146,12 +154,16 @@ model Inscription {
   phone                     String
   responsible               String
   email                     String?
-  account                   Accounts                    @relation(fields: [accountId], references: [id])
+  account                   Accounts?                   @relation(fields: [accountId], references: [id])
   event                     Events                      @relation(fields: [eventId], references: [id])
   participants              Participant[]
   accountParticipantInEvent AccountParticipantInEvent[]
   payments                  PaymentAllocation[]
+  financialMovements        FinancialMovement[]
 
+  @@index([guestEmail])
+  @@index([confirmationCode])
+  @@index([accessToken])
   @@map("inscriptions")
 }
 
@@ -225,7 +237,10 @@ model OnSiteParticipantPayment {
 model Payment {
   id                String        @id @default(uuid())
   eventId           String        @map("event_id")
-  accountId         String        @map("account_id")
+  accountId         String?       @map("account_id")
+  guestEmail        String?
+  accessToken       String?       @unique
+  isGuest           Boolean       @default(false)
   status            StatusPayment
   methodPayment     PaymentMethod @default(PIX) @map("method_payment")
   totalValue        Decimal       @default(0) @db.Decimal(10, 2)
@@ -241,12 +256,13 @@ model Payment {
   imageUrl          String?
   approvedBy        String?
 
-  account Accounts @relation(fields: [accountId], references: [id])
-  event   Events   @relation(fields: [eventId], references: [id])
+  account Accounts? @relation(fields: [accountId], references: [id])
+  event   Events    @relation(fields: [eventId], references: [id])
 
   allocations         PaymentAllocation[]
   paymentInstallments PaymentInstallment[]
 
+  @@index([guestEmail])
   @@map("payments")
 }
 
@@ -283,18 +299,24 @@ model PaymentAllocation {
 }
 
 model FinancialMovement {
-  id                  String               @id @default(uuid())
-  eventId             String               @map("event_id")
-  accountId           String               @map("account_id")
-  type                TransactionType
-  value               Decimal              @db.Decimal(10, 2)
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  account             Accounts             @relation(fields: [accountId], references: [id])
-  event               Events               @relation(fields: [eventId], references: [id])
+  id            String          @id @default(uuid())
+  eventId       String          @map("event_id")
+  accountId     String?         @map("account_id")
+  guestEmail    String?
+  inscriptionId String?         @map("inscription_id")
+  type          TransactionType
+  value         Decimal         @db.Decimal(10, 2)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  account       Accounts?       @relation(fields: [accountId], references: [id])
+  event         Events          @relation(fields: [eventId], references: [id])
+  inscription   Inscription?    @relation(fields: [inscriptionId], references: [id])
+
   ticketSalePayments  TicketSalePayment[]
   paymentInstallments PaymentInstallment[]
 
+  @@index([inscriptionId])
+  @@index([guestEmail])
   @@map("financial_movement")
 }
 

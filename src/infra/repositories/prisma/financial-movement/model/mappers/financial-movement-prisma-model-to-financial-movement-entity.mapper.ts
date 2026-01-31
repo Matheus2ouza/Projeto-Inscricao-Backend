@@ -8,7 +8,9 @@ export class FinancialMovementPrismaModelToFinancialMovementEntityMapper {
     const anFinancialMovement = FinancialMovement.with({
       id: financialMovement.id,
       eventId: financialMovement.eventId,
-      accountId: financialMovement.accountId,
+      accountId: financialMovement.accountId ?? undefined,
+      guestEmail: financialMovement.guestEmail ?? undefined,
+      inscriptionId: financialMovement.inscriptionId ?? undefined,
       type: financialMovement.type,
       value: financialMovement.value,
       createdAt: financialMovement.createdAt,

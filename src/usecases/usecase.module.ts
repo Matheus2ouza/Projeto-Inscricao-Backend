@@ -53,8 +53,10 @@ import { FindAllPaginatedOnSiteRegistrationUsecase } from './web/inscription/avu
 import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/delete-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindCacheUsecase } from './web/inscription/find-cache/find-cache.usecase';
+import { FindDetailsGuestInscriptionUsecase } from './web/inscription/find-details-gues-inscription/find-details-gues-inscription';
 import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-inscription/find-details-inscription.usecase';
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
+import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
@@ -199,11 +201,13 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
+    RegisterGuestInscriptionUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
+    FindDetailsGuestInscriptionUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -335,11 +339,13 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
+    RegisterGuestInscriptionUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
+    FindDetailsGuestInscriptionUsecase,
 
     // Payment
     ListAllPaymentsUseCase,

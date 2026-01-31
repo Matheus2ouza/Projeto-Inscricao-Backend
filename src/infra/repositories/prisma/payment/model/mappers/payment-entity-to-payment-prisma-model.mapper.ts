@@ -7,7 +7,10 @@ export class PaymentEntityToPaymentPrismaModelMapper {
     return {
       id: payment.getId(),
       eventId: payment.getEventId(),
-      accountId: payment.getAccountId(),
+      accountId: payment.getAccountId() || null,
+      guestEmail: payment.getGuestEmail() || null,
+      accessToken: payment.getAccessToken() || null,
+      isGuest: payment.getIsGuest() || false,
       status: payment.getStatus(),
       methodPayment: payment.getMethodPayment(),
       totalValue: Decimal(payment.getTotalValue()),

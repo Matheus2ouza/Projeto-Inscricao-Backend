@@ -1,4 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import { FindDetailsEventUsecase } from 'src/usecases/web/event/find-details/find-details-event.usecase';
 import {
   FindDetailsEventRequest,
@@ -12,6 +13,7 @@ export class FindDetailsEventRoute {
     private readonly findDetailsEventUsecase: FindDetailsEventUsecase,
   ) {}
 
+  @IsPublic()
   @Get(':id/details')
   public async handle(
     @Param('id') id: string,

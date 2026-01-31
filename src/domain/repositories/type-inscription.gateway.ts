@@ -1,19 +1,19 @@
-import { TypesInscription } from '../entities/typesInscription.entity';
+import { TypeInscription } from '../entities/type-Inscription.entity';
 
 export abstract class TypeInscriptionGateway {
-  abstract create(typeInscription: TypesInscription): Promise<TypesInscription>;
-  abstract update(typeInscription: TypesInscription): Promise<TypesInscription>;
+  abstract create(typeInscription: TypeInscription): Promise<TypeInscription>;
+  abstract update(typeInscription: TypeInscription): Promise<TypeInscription>;
 
-  abstract findById(id: string): Promise<TypesInscription | null>;
-  abstract findByIds(ids: string[]): Promise<TypesInscription[]>;
+  abstract findById(id: string): Promise<TypeInscription | null>;
+  abstract findByIds(ids: string[]): Promise<TypeInscription[]>;
   abstract findByDescription(
     eventId: string,
     description: string,
-  ): Promise<TypesInscription | null>;
-  abstract findAll(): Promise<TypesInscription[]>;
-  abstract findByEventId(eventId: string): Promise<TypesInscription[]>;
-  abstract findSpecialTypes(eventId: string): Promise<TypesInscription[]>;
-  abstract findAllDescription(): Promise<TypesInscription[]>;
+  ): Promise<TypeInscription | null>;
+  abstract findAll(): Promise<TypeInscription[]>;
+  abstract findByEventId(eventId: string): Promise<TypeInscription[]>;
+  abstract findSpecialTypes(eventId: string): Promise<TypeInscription[]>;
+  abstract findAllDescription(): Promise<TypeInscription[]>;
 
   abstract countAllByEvent(eventId: string): Promise<number>;
 }

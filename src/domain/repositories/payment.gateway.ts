@@ -25,6 +25,7 @@ export abstract class PaymentGateway {
     page: number,
     pageSize: number,
   ): Promise<Payment[]>;
+  abstract findByInscriptionId(inscriptionId: string): Promise<Payment | null>;
 
   // Agregações e contagens
   abstract countAllFiltered(

@@ -238,9 +238,16 @@ export class RegisterPaymentUsecase
         }),
       );
 
-      const accountUser = await this.userGateway.findById(
-        payment.getAccountId(),
-      );
+      const accountId = payment.getAccountId();
+
+      if (!accountId) {
+        this.logger.warn(
+          `Pagamento ${payment.getId()} não possui um ID de conta associado para envio de e-mail de notificação`,
+        );
+        return;
+      }
+
+      const accountUser = await this.userGateway.findById(accountId);
 
       // Preparar dados das inscrições para o email
       const inscriptionsData = inscriptions.map((inscription) => ({
