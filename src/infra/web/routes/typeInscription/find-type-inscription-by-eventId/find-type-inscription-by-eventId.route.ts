@@ -23,10 +23,8 @@ export class FindByEventId {
       eventId: query.eventId,
     };
 
-    const result =
+    const response =
       await this.findTypeInscriptionByEventIdUsecase.execute(input);
-
-    const response = FindTypeInscriptionByEventIdPresenter.toHttp(result);
-    return response;
+    return FindTypeInscriptionByEventIdPresenter.toHttp(response);
   }
 }

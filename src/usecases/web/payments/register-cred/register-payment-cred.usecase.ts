@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { PaymentMethod, StatusPayment } from 'generated/prisma';
+import {
+  InscriptionStatus,
+  PaymentMethod,
+  StatusPayment,
+} from 'generated/prisma';
 import { Event } from 'src/domain/entities/event.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -16,9 +20,11 @@ import { InscriptionNotReleasedForPaymentUsecaseException } from '../../exceptio
 import { InvalidInscriptionIdUsecaseException } from '../../exceptions/paymentInscription/invalid-inscription-id.usecase.exception ';
 import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/paymentInscription/overpayment-not-allowed.usecase.exception';
 
-export type RegisterCredInput = {
+export type RegisterPaymentCredInput = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  isGuest?: boolean;
   totalValue: number;
   client: Client;
   inscriptions: inscription[];
@@ -41,7 +47,7 @@ type inscription = {
   id: string;
 };
 
-export type RegisterCredOutput = {
+export type RegisterPaymentCredOutput = {
   id: string;
   link: string;
   status: string;
@@ -55,8 +61,8 @@ type AsaasCheckoutResponse = {
 };
 
 @Injectable()
-export class RegisterCredUsecase
-  implements Usecase<RegisterCredInput, RegisterCredOutput>
+export class RegisterPaymentCredUsecase
+  implements Usecase<RegisterPaymentCredInput, RegisterPaymentCredOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
@@ -66,7 +72,9 @@ export class RegisterCredUsecase
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
-  async execute(input: RegisterCredInput): Promise<RegisterCredOutput> {
+  async execute(
+    input: RegisterPaymentCredInput,
+  ): Promise<RegisterPaymentCredOutput> {
     // preset das taxas do ASAAS
     const percentFee = 0.0399; // 3,99%
     const fixedFee = 0.49; // taxa fixa: R$ 0.49
@@ -78,7 +86,7 @@ export class RegisterCredUsecase
       throw new EventNotFoundUsecaseException(
         `Event with id ${input.eventId} not found.`,
         `Evento não encontrado.`,
-        RegisterCredUsecase.name,
+        RegisterPaymentCredUsecase.name,
       );
     }
 
@@ -90,18 +98,19 @@ export class RegisterCredUsecase
       throw new InvalidInscriptionIdUsecaseException(
         'One or more inscription IDs are invalid',
         'Um ou mais IDs de inscrição são inválidos',
-        RegisterCredUsecase.name,
+        RegisterPaymentCredUsecase.name,
       );
     }
 
     let totalDue = 0;
 
     for (const inscription of inscriptionsEntities) {
-      if (inscription.getStatus() === StatusPayment.UNDER_REVIEW) {
+      // Validação
+      if (inscription.getStatus() === InscriptionStatus.UNDER_REVIEW) {
         throw new InscriptionNotReleasedForPaymentUsecaseException(
           `Attempted payment before inscription release id: ${inscription.getId()}`,
           'O pagamento ainda não está liberado para esta inscrição.',
-          RegisterCredUsecase.name,
+          RegisterPaymentCredUsecase.name,
         );
       }
 
@@ -116,7 +125,7 @@ export class RegisterCredUsecase
       throw new OverpaymentNotAllowedUsecaseException(
         `attempted payment but the amount passed (${input.totalValue}) exceeds the debt amount (${totalDue})`,
         `O valor passado é maior que a dívida`,
-        RegisterCredUsecase.name,
+        RegisterPaymentCredUsecase.name,
       );
     }
 
@@ -134,13 +143,14 @@ export class RegisterCredUsecase
       imagePath,
     );
 
-    console.log(checkout);
-
     // Cria o pagamento no com os dados para confirmação posteriomente do webhook
     // O installmente é setado como 1 mas ao confirmar o pagamento, o ASAAS retornará o número de parcelas
+    // Se for um convidado, o pagamento é registrado com o email do convidado
+    // E o accountId é setado como null
+    // Se for um usuário, o pagamento é registrado com o accountId
+    // E o guestEmail é setado como null
     const payment = Payment.create({
       eventId: event.getId(),
-      accountId: input.accountId,
       status: StatusPayment.UNDER_REVIEW,
       totalValue: input.totalValue,
       totalPaid: 0,
@@ -148,6 +158,9 @@ export class RegisterCredUsecase
       methodPayment: PaymentMethod.CARTAO,
       asaasCheckoutId: checkout.id,
       externalReference: checkout.externalReference,
+      ...(input.isGuest
+        ? { guestEmail: input.guestEmail }
+        : { accountId: input.accountId }),
     });
 
     await this.paymentGateway.create(payment);
@@ -188,7 +201,7 @@ export class RegisterCredUsecase
     await this.paymentAllocationGateway.createMany(allocations);
     await this.inscriptionGateway.incrementTotalPaidMany(increments);
 
-    const output: RegisterCredOutput = {
+    const output: RegisterPaymentCredOutput = {
       id: checkout.id,
       link: checkout.link,
       status: checkout.status,
@@ -248,7 +261,6 @@ export class RegisterCredUsecase
       },
     );
 
-    console.log(checkout.data);
     return {
       id: checkout.data.id as string,
       link: checkout.data.link as string,

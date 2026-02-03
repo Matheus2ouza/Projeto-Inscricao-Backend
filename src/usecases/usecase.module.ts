@@ -77,8 +77,8 @@ import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.useca
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
-import { RegisterCredUsecase } from './web/payments/register-cred/register-cred.usecase';
-import { RegisterPaymentUsecase } from './web/payments/register/register-payment.usecase';
+import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
+import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
@@ -213,8 +213,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
-    RegisterPaymentUsecase,
-    RegisterCredUsecase,
+    RegisterPaymentCredUsecase,
+    RegisterPaymentPixUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     AnalysisPaymentsPendingDetailsUsecase,
@@ -351,8 +351,8 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
-    RegisterPaymentUsecase,
-    RegisterCredUsecase,
+    RegisterPaymentCredUsecase,
+    RegisterPaymentPixUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     AnalysisPaymentsPendingDetailsUsecase,

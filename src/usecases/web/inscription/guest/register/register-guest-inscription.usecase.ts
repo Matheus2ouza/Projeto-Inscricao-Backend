@@ -2,11 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
+import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { GuestInscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/guest-inscription-email.handler';
+import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
+import {
+  EventResponsibleEmailData,
+  InscriptionEmailData,
+} from 'src/infra/services/mail/types/inscription/inscription-email.types';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
@@ -45,7 +53,11 @@ export class RegisterGuestInscriptionUsecase
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
+    private readonly eventResponsibleGateway: EventResponsibleGateway,
+    private readonly accountGateway: AccountGateway,
     private readonly guestInscriptionEmailHandler: GuestInscriptionEmailHandler,
+    private readonly inscriptionEmailHandler: InscriptionEmailHandler,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -111,6 +123,19 @@ export class RegisterGuestInscriptionUsecase
       );
     }
 
+    if (inscription.getStatus() === InscriptionStatus.UNDER_REVIEW) {
+      void this.sendUnderReviewNotification(
+        event.getId(),
+        inscription,
+        typeInscription.getValue(),
+      ).catch((error) => {
+        this.logger.error(
+          `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${error.message}`,
+          error.stack,
+        );
+      });
+    }
+
     const output: RegisterGuestInscriptionOutput = {
       id: inscription.getId(),
       status: inscription.getStatus(),
@@ -167,10 +192,76 @@ export class RegisterGuestInscriptionUsecase
         accessUrl: `${process.env.URL_CALLBACK}/guest/inscription?confirmationCode=${encodeURIComponent(
           confirmationCode,
         )}`,
+        confirmationCode,
       });
     } catch (error) {
       this.logger.error(
         `Erro ao enviar e-mail de inscrição guest ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
+        error.stack,
+      );
+    }
+  }
+
+  private async sendUnderReviewNotification(
+    eventId: string,
+    inscription: Inscription,
+    totalValue: number,
+  ): Promise<void> {
+    try {
+      this.logger.log(
+        `Iniciando envio de notificação de inscrição em análise ${inscription.getId()} para o evento ${eventId}`,
+      );
+
+      const event = await this.eventGateway.findById(eventId);
+      if (!event) {
+        this.logger.warn(
+          `Evento ${eventId} não encontrado para envio de notificação de inscrição em análise`,
+        );
+        return;
+      }
+
+      const eventResponsibles =
+        await this.eventResponsibleGateway.findByEventId(eventId);
+
+      if (!eventResponsibles.length) {
+        this.logger.warn(
+          `Evento ${eventId} não possui responsáveis para notificação`,
+        );
+        return;
+      }
+
+      const accountIds = eventResponsibles.map((r) => r.getAccountId());
+      const accounts = await this.accountGateway.findByIds(accountIds);
+
+      const responsiblesEmailData: EventResponsibleEmailData[] = accounts
+        .filter((account) => !!account.getEmail())
+        .map((account) => ({
+          id: account.getId(),
+          username: account.getUsername(),
+          email: account.getEmail()!, // agora é seguro
+        }));
+
+      const inscriptionEmailData: InscriptionEmailData = {
+        eventName: event.getName(),
+        eventImageUrl: event.getImageUrl(),
+        responsibleName: inscription.getGuestName() || 'Convidado',
+        responsiblePhone: inscription.getPhone() || '',
+        responsibleEmail: inscription.getGuestEmail() || '',
+        totalValue: totalValue,
+        participantCount: 1,
+        inscriptionDate: new Date(),
+        eventStartDate: event.getStartDate(),
+        eventEndDate: event.getEndDate(),
+        eventLocation: event.getLocation() || 'Local não informado',
+      };
+
+      await this.inscriptionEmailHandler.sendInscriptionNotification(
+        inscriptionEmailData,
+        responsiblesEmailData,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
         error.stack,
       );
     }

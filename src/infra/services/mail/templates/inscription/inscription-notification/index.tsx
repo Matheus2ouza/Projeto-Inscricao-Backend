@@ -45,10 +45,16 @@ export const InscriptionNotificationEmail = ({
       label: 'Qtd de Participantes',
       value: eventData.participantCount.toString(),
     },
-    { label: 'Conta Responsável', value: eventData.accountUsername },
     { label: 'Data da Inscrição', value: formattedInscriptionDate },
     { label: 'Hora da Inscrição', value: formattedInscriptionTime },
   ];
+
+  if (eventData.accountUsername) {
+    summaryRows.splice(1, 0, {
+      label: 'Conta Responsável',
+      value: eventData.accountUsername,
+    });
+  }
 
   return (
     <Layout

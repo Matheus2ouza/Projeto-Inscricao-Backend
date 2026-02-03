@@ -1,6 +1,8 @@
-export type RegisterCredRequest = {
+export type RegisterPaymentCredRequest = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestEmail?: string;
+  isGuest?: boolean;
   totalValue: number;
   client: Client;
   inscriptions: inscription[];
@@ -23,7 +25,7 @@ type inscription = {
   id: string;
 };
 
-export type RegisterCredResponse = {
+export type RegisterPaymentCredResponse = {
   id: string;
   link: string;
   status: string;

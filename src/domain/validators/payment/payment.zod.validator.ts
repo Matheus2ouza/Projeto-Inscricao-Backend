@@ -41,6 +41,10 @@ export class PaymentZodValidator implements Validator<Payment> {
       id: z.uuid(),
       eventId: z.uuid(),
       accountId: z.uuid().optional(),
+      guestName: z
+        .string()
+        .min(3, 'O nome do convidado deve ter no mínimo 3 caracteres')
+        .optional(),
       guestEmail: z.email({ message: 'Email inválido' }).optional(),
       accessToken: z.string().optional(),
       isGuest: z.boolean().optional(),

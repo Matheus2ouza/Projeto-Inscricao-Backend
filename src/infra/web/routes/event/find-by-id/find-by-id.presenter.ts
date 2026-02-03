@@ -18,8 +18,8 @@ export class FindByEventPresenter {
       status: output.status,
       paymentEnebled: output.paymentEnebled,
       allowCard: output.allowCard ?? false,
+      allowGuest: output.allowGuest,
       createdAt: output.createdAt,
-      updatedAt: output.updatedAt,
       regionName: output.regionName,
       responsibles: output.responsibles,
     };

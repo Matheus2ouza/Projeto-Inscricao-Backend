@@ -72,6 +72,7 @@ const mockGuestInscriptionData = (): GuestInscriptionEmailData => ({
   guestName: 'Marina Costa',
   guestEmail: 'marina.costa@example.com',
   accessUrl: 'https://inscricao.dev/guest/inscription/abc123',
+  confirmationCode: 'abd1-casc-42ad',
 });
 
 const mockPaymentReviewNotificationData =
@@ -83,6 +84,7 @@ const mockPaymentReviewNotificationData =
     eventEndDate: new Date('2025-04-07T18:00:00Z'),
     paymentValue: 789.7, // Total de 3 inscrições
     paymentDate: new Date('2025-03-18T10:30:00Z'),
+    paymentMethod: 'PIX',
     accountUsername: 'tech-events-admin',
     inscriptions: [
       {

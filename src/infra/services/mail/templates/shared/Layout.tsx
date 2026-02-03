@@ -19,6 +19,9 @@ export type LayoutProps = {
   headerTitle?: string;
   headerSubtitle?: string;
   children: ReactNode;
+  eventImageUrl?: string;
+  eventLocation?: string;
+  eventDate?: string;
 };
 
 export const Layout = ({

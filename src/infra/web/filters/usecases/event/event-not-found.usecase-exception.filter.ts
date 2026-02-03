@@ -7,11 +7,14 @@ import {
 import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
+import { LogUtils } from 'src/shared/utils/log-utils';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
 @Catch(EventNotFoundUsecaseException)
 export class EventNotFoundUsecaseExceptionFilter implements ExceptionFilter {
   catch(exception: EventNotFoundUsecaseException, host: ArgumentsHost) {
+    LogUtils.logException(exception);
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 

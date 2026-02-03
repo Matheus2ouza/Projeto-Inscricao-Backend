@@ -1,8 +1,11 @@
 import { StatusPayment } from 'generated/prisma';
 
-export type RegisterPaymentRequest = {
+export type RegisterPaymentPixRequest = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
+  guestName?: string;
+  guestEmail?: string;
+  isGuest: boolean;
   totalValue: number;
   image: string;
   inscriptions: inscription[];
@@ -12,7 +15,7 @@ type inscription = {
   id: string;
 };
 
-export type RegisterPaymentResponse = {
+export type RegisterPaymentPixResponse = {
   id: string;
   totalValue: number;
   status: StatusPayment;

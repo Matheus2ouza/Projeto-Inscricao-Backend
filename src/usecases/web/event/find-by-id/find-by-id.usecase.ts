@@ -27,8 +27,8 @@ export type FindByIdEventOutput = {
   status: statusEvent;
   paymentEnebled: boolean;
   allowCard?: boolean;
+  allowGuest: boolean;
   createdAt: Date;
-  updatedAt: Date;
   regionName: string;
   responsibles: Responsible[];
 };
@@ -65,18 +65,8 @@ export class FindByIdEventUsecase
 
     const region = await this.regionGateway.findById(event.getRegionId());
 
-    let publicImageUrl: string | undefined = undefined;
-    const imagePath = event.getImageUrl();
-    if (imagePath) {
-      publicImageUrl =
-        await this.supabaseStorageService.getPublicUrl(imagePath);
-    }
-
-    let publicLogoUrl: string | undefined = undefined;
-    const logoPath = event.getLogoUrl();
-    if (logoPath) {
-      publicLogoUrl = await this.supabaseStorageService.getPublicUrl(logoPath);
-    }
+    const imagePath = await this.getPublicUrl(event.getImageUrl());
+    const logoPath = await this.getPublicUrl(event.getLogoUrl());
 
     const responsibles = await this.eventResponsibleGateway.findByEventId(
       event.getId(),
@@ -101,20 +91,32 @@ export class FindByIdEventUsecase
       amountCollected: event.getAmountCollected(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
-      imageUrl: publicImageUrl,
-      logoUrl: publicLogoUrl,
+      imageUrl: imagePath,
+      logoUrl: logoPath,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
       paymentEnebled: event.getPaymentEnabled(),
       allowCard: event.getAllowCard() ?? false,
+      allowGuest: event.getAllowGuest(),
       createdAt: event.getCreatedAt(),
-      updatedAt: event.getUpdatedAt(),
       regionName: region?.getName() || '',
       responsibles: responsibleUsers,
     };
 
     return output;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

@@ -40,9 +40,10 @@ export class TypeInscriptionZodValidator implements Validator<TypeInscription> {
       description: z.string({ message: 'A descrição é obrigatória' }).min(1),
       value: z.number({ message: 'O valor é obrigatório' }).min(0),
       eventId: z.string().min(1),
-      specialtype: z.boolean(),
+      specialType: z.boolean(),
       rule: z
         .date({ message: 'A regra tem que ser uma data válida' })
+        .nullable()
         .optional(),
     });
 

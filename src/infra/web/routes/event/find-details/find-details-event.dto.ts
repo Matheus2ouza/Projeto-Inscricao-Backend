@@ -8,7 +8,8 @@ export type TypeInscription = {
   id: string;
   description: string;
   value: number;
-  rule?: Date;
+  rule: Date | null;
+  specialType: boolean;
 };
 
 export type FindDetailsEventResponse = {
