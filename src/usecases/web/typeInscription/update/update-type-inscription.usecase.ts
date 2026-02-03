@@ -40,7 +40,7 @@ export class UpdateTypeInscriptionUsecase
     const update = {
       description: input.description,
       value: input.value,
-      specialtype: input.specialType,
+      specialType: input.specialType,
     };
 
     typeInscription.update(update);

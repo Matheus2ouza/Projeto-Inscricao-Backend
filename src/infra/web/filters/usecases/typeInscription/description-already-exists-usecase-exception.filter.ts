@@ -8,14 +8,14 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { MemberAlreadyInscribedUsecaseException } from 'src/usecases/web/exceptions/members/member-already-inscriptibed.usecase.exception';
+import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/typeInscription/description-already-exists.usecase.exception';
 
-@Catch(MemberAlreadyInscribedUsecaseException)
-export class MemberAlreadyInscribedUsecaseExceptionFilter
+@Catch(DescriptionAlreadyExistsUsecaseException)
+export class DescriptionAlreadyExistsUsecaseExcepitonFilter
   implements ExceptionFilter
 {
-  catch(
-    exception: MemberAlreadyInscribedUsecaseException,
+  public catch(
+    exception: DescriptionAlreadyExistsUsecaseException,
     host: ArgumentsHost,
   ) {
     LogUtils.logException(exception);
@@ -23,14 +23,15 @@ export class MemberAlreadyInscribedUsecaseExceptionFilter
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const status = HttpStatus.CONFLICT;
+    const status = HttpStatus.BAD_REQUEST;
+
     const aResponseData = ExceptionUtils.buildErrorResponse(exception, status);
 
     response.status(status).json(aResponseData);
   }
 }
 
-export const MemberAlreadyInscribedUsecaseExceptionFilterProvider = {
+export const DescriptionAlreadyExistsUsecaseExcepitonFilterProvider = {
   provide: APP_FILTER,
-  useClass: MemberAlreadyInscribedUsecaseExceptionFilter,
+  useClass: DescriptionAlreadyExistsUsecaseExcepitonFilter,
 };

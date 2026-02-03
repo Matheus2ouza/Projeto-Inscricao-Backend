@@ -1,8 +1,9 @@
 export type CreateTypeInscriptionRequest = {
   description: string;
   value: number;
+  rule: Date | null;
   eventId: string;
-  specialtype: boolean;
+  specialType: boolean;
 };
 
 export type CreateTypeInscriptionResponse = {

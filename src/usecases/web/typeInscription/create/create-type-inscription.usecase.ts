@@ -9,8 +9,9 @@ import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/excep
 export type CreateTypeInscriptionInput = {
   description: string;
   value: number;
+  rule: Date | null;
   eventId: string;
-  specialtype: boolean;
+  specialType: boolean;
 };
 
 export type CreateTypeInscriptionOutput = {
@@ -29,10 +30,19 @@ export class CreateTypeInscriptionUseCase
   public async execute(
     input: CreateTypeInscriptionInput,
   ): Promise<CreateTypeInscriptionOutput> {
+    const event = await this.eventGateway.findById(input.eventId);
+    if (!event) {
+      throw new EventNotFoundUsecaseException(
+        `attempt to create subscription type with for event: ${input.eventId} but it was not found`,
+        `O Evento para qual esta tetando registrar um novo tipo de inscrição não foi encontrado`,
+        CreateTypeInscriptionUseCase.name,
+      );
+    }
+
     const descriptionExist =
       await this.typeInscriptionGateway.findByDescription(
         input.eventId,
-        input.description,
+        input.description.trim().toLowerCase(),
       );
 
     if (descriptionExist) {
@@ -42,26 +52,18 @@ export class CreateTypeInscriptionUseCase
         CreateTypeInscriptionUseCase.name,
       );
     }
-
-    const eventExist = await this.eventGateway.findById(input.eventId);
-    if (!eventExist) {
-      throw new EventNotFoundUsecaseException(
-        `attempt to create subscription type with for event: ${input.eventId} but it was not found`,
-        `O Evento para qual esta tetando registrar um novo tipo de inscrição não foi encontrado`,
-        CreateTypeInscriptionUseCase.name,
-      );
-    }
-    const anTypeInscription = TypeInscription.create({
-      description: input.description,
+    const newTypeInscription = TypeInscription.create({
+      description: input.description.trim().toLowerCase(),
       value: input.value,
       eventId: input.eventId,
-      specialtype: input.specialtype,
+      rule: input.rule,
+      specialType: input.specialType,
     });
 
-    await this.typeInscriptionGateway.create(anTypeInscription);
+    await this.typeInscriptionGateway.create(newTypeInscription);
 
     const output: CreateTypeInscriptionOutput = {
-      id: anTypeInscription.getId(),
+      id: newTypeInscription.getId(),
     };
 
     return output;

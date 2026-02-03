@@ -21,6 +21,7 @@ export class EventEntityToEventPrismaModelMapper {
       latitude: event.getLatitude() ?? null,
       regionId: event.getRegionId(),
       allowCard: event.getAllowCard() ?? false,
+      allowGuest: event.getAllowGuest(),
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
     };

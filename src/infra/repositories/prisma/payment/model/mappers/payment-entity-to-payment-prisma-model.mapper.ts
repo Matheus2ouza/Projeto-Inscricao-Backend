@@ -8,6 +8,7 @@ export class PaymentEntityToPaymentPrismaModelMapper {
       id: payment.getId(),
       eventId: payment.getEventId(),
       accountId: payment.getAccountId() || null,
+      guestName: payment.getGuestName() || null,
       guestEmail: payment.getGuestEmail() || null,
       accessToken: payment.getAccessToken() || null,
       isGuest: payment.getIsGuest() || false,

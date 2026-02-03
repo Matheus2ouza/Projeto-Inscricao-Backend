@@ -16,14 +16,25 @@ export const GuestInscriptionEmail = ({
     <Layout
       previewText={`Inscrição registrada - ${guestData.eventName}`}
       year={year}
-      headerTitle="Inscrição registrada com sucesso"
-      headerSubtitle={`Olá, ${guestData.guestName}. Sua inscrição foi registrada e já pode ser acompanhada.`}
+      headerTitle={guestData.eventName.toUpperCase()}
+      headerSubtitle={`Olá, ${guestData.guestName}. Sua inscrição foi realizada com sucesso!`}
     >
       <Section style={cardStyle}>
-        <Text style={titleStyle}>Acompanhe sua inscrição</Text>
         <Text style={bodyStyle}>
-          Acesse o link abaixo para acompanhar o status da inscrição e realizar
-          o pagamento quando disponível.
+          Para acompanhar os detalhes da sua inscrição, visualizar informações e
+          acompanhar o status, basta clicar no botão abaixo.
+        </Text>
+        <Text style={bodyStyle}>
+          Caso precise acessar sua inscrição posteriormente, utilize o código de
+          confirmação informado neste e-mail. Esse código é{' '}
+          <strong>exclusivo</strong> e permite localizar sua inscrição sempre
+          que necessário.
+        </Text>
+        <Section style={codeWrapperStyle}>
+          <Text style={codeStyle}>{guestData.confirmationCode}</Text>
+        </Section>
+        <Text style={bodyStyle}>
+          Clique no botão abaixo para acessar sua inscrição:
         </Text>
         <Section style={buttonWrapperStyle}>
           <Button href={guestData.accessUrl} style={buttonStyle}>
@@ -42,18 +53,12 @@ const cardStyle: React.CSSProperties = {
   padding: '24px 28px',
 };
 
-const titleStyle: React.CSSProperties = {
-  fontSize: '18px',
-  fontWeight: 600,
-  color: '#0f172a',
-  margin: '0 0 12px 0',
-};
-
 const bodyStyle: React.CSSProperties = {
   fontSize: '14px',
   color: '#0f172a',
   margin: '0 0 18px 0',
   lineHeight: 1.5,
+  textAlign: 'center',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -69,6 +74,23 @@ const buttonStyle: React.CSSProperties = {
 
 const buttonWrapperStyle: React.CSSProperties = {
   textAlign: 'center',
+};
+
+const codeWrapperStyle: React.CSSProperties = {
+  backgroundColor: '#eef2ff',
+  borderRadius: '8px',
+  padding: '12px',
+  marginBottom: '18px',
+  textAlign: 'center',
+};
+
+const codeStyle: React.CSSProperties = {
+  fontSize: '24px',
+  fontWeight: 'bold',
+  color: '#4556d4',
+  fontFamily: 'monospace',
+  margin: 0,
+  letterSpacing: '4px',
 };
 
 export default GuestInscriptionEmail;

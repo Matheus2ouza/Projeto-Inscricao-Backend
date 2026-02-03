@@ -19,8 +19,8 @@ export type FindByIdEventResponse = {
   status: statusEvent;
   paymentEnebled: boolean;
   allowCard?: boolean;
+  allowGuest: boolean;
   createdAt: Date;
-  updatedAt: Date;
   regionName: string;
   responsibles: Responsible[];
 };

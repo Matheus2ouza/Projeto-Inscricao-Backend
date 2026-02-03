@@ -7,6 +7,7 @@ export class PaymentPrismaModelToPaymentEntityMapper {
       id: payment.id,
       eventId: payment.eventId,
       accountId: payment.accountId || undefined,
+      guestName: payment.guestName || undefined,
       guestEmail: payment.guestEmail || undefined,
       accessToken: payment.accessToken || undefined,
       isGuest: payment.isGuest || false,

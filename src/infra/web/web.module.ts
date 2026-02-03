@@ -11,6 +11,7 @@ import { ServiceExceptionFilterProvider } from './filters/infra/service/server-e
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
+import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
@@ -80,8 +81,8 @@ import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.rout
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
-import { RegisterCredRoute } from './routes/payments/register-cred/register-cred.route';
-import { RegisterPaymentRoute } from './routes/payments/register/register-payment.route';
+import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
+import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
 import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
 import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
@@ -221,8 +222,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     ListAllPaymentsRoute,
     ListAllPaymentsPendingRoute,
     ListPaymentPendingDetailsRoute,
-    RegisterPaymentRoute,
-    RegisterCredRoute,
+    RegisterPaymentPixRoute,
+    RegisterPaymentCredRoute,
     DeletePaymentRoute,
     AnalysisPaymentsPendingRoute,
     AnalysisPaymentsPendingDetailsRoute,
@@ -278,6 +279,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    // Type Inscription
+    DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,
   ],
 })
 export class WebModule {}

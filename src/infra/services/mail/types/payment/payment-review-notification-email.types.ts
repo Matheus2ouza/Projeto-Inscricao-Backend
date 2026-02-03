@@ -16,6 +16,7 @@ export interface PaymentReviewNotificationEmailData {
   eventEndDate?: Date;
   paymentValue: number;
   paymentDate: Date;
+  paymentMethod: string;
   accountUsername?: string;
   inscriptions: InscriptionPaymentData[];
 }

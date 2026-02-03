@@ -6,8 +6,8 @@ export type TypeInscriptionDto = {
   description: string;
   value: number;
   eventId: string;
-  rule?: Date;
-  specialtype: boolean;
+  rule: Date | null;
+  specialType: boolean;
 };
 
 export type TypeInscriptionWithDto = {
@@ -15,8 +15,8 @@ export type TypeInscriptionWithDto = {
   description: string;
   value: number;
   eventId: string;
-  rule?: Date;
-  specialtype: boolean;
+  rule: Date | null;
+  specialType: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -26,11 +26,11 @@ export class TypeInscription extends Entity {
     id: string,
     private description: string,
     private value: number,
+    private rule: Date | null,
     private eventId: string,
-    private specialtype: boolean,
+    private specialType: boolean,
     createdAt: Date,
     updatedAt: Date,
-    private rule?: Date,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -41,22 +41,27 @@ export class TypeInscription extends Entity {
     value,
     eventId,
     rule,
-    specialtype,
+    specialType,
   }: TypeInscriptionDto): TypeInscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
-    rule = rule || undefined;
+
+    // Ensure rule is a Date object or null
+    if (typeof rule === 'string') {
+      rule = new Date(rule);
+    }
+    rule = rule || null;
 
     return new TypeInscription(
       id,
       description,
       value,
+      rule,
       eventId,
-      specialtype,
+      specialType,
       createdAt,
       updatedAt,
-      rule,
     );
   }
 
@@ -66,7 +71,7 @@ export class TypeInscription extends Entity {
     value,
     eventId,
     rule,
-    specialtype,
+    specialType,
     createdAt,
     updatedAt,
   }: TypeInscriptionWithDto): TypeInscription {
@@ -74,11 +79,11 @@ export class TypeInscription extends Entity {
       id,
       description,
       value,
+      rule,
       eventId,
-      specialtype,
+      specialType,
       createdAt,
       updatedAt,
-      rule,
     );
   }
 
@@ -98,12 +103,12 @@ export class TypeInscription extends Entity {
     return this.eventId;
   }
 
-  public getRule(): Date | undefined {
+  public getRule(): Date | null {
     return this.rule;
   }
 
   public getSpecialType(): boolean {
-    return this.specialtype;
+    return this.specialType;
   }
 
   public getCreatedAt(): Date {
@@ -126,8 +131,14 @@ export class TypeInscription extends Entity {
     this.validate();
   }
 
-  public setSpecialType(specialtype: boolean): void {
-    this.specialtype = specialtype;
+  public setRule(rule: Date | null): void {
+    this.rule = rule;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setSpecialType(specialType: boolean): void {
+    this.specialType = specialType;
     this.updatedAt = new Date();
     this.validate();
   }
@@ -135,11 +146,11 @@ export class TypeInscription extends Entity {
   public update({
     description,
     value,
-    specialtype,
+    specialType,
   }: {
     description: string;
     value: number;
-    specialtype: boolean;
+    specialType: boolean;
   }): void {
     if (!description !== undefined) {
       this.setDescription(description);
@@ -149,8 +160,8 @@ export class TypeInscription extends Entity {
       this.setValue(value);
     }
 
-    if (!specialtype !== undefined) {
-      this.setSpecialType(specialtype);
+    if (!specialType !== undefined) {
+      this.setSpecialType(specialType);
     }
   }
 }

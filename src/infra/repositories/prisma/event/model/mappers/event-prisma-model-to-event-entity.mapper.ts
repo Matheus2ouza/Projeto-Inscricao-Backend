@@ -20,6 +20,7 @@ export class EventPrismaModelToEventEntityMapper {
       ticketEnabled: event.ticketEnabled ?? undefined,
       regionId: event.regionId,
       allowCard: event.allowCard ?? false,
+      allowGuest: event.allowGuest,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     });

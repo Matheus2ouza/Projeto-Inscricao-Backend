@@ -1,6 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
-import { FindByIdEventUsecase } from 'src/usecases/web/event/find-by-id/find-by-id.usecase';
+import {
+  FindByIdEventInput,
+  FindByIdEventUsecase,
+} from 'src/usecases/web/event/find-by-id/find-by-id.usecase';
 import type {
   FindByIdEventRequest,
   FindByIdEventResponse,
@@ -18,11 +21,10 @@ export class FindByIdEventRoute {
   public async handle(
     @Param() params: FindByIdEventRequest,
   ): Promise<FindByIdEventResponse> {
-    const id = String(params.id);
-    const result = await this.findByIdEventUsecase.execute({ id });
-
-    const response = FindByEventPresenter.toHttp(result);
-
-    return response;
+    const input: FindByIdEventInput = {
+      id: params.id,
+    };
+    const result = await this.findByIdEventUsecase.execute(input);
+    return FindByEventPresenter.toHttp(result);
   }
 }

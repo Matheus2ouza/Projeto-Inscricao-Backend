@@ -7,7 +7,7 @@ import {
 import { Request, Response } from 'express';
 
 @Catch(HttpException)
-export class EventExceptionFilter implements ExceptionFilter {
+export class TypeInscriptionExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -17,7 +17,7 @@ export class EventExceptionFilter implements ExceptionFilter {
       statusCode: exception.getStatus(),
       timestamp: new Date().toISOString(),
       path: request.url,
-      message: exception.message || 'Erro ao processar evento.',
+      message: exception.message || 'Erro ao processar o tipo de inscrição.',
       error: exception.name,
     });
   }

@@ -8,8 +8,10 @@ export class FindTypeInscriptionByEventIdPresenter {
     return input.map((typeInscription) => ({
       id: typeInscription.id,
       description: typeInscription.description,
+      rule: typeInscription.rule,
       value: typeInscription.value,
       specialType: typeInscription.specialType,
+      createdAt: typeInscription.createdAt,
     }));
   }
 }

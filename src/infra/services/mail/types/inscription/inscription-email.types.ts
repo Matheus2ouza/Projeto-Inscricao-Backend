@@ -6,7 +6,7 @@ export interface InscriptionEmailData {
   responsibleEmail?: string;
   totalValue: number;
   participantCount: number;
-  accountUsername: string;
+  accountUsername?: string;
   inscriptionDate: Date;
   eventStartDate: Date;
   eventEndDate: Date;

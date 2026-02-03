@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import { FindDetailsEventUsecase } from 'src/usecases/web/event/find-details/find-details-event.usecase';
-import {
+import type {
   FindDetailsEventRequest,
   FindDetailsEventResponse,
 } from './find-details-event.dto';
@@ -14,12 +14,12 @@ export class FindDetailsEventRoute {
   ) {}
 
   @IsPublic()
-  @Get(':id/details')
+  @Get(':eventId/details')
   public async handle(
-    @Param('id') id: string,
+    @Param() param: FindDetailsEventRequest,
   ): Promise<FindDetailsEventResponse> {
     const input: FindDetailsEventRequest = {
-      eventId: id,
+      eventId: param.eventId,
     };
     const response = await this.findDetailsEventUsecase.execute(input);
     return FindDetailsEventPresenter.toHttp(response);

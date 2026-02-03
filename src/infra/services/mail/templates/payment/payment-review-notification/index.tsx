@@ -23,6 +23,7 @@ export const PaymentReviewNotificationEmail = ({
     { label: 'Data do envio', value: formattedPaymentDate },
     { label: 'Hora do envio', value: formattedPaymentTime },
     { label: 'Valor registrado', value: formattedPaymentValue },
+    { label: 'Método de pagamento', value: paymentData.paymentMethod },
   ];
 
   if (paymentData.accountUsername) {

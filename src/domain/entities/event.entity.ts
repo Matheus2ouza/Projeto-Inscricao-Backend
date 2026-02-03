@@ -15,7 +15,6 @@ export type EventCreateDto = {
   status: statusEvent;
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
-  allowCard?: boolean;
 };
 
 export type EventWithDto = {
@@ -35,6 +34,7 @@ export type EventWithDto = {
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
   allowCard?: boolean;
+  allowGuest: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -52,6 +52,7 @@ export class Event extends Entity {
     updatedAt: Date,
     private status: statusEvent,
     private paymentEnabled: boolean,
+    private allowGuest: boolean,
     private ticketEnabled?: boolean,
     private imageUrl?: string,
     private logoUrl?: string,
@@ -84,6 +85,7 @@ export class Event extends Entity {
     const quantityParticipants = 0;
     const amountCollected = 0;
     const allowCard = false;
+    const allowGuest = false;
     return new Event(
       id,
       name,
@@ -96,6 +98,7 @@ export class Event extends Entity {
       updatedAt,
       status,
       paymentEnabled,
+      allowGuest,
       ticketEnabled,
       imageUrl,
       logoUrl,
@@ -123,6 +126,7 @@ export class Event extends Entity {
     paymentEnabled,
     ticketEnabled,
     allowCard,
+    allowGuest,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -138,6 +142,7 @@ export class Event extends Entity {
       updatedAt,
       status,
       paymentEnabled,
+      allowGuest,
       ticketEnabled,
       imageUrl,
       logoUrl,
@@ -229,6 +234,10 @@ export class Event extends Entity {
     return this.allowCard;
   }
 
+  public getAllowGuest(): boolean {
+    return this.allowGuest;
+  }
+
   public setName(name: string): void {
     this.name = name;
     this.updatedAt = new Date();
@@ -264,6 +273,11 @@ export class Event extends Entity {
 
   public setAllowCard(allowCard: boolean): void {
     this.allowCard = allowCard;
+    this.updatedAt = new Date();
+  }
+
+  public setAllowGuest(allowGuest: boolean): void {
+    this.allowGuest = allowGuest;
     this.updatedAt = new Date();
   }
 

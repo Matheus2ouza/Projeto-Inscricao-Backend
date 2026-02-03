@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import {
   CreateTypeInscriptionInput,
   CreateTypeInscriptionUseCase,
@@ -15,16 +15,19 @@ export class CreateTypeInscriptionRoute {
     private readonly createTypeInscriptionUseCase: CreateTypeInscriptionUseCase,
   ) {}
 
-  @Post('create')
+  @Post(':eventId/create')
   public async handle(
+    @Param() param: CreateTypeInscriptionRequest,
     @Body() request: CreateTypeInscriptionRequest,
   ): Promise<CreateTypeInscriptionResponse> {
     const input: CreateTypeInscriptionInput = {
       description: request.description,
       value: request.value,
-      eventId: request.eventId,
-      specialtype: request.specialtype,
+      eventId: param.eventId,
+      rule: request.rule,
+      specialType: request.specialType,
     };
+    console.log(input);
     const result = await this.createTypeInscriptionUseCase.execute(input);
 
     const response = CreateTypeInscriptionPresenter.toHttp(result);

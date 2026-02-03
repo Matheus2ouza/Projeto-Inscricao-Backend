@@ -15,7 +15,8 @@ export type TypeInscription = {
   id: string;
   description: string;
   value: number;
-  rule?: Date;
+  rule: Date | null;
+  specialType: boolean;
 };
 
 export type FindDetailsEventOutput = {
@@ -66,6 +67,7 @@ export class FindDetailsEventUsecase
       description: type.getDescription(),
       value: type.getValue(),
       rule: type.getRule(),
+      specialType: type.getSpecialType(),
     }));
 
     //Busca a url da imagem do evento, caso tenha

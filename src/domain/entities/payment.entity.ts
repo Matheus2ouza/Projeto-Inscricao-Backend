@@ -6,9 +6,10 @@ import { Entity } from '../shared/entities/entity';
 export type PaymentCreateDto = {
   eventId: string;
   accountId?: string;
+  guestName?: string;
   guestEmail?: string;
-  isGuest?: boolean;
   accessToken?: string;
+  isGuest?: boolean;
   status: StatusPayment;
   methodPayment?: PaymentMethod;
   totalValue: number;
@@ -23,6 +24,7 @@ export type PaymentWithDto = {
   id: string;
   eventId: string;
   accountId?: string;
+  guestName?: string;
   guestEmail?: string;
   accessToken?: string;
   isGuest?: boolean;
@@ -56,6 +58,7 @@ export class Payment extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private accountId?: string,
+    private guestName?: string,
     private guestEmail?: string,
     private accessToken?: string,
     private isGuest?: boolean,
@@ -72,7 +75,9 @@ export class Payment extends Entity {
   public static create({
     eventId,
     accountId,
+    guestName,
     guestEmail,
+    accessToken,
     isGuest,
     status,
     totalValue,
@@ -92,13 +97,15 @@ export class Payment extends Entity {
     const createdAt = new Date();
     const updatedAt = new Date();
 
-    guestEmail = guestEmail || '';
-    isGuest = isGuest || false;
-
-    let accessToken: string | undefined = undefined;
     if (isGuest) {
+      accountId = undefined;
       accessToken = Utils.generateUUID();
+    } else {
+      accessToken = undefined;
     }
+    guestName = guestName || undefined;
+    guestEmail = guestEmail || undefined;
+    isGuest = isGuest || false;
 
     return new Payment(
       id,
@@ -113,6 +120,7 @@ export class Payment extends Entity {
       createdAt,
       updatedAt,
       accountId,
+      guestName,
       guestEmail,
       accessToken,
       isGuest,
@@ -126,6 +134,7 @@ export class Payment extends Entity {
     id,
     eventId,
     accountId,
+    guestName,
     guestEmail,
     accessToken,
     isGuest,
@@ -157,6 +166,7 @@ export class Payment extends Entity {
       createdAt,
       updatedAt,
       accountId,
+      guestName,
       guestEmail,
       accessToken,
       isGuest,
@@ -182,6 +192,10 @@ export class Payment extends Entity {
 
   public getAccountId(): string | undefined {
     return this.accountId;
+  }
+
+  public getGuestName(): string | undefined {
+    return this.guestName;
   }
 
   public getGuestEmail(): string | undefined {
