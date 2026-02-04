@@ -1,4 +1,4 @@
-import { genderType } from 'generated/prisma';
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
@@ -6,6 +6,9 @@ export type ParticipantCreateDto = {
   inscriptionId: string;
   typeInscriptionId: string;
   name: string;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   birthDate: Date;
   gender: genderType;
 };
@@ -15,15 +18,16 @@ export type ParticipantWithDto = {
   inscriptionId: string;
   typeInscriptionId: string;
   name: string;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   birthDate: Date;
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
-  typeInscriptionDescription?: string;
 };
 
 export class Participant extends Entity {
-  private typeInscriptionDescription?: string;
   private constructor(
     id: string,
     private inscriptionId: string,
@@ -33,10 +37,11 @@ export class Participant extends Entity {
     private gender: genderType,
     createdAt: Date,
     updatedAt: Date,
-    typeInscriptionDescription?: string,
+    private preferredName?: string,
+    private shirtSize?: ShirtSize,
+    private shirtType?: ShirtType,
   ) {
     super(id, createdAt, updatedAt);
-    this.typeInscriptionDescription = typeInscriptionDescription;
     this.validate();
   }
 
@@ -44,10 +49,16 @@ export class Participant extends Entity {
     inscriptionId,
     typeInscriptionId,
     name,
+    preferredName,
+    shirtSize,
+    shirtType,
     birthDate,
     gender,
   }: ParticipantCreateDto) {
     const id = Utils.generateUUID();
+    const shirtSizeDefault = shirtSize || ShirtSize.M;
+    const shirtTypeDefault = shirtType || ShirtType.TRADICIONAL;
+
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -60,6 +71,9 @@ export class Participant extends Entity {
       gender,
       createdAt,
       updatedAt,
+      preferredName,
+      shirtSizeDefault,
+      shirtTypeDefault,
     );
   }
 
@@ -68,11 +82,13 @@ export class Participant extends Entity {
     inscriptionId,
     typeInscriptionId,
     name,
+    preferredName,
+    shirtSize,
+    shirtType,
     birthDate,
     gender,
     createdAt,
     updatedAt,
-    typeInscriptionDescription,
   }: ParticipantWithDto): Participant {
     return new Participant(
       id,
@@ -83,14 +99,12 @@ export class Participant extends Entity {
       gender,
       createdAt,
       updatedAt,
-      typeInscriptionDescription,
+      preferredName,
+      shirtSize,
+      shirtType,
     );
   }
   // Getters
-  public getTypeInscriptionDescription(): string | undefined {
-    return this.typeInscriptionDescription;
-  }
-
   public getInscriptionId(): string {
     return this.inscriptionId;
   }
@@ -101,6 +115,18 @@ export class Participant extends Entity {
 
   public getName(): string {
     return this.name;
+  }
+
+  public getPreferredName(): string | undefined {
+    return this.preferredName;
+  }
+
+  public getShirtSize(): ShirtSize | undefined {
+    return this.shirtSize;
+  }
+
+  public getShirtType(): ShirtType | undefined {
+    return this.shirtType;
   }
 
   public getBirthDate(): Date {

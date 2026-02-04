@@ -13,11 +13,12 @@ export class ParticipantPrismaModelToParticipantEntityMapper {
       typeInscriptionId: participantPrisma.typeInscriptionId,
       name: participantPrisma.name,
       birthDate: participantPrisma.birthDate,
+      preferredName: participantPrisma.preferredName || undefined,
+      shirtSize: participantPrisma.shirtSize || undefined,
+      shirtType: participantPrisma.shirtType || undefined,
       gender: participantPrisma.gender,
       createdAt: participantPrisma.createdAt,
       updatedAt: participantPrisma.updatedAt,
-      typeInscriptionDescription:
-        participantPrisma.typeInscription?.description,
     });
   }
 }

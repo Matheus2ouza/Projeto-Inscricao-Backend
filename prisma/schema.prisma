@@ -172,6 +172,9 @@ model Participant {
   id                String           @id @default(uuid())
   inscriptionId     String           @map("inscription_id")
   name              String
+  preferredName     String?          @map("preferred_name")
+  shirtSize         ShirtSize?       @map("shirt_size")
+  shirtType         ShirtType?       @map("shirt_type")
   birthDate         DateTime         @map("birth_date")
   typeInscriptionId String           @map("type_inscription_id")
   createdAt         DateTime         @default(now()) @map("created_at")
@@ -459,4 +462,18 @@ enum PaymentMethod {
   DINHEIRO
   PIX
   CARTAO
+}
+
+enum ShirtSize {
+  PP
+  P
+  M
+  G
+  GG
+  XG
+}
+
+enum ShirtType {
+  TRADICIONAL
+  BABYLOOK
 }
