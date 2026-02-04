@@ -47,6 +47,19 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findByPaymentId(paymentId: string): Promise<Inscription | null> {
+    const found = await this.prisma.inscription.findFirst({
+      where: {
+        payments: {
+          some: {
+            paymentId,
+          },
+        },
+      },
+    });
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findByEventId(filters?: {
     eventId: string;
     status?: InscriptionStatus[];

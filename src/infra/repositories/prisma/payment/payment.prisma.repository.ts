@@ -32,6 +32,15 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
+  async findByExternalReference(
+    externalReference: string,
+  ): Promise<Payment | null> {
+    const found = await this.prisma.payment.findFirst({
+      where: { externalReference },
+    });
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findAllPaginated(
     eventId: string,
     page: number,

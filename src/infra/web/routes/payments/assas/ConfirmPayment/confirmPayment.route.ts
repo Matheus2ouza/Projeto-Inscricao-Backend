@@ -1,5 +1,3 @@
-// src/infra/web/routes/webhooks/asaas/asaas-webhook.route.ts
-
 import {
   Body,
   Controller,
@@ -27,8 +25,8 @@ export class ConfirmPaymentRoute {
 
   constructor(private readonly confirmPaymentUsecase: ConfirmPaymentUsecase) {}
 
-  @Post('asaas/confirm')
   @IsPublic()
+  @Post('asaas/confirm')
   @HttpCode(HttpStatus.OK)
   async handle(
     @Body() body: ConfirmPaymentRequest,

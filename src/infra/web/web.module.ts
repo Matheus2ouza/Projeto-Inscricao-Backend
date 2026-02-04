@@ -77,6 +77,7 @@ import { AnalysisPaymentsPendingDetailsRoute } from './routes/payments/analysis-
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
 import { ConfirmPaymentRoute } from './routes/payments/assas/ConfirmPayment/confirmPayment.route';
+import { PaymentCanceledRoute } from './routes/payments/assas/PaymentCanceled/PaymentCanceled.route';
 import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
@@ -233,6 +234,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Payment - ASAAS
     ConfirmPaymentRoute,
+    PaymentCanceledRoute,
 
     // Participants
     ListParticipantsRoute,
