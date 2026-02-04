@@ -129,19 +129,12 @@ export class RegisterPaymentCredUsecase
       );
     }
 
-    // Prepara a imagem do evento e o valor a ser pago para o checkout
-    const imagePath = await this.loadEventImage(event.getImageUrl());
     const finalValue = Number(
       (input.totalValue * (1 + percentFee) + fixedFee).toFixed(2),
     );
 
     // Cria o checkout no ASAAS
-    const checkout = await this.createCheckout(
-      event,
-      finalValue,
-      input.client,
-      imagePath,
-    );
+    const checkout = await this.createCheckout(event, finalValue, input.client);
 
     // Cria o pagamento no com os dados para confirmação posteriomente do webhook
     // O installmente é setado como 1 mas ao confirmar o pagamento, o ASAAS retornará o número de parcelas
@@ -213,7 +206,6 @@ export class RegisterPaymentCredUsecase
     event: Event,
     totalValue: number,
     client: Client,
-    imageUrl?: string | undefined,
   ): Promise<AsaasCheckoutResponse> {
     const paymentReferenceId = Utils.generateUUID();
 
@@ -232,7 +224,6 @@ export class RegisterPaymentCredUsecase
         items: [
           {
             name: event.getName(),
-            imageBase64: imageUrl,
             quantity: 1,
             value: totalValue,
           },

@@ -1,7 +1,5 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
-import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
-import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   RegisterPaymentCredInput,
   RegisterPaymentCredUsecase,
@@ -23,13 +21,12 @@ export class RegisterPaymentCredRoute {
   async handle(
     @Param() param: RegisterPaymentCredRequest,
     @Body() body: RegisterPaymentCredRequest,
-    @UserInfo() userInfo: UserInfoType,
   ): Promise<RegisterPaymentCredResponse> {
     // O accountId vem tando do body ou do userInfo
     // porque no front pode enviar o link para outra pessoa não logada possa também fazer o pagamento
     const input: RegisterPaymentCredInput = {
       eventId: param.eventId,
-      accountId: userInfo?.userId || body.accountId,
+      accountId: body.accountId,
       guestEmail: body.guestEmail,
       isGuest: body.isGuest,
       totalValue: body.totalValue,

@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { genderType, InscriptionStatus } from 'generated/prisma';
+import {
+  genderType,
+  InscriptionStatus,
+  ShirtSize,
+  ShirtType,
+} from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
@@ -14,7 +19,6 @@ import {
   EventResponsibleEmailData,
   InscriptionEmailData,
 } from 'src/infra/services/mail/types/inscription/inscription-email.types';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
@@ -31,6 +35,9 @@ export type RegisterGuestInscriptionInput = {
 export type ParticipantGuest = {
   name: string;
   birthDate: Date;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   gender: genderType;
   typeInscriptionId: string;
 };
@@ -57,7 +64,6 @@ export class RegisterGuestInscriptionUsecase
     private readonly accountGateway: AccountGateway,
     private readonly guestInscriptionEmailHandler: GuestInscriptionEmailHandler,
     private readonly inscriptionEmailHandler: InscriptionEmailHandler,
-    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -106,6 +112,9 @@ export class RegisterGuestInscriptionUsecase
       inscriptionId: inscription.getId(),
       typeInscriptionId: typeInscription.getId(),
       name: input.participant.name,
+      preferredName: input.participant.preferredName ?? input.participant.name,
+      shirtSize: input.participant.shirtSize,
+      shirtType: input.participant.shirtType,
       birthDate: input.participant.birthDate,
       gender: input.participant.gender,
     });
