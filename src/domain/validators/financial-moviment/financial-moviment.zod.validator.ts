@@ -45,7 +45,12 @@ export class FinancialMovementZodValidator
       guestEmail: z.email({ message: 'Email inválido' }).optional(),
       inscriptionId: z.uuid().optional(),
       type: z.enum(TransactionType),
-      value: z.number().min(0),
+      value: z.preprocess((val: any) => {
+        if (val && typeof val === 'object' && 'toNumber' in val) {
+          return val.toNumber();
+        }
+        return val;
+      }, z.coerce.number().min(0)),
     });
     return zodSchema;
   }
