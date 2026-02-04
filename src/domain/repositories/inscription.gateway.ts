@@ -101,6 +101,8 @@ export abstract class InscriptionGateway {
       status?: InscriptionStatus;
     },
   ): Promise<number>;
+
+  abstract countParticipants(inscriptionId: string): Promise<number>;
   abstract countUniqueAccountIdsByEventId(eventId: string): Promise<number>;
   abstract countUniqueAccountIdsByEventIdAndGender(
     eventId: string,

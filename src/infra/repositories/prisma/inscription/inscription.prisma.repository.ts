@@ -494,6 +494,17 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return result.map((item) => item.accountId as string);
   }
 
+  async countParticipants(inscriptionId: string): Promise<number> {
+    const countParticipants = await this.prisma.participant.count({
+      where: { inscriptionId },
+    });
+    const countAccountParticipants =
+      await this.prisma.accountParticipantInEvent.count({
+        where: { inscriptionId },
+      });
+    return countParticipants + countAccountParticipants;
+  }
+
   // Métodos privados
   private buildWhereClause(filters: { limitTime?: string }) {
     const { limitTime } = filters || {};
