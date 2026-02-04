@@ -198,7 +198,7 @@ export class RegisterGuestInscriptionUsecase
         eventName: event.getName(),
         guestName: inscription.getGuestName() ?? 'Participante',
         guestEmail,
-        accessUrl: `${process.env.URL_CALLBACK}/guest/inscription?confirmationCode=${encodeURIComponent(
+        accessUrl: `${process.env.URL_CALLBACK}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(
           confirmationCode,
         )}`,
         confirmationCode,
