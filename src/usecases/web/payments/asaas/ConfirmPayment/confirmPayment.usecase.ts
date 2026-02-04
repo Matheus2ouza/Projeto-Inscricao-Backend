@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import {
+  InscriptionStatus,
   PaymentMethod,
   StatusPayment,
   TransactionType,
 } from 'generated/prisma';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
+import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
@@ -42,6 +44,7 @@ export class ConfirmPaymentUsecase
   private readonly logger = new Logger(ConfirmPaymentUsecase.name);
 
   constructor(
+    private readonly eventGateway: EventGateway,
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
@@ -53,10 +56,10 @@ export class ConfirmPaymentUsecase
     const installmentNumber = input.installmentNumber ?? 1;
     const description = input.description ?? '';
     this.logger.log(
-      `📨 Confirmando parcela ${installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
+      `Confirmando parcela ${installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
     );
 
-    // ✅ 1. BUSCAR PAYMENT PELO checkoutSession
+    // Busca o pagamento pelo checkoutSession
     const payment = await this.paymentGateway.findByAsaasCheckout(
       input.checkoutSession,
     );
@@ -69,9 +72,9 @@ export class ConfirmPaymentUsecase
       );
     }
 
-    this.logger.log(`✅ Payment encontrado: ${payment.getId()}`);
+    this.logger.log(`Payment encontrado: ${payment.getId()}`);
 
-    // ✅ 1.5. VALIDAR DESCRIÇÃO E ATUALIZAR TOTAL DE PARCELAS SE FOR A PRIMEIRA
+    // Valida a descrição e atualiza o total de parcelas se for a primeira
     if (description) {
       const match = description.match(/Parcela (\d+) de (\d+)/i);
       if (match) {
@@ -80,14 +83,14 @@ export class ConfirmPaymentUsecase
 
         if (currentInstallment === 1) {
           this.logger.log(
-            `🔄 Atualizando total de parcelas para ${totalInstallments} (detectado na descrição)`,
+            `Atualizando total de parcelas para ${totalInstallments} (detectado na descrição)`,
           );
           payment.setInstallments(totalInstallments);
         }
       }
     }
 
-    // ✅ 2. VERIFICAR SE ESTA PARCELA JÁ FOI PAGA (evitar duplicação)
+    // Verifica se a parcela já foi paga anteriormente, para evitar duplicação
     const installmentAlreadyPaid =
       await this.paymentInstallmentGateway.findByAsaasPaymentId(
         input.asaasPaymentId,
@@ -95,7 +98,7 @@ export class ConfirmPaymentUsecase
 
     if (installmentAlreadyPaid) {
       this.logger.warn(
-        `⚠️ Parcela ${input.installmentNumber} já foi paga anteriormente!`,
+        `Parcela ${input.installmentNumber} já foi paga anteriormente!`,
       );
       return {
         id: payment.getId(),
@@ -119,7 +122,7 @@ export class ConfirmPaymentUsecase
     await this.financialMovementGateway.create(financialMovement);
 
     this.logger.log(
-      `💰 Movimento financeiro criado: R$ ${input.netValue.toFixed(2)} (parcela ${installmentNumber})`,
+      `Movimento financeiro criado: R$ ${input.netValue.toFixed(2)} (parcela ${installmentNumber})`,
     );
 
     // Registra a parcela paga, associando ao movimento financeiro já criado acima
@@ -135,18 +138,24 @@ export class ConfirmPaymentUsecase
 
     await this.paymentInstallmentGateway.create(paymentInstallment);
 
-    // ✅ 5. ATUALIZAR PAYMENT
+    // Adiciona a parcela paga ao pagamento
     payment.addPaidInstallment(input.value, input.netValue);
 
+    // Atualiza o evento com o valor líquido da parcela
+    await this.eventGateway.incrementAmountCollected(
+      payment.getEventId(),
+      input.netValue,
+    );
+
     this.logger.log(
-      `💰 Parcela ${installmentNumber}/${payment.getInstallments()} paga! ` +
+      `Parcela ${installmentNumber}/${payment.getInstallments()} paga! ` +
         `Valor bruto: R$ ${input.value.toFixed(2)} | ` +
         `Valor líquido: R$ ${input.netValue.toFixed(2)} | ` +
         `Total pago: R$ ${payment.getTotalPaid().toFixed(2)} | ` +
         `Total líquido: R$ ${payment.getTotalNetValue().toFixed(2)}`,
     );
 
-    // ✅ 6. VERIFICAR SE DEVE LIBERAR AS INSCRIÇÕES (Totalmente pago ou Cartão Confirmado)
+    // Verifica se deve liberar as inscrições (Totalmente pago ou Cartão Confirmado)
     const isCreditCard = payment.getMethodPayment() === PaymentMethod.CARTAO;
     const shouldReleaseInscription =
       payment.isFullyPaid() ||
@@ -154,10 +163,10 @@ export class ConfirmPaymentUsecase
 
     if (shouldReleaseInscription) {
       if (payment.isFullyPaid()) {
-        this.logger.log(`🎉 TODAS AS PARCELAS FORAM PAGAS!`);
+        this.logger.log(`TODAS AS PARCELAS FORAM PAGAS!`);
       } else {
         this.logger.log(
-          `🎉 Pagamento via CARTÃO confirmado na parcela ${installmentNumber}. Liberando inscrições...`,
+          `Pagamento via CARTÃO confirmado na parcela ${installmentNumber}. Liberando inscrições...`,
         );
       }
 
@@ -173,9 +182,7 @@ export class ConfirmPaymentUsecase
         payment.getId(),
       );
 
-      this.logger.log(
-        `💰 Total de alocações encontradas: ${allocations.length}`,
-      );
+      this.logger.log(`Total de alocações encontradas: ${allocations.length}`);
 
       for (const allocation of allocations) {
         const inscription = await this.inscriptionGateway.findById(
@@ -190,25 +197,38 @@ export class ConfirmPaymentUsecase
           isCreditCard ||
           inscription.getTotalPaid() >= inscription.getTotalValue()
         ) {
-          inscription.inscriptionPaid();
-          await this.inscriptionGateway.update(inscription);
+          if (inscription.getStatus() !== InscriptionStatus.PAID) {
+            inscription.inscriptionPaid();
+            await this.inscriptionGateway.update(inscription);
 
-          this.logger.log(
-            `✅ Inscrição ${inscription.getId()} marcada como PAGA`,
-          );
+            this.logger.log(
+              `Inscrição ${inscription.getId()} marcada como PAGA`,
+            );
+
+            // Atualiza a quantidade de participantes no evento
+            const countParticipants =
+              await this.inscriptionGateway.countParticipants(
+                inscription.getId(),
+              );
+
+            await this.eventGateway.incrementQuantityParticipants(
+              payment.getEventId(),
+              countParticipants,
+            );
+          }
         }
       }
       this.logger.log(
-        `✅ Payment ${payment.getId()} APROVADO! ` +
+        `Payment ${payment.getId()} APROVADO! ` +
           `Total recebido: R$ ${payment.getTotalNetValue().toFixed(2)}`,
       );
     } else {
       this.logger.log(
-        `⏳ Aguardando mais ${payment.getInstallments() - payment.getPaidInstallments()} parcela(s)...`,
+        `Aguardando mais ${payment.getInstallments() - payment.getPaidInstallments()} parcela(s)...`,
       );
     }
 
-    // ✅ 7. SALVAR PAYMENT ATUALIZADO
+    // Atualiza o pagamento com as informações de pagamento confirmado
     await this.paymentGateway.update(payment);
 
     return {

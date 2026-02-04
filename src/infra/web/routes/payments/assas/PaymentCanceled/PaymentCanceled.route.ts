@@ -43,14 +43,18 @@ export class PaymentCanceledRoute {
       body.event === 'CHECKOUT_CANCELED'
     ) {
       const input: PaymentCanceledInput = {
-        checkoutSession: body.checkout.id,
-        externalReference: body.checkout.externalReference,
+        checkoutSession:
+          body.payment?.id ||
+          body.payment?.checkoutSession ||
+          body.checkout?.id,
+        externalReference:
+          body.payment?.externalReference || body.checkout?.externalReference,
       };
 
       const response = await this.paymentCanceledUseCase.execute(input);
 
       this.logger.log(
-        `✅ Pagamento ${body.checkout.id} cancelado! Status: ${response.status}`,
+        `✅ Pagamento ${input.checkoutSession} cancelado! Status: ${response.status}`,
       );
 
       return PaymentCanceledPresenter.toHttp(response);
