@@ -73,6 +73,7 @@ import { AnalysisPaymentsPendingDetailsUsecase } from './web/payments/analysis-p
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
 import { ConfirmPaymentUsecase } from './web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
+import { PaymentCanceledUseCase } from './web/payments/asaas/PaymentCanceled/paymentCanceled.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
@@ -221,7 +222,10 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
+
+    //ASAAS
     ConfirmPaymentUsecase,
+    PaymentCanceledUseCase,
 
     // Participants
     ListParticipantsUsecase,
@@ -359,7 +363,10 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
+
+    //ASAAS
     ConfirmPaymentUsecase,
+    PaymentCanceledUseCase,
 
     // Participants
     ListParticipantsUsecase,

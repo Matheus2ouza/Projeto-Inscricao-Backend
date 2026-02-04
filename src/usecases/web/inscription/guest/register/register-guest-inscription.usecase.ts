@@ -170,14 +170,6 @@ export class RegisterGuestInscriptionUsecase
         return;
       }
 
-      const accessToken = inscription.getAccessToken();
-      if (!accessToken) {
-        this.logger.warn(
-          `Inscrição guest ${inscription.getId()} não possui access token para envio de e-mail`,
-        );
-        return;
-      }
-
       const confirmationCode = inscription.getConfirmationCode();
       if (!confirmationCode) {
         this.logger.warn(

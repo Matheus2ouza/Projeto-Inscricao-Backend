@@ -11,6 +11,9 @@ export abstract class PaymentGateway {
   abstract findByAsaasCheckout(
     asaasCheckoutId: string,
   ): Promise<Payment | null>;
+  abstract findByExternalReference(
+    externalReference: string,
+  ): Promise<Payment | null>;
   abstract findAllPaginated(
     eventId: string,
     page: number,

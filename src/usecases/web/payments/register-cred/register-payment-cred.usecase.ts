@@ -27,7 +27,7 @@ export type RegisterPaymentCredInput = {
   isGuest?: boolean;
   totalValue: number;
   client: Client;
-  inscriptions: inscription[];
+  inscriptions: Inscription[];
 };
 
 type Client = {
@@ -43,7 +43,7 @@ type Client = {
   city: number;
 };
 
-type inscription = {
+type Inscription = {
   id: string;
 };
 
@@ -133,8 +133,32 @@ export class RegisterPaymentCredUsecase
       (input.totalValue * (1 + percentFee) + fixedFee).toFixed(2),
     );
 
+    console.log('o isGuest é:', input.isGuest);
+    //Cria as url's para o callback do ASAAS
+    const successUrl = input.isGuest
+      ? `${process.env.URL_CALLBACK}/guest/${event.getId()}/payment/success?eventId=${event.getId()}&clientName=${encodeURIComponent(input.client.name)}&confirmationCode=${encodeURIComponent(inscriptionsEntities[0].getConfirmationCode()!)}`
+      : `${process.env.URL_CALLBACK}/user/payment-success`;
+
+    const cancelUrl = input.isGuest
+      ? `${process.env.URL_CALLBACK}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(inscriptionsEntities[0].getConfirmationCode()!)}`
+      : `${process.env.URL_CALLBACK}/user/payment/canceled`;
+
+    const expiredUrl = input.isGuest
+      ? `${process.env.URL_CALLBACK}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(inscriptionsEntities[0].getConfirmationCode()!)}`
+      : `${process.env.URL_CALLBACK}/user/payment/expired`;
+
+    const imagePath = await this.loadEventImage(event.getImageUrl());
+
     // Cria o checkout no ASAAS
-    const checkout = await this.createCheckout(event, finalValue, input.client);
+    const checkout = await this.createCheckout(
+      event,
+      finalValue,
+      input.client,
+      successUrl,
+      cancelUrl,
+      expiredUrl,
+      imagePath,
+    );
 
     // Cria o pagamento no com os dados para confirmação posteriomente do webhook
     // O installmente é setado como 1 mas ao confirmar o pagamento, o ASAAS retornará o número de parcelas
@@ -151,8 +175,9 @@ export class RegisterPaymentCredUsecase
       methodPayment: PaymentMethod.CARTAO,
       asaasCheckoutId: checkout.id,
       externalReference: checkout.externalReference,
+      isGuest: input.isGuest,
       ...(input.isGuest
-        ? { guestEmail: input.guestEmail }
+        ? { guestEmail: input.guestEmail, guestName: input.client.name }
         : { accountId: input.accountId }),
     });
 
@@ -206,6 +231,10 @@ export class RegisterPaymentCredUsecase
     event: Event,
     totalValue: number,
     client: Client,
+    successUrl: string,
+    cancelUrl: string,
+    expiredUrl: string,
+    imagePath?: string,
   ): Promise<AsaasCheckoutResponse> {
     const paymentReferenceId = Utils.generateUUID();
 
@@ -214,16 +243,17 @@ export class RegisterPaymentCredUsecase
       {
         billingTypes: ['CREDIT_CARD'],
         chargeTypes: ['DETACHED', 'INSTALLMENT'],
-        minutesToExpire: 60,
+        minutesToExpire: 10,
         externalReference: paymentReferenceId,
         callback: {
-          cancelUrl: `${process.env.URL_CALLBACK}/user/payment/canceled`,
-          expiredUrl: `${process.env.URL_CALLBACK}/user/payment/expired`,
-          successUrl: `${process.env.URL_CALLBACK}/user/payment/success`,
+          cancelUrl,
+          expiredUrl,
+          successUrl,
         },
         items: [
           {
             name: event.getName(),
+            imageBase64: imagePath,
             quantity: 1,
             value: totalValue,
           },
@@ -278,10 +308,10 @@ export class RegisterPaymentCredUsecase
       }
 
       const arrayBuffer = await response.arrayBuffer();
-      const mimeType = response.headers.get('content-type') ?? 'image/jpeg';
       const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-      return `data:${mimeType};base64,${base64}`;
+      // Retorna apenas o base64, sem o prefixo "data:image/jpeg;base64,"
+      return base64;
     } catch (error) {
       console.warn('Error while loading event image:', error);
       return undefined;
