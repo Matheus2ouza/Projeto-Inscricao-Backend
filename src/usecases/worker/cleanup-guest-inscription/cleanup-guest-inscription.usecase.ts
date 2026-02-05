@@ -64,7 +64,7 @@ export class CleanupGuestInscriptionUsecase
               eventName: event.getName(),
               guestName: guestName ?? 'Participante',
               guestEmail: guestEmail,
-              registerUrl: `${process.env.APP_URL}/guest/${eventId}`,
+              registerUrl: `${process.env.URL_CALLBACK}/guest/${eventId}`,
             });
           }
         }
