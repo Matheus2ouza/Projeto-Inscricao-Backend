@@ -27,6 +27,7 @@ export class FindDetailsGuestInscriptionRoute {
 
     const response =
       await this.findDetailsGuestInscriptionUseCase.execute(input);
+    console.log(response);
     return FindDetailsGuestInscriptionPresenter.toHttp(response);
   }
 }

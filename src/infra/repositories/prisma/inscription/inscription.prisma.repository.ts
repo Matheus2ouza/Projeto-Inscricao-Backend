@@ -33,6 +33,22 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
   }
 
+  async deleteExpiredGuestInscription(
+    ids: string[],
+    expiredDate: Date,
+  ): Promise<number> {
+    const deleted = await this.prisma.inscription.deleteMany({
+      where: {
+        id: { in: ids },
+        status: InscriptionStatus.PENDING,
+        payments: {
+          none: {},
+        },
+      },
+    });
+    return deleted.count;
+  }
+
   // Buscas por identificador único
   async findById(id: string): Promise<Inscription | null> {
     const found = await this.prisma.inscription.findUnique({ where: { id } });
@@ -263,6 +279,23 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       },
     });
     return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findManyGuestInscriptionExpired(expired: Date): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        isGuest: true,
+        status: InscriptionStatus.PENDING,
+        createdAt: {
+          lt: expired,
+        },
+        payments: {
+          none: {},
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
   }
 
   // Agregações e contagens

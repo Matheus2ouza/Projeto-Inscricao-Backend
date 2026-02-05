@@ -14,7 +14,7 @@ export class FindDetailsGuestInscriptionPresenter {
       phone: output.phone,
       createdAt: output.createdAt,
       participants: output.participants,
-      payment: output.payment,
+      payments: output.payments,
     };
   }
 }

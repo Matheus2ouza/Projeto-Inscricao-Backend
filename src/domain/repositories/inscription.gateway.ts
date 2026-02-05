@@ -6,6 +6,10 @@ export abstract class InscriptionGateway {
   abstract create(inscription: Inscription): Promise<Inscription>;
   abstract update(inscription: Inscription): Promise<Inscription>;
   abstract delete(id: string): Promise<void>;
+  abstract deleteExpiredGuestInscription(
+    ids: string[],
+    expiredDate: Date,
+  ): Promise<number>;
 
   // Buscas por identificador único
   abstract findById(id: string): Promise<Inscription | null>;
@@ -35,6 +39,9 @@ export abstract class InscriptionGateway {
   abstract findByConfirmationCode(
     confirmationCode: string,
   ): Promise<Inscription | null>;
+  abstract findManyGuestInscriptionExpired(
+    expired: Date,
+  ): Promise<Inscription[]>;
 
   //COM O NOVA TABELA DE INSCRIÇÃO
   abstract findInscriptionsPending(
