@@ -230,7 +230,6 @@ export class PaymentPrismaRepository implements PaymentGateway {
         totalValue: true,
       },
     });
-    console.log(result);
 
     return Number(result._sum.totalValue ?? 0);
   }

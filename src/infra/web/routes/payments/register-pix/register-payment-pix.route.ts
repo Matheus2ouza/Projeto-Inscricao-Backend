@@ -36,8 +36,6 @@ export class RegisterPaymentPixRoute {
       inscriptions: body.inscriptions,
     };
 
-    console.log(input);
-
     const response = await this.registerPaymentUsecase.execute(input);
     return RegisterPaymentPixPresenter.toHttp(response);
   }

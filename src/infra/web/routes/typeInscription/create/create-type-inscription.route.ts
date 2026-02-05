@@ -27,10 +27,8 @@ export class CreateTypeInscriptionRoute {
       rule: request.rule,
       specialType: request.specialType,
     };
-    console.log(input);
-    const result = await this.createTypeInscriptionUseCase.execute(input);
 
-    const response = CreateTypeInscriptionPresenter.toHttp(result);
-    return response;
+    const response = await this.createTypeInscriptionUseCase.execute(input);
+    return CreateTypeInscriptionPresenter.toHttp(response);
   }
 }
