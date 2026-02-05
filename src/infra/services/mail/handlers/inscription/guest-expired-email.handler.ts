@@ -8,9 +8,7 @@ export class GuestExpiredEmailHandler {
 
   constructor(private readonly mailService: MailService) {}
 
-  async sendGuestExpiredEmail(
-    data: GuestExpiredEmailData,
-  ): Promise<void> {
+  async sendGuestExpiredEmail(data: GuestExpiredEmailData): Promise<void> {
     try {
       await this.mailService.sendTemplateMail({
         to: data.guestEmail,

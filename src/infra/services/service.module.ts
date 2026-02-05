@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { jsonWebTokenJwtServiceProvider } from './jwt/jsonwebtoken/jsonwebtoken.jwt.service.provider';
 import { DataBaseModule } from '../repositories/database.module';
+import { jsonWebTokenJwtServiceProvider } from './jwt/jsonwebtoken/jsonwebtoken.jwt.service.provider';
 import { RedisModule } from './redis/redis.module';
 
 @Module({
