@@ -94,7 +94,6 @@ export class DashboardUserRoute {
       regionId: userInfo.regionId,
     };
     const totalDebt = await this.findTotalDebtUserUsecase.execute(input);
-    console.log(totalDebt);
     return totalDebt;
   }
 }

@@ -22,9 +22,6 @@ export class UpdateAllowCardRoute {
       allowCard,
     };
 
-    console.log('eventId', eventId);
-    console.log('allowCard', allowCard);
-    console.log(input);
     const response = await this.updateAllowCardUseCase.execute(input);
     return UpdateAllowCardPresenter.toHttp(response);
   }

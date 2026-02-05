@@ -133,7 +133,6 @@ export class RegisterPaymentCredUsecase
       (input.totalValue * (1 + percentFee) + fixedFee).toFixed(2),
     );
 
-    console.log('o isGuest é:', input.isGuest);
     //Cria as url's para o callback do ASAAS
     const successUrl = input.isGuest
       ? `${process.env.URL_CALLBACK}/guest/${event.getId()}/payment/success?eventId=${event.getId()}&clientName=${encodeURIComponent(input.client.name)}&confirmationCode=${encodeURIComponent(inscriptionsEntities[0].getConfirmationCode()!)}`
