@@ -11,6 +11,7 @@ import { PaymentAllocationGateway } from 'src/domain/repositories/payment-alloca
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from '../../exceptions/inscription/find/inscription-not-found.usecase.exception';
 
@@ -27,7 +28,7 @@ export type FindDetailsGuestInscriptionOutput = {
   phone: string;
   createdAt: Date;
   participants: Participant[];
-  payment?: Payment;
+  payments?: Payment[];
 };
 
 export type Participant = {
@@ -75,6 +76,7 @@ export class FindDetailsGuestInscriptionUsecase
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -94,7 +96,7 @@ export class FindDetailsGuestInscriptionUsecase
 
     const [participants, payments] = await Promise.all([
       this.participantGateway.findByInscriptionId(inscription.getId()),
-      this.paymentGateway.findByInscriptionId(inscription.getId()),
+      this.paymentGateway.findAllByInscriptionId(inscription.getId()),
     ]);
 
     const participantData = await Promise.all(
@@ -121,39 +123,40 @@ export class FindDetailsGuestInscriptionUsecase
       }),
     );
 
-    const paymentInstallments = payments
-      ? await this.paymentInstallmentGateway.findByPaymentId(payments.getId())
-      : [];
+    const paymentsData = await Promise.all(
+      payments.map(async (payment) => {
+        const imagePath = await this.getPublicUrl(payment.getImageUrl());
+
+        const installments =
+          await this.paymentInstallmentGateway.findByPaymentId(payment.getId());
+
+        const paymentInstallmentData: PaymentInstallment[] = installments.map(
+          (installment) => ({
+            id: installment.getId(),
+            installmentNumber: installment.getInstallmentNumber(),
+            value: installment.getValue(),
+            paidAt: installment.getPaidAt(),
+          }),
+        );
+
+        return {
+          id: payment.getId(),
+          status: payment.getStatus(),
+          method: payment.getMethodPayment(),
+          installments: payment.getInstallments(),
+          rejectionReason: payment.getRejectionReason(),
+          imageUrl: imagePath,
+          totalValue: payment.getTotalValue(),
+          totalPaid: payment.getTotalPaid(),
+          paidInstallments: payment.getPaidInstallments(),
+          PaymentInstallment: paymentInstallmentData,
+        };
+      }),
+    );
 
     const participantsData: Participant[] = participantData.filter(
       (p): p is Participant => p !== null,
     );
-
-    const paymentInstallmentData: PaymentInstallment[] =
-      paymentInstallments.map((installment) => ({
-        id: installment.getId(),
-        installmentNumber: installment.getInstallmentNumber(),
-        value: installment.getValue(),
-        paidAt: installment.getPaidAt(),
-      }));
-
-    const paymentData = payments
-      ? {
-          id: payments.getId(),
-          status: payments.getStatus(),
-          method: payments.getMethodPayment(),
-          installments: payments.getInstallments(),
-          rejectionReason: payments.getRejectionReason(),
-          imageUrl: payments.getImageUrl(),
-          totalValue: inscription.getTotalValue(),
-          totalPaid:
-            await this.paymentAllocationGateway.sumPaidValueByInscription(
-              inscription.getId(),
-            ),
-          paidInstallments: payments.getPaidInstallments(),
-          PaymentInstallment: paymentInstallmentData,
-        }
-      : undefined;
 
     const output: FindDetailsGuestInscriptionOutput = {
       id: inscription.getId(),
@@ -164,9 +167,21 @@ export class FindDetailsGuestInscriptionUsecase
       phone: inscription.getPhone() ?? '',
       createdAt: inscription.getCreatedAt(),
       participants: participantsData,
-      payment: paymentData,
+      payments: paymentsData,
     };
 
     return output;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

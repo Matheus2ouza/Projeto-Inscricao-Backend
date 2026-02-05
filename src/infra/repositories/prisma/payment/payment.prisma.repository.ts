@@ -82,6 +82,20 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findAllByInscriptionId(inscriptionId: string): Promise<Payment[]> {
+    const found = await this.prisma.payment.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: {
+        allocations: {
+          some: {
+            inscriptionId,
+          },
+        },
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
   async findByInscriptionId(inscriptionId: string): Promise<Payment | null> {
     const found = await this.prisma.payment.findFirst({
       where: {

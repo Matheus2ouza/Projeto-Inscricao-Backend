@@ -18,7 +18,7 @@ export type FindDetailsGuestInscriptionResponse = {
   phone: string;
   createdAt: Date;
   participants: Participant[];
-  payment?: Payment;
+  payments?: Payment[];
 };
 
 export type Participant = {

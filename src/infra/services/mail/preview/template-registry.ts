@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { GuestExpiredEmailData } from '../types/inscription/guest-expired-email.types';
 import type { GuestInscriptionEmailData } from '../types/inscription/guest-inscription-email.types';
 import type {
   EventResponsibleEmailData,
@@ -73,6 +74,13 @@ const mockGuestInscriptionData = (): GuestInscriptionEmailData => ({
   guestEmail: 'marina.costa@example.com',
   accessUrl: 'https://inscricao.dev/guest/inscription/abc123',
   confirmationCode: 'abd1-casc-42ad',
+});
+
+const mockGuestExpiredData = (): GuestExpiredEmailData => ({
+  eventName: 'Congresso de Tecnologia 2025',
+  guestName: 'Marina Costa',
+  guestEmail: 'marina.costa@example.com',
+  registerUrl: 'https://inscricao.dev/guest/event_001',
 });
 
 const mockPaymentReviewNotificationData =
@@ -269,6 +277,23 @@ export const templateDefinitions: TemplateDefinition[] = [
     },
     getProps: () => ({
       guestData: mockGuestInscriptionData(),
+      year: new Date().getFullYear(),
+    }),
+  },
+  {
+    id: 'inscription/guest-expired',
+    category: 'inscription',
+    title: 'Inscrição guest expirada',
+    description: 'Notifica o convidado que o prazo de pagamento expirou.',
+    previewText: 'Sua inscrição guest expirou.',
+    loader: async () => {
+      const module = await import(
+        '../templates/inscription/guest-expired/index.js'
+      );
+      return { default: module.GuestExpiredEmail };
+    },
+    getProps: () => ({
+      guestData: mockGuestExpiredData(),
       year: new Date().getFullYear(),
     }),
   },

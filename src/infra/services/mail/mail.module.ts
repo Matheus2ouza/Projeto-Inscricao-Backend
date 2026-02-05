@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DataBaseModule } from 'src/infra/repositories/database.module';
 import { RedisModule } from '../redis/redis.module';
 import { SupabaseModule } from '../supabase/supabase.module';
+import { GuestExpiredEmailHandler } from './handlers/inscription/guest-expired-email.handler';
 import { GuestInscriptionEmailHandler } from './handlers/inscription/guest-inscription-email.handler';
 import { InscriptionEmailHandler } from './handlers/inscription/inscription-email.handler';
 import { InscriptionStatusEmailHandler } from './handlers/inscription/inscription-status-email.handler';
@@ -20,6 +21,7 @@ import { MailService } from './mail.service';
     InscriptionEmailHandler,
     InscriptionStatusEmailHandler,
     GuestInscriptionEmailHandler,
+    GuestExpiredEmailHandler,
 
     //Payments
     PaymentApprovedEmailHandler,
@@ -36,6 +38,7 @@ import { MailService } from './mail.service';
     InscriptionEmailHandler,
     InscriptionStatusEmailHandler,
     GuestInscriptionEmailHandler,
+    GuestExpiredEmailHandler,
 
     //Payments
     //Approved

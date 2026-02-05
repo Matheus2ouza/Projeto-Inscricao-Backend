@@ -112,6 +112,7 @@ import { FindUserUsecase } from './web/user/find-by-id/find-user.usecase';
 import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
 import { CleanupExpiredCacheUsecase } from './worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
+import { CleanupGuestInscriptionUsecase } from './worker/cleanup-guest-inscription/cleanup-guest-inscription.usecase';
 import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
 import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup-cancelled-ticket-sales.usecase';
 
@@ -260,6 +261,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
+    CleanupGuestInscriptionUsecase,
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,
@@ -401,6 +403,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
+    CleanupGuestInscriptionUsecase,
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,
