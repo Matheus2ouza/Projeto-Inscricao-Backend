@@ -99,7 +99,9 @@ export class ImageOptimizerService {
       );
 
       // Obtém metadados da imagem original
-      const originalMetadata = await sharp(buffer).metadata();
+      const originalMetadata = await sharp(buffer, {
+        failOn: 'none',
+      }).metadata();
       const originalHasAlpha = Boolean(originalMetadata.hasAlpha);
       this.logger.log(
         `Imagem original: ${originalMetadata.width}x${originalMetadata.height}, formato: ${originalMetadata.format}, tamanho: ${buffer.length} bytes`,
@@ -126,10 +128,14 @@ export class ImageOptimizerService {
         );
 
         // Configura o Sharp para otimização do formato adequado
-        let sharpInstance = sharp(buffer).resize(maxWidth, maxHeight, {
-          fit: 'inside',
-          withoutEnlargement: true,
-        });
+        let sharpInstance = sharp(buffer, { failOn: 'none' }).resize(
+          maxWidth,
+          maxHeight,
+          {
+            fit: 'inside',
+            withoutEnlargement: true,
+          },
+        );
 
         if (isPngOutput) {
           // PNG precisa preservar o canal alpha; evitamos reduzir paleta ou mexer em "qualidade"
