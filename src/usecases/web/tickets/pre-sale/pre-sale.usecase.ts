@@ -17,7 +17,7 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
-import { InvalidImageFormatUsecaseException } from '../../exceptions/events/invalid-image-format.usecase.exception';
+import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 import { TicketNotFoundUsecaseException } from '../../exceptions/tickets/ticket-not-found.usecase.exception';
 
 export type PreSaleInput = {

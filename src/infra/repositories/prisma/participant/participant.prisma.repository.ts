@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { genderType } from 'generated/prisma';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PrismaService } from '../prisma.service';
@@ -83,6 +84,26 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     });
   }
 
+  async findManyByEventId(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Participant[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.participant.findMany({
+      skip,
+      take: pageSize,
+      where: {
+        inscription: {
+          eventId,
+          isGuest: true,
+        },
+      },
+      include: { typeInscription: { select: { description: true } } },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
   async findManyPaginatedByInscriptionId(
     inscriptionId: string,
     page: number,
@@ -156,6 +177,20 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
           eventId,
           status: { notIn: ['UNDER_REVIEW', 'CANCELLED'] },
         },
+      },
+    });
+  }
+
+  async countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number> {
+    return this.prisma.participant.count({
+      where: {
+        inscription: {
+          eventId,
+        },
+        gender,
       },
     });
   }

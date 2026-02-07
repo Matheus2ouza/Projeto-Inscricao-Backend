@@ -300,7 +300,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
 
   // Agregações e contagens
   async contTotalDebtByEvent(eventId: string): Promise<number> {
-    const inscriptions = await this.prisma.inscription.findMany({
+    const debt = await this.prisma.inscription.findMany({
       where: {
         eventId,
         status: {
@@ -309,13 +309,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       },
       select: {
         totalValue: true,
-        totalPaid: true,
       },
     });
 
-    return inscriptions.reduce((acc, i) => {
-      return acc + (i.totalValue.toNumber() - i.totalPaid.toNumber());
-    }, 0);
+    return debt.reduce((acc, cur) => acc + cur.totalValue.toNumber(), 0);
   }
 
   async countAll(
@@ -449,6 +446,70 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       uniqueAccountIds.add(l.inscription.accountId ?? '');
     }
     return uniqueAccountIds.size;
+  }
+
+  // Busca o total de participantes referente ao evento,
+  // somando o total de participantes (guest) e accountParticipantInEvent
+  async countParticipantsByEventId(
+    eventId: string,
+    guest: boolean = false,
+    status?: InscriptionStatus[],
+  ): Promise<number> {
+    const [guestCount, accountCount] = await Promise.all([
+      // participantes (guest)
+      guest
+        ? this.prisma.participant.count({
+            where: {
+              inscription: {
+                eventId,
+                isGuest: true,
+                status:
+                  status && status.length > 0 ? { in: status } : undefined,
+              },
+            },
+          })
+        : 0,
+
+      // account participants
+      this.prisma.accountParticipantInEvent.count({
+        where: {
+          inscription: {
+            eventId,
+            isGuest: false,
+            status: status && status.length > 0 ? { in: status } : undefined,
+          },
+        },
+      }),
+    ]);
+
+    return guestCount + accountCount;
+  }
+
+  // Busca o total de participantes de um sexo específico referente ao evento,
+  // somando o total de participantes (guest) e accountParticipantInEvent
+  async countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number> {
+    const count = await this.prisma.inscription.count({
+      where: {
+        eventId,
+        participants: {
+          some: {
+            gender,
+          },
+        },
+        accountParticipantInEvent: {
+          some: {
+            participant: {
+              gender,
+            },
+          },
+        },
+      },
+    });
+
+    return count;
   }
 
   // Atualizações de status e valor

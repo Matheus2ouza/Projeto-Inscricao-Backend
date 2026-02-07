@@ -7,6 +7,8 @@ export type AnalysisPaymentsPendingDetailsRequest = {
 export type AnalysisPaymentsPendingDetailsResponse = {
   id: string;
   status: string;
+  isGuest: boolean;
+  responsible: string;
   methodPayment: PaymentMethod;
   totalValue: number;
   createdAt: Date;
@@ -18,4 +20,5 @@ export type AnalysisPaymentsPendingDetailsResponse = {
 type PaymentAllocation = {
   value: number;
   inscriptionId: string;
+  responsible?: string;
 };

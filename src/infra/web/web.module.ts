@@ -11,6 +11,9 @@ import { ServiceExceptionFilterProvider } from './filters/infra/service/server-e
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
+import { PaymentApprovedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-approved.usecase.exception.filter';
+import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
+import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
@@ -34,6 +37,7 @@ import { FindAllPaginatedEventToPaymentRoute } from './routes/event/find-all-to-
 import { FindAllWithAccountRoute } from './routes/event/find-all-with-account/find-all-with-account.route';
 import { FindAllWithExpensesRoute } from './routes/event/find-all-with-expenses/find-all-with-expenses.route';
 import { FindAllWithInscriptionsRoute } from './routes/event/find-all-with-inscriptions/find-all-with-inscriptions.route';
+import { FindAllWithParticipantsRoute } from './routes/event/find-all-with-participants/find-all-with-participants.route';
 import { FindAllWithPaymentsRoute } from './routes/event/find-all-with-payments/find-all-with-payments.route';
 import { FindAllWithTicketsRoute } from './routes/event/find-all-with-tickets/find-all-with-tickets.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
@@ -69,6 +73,7 @@ import { CreateMembersRoute } from './routes/members/create/create-membrers.rout
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
+import { ListGuestParticipantsRoute } from './routes/participants/list-guest-participants/list-guest-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
@@ -145,6 +150,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
     FindAllWithInscriptionsRoute,
+    FindAllWithParticipantsRoute,
     FindAllWithPaymentsRoute,
     FindAllWithTicketsRoute,
     FindAllWithExpensesRoute,
@@ -238,6 +244,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Participants
     ListParticipantsRoute,
+    ListGuestParticipantsRoute,
     UpdateParticipantsRoute,
     DeleteParticipantsRoute,
     GeneratePdfSelectedParticipantRoute,
@@ -281,6 +288,11 @@ import { WelcomeRoute } from './routes/welcome.route';
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    // Payment
+    PaymentApprovedUsecaseExceptionFilterProvider,
+    PaymentNotFoundUsecaseExceptionFilterProvider,
+    InvalidImageFormatUsecaseExceptionFilterProvider,
 
     // Type Inscription
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,

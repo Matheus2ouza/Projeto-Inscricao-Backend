@@ -8,6 +8,8 @@ export class AnalysisPaymentsPendingDetailsPresenter {
     return {
       id: output.id,
       status: output.status,
+      isGuest: output.isGuest,
+      responsible: output.responsible,
       methodPayment: output.methodPayment,
       totalValue: output.totalValue,
       createdAt: output.createdAt,

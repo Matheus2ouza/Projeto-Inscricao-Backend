@@ -229,7 +229,23 @@ export class ImageOptimizerService {
 
       return result;
     } catch (error) {
-      this.logger.error(`Erro na otimização da imagem: ${error.message}`);
+      this.logger.error(
+        `Erro na otimização da imagem: ${error.message}`,
+        error.stack,
+      );
+      this.logger.debug(`Tamanho do buffer: ${buffer.length} bytes`);
+      this.logger.debug(`Opções: ${JSON.stringify(options)}`);
+
+      // Tratamento específico para imagens corrompidas/incompletas
+      if (
+        error.message.includes('Premature end of input file') ||
+        error.message.includes('VipsJpeg')
+      ) {
+        throw new Error(
+          'A imagem enviada está corrompida ou incompleta. Por favor, tente enviar novamente ou use outra imagem.',
+        );
+      }
+
       throw new Error(`Falha na otimização da imagem: ${error.message}`);
     }
   }
