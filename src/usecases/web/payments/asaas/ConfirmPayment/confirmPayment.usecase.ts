@@ -139,12 +139,15 @@ export class ConfirmPaymentUsecase
     await this.paymentInstallmentGateway.create(paymentInstallment);
 
     // Adiciona a parcela paga ao pagamento
-    payment.addPaidInstallment(input.value, input.netValue);
+    payment.addPaidInstallment(
+      paymentInstallment.getValue(),
+      paymentInstallment.getNetValue(),
+    );
 
     // Atualiza o evento com o valor líquido da parcela
     await this.eventGateway.incrementAmountCollected(
       payment.getEventId(),
-      input.netValue,
+      paymentInstallment.getNetValue(),
     );
 
     this.logger.log(

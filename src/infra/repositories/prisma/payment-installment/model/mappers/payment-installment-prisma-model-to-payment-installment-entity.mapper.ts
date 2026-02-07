@@ -11,7 +11,7 @@ export class PaymentInstallmentPrismaModelToEntityMapper {
       installmentNumber: paymentInstallment.installmentNumber,
       value: Number(paymentInstallment.value),
       netValue: Number(paymentInstallment.netValue),
-      asaasPaymentId: paymentInstallment.asaasPaymentId,
+      asaasPaymentId: paymentInstallment.asaasPaymentId || undefined,
       financialMovementId: paymentInstallment.financialMovementId || undefined,
       paidAt: paymentInstallment.paidAt,
       createdAt: paymentInstallment.createdAt,
