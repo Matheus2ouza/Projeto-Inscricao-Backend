@@ -11,9 +11,9 @@ import { Usecase } from 'src/usecases/usecase';
 import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/region-not-found.usecase.exception';
 import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/events/event-name-already-exists.usecase.exception';
 import { InvalidEventDateRangeUsecaseException } from 'src/usecases/web/exceptions/events/invalid-event-date-range.usecase.exception';
-import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/events/invalid-image-format.usecase.exception';
 import { MissingRegionIdUsecaseException } from 'src/usecases/web/exceptions/events/missing-region-id.usecase.exception';
 import { missingStartDateOrEndDateUsecaseException } from 'src/usecases/web/exceptions/events/missing-start-date-or-end-date.usecase.exception';
+import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/payment/invalid-image-format.usecase.exception';
 
 export type CreateEventInput = {
   name: string;

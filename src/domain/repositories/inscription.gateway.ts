@@ -115,6 +115,15 @@ export abstract class InscriptionGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
+  abstract countParticipantsByEventId(
+    eventId: string,
+    guest: boolean,
+    status?: InscriptionStatus[],
+  ): Promise<number>;
+  abstract countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number>;
 
   // Atualizações de status e valor
   abstract updateStatus(

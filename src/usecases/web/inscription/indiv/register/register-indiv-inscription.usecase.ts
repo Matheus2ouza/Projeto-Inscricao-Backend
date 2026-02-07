@@ -139,11 +139,6 @@ export class RegisterIndivInscriptionUsecase
       accountParticipantInEvent,
     );
 
-    await this.eventGateway.incrementQuantityParticipants(
-      eventExists.getId(),
-      1,
-    );
-
     // 9. Enviar e-mail de notificação
     void this.sendInscriptionNotificationEmail(
       eventExists.getId(),

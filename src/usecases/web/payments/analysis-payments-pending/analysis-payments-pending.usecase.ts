@@ -34,6 +34,7 @@ export type Payment = {
   id: string;
   responsible?: string;
   status: string;
+  isGuest: boolean;
   value: number;
   createdAt: Date;
 };
@@ -66,6 +67,7 @@ export class AnalysisPaymentsPendingUsecase
       );
     }
 
+    // Buscando pagamentos pendentes e totais em paralelo para otimizar a performance
     const [payments, total, totalPaymentInAnalysis, totalAmountInAnalysis] =
       await Promise.all([
         this.paymentGateway.findAllPaginated(
@@ -83,7 +85,7 @@ export class AnalysisPaymentsPendingUsecase
         this.paymentGateway.countTotalAmountInAnalysis(event.getId()),
       ]);
 
-    const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
+    const imagePath = await this.getPublicUrl(event.getImageUrl());
 
     const eventData: Event = {
       id: event.getId(),
@@ -94,24 +96,28 @@ export class AnalysisPaymentsPendingUsecase
       totalAmountInAnalysis,
     };
 
+    // Mapeando pagamentos e buscando informações dos responsáveis
     const paymentData = await Promise.all(
       payments.map(async (p) => {
-        const accountId = p.getAccountId();
-        if (!accountId) {
-          return {
-            id: p.getId(),
-            responsible: 'Usuário não encontrado',
-            status: p.getStatus(),
-            value: p.getTotalValue(),
-            createdAt: p.getCreatedAt(),
-          };
+        let responsible = 'Usuário não encontrado';
+
+        // Se for guest, pega o nome do guest
+        if (p.getIsGuest()) {
+          responsible = p.getGuestName() || 'Convidado sem nome';
         }
 
-        const account = await this.accountGateway.findById(accountId);
+        // Se não for guest, busca a conta associada
+        const accountId = p.getAccountId();
+        if (!p.getIsGuest() && accountId) {
+          const account = await this.accountGateway.findById(accountId);
+          responsible = account?.getUsername() || 'Usuário não encontrado';
+        }
+
         return {
           id: p.getId(),
-          responsible: account?.getUsername() || 'Usuário não encontrado',
+          responsible,
           status: p.getStatus(),
+          isGuest: p.getIsGuest() || false,
           value: p.getTotalValue(),
           createdAt: p.getCreatedAt(),
         };
@@ -129,7 +135,7 @@ export class AnalysisPaymentsPendingUsecase
     return output;
   }
 
-  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
+  private async getPublicUrl(path?: string): Promise<string> {
     if (!path) {
       return '';
     }

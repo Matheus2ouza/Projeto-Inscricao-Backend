@@ -28,6 +28,7 @@ import { FindAllPaginatedEventToPaymentUsecase } from './web/event/find-all-to-a
 import { FindAllWithAccountUsecase } from './web/event/find-all-with-account/find-all-with-account.usecase';
 import { FindAllWithExpensesUsecase } from './web/event/find-all-with-expenses/find-all-with-expenses.usecase';
 import { FindAllWithInscriptionsUsecase } from './web/event/find-all-with-inscriptions/find-all-with-inscriptions.usecase';
+import { FindAllWithParticipantsUsecase } from './web/event/find-all-with-participants/find-all-with-participants.usecase';
 import { FindAllWithPaymentsUsecase } from './web/event/find-all-with-payments/find-all-with-payments.usecase';
 import { FindAllWithTicketsUsecase } from './web/event/find-all-with-tickets/find-all-with-tickets.usecase';
 import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase';
@@ -64,6 +65,7 @@ import { CreateMembersUsecase } from './web/members/create/create-membrers.useca
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
+import { ListGuestParticipantsUsecase } from './web/participants/list-guest-participants/list-guest-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
 import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
@@ -210,6 +212,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
     FindDetailsGuestInscriptionUsecase,
+    FindAllWithParticipantsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -230,6 +233,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
 
     // Participants
     ListParticipantsUsecase,
+    ListGuestParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
     GeneratePdfParticipantsSelectedAccountsUsecase,
@@ -352,6 +356,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     FindAllPaginatedOnSiteRegistrationUsecase,
     FindDetailsInscriptionAvulUsecase,
     FindDetailsGuestInscriptionUsecase,
+    FindAllWithParticipantsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -372,6 +377,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
 
     // Participants
     ListParticipantsUsecase,
+    ListGuestParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
     GeneratePdfParticipantsSelectedAccountsUsecase,

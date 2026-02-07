@@ -4,7 +4,7 @@ import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
-import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/events/invalid-image-format.usecase.exception';
+import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/payment/invalid-image-format.usecase.exception';
 
 export type UpdateImageEventInput = {
   eventId: string;

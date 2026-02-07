@@ -58,28 +58,10 @@ export class ListParticipantsUsecase
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
-      Math.min(10, Math.floor(input.pageSize || 10)),
+      Math.min(20, Math.floor(input.pageSize || 20)),
     );
 
-    const [
-      event,
-      countParticipantsMale,
-      countParticipantsFemale,
-      countParticipantsTotal,
-    ] = await Promise.all([
-      this.eventGateway.findById(input.eventId),
-      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
-        input.eventId,
-        genderType.MASCULINO,
-      ),
-      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
-        input.eventId,
-        genderType.FEMININO,
-      ),
-      this.accountParticipantInEventGateway.countParticipantsByEventId(
-        input.eventId,
-      ),
-    ]);
+    const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
@@ -89,9 +71,27 @@ export class ListParticipantsUsecase
       );
     }
 
+    const [
+      countParticipantsMale,
+      countParticipantsFemale,
+      countParticipantsTotal,
+    ] = await Promise.all([
+      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+        event.getId(),
+        genderType.MASCULINO,
+      ),
+      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+        event.getId(),
+        genderType.FEMININO,
+      ),
+      this.accountParticipantInEventGateway.countParticipantsByEventId(
+        event.getId(),
+      ),
+    ]);
+
     const countAccounts =
       await this.inscriptionGateway.countUniqueAccountIdsByEventId(
-        input.eventId,
+        event.getId(),
       );
     const pageCount = Math.ceil(countAccounts / safePageSize);
 

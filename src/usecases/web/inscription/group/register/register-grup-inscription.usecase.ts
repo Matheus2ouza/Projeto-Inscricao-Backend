@@ -145,11 +145,6 @@ export class RegisterGroupInscriptionUsecase
 
     await this.accountParticipantInEventGateway.createMany(participantLinks);
 
-    await this.eventGateway.incrementQuantityParticipants(
-      eventExists.getId(),
-      input.members.length,
-    );
-
     void this.sendInscriptionNotificationEmail(
       eventExists.getId(),
       inscription,
