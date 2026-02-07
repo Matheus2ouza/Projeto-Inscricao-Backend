@@ -10,7 +10,7 @@ export class PaymentInstallmentEntityToPrismaModelMapper {
       installmentNumber: entity.getInstallmentNumber(),
       value: Decimal(entity.getValue()),
       netValue: Decimal(entity.getNetValue()),
-      asaasPaymentId: entity.getAsaasPaymentId(),
+      asaasPaymentId: entity.getAsaasPaymentId() ?? null,
       financialMovementId: entity.getFinancialMovementId() ?? null,
       paidAt: entity.getPaidAt(),
       createdAt: entity.getCreatedAt(),

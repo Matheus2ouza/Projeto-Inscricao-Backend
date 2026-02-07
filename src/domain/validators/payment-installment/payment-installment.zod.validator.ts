@@ -43,7 +43,8 @@ export class PaymentInstallmentZodValidator
       installmentNumber: z.number().int().positive(),
       value: z.number().positive(),
       netValue: z.number().positive(),
-      asaasPaymentId: z.string(),
+      asaasPaymentId: z.string().optional(),
+      financialMovementId: z.string().optional(),
       paidAt: z.date(),
     });
     return zodSchema;

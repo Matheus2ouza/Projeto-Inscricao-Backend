@@ -7,7 +7,7 @@ export type PaymentInstallmentCreateDto = {
   installmentNumber: number;
   value: number;
   netValue: number;
-  asaasPaymentId: string;
+  asaasPaymentId?: string;
   financialMovementId?: string;
   paidAt: Date;
 };
@@ -18,7 +18,7 @@ export type PaymentInstallmentWithDto = {
   installmentNumber: number;
   value: number;
   netValue: number;
-  asaasPaymentId: string;
+  asaasPaymentId?: string;
   financialMovementId?: string;
   paidAt: Date;
   createdAt: Date;
@@ -31,9 +31,9 @@ export class PaymentInstallment extends Entity {
     private installmentNumber: number,
     private value: number,
     private netValue: number,
-    private asaasPaymentId: string,
     private paidAt: Date,
     createdAt: Date,
+    private asaasPaymentId?: string,
     private financialMovementId?: string,
   ) {
     super(id, createdAt, createdAt);
@@ -59,9 +59,9 @@ export class PaymentInstallment extends Entity {
       installmentNumber,
       value,
       netValue,
-      asaasPaymentId,
       paidAtDefault,
       createdAt,
+      asaasPaymentId,
       financialMovementId,
     );
   }
@@ -83,9 +83,9 @@ export class PaymentInstallment extends Entity {
       installmentNumber,
       value,
       netValue,
-      asaasPaymentId,
       paidAt,
       createdAt,
+      asaasPaymentId,
       financialMovementId,
     );
   }
@@ -114,7 +114,7 @@ export class PaymentInstallment extends Entity {
     return this.netValue;
   }
 
-  public getAsaasPaymentId(): string {
+  public getAsaasPaymentId(): string | undefined {
     return this.asaasPaymentId;
   }
 
