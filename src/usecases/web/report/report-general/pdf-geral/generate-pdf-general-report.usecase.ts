@@ -84,10 +84,10 @@ export class GeneratePdfGeneralReportUsecase {
       list: { paymentMethod: PaymentMethod; totalValue: number }[],
     ) => list.find((item) => item.paymentMethod === method)?.totalValue ?? 0;
 
-    const typeInscriptionDetails = reportData.typeInscription.map((type) => ({
+    const typeInscriptionDetails = reportData.typeInscriptions.map((type) => ({
       responsible: type.description,
-      countParticipants: type.countParticipants,
-      totalValue: type.totalValue,
+      countParticipants: 0,
+      totalValue: 0,
       createdAt: reportData.startDate,
     }));
 
@@ -111,6 +111,33 @@ export class GeneratePdfGeneralReportUsecase {
       getMethodValue(method, reportData.inscriptionAvuls.byPaymentMethod) +
       getMethodValue(method, reportData.ticketSale.byPaymentMethod);
 
+    const groupByMethod = (method: PaymentMethod) =>
+      getMethodValue(
+        method,
+        reportData.inscriptions.flatMap((item) => item.byPaymentMethod),
+      ) +
+      getMethodValue(
+        method,
+        reportData.guestInscriptions.flatMap((item) => item.byPaymentMethod),
+      );
+
+    const totalGroupParticipants =
+      reportData.inscriptions.reduce(
+        (sum, item) => sum + item.countParticipants,
+        0,
+      ) +
+      reportData.guestInscriptions.reduce(
+        (sum, item) => sum + item.countParticipants,
+        0,
+      );
+
+    const totalGroupValue =
+      reportData.inscriptions.reduce((sum, item) => sum + item.totalValue, 0) +
+      reportData.guestInscriptions.reduce(
+        (sum, item) => sum + item.totalValue,
+        0,
+      );
+
     const expensesTotals = reportData.expenses;
 
     return {
@@ -121,11 +148,8 @@ export class GeneratePdfGeneralReportUsecase {
         location: undefined,
       },
       totais: {
-        totalInscricoesGrupo: reportData.typeInscription.length,
-        totalParticipantesGrupo: reportData.typeInscription.reduce(
-          (sum, type) => sum + type.countParticipants,
-          0,
-        ),
+        totalInscricoesGrupo: reportData.typeInscriptions.length,
+        totalParticipantesGrupo: totalGroupParticipants,
         totalInscricoesAvulsas: reportData.ticketSale.byTicket.length,
         totalParticipantesAvulsos:
           reportData.inscriptionAvuls.countParticipants,
@@ -138,17 +162,11 @@ export class GeneratePdfGeneralReportUsecase {
         totalGastos: expensesTotals.total,
       },
       inscricoes: {
-        total: reportData.typeInscription.reduce(
-          (sum, type) => sum + type.totalValue,
-          0,
-        ),
-        totalDinheiro: 0,
-        totalPix: 0,
-        totalCartao: 0,
-        totalParticipantes: reportData.typeInscription.reduce(
-          (sum, type) => sum + type.countParticipants,
-          0,
-        ),
+        total: totalGroupValue,
+        totalDinheiro: groupByMethod(PaymentMethod.DINHEIRO),
+        totalPix: groupByMethod(PaymentMethod.PIX),
+        totalCartao: groupByMethod(PaymentMethod.CARTAO),
+        totalParticipantes: totalGroupParticipants,
         inscricoes: typeInscriptionDetails,
       },
       inscricoesAvulsas: {

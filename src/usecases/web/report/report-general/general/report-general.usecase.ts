@@ -6,6 +6,8 @@ import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gatew
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
+import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
@@ -31,7 +33,9 @@ export type ReportGeneralOutput = {
   totalValue: number;
   totalDebt: number;
 
-  typeInscription: TypeInscription;
+  typeInscriptions: TypeInscription;
+  inscriptions: Inscription[];
+  guestInscriptions: GuestInscription[];
   inscriptionAvuls: InscriptionAvuls;
   ticketSale: TicketSale;
   expenses: ExpensesReport;
@@ -42,9 +46,31 @@ type TypeInscription = {
   id: string;
   description: string;
   amount: number;
+}[];
+
+type Inscription = {
   countParticipants: number;
   totalValue: number;
-}[];
+  byPaymentMethod: InscriptionPaymentMethodReport[];
+};
+
+type GuestInscription = {
+  countParticipants: number;
+  totalValue: number;
+  byPaymentMethod: GuestInscriptionPaymentMethodReport[];
+};
+
+type GuestInscriptionPaymentMethodReport = {
+  paymentMethod: PaymentMethod;
+  countParticipants: number;
+  totalValue: number;
+};
+
+type InscriptionPaymentMethodReport = {
+  paymentMethod: PaymentMethod;
+  countParticipants: number;
+  totalValue: number;
+};
 
 type InscriptionAvuls = {
   countParticipants: number;
@@ -107,6 +133,8 @@ export class ReportGeneralUsecase
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
+    private readonly participantGateway: ParticipantGateway,
+    private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
     private readonly ticketSalePaymentGateway: TicketSalePaymentGateway,
@@ -165,33 +193,61 @@ export class ReportGeneralUsecase
 
     const inscriptionIds = inscriptions.map((i) => i.getId());
 
-    // Buscar todos os participantes de todas as inscrições pagas
-    const participants =
-      await this.accountParticipantInEventGateway.findManyByInscriptionIds(
-        inscriptionIds,
-      );
+    const normalInscriptionIdSet = new Set<string>();
+    const guestInscriptionIdSet = new Set<string>();
 
-    const participantCountMap = new Map<string, number>();
+    for (const inscription of inscriptions) {
+      const inscriptionId = inscription.getId();
 
-    for (const participant of participants) {
-      const typeId = participant.getTypeInscriptionId();
-      const previousCount = participantCountMap.get(typeId) ?? 0;
-      participantCountMap.set(typeId, previousCount + 1);
+      if (inscription.getIsGuest()) {
+        guestInscriptionIdSet.add(inscriptionId);
+      }
+
+      if (!inscription.getIsGuest()) {
+        const accountId = inscription.getAccountId();
+        if (accountId) {
+          normalInscriptionIdSet.add(inscriptionId);
+        }
+      }
+
+      if (!inscription.getAccountId()) {
+        guestInscriptionIdSet.add(inscriptionId);
+      }
     }
 
-    // Montar o array final (valor total = quantidade * valor do tipo)
-    const typeInscriptionOutput = typeInscriptions.map((type) => {
-      const count = participantCountMap.get(type.getId()) ?? 0;
-      const amount = type.getValue();
+    const normalInscriptionIds = Array.from(normalInscriptionIdSet.values());
+    const guestInscriptionIds = Array.from(guestInscriptionIdSet.values());
 
-      return {
-        id: type.getId(),
-        description: type.getDescription(),
-        amount,
-        countParticipants: count,
-        totalValue: count * amount,
-      };
-    });
+    const [normalParticipants, guestParticipants, allocations] =
+      await Promise.all([
+        this.accountParticipantInEventGateway.findManyByInscriptionIds(
+          normalInscriptionIds,
+        ),
+        this.participantGateway.findManyByInscriptionIds(guestInscriptionIds),
+        this.paymentAllocationGateway.findManyByInscriptionIdsWithMethodAndInscription(
+          inscriptionIds,
+        ),
+      ]);
+
+    const normalParticipantsByInscription = new Map<string, number>();
+    for (const participant of normalParticipants) {
+      const id = participant.getInscriptionId();
+      const count = normalParticipantsByInscription.get(id) ?? 0;
+      normalParticipantsByInscription.set(id, count + 1);
+    }
+
+    const guestParticipantsByInscription = new Map<string, number>();
+    for (const participant of guestParticipants) {
+      const id = participant.getInscriptionId();
+      const count = guestParticipantsByInscription.get(id) ?? 0;
+      guestParticipantsByInscription.set(id, count + 1);
+    }
+
+    const typeInscriptionOutput = typeInscriptions.map((type) => ({
+      id: type.getId(),
+      description: type.getDescription(),
+      amount: type.getValue(),
+    }));
 
     const paymentMethodCounts = new Map<PaymentMethod, number>();
     avulsParticipantsPerMethod.forEach((stat) => {
@@ -217,6 +273,18 @@ export class ReportGeneralUsecase
       totalValue: avulsPaymentTotals.totalGeral,
       byPaymentMethod,
     };
+
+    const normalInscriptionSummary = this.buildInscriptionSummary(
+      normalInscriptionIds,
+      normalParticipantsByInscription,
+      allocations,
+    );
+
+    const guestInscriptionSummary = this.buildInscriptionSummary(
+      guestInscriptionIds,
+      guestParticipantsByInscription,
+      allocations,
+    );
 
     const eventTicketNameMap = new Map(
       eventTickets.map((ticket) => [ticket.getId(), ticket.getName()]),
@@ -333,7 +401,9 @@ export class ReportGeneralUsecase
       countParticipants: event.getQuantityParticipants(),
       totalValue: event.getAmountCollected(),
       totalDebt: totalDebt,
-      typeInscription: typeInscriptionOutput,
+      typeInscriptions: typeInscriptionOutput,
+      inscriptions: [normalInscriptionSummary],
+      guestInscriptions: [guestInscriptionSummary],
       inscriptionAvuls,
       ticketSale,
       expenses: expensesReport,
@@ -353,5 +423,75 @@ export class ReportGeneralUsecase
     } catch {
       return '';
     }
+  }
+
+  private buildInscriptionSummary(
+    inscriptionIds: string[],
+    participantsByInscription: Map<string, number>,
+    allocations: {
+      inscriptionId: string;
+      value: number;
+      paymentMethod: PaymentMethod;
+    }[],
+  ): Inscription {
+    const inscriptionIdSet = new Set(inscriptionIds);
+    const methodTotals = new Map<PaymentMethod, number>();
+    const methodInscriptionIds = new Map<PaymentMethod, Set<string>>();
+    const methods = Object.values(PaymentMethod) as PaymentMethod[];
+
+    for (const method of methods) {
+      methodTotals.set(method, 0);
+      methodInscriptionIds.set(method, new Set());
+    }
+
+    for (const allocation of allocations) {
+      if (!inscriptionIdSet.has(allocation.inscriptionId)) {
+        continue;
+      }
+
+      const currentTotal = methodTotals.get(allocation.paymentMethod) ?? 0;
+      methodTotals.set(
+        allocation.paymentMethod,
+        currentTotal + allocation.value,
+      );
+
+      const methodSet =
+        methodInscriptionIds.get(allocation.paymentMethod) ?? new Set();
+      methodSet.add(allocation.inscriptionId);
+      methodInscriptionIds.set(allocation.paymentMethod, methodSet);
+    }
+
+    let totalParticipants = 0;
+    for (const inscriptionId of inscriptionIdSet) {
+      totalParticipants += participantsByInscription.get(inscriptionId) ?? 0;
+    }
+
+    let totalValue = 0;
+    for (const method of methods) {
+      totalValue += methodTotals.get(method) ?? 0;
+    }
+
+    const byPaymentMethod: InscriptionPaymentMethodReport[] = methods.map(
+      (method) => {
+        const ids = methodInscriptionIds.get(method) ?? new Set();
+        let countParticipants = 0;
+        for (const inscriptionId of ids) {
+          countParticipants +=
+            participantsByInscription.get(inscriptionId) ?? 0;
+        }
+
+        return {
+          paymentMethod: method,
+          countParticipants,
+          totalValue: methodTotals.get(method) ?? 0,
+        };
+      },
+    );
+
+    return {
+      countParticipants: totalParticipants,
+      totalValue,
+      byPaymentMethod,
+    };
   }
 }

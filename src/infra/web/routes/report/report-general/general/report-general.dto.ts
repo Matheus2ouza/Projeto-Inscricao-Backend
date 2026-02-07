@@ -10,12 +10,16 @@ export type ReportGeneralResponse = {
   startDate: Date;
   endDate: Date;
   image: string;
+  logo?: string;
   totalInscriptions: number;
   countTypeInscription: number;
   countParticipants: number;
   totalValue: number;
   totalDebt: number;
-  typeInscription: TypeInscription;
+
+  typeInscriptions: TypeInscription;
+  inscriptions: Inscription[];
+  guestInscriptions: GuestInscription[];
   inscriptionAvuls: InscriptionAvuls;
   ticketSale: TicketSale;
   expenses: ExpensesReport;
@@ -26,9 +30,31 @@ type TypeInscription = {
   id: string;
   description: string;
   amount: number;
+}[];
+
+type Inscription = {
   countParticipants: number;
   totalValue: number;
-}[];
+  byPaymentMethod: InscriptionPaymentMethodReport[];
+};
+
+type GuestInscription = {
+  countParticipants: number;
+  totalValue: number;
+  byPaymentMethod: GuestInscriptionPaymentMethodReport[];
+};
+
+type GuestInscriptionPaymentMethodReport = {
+  paymentMethod: PaymentMethod;
+  countParticipants: number;
+  totalValue: number;
+};
+
+type InscriptionPaymentMethodReport = {
+  paymentMethod: PaymentMethod;
+  countParticipants: number;
+  totalValue: number;
+};
 
 type InscriptionAvuls = {
   countParticipants: number;
@@ -43,10 +69,10 @@ type AvulsoPaymentMethodReport = {
 };
 
 type TicketSale = {
-  totalSales: number;
-  totalTicketsSold: number;
-  byTicket: TicketSaleByTicket[];
-  byPaymentMethod: TicketSaleByPaymentMethod[];
+  totalSales: number; // soma dos valores de todas as vendas de ticket
+  totalTicketsSold: number; // soma das quantidades de todos os itens vendidos
+  byTicket: TicketSaleByTicket[]; // agrupado por ticket
+  byPaymentMethod: TicketSaleByPaymentMethod[]; // agrupado por método de pagamento
 };
 
 type TicketSaleByTicket = {
