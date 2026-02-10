@@ -5,8 +5,8 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 export type FindEventCarouselOutput = {
   id: string;
   name: string;
-  location: string;
-  image: string;
+  location?: string;
+  image?: string;
 }[];
 
 @Injectable()
@@ -19,28 +19,31 @@ export class FindEventCarouselUsecase {
   public async execute(): Promise<FindEventCarouselOutput> {
     const events = await this.eventGateway.findAllCarousel();
 
-    const enriched = await Promise.all(
+    const eventsData: FindEventCarouselOutput = await Promise.all(
       events.map(async (event) => {
-        let publicImageUrl = '';
-        if (event.imageUrl) {
-          try {
-            publicImageUrl = await this.supabaseStorageService.getPublicUrl(
-              event.imageUrl,
-            );
-          } catch (e) {
-            publicImageUrl = '';
-          }
-        }
+        const imagePath = await this.getPublicUrl(event.getImageUrl());
 
         return {
-          id: event.id,
-          name: event.name,
-          location: event.location,
-          image: publicImageUrl,
+          id: event.getId(),
+          name: event.getName(),
+          location: event.getLocation(),
+          image: imagePath,
         };
       }),
     );
 
-    return enriched;
+    return eventsData;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

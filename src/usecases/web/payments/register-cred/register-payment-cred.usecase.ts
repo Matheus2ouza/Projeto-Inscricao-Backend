@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import {
   InscriptionStatus,
@@ -28,6 +28,7 @@ export type RegisterPaymentCredInput = {
   totalValue: number;
   client: Client;
   inscriptions: Inscription[];
+  passCustomerToAsaas?: boolean;
 };
 
 type Client = {
@@ -64,6 +65,8 @@ type AsaasCheckoutResponse = {
 export class RegisterPaymentCredUsecase
   implements Usecase<RegisterPaymentCredInput, RegisterPaymentCredOutput>
 {
+  private readonly logger = new Logger(RegisterPaymentCredUsecase.name);
+
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly paymentGateway: PaymentGateway,
@@ -149,6 +152,9 @@ export class RegisterPaymentCredUsecase
     const imagePath = await this.loadEventImage(event.getImageUrl());
 
     // Cria o checkout no ASAAS
+    this.logger.log(
+      `passCustomerToAsaas: ${input.passCustomerToAsaas === true ? 'true' : 'false'}`,
+    );
     const checkout = await this.createCheckout(
       event,
       finalValue,
@@ -156,6 +162,7 @@ export class RegisterPaymentCredUsecase
       successUrl,
       cancelUrl,
       expiredUrl,
+      input.passCustomerToAsaas,
       imagePath,
     );
 
@@ -233,9 +240,28 @@ export class RegisterPaymentCredUsecase
     successUrl: string,
     cancelUrl: string,
     expiredUrl: string,
+    passCustomerToAsaas?: boolean,
     imagePath?: string,
   ): Promise<AsaasCheckoutResponse> {
     const paymentReferenceId = Utils.generateUUID();
+    const customerData =
+      passCustomerToAsaas === true
+        ? {
+            name: client.name,
+            email: client.email,
+            cpfCnpj: client.cpfCnpj,
+            phone: client.phone,
+            address: client.address,
+            addressNumber: client.addressNumber,
+            complement: client.complement,
+            postalCode: client.postalCode,
+            province: client.province,
+            city: client.city,
+          }
+        : undefined;
+    this.logger.log(
+      `customerData enviado ao ASAAS: ${customerData ? 'true' : 'false'}`,
+    );
 
     const checkout = await axios.post<AsaasCheckoutResponse>(
       process.env.ASAAS_API_URL!,
@@ -260,18 +286,7 @@ export class RegisterPaymentCredUsecase
         installment: {
           maxInstallmentCount: 3,
         },
-        customerData: {
-          name: client.name,
-          email: client.email,
-          cpfCnpj: client.cpfCnpj,
-          phone: client.phone,
-          address: client.address,
-          addressNumber: client.addressNumber,
-          complement: client.complement,
-          postalCode: client.postalCode,
-          province: client.province,
-          city: client.city,
-        },
+        customerData,
       },
       {
         headers: {

@@ -1,9 +1,15 @@
-import { ArgumentsHost, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+} from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/payment/invalid-image-format.usecase.exception';
 
+@Catch(InvalidImageFormatUsecaseException)
 export class InvalidImageFormatUsecaseExceptionFilter
   implements ExceptionFilter
 {

@@ -1,4 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
 import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
@@ -22,8 +23,16 @@ export class FindAllWithPaymentsRoute {
     @Query() query: FindAllWithPaymentsRequest,
     @UserInfo() userInfo: UserInfoType,
   ): Promise<FindAllWithPaymentsResponse> {
+    const paymentEnabled =
+      query.paymentEnabled === undefined
+        ? undefined
+        : query.paymentEnabled === 'true';
+
     const input: FindAllWithPaymentsInput = {
-      regionId: userInfo.userRole === 'SUPER' ? undefined : userInfo.regionId,
+      regionId:
+        userInfo.userRole === roleType.SUPER ? undefined : userInfo.regionId,
+      role: userInfo.userRole,
+      paymentEnabled,
       page: query.page,
       pageSize: query.pageSize,
     };

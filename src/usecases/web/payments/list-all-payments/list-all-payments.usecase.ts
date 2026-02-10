@@ -8,7 +8,7 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type ListAllPaymentsInput = {
   eventId: string;
-  accountId: string;
+  accountId?: string;
   page: number;
   pageSize: number;
 };
@@ -60,7 +60,7 @@ export class ListAllPaymentsUseCase
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
-      Math.min(5, Math.floor(input.pageSize || 5)),
+      Math.min(20, Math.floor(input.pageSize || 20)),
     );
 
     const event = await this.eventGateway.findById(input.eventId);
@@ -74,7 +74,7 @@ export class ListAllPaymentsUseCase
     }
 
     const [summary, payments, total] = await Promise.all([
-      this.paymentGateway.countAllOrdered(input.accountId, input.eventId),
+      this.paymentGateway.countAllOrdered(input.eventId, input.accountId),
       this.paymentGateway.findAllPaginated(
         input.eventId,
         safePage,

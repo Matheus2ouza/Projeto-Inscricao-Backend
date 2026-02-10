@@ -3,11 +3,14 @@ import { Usecase } from 'src/usecases/usecase';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 
 import { Injectable } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
+import { roleType, statusEvent } from 'generated/prisma';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 
 export type FindAllWithPaymentsInput = {
   regionId?: string;
+  role?: roleType;
+  paymentEnabled?: boolean;
   page: number;
   pageSize: number;
 };
@@ -24,9 +27,14 @@ type Events = {
   name: string;
   imageUrl: string;
   status: statusEvent;
-  paymentEnabled: boolean;
-  totalPayments: number;
-  totalDebt: number;
+  startDate?: Date;
+  endDate?: Date;
+  location?: string;
+  paymentEnabled?: boolean;
+  totalPayments?: number;
+  totalDebt?: number;
+  countPaymentsAnalysis?: number;
+  amountCollected?: number;
 }[];
 
 @Injectable()
@@ -35,6 +43,7 @@ export class FindAllWithPaymentsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly paymentGateway: PaymentGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -49,27 +58,55 @@ export class FindAllWithPaymentsUsecase
 
     const [allEvents, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
-        status: ['OPEN', 'FINALIZED'],
+        paymentEnabled: input.paymentEnabled,
         regionId: input.regionId,
       }),
       this.eventGateway.countAllFiltered({
-        status: ['OPEN', 'FINALIZED'],
+        paymentEnabled: input.paymentEnabled,
         regionId: input.regionId,
       }),
     ]);
 
     const events = await Promise.all(
-      allEvents.map(async (events) => {
-        const imagePath = await this.getPublicUrlOrEmpty(events.getImageUrl());
+      allEvents.map(async (e) => {
+        const imagePath = await this.getPublicUrlOrEmpty(e.getImageUrl());
+
+        if (input.role === roleType.USER) {
+          return {
+            id: e.getId(),
+            name: e.getName(),
+            imageUrl: imagePath,
+            status: e.getStatus(),
+            startDate: e.getStartDate(),
+            endDate: e.getEndDate(),
+            location: e.getLocation(),
+            paymentEnabled: e.getPaymentEnabled(),
+          };
+        }
+        const totalPayments = await this.paymentGateway.countAllByEventId(
+          e.getId(),
+        );
+
+        const countPaymentsAnalysis =
+          await this.paymentGateway.countAllInAnalysis(e.getId());
+
+        const totalDebt = await this.paymentGateway.countTotalAmountInAnalysis(
+          e.getId(),
+        );
 
         return {
-          id: events.getId(),
-          name: events.getName(),
+          id: e.getId(),
+          name: e.getName(),
           imageUrl: imagePath,
-          status: events.getStatus(),
-          paymentEnabled: events.getPaymentEnabled(),
-          totalPayments: 0,
-          totalDebt: events.getAmountCollected(),
+          status: e.getStatus(),
+          startDate: e.getStartDate(),
+          endDate: e.getEndDate(),
+          location: e.getLocation(),
+          amountCollected: e.getAmountCollected(),
+          paymentEnabled: e.getPaymentEnabled(),
+          totalPayments: totalPayments,
+          totalDebt: totalDebt,
+          countPaymentsAnalysis: countPaymentsAnalysis,
         };
       }),
     );

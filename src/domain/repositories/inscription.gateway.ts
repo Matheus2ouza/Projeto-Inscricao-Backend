@@ -83,11 +83,11 @@ export abstract class InscriptionGateway {
   // Agregações e contagens
   abstract contTotalDebtByEvent(eventId: string): Promise<number>;
   abstract countAll(
-    accountId: string,
     eventId: string,
     filters: {
       limitTime?: string;
     },
+    accountId?: string,
   ): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;

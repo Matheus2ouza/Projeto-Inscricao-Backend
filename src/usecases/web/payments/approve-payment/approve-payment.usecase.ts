@@ -86,7 +86,6 @@ export class ApprovePaymentUsecase
       installmentNumber: 1,
       value: payment.getTotalValue(),
       netValue: payment.getTotalValue(),
-      asaasPaymentId: payment.getExternalReference() || payment.getId(),
       financialMovementId: financialMovement.getId(),
       paidAt: new Date(),
     });

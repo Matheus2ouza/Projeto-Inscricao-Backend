@@ -43,25 +43,28 @@ export abstract class PaymentGateway {
     inscriptionId: string,
   ): Promise<number>;
   abstract countAllOrdered(
-    accountId: string,
     eventId: string,
+    accountId?: string,
   ): Promise<PaymentsSummary>;
   abstract countTotalPaid(
-    accountId: string,
     eventId: string,
     filter: {
       limitTime?: string;
     },
+    accountId?: string,
   ): Promise<number>;
   abstract countTotalDue(
-    accountId: string,
     eventId: string,
     filter: {
       limitTime?: string;
     },
+    accountId?: string,
   ): Promise<number>;
+  // Conta quantos pagamentos foram feitos para o evento, independentemente do status
   abstract countAllByEventId(eventId: string): Promise<number>;
+  // Conta quantos pagamentos foram feitos para o evento, apenas os que estão em análise
   abstract countAllInAnalysis(eventId: string): Promise<number>;
+  // Soma o valor total de todos os pagamentos em análise para o evento
   abstract countTotalAmountInAnalysis(eventId: string): Promise<number>;
 
   // Atualizações

@@ -174,12 +174,14 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  //Busca os eventos com base nos filtros de status(referente a inscrição)
   async findAllPaginated(
     page: number,
     pageSize: number,
     filter?: {
       regionId?: string;
       status?: statusEvent[];
+      paymentEnabled?: boolean;
       ticketEnabled?: boolean;
     },
   ): Promise<Event[]> {
@@ -215,21 +217,18 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findAllCarousel(): Promise<
-    { id: string; name: string; location: string; imageUrl: string }[]
-  > {
-    const data = await this.prisma.events.findMany({
-      take: 8,
-      orderBy: { createdAt: 'desc' }, // <- ordena do mais novo para o mais antigo
-      select: { id: true, name: true, location: true, imageUrl: true },
+  async findAllCarousel(): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({
+      where: {
+        status: {
+          in: ['OPEN', 'CLOSE'],
+        },
+      },
+      orderBy: {
+        startDate: 'asc',
+      },
     });
-
-    return data.map((event) => ({
-      id: event.id,
-      name: event.name,
-      location: event.location || '',
-      imageUrl: event.imageUrl || '',
-    }));
+    return found.map(PrismaToEntity.map);
   }
 
   async findNextUpcomingEvent(regionId: string): Promise<Event | null> {
@@ -279,6 +278,8 @@ export class EventPrismaRepository implements EventGateway {
   async countAllFiltered(filters?: {
     status?: statusEvent[];
     regionId?: string;
+    paymentEnabled?: boolean;
+    ticketEnabled?: boolean;
   }): Promise<number> {
     const where = this.buildWhereClauseEvent(filters);
     return this.prisma.events.count({ where });
@@ -345,14 +346,16 @@ export class EventPrismaRepository implements EventGateway {
   private buildWhereClauseEvent(filter?: {
     regionId?: string;
     status?: statusEvent[];
+    paymentEnabled?: boolean;
     ticketEnabled?: boolean;
   }) {
-    const { regionId, status, ticketEnabled } = filter || {};
+    const { regionId, status, paymentEnabled, ticketEnabled } = filter || {};
 
     return {
       regionId,
       status: status && status.length > 0 ? { in: status } : undefined,
-      ticketEnabled,
+      paymentEnabled: paymentEnabled !== undefined ? paymentEnabled : undefined,
+      ticketEnabled: ticketEnabled !== undefined ? ticketEnabled : undefined,
     };
   }
 }

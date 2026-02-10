@@ -32,6 +32,7 @@ export class RegisterPaymentCredRoute {
       totalValue: body.totalValue,
       client: body.client,
       inscriptions: body.inscriptions,
+      passCustomerToAsaas: body.passCustomerToAsaas === 'true' ? true : false,
     };
 
     const response = await this.registerCredUsecase.execute(input);

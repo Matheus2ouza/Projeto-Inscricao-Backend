@@ -1,9 +1,15 @@
-import { ArgumentsHost, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+} from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { PaymentApprovedUsecaseException } from 'src/usecases/web/exceptions/payment/payment-approved.usecase.exception';
 
+@Catch(PaymentApprovedUsecaseException)
 export class PaymentApprovedUsecaseExceptionFilter implements ExceptionFilter {
   catch(exception: PaymentApprovedUsecaseException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
