@@ -1,10 +1,10 @@
 import { PaymentMethod } from 'generated/prisma';
 
-export type AnalysisPaymentsPendingDetailsRequest = {
+export type PaymentsDetailsRequest = {
   paymentId: string;
 };
 
-export type AnalysisPaymentsPendingDetailsResponse = {
+export type PaymentsDetailsResponse = {
   id: string;
   status: string;
   isGuest: boolean;
@@ -14,7 +14,16 @@ export type AnalysisPaymentsPendingDetailsResponse = {
   createdAt: Date;
   imageUrl: string;
   rejectionReason?: string;
-  allocation?: PaymentAllocation[];
+  allocations?: PaymentAllocation[];
+  installments?: PaymentInstallment[];
+};
+
+type PaymentInstallment = {
+  installmentNumber: number;
+  value: number;
+  netValue: number;
+  paidAt?: Date;
+  createdAt: Date;
 };
 
 type PaymentAllocation = {

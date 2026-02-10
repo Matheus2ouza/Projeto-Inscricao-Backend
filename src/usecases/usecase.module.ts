@@ -71,7 +71,6 @@ import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-
 import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
 import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
-import { AnalysisPaymentsPendingDetailsUsecase } from './web/payments/analysis-payments-pending-details/analysis-payments-pending-details.usecase';
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
 import { ConfirmPaymentUsecase } from './web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
@@ -80,6 +79,7 @@ import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.useca
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
+import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
@@ -222,7 +222,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RegisterPaymentPixUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
-    AnalysisPaymentsPendingDetailsUsecase,
+    PaymentsDetailsUsecase,
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
@@ -366,7 +366,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     RegisterPaymentPixUsecase,
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
-    AnalysisPaymentsPendingDetailsUsecase,
+    PaymentsDetailsUsecase,
     ApprovePaymentUsecase,
     RejectedPaymentUsecase,
     ReversePaymentUsecase,

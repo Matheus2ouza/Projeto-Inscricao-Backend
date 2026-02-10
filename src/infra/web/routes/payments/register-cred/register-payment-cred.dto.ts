@@ -5,7 +5,8 @@ export type RegisterPaymentCredRequest = {
   isGuest?: boolean;
   totalValue: number;
   client: Client;
-  inscriptions: inscription[];
+  inscriptions: Inscription[];
+  passCustomerToAsaas?: string;
 };
 
 type Client = {
@@ -21,7 +22,7 @@ type Client = {
   city: number;
 };
 
-type inscription = {
+type Inscription = {
   id: string;
 };
 

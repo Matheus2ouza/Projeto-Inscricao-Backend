@@ -39,17 +39,11 @@ export abstract class EventGateway {
     filter?: {
       regionId?: string;
       status?: statusEvent[];
+      paymentEnabled?: boolean;
       ticketEnabled?: boolean;
     },
   ): Promise<Event[]>;
-  abstract findAllCarousel(): Promise<
-    {
-      id: string;
-      name: string;
-      location: string;
-      imageUrl: string;
-    }[]
-  >;
+  abstract findAllCarousel(): Promise<Event[]>;
   abstract findNextUpcomingEvent(regionId: string): Promise<Event | null>;
   abstract findEventDates(regionId: string): Promise<Event[]>;
 
@@ -57,6 +51,8 @@ export abstract class EventGateway {
   abstract countEventsActive(regionId: string): Promise<number>;
   abstract countAllFiltered(filters: {
     status?: statusEvent[];
+    paymentEnabled?: boolean;
+    ticketEnabled?: boolean;
     regionId?: string;
   }): Promise<number>;
   abstract countTypesInscriptions(id: string): Promise<number>;

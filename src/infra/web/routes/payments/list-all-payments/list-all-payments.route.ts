@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
 import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
@@ -25,7 +26,8 @@ export class ListAllPaymentsRoute {
   ): Promise<ListAllPaymentsResponse> {
     const input: ListAllPaymentsInput = {
       eventId: param.eventId,
-      accountId: userInfo.userId,
+      accountId:
+        userInfo.userRole === roleType.USER ? userInfo.userId : undefined,
       page: query.page,
       pageSize: query.pageSize,
     };

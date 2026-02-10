@@ -154,8 +154,8 @@ export class PaymentPrismaRepository implements PaymentGateway {
   }
 
   async countAllOrdered(
-    accountId: string,
     eventId: string,
+    accountId?: string,
   ): Promise<PaymentsSummary> {
     const count = await this.prisma.payment.groupBy({
       by: ['status'],
@@ -189,11 +189,11 @@ export class PaymentPrismaRepository implements PaymentGateway {
   }
 
   async countTotalPaid(
-    accountId: string,
     eventId: string,
     filter: {
       limitTime?: string;
     },
+    accountId?: string,
   ): Promise<number> {
     const where = this.buildWhereClause(filter);
     const result = await this.prisma.payment.aggregate({
@@ -212,9 +212,9 @@ export class PaymentPrismaRepository implements PaymentGateway {
   }
 
   async countTotalDue(
-    accountId: string,
     eventId: string,
     filter: { limitTime?: string },
+    accountId?: string,
   ): Promise<number> {
     const where = this.buildWhereClause(filter);
     const result = await this.prisma.payment.aggregate({

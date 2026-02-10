@@ -78,7 +78,6 @@ import { ListParticipantsRoute } from './routes/participants/list-participants/l
 import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
-import { AnalysisPaymentsPendingDetailsRoute } from './routes/payments/analysis-payments-pending-details/analysis-payments-pending-details.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
 import { ConfirmPaymentRoute } from './routes/payments/assas/ConfirmPayment/confirmPayment.route';
@@ -87,6 +86,7 @@ import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.rout
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
+import { PaymentsDetailsRoute } from './routes/payments/payments-details/payments-details.route';
 import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
 import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
 import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
@@ -233,7 +233,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     RegisterPaymentCredRoute,
     DeletePaymentRoute,
     AnalysisPaymentsPendingRoute,
-    AnalysisPaymentsPendingDetailsRoute,
+    PaymentsDetailsRoute,
     ApprovePaymentRoute,
     RejectedPaymentRoute,
     ReversePaymentRoute,

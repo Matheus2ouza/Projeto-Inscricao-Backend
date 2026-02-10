@@ -316,11 +316,11 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   async countAll(
-    accountId: string,
     eventId: string,
     filters: {
       limitTime?: string;
     },
+    accountId?: string,
   ): Promise<number> {
     const where = this.buildWhereClause(filters);
     return this.prisma.inscription.count({

@@ -85,8 +85,8 @@ export class FindAllPaginatedInscriptionsUsecase
         safePageSize,
         filters,
       ),
-      this.inscriptionGateway.countAll(input.userId, event.getId(), filters),
-      this.paymentGateway.countTotalPaid(input.userId, event.getId(), filters),
+      this.inscriptionGateway.countAll(event.getId(), filters, input.userId),
+      this.paymentGateway.countTotalPaid(event.getId(), filters, input.userId),
     ]);
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
