@@ -24,7 +24,7 @@ export class FindByIdEventRoute {
     const input: FindByIdEventInput = {
       id: params.id,
     };
-    const result = await this.findByIdEventUsecase.execute(input);
-    return FindByEventPresenter.toHttp(result);
+    const response = await this.findByIdEventUsecase.execute(input);
+    return FindByEventPresenter.toHttp(response);
   }
 }

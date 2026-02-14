@@ -11,7 +11,7 @@ export type FindByIdEventResponse = {
   amountCollected: number;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string;
+  image?: string;
   logoUrl?: string;
   location?: string;
   longitude?: number | null;

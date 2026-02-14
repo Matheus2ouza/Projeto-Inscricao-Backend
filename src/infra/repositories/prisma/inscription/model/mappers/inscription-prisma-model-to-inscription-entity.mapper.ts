@@ -20,6 +20,8 @@ export class InscriptionPrismaModalToInscriptionEntityMapper {
       status: inscription.status,
       createdAt: inscription.createdAt,
       updatedAt: inscription.updatedAt,
+      expiresAt: inscription.expiresAt || undefined,
+      cancelledAt: inscription.cancelledAt || undefined,
       email: inscription.email || undefined,
     });
   }

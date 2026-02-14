@@ -11,6 +11,7 @@ export class PaymentsDetailsPresenter {
       methodPayment: output.methodPayment,
       totalValue: output.totalValue,
       createdAt: output.createdAt,
+      updatedAt: output.updatedAt,
       imageUrl: output.imageUrl,
       rejectionReason: output.rejectionReason,
       allocations: output.allocations,

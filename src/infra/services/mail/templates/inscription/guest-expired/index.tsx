@@ -14,14 +14,14 @@ export const GuestExpiredEmail = ({
 }: GuestExpiredEmailProps) => {
   return (
     <Layout
-      previewText={`Inscrição expirada - ${guestData.eventName}`}
+      previewText={`Inscrição cancelada - ${guestData.eventName}`}
       year={year}
       headerTitle={guestData.eventName.toUpperCase()}
       headerSubtitle={`Olá, ${guestData.guestName}.`}
     >
       <Section style={cardStyle}>
         <Text style={bodyStyle}>
-          O prazo para o pagamento da sua inscrição expirou e, por esse motivo, ela foi excluída.
+          O prazo para o pagamento da sua inscrição expirou e, por esse motivo, ela foi cancelada.
         </Text>
         <Text style={bodyStyle}>
           Mas não se preocupe! Você ainda pode acessar o sistema e realizar uma nova inscrição.

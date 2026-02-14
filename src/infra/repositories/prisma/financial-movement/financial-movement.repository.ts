@@ -25,6 +25,16 @@ export class FinancialMovementRepository implements FinancialMovementGateway {
     });
   }
 
+  async deleteMany(ids: string[]): Promise<void> {
+    await this.prisma.financialMovement.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
   async findById(id: string): Promise<FinancialMovement | null> {
     const found = await this.prisma.financialMovement.findUnique({
       where: {

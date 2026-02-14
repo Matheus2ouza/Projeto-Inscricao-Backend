@@ -12,13 +12,13 @@ export class GuestExpiredEmailHandler {
     try {
       await this.mailService.sendTemplateMail({
         to: data.guestEmail,
-        subject: `Inscrição expirada - ${data.eventName}`,
+        subject: `Inscrição cancelada - ${data.eventName}`,
         templateName: 'inscription/guest-expired',
         context: { guestData: data, year: new Date().getFullYear() },
       });
 
       this.logger.log(
-        `E-mail de inscrição expirada enviado para ${data.guestName} (${data.guestEmail})`,
+        `E-mail de inscrição cancelada enviado para ${data.guestName} (${data.guestEmail})`,
       );
     } catch (error) {
       const err = error as Error;

@@ -19,6 +19,13 @@ export class PaymentInstallmentPrismaRepository
     return PrismaToEntity.map(created);
   }
 
+  // Deletar as parcelas de um pagamento pelo ID do pagamento
+  async deleteMany(paymentId: string): Promise<void> {
+    await this.prisma.paymentInstallment.deleteMany({
+      where: { paymentId },
+    });
+  }
+
   async findById(id: string): Promise<PaymentInstallment | null> {
     const found = await this.prisma.paymentInstallment.findUnique({
       where: { id },

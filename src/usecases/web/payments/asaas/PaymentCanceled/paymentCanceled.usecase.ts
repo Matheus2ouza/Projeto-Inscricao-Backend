@@ -61,10 +61,12 @@ export class PaymentCanceledUseCase
 
     if (inscription) {
       this.logger.log(
-        `Inscrição encontrada (${inscription.getId()}). Decrementando valor pago.`,
+        `Inscrição encontrada (${inscription.map((ins) => ins.getId())}). Decrementando valor pago.`,
       );
-      inscription.decrementTotalPaid(payment.getTotalValue());
-      await this.inscriptionGateway.update(inscription);
+      for (const ins of inscription) {
+        ins.decrementTotalPaid(payment.getTotalValue());
+        await this.inscriptionGateway.update(ins);
+      }
     }
 
     // Deleta o pagamento, não precisa apagar o paymentAllocation porque ele é deletado automaticamente

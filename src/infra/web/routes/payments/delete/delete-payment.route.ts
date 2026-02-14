@@ -9,11 +9,11 @@ import type { DeletePaymentRequest } from './delete-payment.dto';
 export class DeletePaymentRoute {
   constructor(private readonly deletePaymentUsecase: DeletePaymentUsecase) {}
 
-  @Delete('/:paymentId')
+  @Delete('/:id')
   @HttpCode(204)
   async handle(@Param() param: DeletePaymentRequest): Promise<void> {
     const input: DeletePaymentInput = {
-      paymentId: param.paymentId,
+      id: param.id,
     };
 
     await this.deletePaymentUsecase.execute(input);

@@ -10,8 +10,10 @@ import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/in
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
+import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
+import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
-import { PaymentApprovedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-approved.usecase.exception.filter';
+import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
 import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
@@ -289,10 +291,14 @@ import { WelcomeRoute } from './routes/welcome.route';
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
 
+    // Inscription
+    InscriptionNotFoundUsecaseExceptionFilterProvider,
+    InscriptionExpiredUsecaseExceptionFilterProvider,
+
     // Payment
-    PaymentApprovedUsecaseExceptionFilterProvider,
     PaymentNotFoundUsecaseExceptionFilterProvider,
     InvalidImageFormatUsecaseExceptionFilterProvider,
+    CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider,
 
     // Type Inscription
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,

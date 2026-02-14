@@ -17,6 +17,8 @@ export type FindDetailsGuestInscriptionResponse = {
   guestLocality: string;
   phone: string;
   createdAt: Date;
+  totalValue: number;
+  totalPaid: number;
   participants: Participant[];
   payments?: Payment[];
 };
@@ -44,7 +46,7 @@ export type Payment = {
   totalValue: number;
   totalPaid: number;
   paidInstallments: number;
-  PaymentInstallment: PaymentInstallment[];
+  paymentInstallment: PaymentInstallment[];
 };
 
 export type PaymentInstallment = {

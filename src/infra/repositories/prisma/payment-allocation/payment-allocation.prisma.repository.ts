@@ -24,6 +24,14 @@ export class PaymentAllocationPrismaRepository
     await this.prisma.paymentAllocation.createMany({ data });
   }
 
+  async deleteMany(paymentId: string): Promise<void> {
+    await this.prisma.paymentAllocation.deleteMany({
+      where: {
+        paymentId,
+      },
+    });
+  }
+
   // Buscas e listagens
   async findByPaymentId(paymentId: string): Promise<PaymentAllocation[]> {
     const found = await this.prisma.paymentAllocation.findMany({

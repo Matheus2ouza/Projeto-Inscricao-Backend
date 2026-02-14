@@ -13,6 +13,7 @@ import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
+import { InscriptionExpiredUsecaseException } from '../../exceptions/inscription/find/inscription-expired.usecase.exception';
 import { InscriptionNotFoundUsecaseException } from '../../exceptions/inscription/find/inscription-not-found.usecase.exception';
 
 export type FindDetailsGuestInscriptionInput = {
@@ -27,6 +28,8 @@ export type FindDetailsGuestInscriptionOutput = {
   guestLocality: string;
   phone: string;
   createdAt: Date;
+  totalValue: number;
+  totalPaid: number;
   participants: Participant[];
   payments?: Payment[];
 };
@@ -54,7 +57,7 @@ export type Payment = {
   totalValue: number;
   totalPaid: number;
   paidInstallments: number;
-  PaymentInstallment: PaymentInstallment[];
+  paymentInstallment: PaymentInstallment[];
 };
 
 export type PaymentInstallment = {
@@ -90,6 +93,14 @@ export class FindDetailsGuestInscriptionUsecase
       throw new InscriptionNotFoundUsecaseException(
         `inscription with confirmation code ${input.confirmationCode} not found`,
         `Nenhuma inscrição encontrada com o código fornecido.`,
+        FindDetailsGuestInscriptionUsecase.name,
+      );
+    }
+
+    if (inscription.getStatus() === InscriptionStatus.EXPIRED) {
+      throw new InscriptionExpiredUsecaseException(
+        `inscription with confirmation code ${input.confirmationCode} is expired`,
+        `A inscrição com o código fornecido expirou.`,
         FindDetailsGuestInscriptionUsecase.name,
       );
     }
@@ -149,7 +160,7 @@ export class FindDetailsGuestInscriptionUsecase
           totalValue: payment.getTotalValue(),
           totalPaid: payment.getTotalPaid(),
           paidInstallments: payment.getPaidInstallments(),
-          PaymentInstallment: paymentInstallmentData,
+          paymentInstallment: paymentInstallmentData,
         };
       }),
     );
@@ -166,6 +177,8 @@ export class FindDetailsGuestInscriptionUsecase
       guestLocality: inscription.getGuestLocality() ?? '',
       phone: inscription.getPhone() ?? '',
       createdAt: inscription.getCreatedAt(),
+      totalValue: inscription.getTotalValue(),
+      totalPaid: inscription.getTotalPaid(),
       participants: participantsData,
       payments: paymentsData,
     };

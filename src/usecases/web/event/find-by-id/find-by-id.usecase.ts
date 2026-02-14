@@ -19,7 +19,7 @@ export type FindByIdEventOutput = {
   amountCollected: number;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string;
+  image?: string;
   logoUrl?: string;
   location?: string;
   longitude?: number | null;
@@ -91,7 +91,7 @@ export class FindByIdEventUsecase
       amountCollected: event.getAmountCollected(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
-      imageUrl: imagePath,
+      image: imagePath,
       logoUrl: logoPath,
       location: event.getLocation(),
       longitude: event.getLongitude(),

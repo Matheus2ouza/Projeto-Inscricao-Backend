@@ -1,3 +1,3 @@
 export type DeletePaymentRequest = {
-  paymentId: string;
+  id: string;
 };

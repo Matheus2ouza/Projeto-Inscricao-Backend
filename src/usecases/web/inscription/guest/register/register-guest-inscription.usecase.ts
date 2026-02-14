@@ -104,6 +104,7 @@ export class RegisterGuestInscriptionUsecase
         ? InscriptionStatus.UNDER_REVIEW
         : InscriptionStatus.PENDING,
       totalValue: typeInscription.getValue(),
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30min
     });
 
     await this.inscriptionGateway.create(inscription);

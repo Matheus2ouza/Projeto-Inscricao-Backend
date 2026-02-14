@@ -113,10 +113,11 @@ import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-n
 import { FindUserUsecase } from './web/user/find-by-id/find-user.usecase';
 import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
-import { CleanupExpiredCacheUsecase } from './worker/cache/cleanup-expired-cache/cleanup-expired-cache.usecase';
+import { CancelExpiredInscriptionsUseCase } from './worker/cancel-expired-inscriptions/cancel-expired-inscriptions.usecase';
+import { CleanupCancelledTicketSalesUsecase } from './worker/cleanup-cancelled-ticket-sales/cleanup-cancelled-ticket-sales.usecase';
+import { CleanupExpiredCacheUsecase } from './worker/cleanup-expired-cache/cleanup-expired-cache.usecase';
 import { CleanupGuestInscriptionUsecase } from './worker/cleanup-guest-inscription/cleanup-guest-inscription.usecase';
 import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
-import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup-cancelled-ticket-sales.usecase';
 
 @Module({
   imports: [
@@ -265,6 +266,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
+    CancelExpiredInscriptionsUseCase,
     CleanupGuestInscriptionUsecase,
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
@@ -409,6 +411,7 @@ import { CleanupCancelledTicketSalesUsecase } from './worker/ticket-sale/cleanup
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
+    CancelExpiredInscriptionsUseCase,
     CleanupGuestInscriptionUsecase,
     CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,

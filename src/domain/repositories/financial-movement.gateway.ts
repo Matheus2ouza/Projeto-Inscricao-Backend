@@ -6,6 +6,7 @@ export abstract class FinancialMovementGateway {
     financialMovement: FinancialMovement,
   ): Promise<FinancialMovement>;
   abstract delete(id: string): Promise<void>;
+  abstract deleteMany(ids: string[]): Promise<void>;
 
   // Buscas e listagens
   abstract findById(id: string): Promise<FinancialMovement | null>;

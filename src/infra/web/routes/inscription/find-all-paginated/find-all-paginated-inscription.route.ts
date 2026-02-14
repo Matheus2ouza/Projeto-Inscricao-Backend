@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
+import { roleType } from 'generated/prisma';
 import type { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
@@ -31,14 +32,12 @@ export class FindAllPaginatedInscriptionsRoute {
     @Query() query: FindAllPaginatedInscriptionRequest,
     @UserInfo() user: UserInfoType,
   ): Promise<FindAllPaginatedInscriptionResponse> {
-    const page = Number(query.page ?? '1');
-    const pageSize = Number(query.pageSize ?? '10');
-
     const input: FindAllPaginatedInscriptionInput = {
       eventId: param.eventId,
-      userId: user.userId,
-      page,
-      pageSize,
+      userId: user.userRole === roleType.USER ? user.userId : undefined,
+      page: query.page,
+      pageSize: query.pageSize,
+      isGuest: query.isGuest,
       limitTime: query.limitTime,
     };
 

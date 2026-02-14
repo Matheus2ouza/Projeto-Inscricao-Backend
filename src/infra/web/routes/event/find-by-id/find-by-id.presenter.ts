@@ -10,7 +10,7 @@ export class FindByEventPresenter {
       amountCollected: output.amountCollected,
       startDate: output.startDate,
       endDate: output.endDate,
-      imageUrl: output.imageUrl,
+      image: output.image,
       logoUrl: output.logoUrl,
       location: output.location,
       longitude: output.longitude,

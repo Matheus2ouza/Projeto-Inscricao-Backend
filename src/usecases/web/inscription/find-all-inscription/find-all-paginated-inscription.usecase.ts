@@ -9,7 +9,8 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type FindAllPaginatedInscriptionInput = {
   eventId: string;
-  userId: string;
+  userId?: string;
+  isGuest?: boolean;
   limitTime?: string;
   page: number;
   pageSize: number;
@@ -29,6 +30,7 @@ export type Event = {
   startDate: string;
   endDate: string;
   totalInscription: number;
+  totalParticipants: number;
   totalPaid: number;
   totalDue: number;
   inscriptions: Inscription[];
@@ -75,18 +77,18 @@ export class FindAllPaginatedInscriptionsUsecase
 
     const filters = {
       limitTime: input.limitTime,
+      isGuest: input.isGuest,
+      accountId: input.userId,
     };
 
-    const [inscriptions, totalInscription, totalPaid] = await Promise.all([
+    const [inscriptions, totalInscription] = await Promise.all([
       this.inscriptionGateway.findManyPaginated(
-        input.userId,
         event.getId(),
         safePage,
         safePageSize,
         filters,
       ),
-      this.inscriptionGateway.countAll(event.getId(), filters, input.userId),
-      this.paymentGateway.countTotalPaid(event.getId(), filters, input.userId),
+      this.inscriptionGateway.countAll(event.getId(), filters),
     ]);
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
@@ -117,7 +119,8 @@ export class FindAllPaginatedInscriptionsUsecase
       startDate: event.getStartDate().toISOString(),
       endDate: event.getEndDate().toISOString(),
       totalInscription,
-      totalPaid,
+      totalParticipants: event.getQuantityParticipants(),
+      totalPaid: event.getAmountCollected(),
       totalDue,
       inscriptions: inscriptionData,
     };
