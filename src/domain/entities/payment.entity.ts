@@ -290,14 +290,18 @@ export class Payment extends Entity {
   }
 
   public reverse(): void {
-    this.status = StatusPayment.UNDER_REVIEW;
-    this.updatedAt = new Date();
-    if (this.getApprovedBy()) {
+    // se o pagamento estiver aprovado, reverter os dados especificos de quando o pagamento foi aprovado
+    if (this.getStatus() === StatusPayment.APPROVED) {
+      this.paidInstallments = 0;
+      this.totalPaid = 0;
+      this.totalNetValue = 0;
       this.approvedBy = undefined;
     }
     if (this.getRejectionReason()) {
       this.rejectionReason = undefined;
     }
+    this.status = StatusPayment.UNDER_REVIEW;
+    this.updatedAt = new Date();
   }
 
   public addPaidInstallment(value: number, netValue: number): void {

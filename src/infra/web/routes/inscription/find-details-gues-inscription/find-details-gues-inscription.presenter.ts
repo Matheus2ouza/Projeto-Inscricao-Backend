@@ -13,6 +13,8 @@ export class FindDetailsGuestInscriptionPresenter {
       guestLocality: output.guestLocality,
       phone: output.phone,
       createdAt: output.createdAt,
+      totalValue: output.totalValue,
+      totalPaid: output.totalPaid,
       participants: output.participants,
       payments: output.payments,
     };

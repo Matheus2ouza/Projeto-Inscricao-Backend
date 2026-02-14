@@ -1,6 +1,6 @@
 export type FindAllPaginatedInscriptionRequest = {
   eventId: string;
-  userId: string;
+  isGuest?: boolean;
   limitTime?: string;
   page: number;
   pageSize: number;

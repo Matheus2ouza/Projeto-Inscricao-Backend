@@ -64,6 +64,7 @@ export class InscriptionZodValidator implements Validator<Inscription> {
           InscriptionStatus.PAID,
           InscriptionStatus.CANCELLED,
           InscriptionStatus.UNDER_REVIEW,
+          InscriptionStatus.EXPIRED,
         ],
         'Informe um status válido',
       ),

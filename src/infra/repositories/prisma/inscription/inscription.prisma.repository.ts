@@ -27,10 +27,44 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return PrismaToEntity.map(updated);
   }
 
+  async updateMany(inscriptions: Inscription[]): Promise<number> {
+    const data = inscriptions.map((inscription) =>
+      EntityToPrisma.map(inscription),
+    );
+    const updated = await this.prisma.inscription.updateMany({
+      where: {
+        id: {
+          in: inscriptions.map((inscription) => inscription.getId()),
+        },
+      },
+      data,
+    });
+    return updated.count;
+  }
+
+  async cancel(inscription: Inscription): Promise<Inscription> {
+    const data = EntityToPrisma.map(inscription);
+    const canceled = await this.prisma.inscription.update({
+      where: { id: inscription.getId() },
+      data,
+    });
+    return PrismaToEntity.map(canceled);
+  }
+
   async delete(id: string) {
     await this.prisma.inscription.delete({
       where: { id },
     });
+  }
+
+  async deleteMany(ids: string[]): Promise<number> {
+    const deleted = await this.prisma.inscription.deleteMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+
+    return deleted.count;
   }
 
   async deleteExpiredGuestInscription(
@@ -63,8 +97,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByPaymentId(paymentId: string): Promise<Inscription | null> {
-    const found = await this.prisma.inscription.findFirst({
+  async findByPaymentId(paymentId: string): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
       where: {
         payments: {
           some: {
@@ -73,7 +107,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         },
       },
     });
-    return found ? PrismaToEntity.map(found) : null;
+    return found.map(PrismaToEntity.map);
   }
 
   async findByEventId(filters?: {
@@ -182,19 +216,19 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
 
   // Buscas paginadas
   async findManyPaginated(
-    accountId: string,
     eventId: string,
     page: number,
     pageSize: number,
-    filters: {
+    filters?: {
+      isGuest?: boolean;
+      accountId?: string;
       limitTime?: string;
     },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
-    const where = this.buildWhereClause(filters);
+    const where = this.buildWhereClauseInscription(filters);
     const found = await this.prisma.inscription.findMany({
       where: {
-        accountId,
         eventId,
         ...where,
       },
@@ -270,6 +304,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map((item) => item.accountId ?? '');
   }
 
+  // Busca a inscrição por codigo de confirmação,
+  // levando em consideração que a inscrição não pode estar expirada e nem ter expirado
   async findByConfirmationCode(
     confirmationCode: string,
   ): Promise<Inscription | null> {
@@ -281,16 +317,38 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  async findManyGuestInscriptionExpired(expired: Date): Promise<Inscription[]> {
+  // Busca das inscrições Guest que expiraram
+  async findManyGuestInscriptionExpired(now: Date): Promise<Inscription[]> {
     const found = await this.prisma.inscription.findMany({
       where: {
         isGuest: true,
         status: InscriptionStatus.PENDING,
+        cancelledAt: null,
         createdAt: {
-          lt: expired,
+          lt: now,
         },
         payments: {
           none: {},
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  // Busca das inscrições Guest que foram marcadas como expiradas
+  async findManyGuestInscriptionMarkedExpired(): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        status: InscriptionStatus.EXPIRED,
+        isGuest: true,
+        cancelledAt: {
+          not: null,
+        },
+        NOT: {
+          payments: {
+            some: {},
+          },
         },
       },
     });
@@ -318,14 +376,14 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countAll(
     eventId: string,
     filters: {
+      isGuest?: boolean;
       limitTime?: string;
+      accountId?: string;
     },
-    accountId?: string,
   ): Promise<number> {
-    const where = this.buildWhereClause(filters);
+    const where = this.buildWhereClauseInscription(filters);
     return this.prisma.inscription.count({
       where: {
-        accountId,
         eventId,
         ...where,
       },
@@ -608,18 +666,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     };
   }
 
-  private buildWhereClauseInscription(filter?: {
-    eventId?: string;
-    inscriptionId?: string;
+  private buildWhereClauseInscription(filters?: {
+    isGuest?: boolean;
     status?: InscriptionStatus[];
     accountId?: string;
+    limitTime?: string;
   }) {
-    const { eventId, inscriptionId, status, accountId } = filter || {};
+    const { isGuest, status, accountId, limitTime } = filters || {};
     return {
-      eventId,
-      inscriptionId,
+      isGuest,
       status: status ? { in: status } : undefined,
       accountId,
+      limitTime,
     };
   }
 

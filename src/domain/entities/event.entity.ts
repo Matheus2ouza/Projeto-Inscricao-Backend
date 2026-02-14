@@ -359,8 +359,18 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
+  public decrementParticipantsCount(): void {
+    this.quantityParticipants -= 1;
+    this.updatedAt = new Date();
+  }
+
   public incrementAmountCollected(amount: number): void {
     this.amountCollected += amount;
+    this.updatedAt = new Date();
+  }
+
+  public decrementAmountCollected(amount: number): void {
+    this.amountCollected -= amount;
     this.updatedAt = new Date();
   }
 

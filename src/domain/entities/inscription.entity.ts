@@ -15,6 +15,7 @@ export type InscriptionCreateDto = {
   phone: string;
   totalValue: number;
   status: InscriptionStatus;
+  expiresAt?: Date;
 };
 
 export type InscriptionWithDto = {
@@ -33,6 +34,8 @@ export type InscriptionWithDto = {
   totalValue: number;
   totalPaid: number;
   status: InscriptionStatus;
+  expiresAt?: Date;
+  cancelledAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -57,6 +60,8 @@ export class Inscription extends Entity {
     private guestName?: string,
     private guestLocality?: string,
     private isGuest?: boolean,
+    private expiresAt?: Date,
+    private cancelledAt?: Date,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -74,6 +79,7 @@ export class Inscription extends Entity {
     totalValue,
     status,
     email,
+    expiresAt,
   }: InscriptionCreateDto): Inscription {
     //com a adição do guest a relação com o account se tornou opcional
     accountId = accountId || undefined;
@@ -117,6 +123,7 @@ export class Inscription extends Entity {
       guestName,
       guestLocality,
       isGuest,
+      expiresAt,
     );
   }
 
@@ -135,6 +142,8 @@ export class Inscription extends Entity {
     totalValue,
     totalPaid,
     status,
+    expiresAt,
+    cancelledAt,
     createdAt,
     updatedAt,
     email,
@@ -157,6 +166,8 @@ export class Inscription extends Entity {
       guestName,
       guestLocality,
       isGuest,
+      expiresAt,
+      cancelledAt,
     );
   }
 
@@ -229,6 +240,14 @@ export class Inscription extends Entity {
     return this.updatedAt;
   }
 
+  public getExpiresAt(): Date | undefined {
+    return this.expiresAt;
+  }
+
+  public getCancelledAt(): Date | undefined {
+    return this.cancelledAt;
+  }
+
   protected validate(): void {
     InscriptionValidatorFactory.create().validate(this);
   }
@@ -259,6 +278,13 @@ export class Inscription extends Entity {
 
   public inscriptionUnpaid(): void {
     this.status = InscriptionStatus.PENDING;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public markAsExpired(): void {
+    this.status = InscriptionStatus.EXPIRED;
+    this.cancelledAt = new Date();
     this.updatedAt = new Date();
     this.validate();
   }

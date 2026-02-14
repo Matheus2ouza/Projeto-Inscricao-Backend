@@ -22,6 +22,8 @@ export class InscriptionEntityToInscriptionPrismaModelMapper {
       status: inscription.getStatus(),
       createdAt: inscription.getCreatedAt(),
       updatedAt: inscription.getUpdatedAt(),
+      expiresAt: inscription.getExpiresAt() ?? null,
+      cancelledAt: inscription.getCancelledAt() ?? null,
     };
   }
 }

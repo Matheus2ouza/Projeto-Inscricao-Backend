@@ -41,9 +41,8 @@ type inscription = {
 
 export type RegisterPaymentPixOutput = {
   id: string;
-  totalValue: number;
   status: StatusPayment;
-  createdAt: Date;
+  confirmationCode?: string;
 };
 
 @Injectable()
@@ -205,9 +204,8 @@ export class RegisterPaymentPixUsecase
 
     const output: RegisterPaymentPixOutput = {
       id: payment.getId(),
-      totalValue: payment.getTotalValue(),
       status: payment.getStatus(),
-      createdAt: payment.getCreatedAt(),
+      confirmationCode: inscriptionsEntities[0].getConfirmationCode(),
     };
 
     return output;

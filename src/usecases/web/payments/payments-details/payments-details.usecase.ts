@@ -21,6 +21,7 @@ export type PaymentsDetailsOutput = {
   methodPayment: PaymentMethod;
   totalValue: number;
   createdAt: Date;
+  updatedAt: Date;
   imageUrl: string;
   rejectionReason?: string;
   allocations?: PaymentAllocation[];
@@ -147,6 +148,7 @@ export class PaymentsDetailsUsecase
       methodPayment: payment.getMethodPayment(),
       totalValue: payment.getTotalValue(),
       createdAt: payment.getCreatedAt(),
+      updatedAt: payment.getUpdatedAt(),
       imageUrl: imagePath,
       rejectionReason: payment.getRejectionReason(),
       allocations,

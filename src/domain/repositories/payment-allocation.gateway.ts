@@ -5,6 +5,7 @@ export abstract class PaymentAllocationGateway {
   // CRUD básico
   abstract create(payment: PaymentAllocation): Promise<PaymentAllocation>;
   abstract createMany(payments: PaymentAllocation[]): Promise<void>;
+  abstract deleteMany(paymentId: string): Promise<void>;
 
   // Buscas e listagens
   abstract findByPaymentId(paymentId: string): Promise<PaymentAllocation[]>;

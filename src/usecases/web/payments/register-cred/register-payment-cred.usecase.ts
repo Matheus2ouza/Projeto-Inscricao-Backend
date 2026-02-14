@@ -297,10 +297,10 @@ export class RegisterPaymentCredUsecase
     );
 
     return {
-      id: checkout.data.id as string,
-      link: checkout.data.link as string,
+      id: checkout.data.id,
+      link: checkout.data.link,
       externalReference: paymentReferenceId,
-      status: checkout.data.status as string,
+      status: checkout.data.status,
     };
   }
 

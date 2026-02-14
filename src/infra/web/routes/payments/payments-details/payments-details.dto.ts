@@ -12,6 +12,7 @@ export type PaymentsDetailsResponse = {
   methodPayment: PaymentMethod;
   totalValue: number;
   createdAt: Date;
+  updatedAt: Date;
   imageUrl: string;
   rejectionReason?: string;
   allocations?: PaymentAllocation[];

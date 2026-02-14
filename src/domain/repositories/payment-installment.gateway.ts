@@ -5,6 +5,7 @@ export abstract class PaymentInstallmentGateway {
   abstract create(
     paymentInstallment: PaymentInstallment,
   ): Promise<PaymentInstallment>;
+  abstract deleteMany(paymentId: string): Promise<void>;
 
   // Buscas por identificador único
   abstract findById(id: string): Promise<PaymentInstallment | null>;

@@ -7,9 +7,8 @@ export class RegisterPaymentPixPresenter {
   ): RegisterPaymentPixResponse {
     return {
       id: output.id,
-      totalValue: output.totalValue,
       status: output.status,
-      createdAt: output.createdAt,
+      confirmationCode: output.confirmationCode,
     };
   }
 }

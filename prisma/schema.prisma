@@ -150,6 +150,8 @@ model Inscription {
   totalValue                Decimal                     @db.Decimal(10, 2)
   totalPaid                 Decimal                     @default(0.00) @map("total_paid") @db.Decimal(10, 2)
   status                    InscriptionStatus           @default(PENDING)
+  expiresAt                 DateTime?                   @map("expires_at")
+  cancelledAt               DateTime?                   @map("cancelled_at")
   createdAt                 DateTime                    @default(now()) @map("created_at")
   updatedAt                 DateTime                    @updatedAt @map("updated_at")
   phone                     String
@@ -165,6 +167,7 @@ model Inscription {
   @@index([guestEmail])
   @@index([confirmationCode])
   @@index([accessToken])
+  @@index([expiresAt])
   @@map("inscriptions")
 }
 
@@ -419,6 +422,7 @@ enum InscriptionStatus {
   PENDING
   UNDER_REVIEW
   PAID
+  EXPIRED
   CANCELLED
 }
 

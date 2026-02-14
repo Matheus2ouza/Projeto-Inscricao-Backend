@@ -5,7 +5,10 @@ export abstract class InscriptionGateway {
   // CRUD básico
   abstract create(inscription: Inscription): Promise<Inscription>;
   abstract update(inscription: Inscription): Promise<Inscription>;
+  abstract updateMany(inscriptions: Inscription[]): Promise<number>;
   abstract delete(id: string): Promise<void>;
+  abstract deleteMany(ids: string[]): Promise<number>;
+  abstract cancel(inscription: Inscription): Promise<Inscription>;
   abstract deleteExpiredGuestInscription(
     ids: string[],
     expiredDate: Date,
@@ -16,7 +19,7 @@ export abstract class InscriptionGateway {
 
   // Buscas por relacionamento
   abstract findByAccountId(accountId: string): Promise<Inscription[]>;
-  abstract findByPaymentId(paymentId: string): Promise<Inscription | null>;
+  abstract findByPaymentId(paymentId: string): Promise<Inscription[]>;
   abstract findByEventId(filters?: {
     eventId: string;
     status?: InscriptionStatus[];
@@ -39,9 +42,10 @@ export abstract class InscriptionGateway {
   abstract findByConfirmationCode(
     confirmationCode: string,
   ): Promise<Inscription | null>;
-  abstract findManyGuestInscriptionExpired(
-    expired: Date,
-  ): Promise<Inscription[]>;
+  // Busca das inscrições Guest que expiraram
+  abstract findManyGuestInscriptionExpired(now: Date): Promise<Inscription[]>;
+  // Busca das inscrições Guest que foram marcadas como expiradas
+  abstract findManyGuestInscriptionMarkedExpired(): Promise<Inscription[]>;
 
   //COM O NOVA TABELA DE INSCRIÇÃO
   abstract findInscriptionsPending(
@@ -56,12 +60,13 @@ export abstract class InscriptionGateway {
 
   // Buscas paginadas
   abstract findManyPaginated(
-    accoundId: string,
     eventId: string,
     page: number,
     pageSize: number,
-    filters: {
+    filters?: {
+      isGuest?: boolean;
       limitTime?: string;
+      accoundId?: string;
     },
   ): Promise<Inscription[]>;
   abstract findManyPaginatedByEvent(
@@ -85,9 +90,10 @@ export abstract class InscriptionGateway {
   abstract countAll(
     eventId: string,
     filters: {
+      isGuest?: boolean;
       limitTime?: string;
+      accountId?: string;
     },
-    accountId?: string,
   ): Promise<number>;
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countAllInAnalysis(eventId: string): Promise<number>;

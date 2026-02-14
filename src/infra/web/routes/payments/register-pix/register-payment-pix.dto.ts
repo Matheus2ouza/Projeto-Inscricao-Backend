@@ -17,7 +17,6 @@ type inscription = {
 
 export type RegisterPaymentPixResponse = {
   id: string;
-  totalValue: number;
   status: StatusPayment;
-  createdAt: Date;
+  confirmationCode?: string;
 };
