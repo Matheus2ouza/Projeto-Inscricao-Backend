@@ -17,11 +17,11 @@ export class UpdateInscriptionRoute {
 
   @Put(':id')
   public async handle(
-    @Param('id') inscriptionId: string,
+    @Param() param: UpdateInscriptionRequest,
     @Body() body: UpdateInscriptionRequest,
   ): Promise<UpdateInscriptionResponse> {
     const input: UpdateInscriptionInput = {
-      id: inscriptionId,
+      id: param.id,
       responsible: body.responsible,
       phone: body.phone,
       email: body.email,

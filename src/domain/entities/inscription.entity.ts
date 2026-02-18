@@ -290,14 +290,29 @@ export class Inscription extends Entity {
   }
 
   public update({
+    guestEmail,
+    guestName,
+    guestLocality,
     responsible,
     phone,
     email,
   }: {
+    guestEmail?: string;
+    guestName?: string;
+    guestLocality?: string;
     responsible?: string;
     phone?: string;
     email?: string;
   }): void {
+    if (guestEmail !== undefined) {
+      this.guestEmail = guestEmail;
+    }
+    if (guestName !== undefined) {
+      this.guestName = guestName;
+    }
+    if (guestLocality !== undefined) {
+      this.guestLocality = guestLocality;
+    }
     if (responsible !== undefined) {
       this.setResponsible(responsible);
     }
