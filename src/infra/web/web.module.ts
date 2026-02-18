@@ -70,6 +70,7 @@ import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
+import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
@@ -203,7 +204,6 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Inscriptions
     FindAllPaginatedInscriptionsRoute,
-    UpdateInscriptionRoute,
     DeleteInscriptionRoute,
     GeneratePdfInscriptionRoute,
     FindDetailsInscriptionRoute,
@@ -217,6 +217,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions - Guest
     RegisterGuestInscriptionRoute,
     FindDetailsGuestInscriptionRoute,
+
+    //Update - Inscription
+    UpdateInscriptionRoute,
+
+    // Update - Guest Inscription
+    UpdateGuestInscriptionRoute,
 
     // Inscriptions - Analysis
     AnalysisInscriptionRoute,

@@ -5,9 +5,9 @@ import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions
 
 export type UpdateInscriptionInput = {
   id: string;
-  responsible: string;
-  phone: string;
-  email: string;
+  responsible?: string;
+  phone?: string;
+  email?: string;
 };
 
 export type UpdateInscriptionOutput = {

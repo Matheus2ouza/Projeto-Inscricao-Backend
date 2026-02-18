@@ -2,6 +2,8 @@ import {
   genderType,
   InscriptionStatus,
   PaymentMethod,
+  ShirtSize,
+  ShirtType,
   StatusPayment,
 } from 'generated/prisma';
 
@@ -27,6 +29,9 @@ export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   gender: genderType;
   typeInscription: TypeInscription;
 };

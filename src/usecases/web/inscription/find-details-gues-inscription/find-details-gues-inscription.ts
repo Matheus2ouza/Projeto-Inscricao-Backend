@@ -3,11 +3,12 @@ import {
   genderType,
   InscriptionStatus,
   PaymentMethod,
+  ShirtSize,
+  ShirtType,
   StatusPayment,
 } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
@@ -38,6 +39,9 @@ export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   gender: genderType;
   typeInscription: TypeInscription;
 };
@@ -77,7 +81,6 @@ export class FindDetailsGuestInscriptionUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly paymentGateway: PaymentGateway,
-    private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
@@ -128,6 +131,9 @@ export class FindDetailsGuestInscriptionUsecase
           id: p.getId(),
           name: p.getName(),
           birthDate: p.getBirthDate(),
+          preferredName: p.getPreferredName(),
+          shirtSize: p.getShirtSize(),
+          shirtType: p.getShirtType(),
           gender: p.getGender(),
           typeInscription: typeInscriptionData,
         };
@@ -165,8 +171,14 @@ export class FindDetailsGuestInscriptionUsecase
       }),
     );
 
-    const participantsData: Participant[] = participantData.filter(
-      (p): p is Participant => p !== null,
+    const participantsData = participantData.reduce<Participant[]>(
+      (acc, participant) => {
+        if (participant) {
+          acc.push(participant);
+        }
+        return acc;
+      },
+      [],
     );
 
     const output: FindDetailsGuestInscriptionOutput = {

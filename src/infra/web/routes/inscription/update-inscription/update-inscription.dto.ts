@@ -1,7 +1,8 @@
 export type UpdateInscriptionRequest = {
-  responsible: string;
-  phone: string;
-  email: string;
+  id: string;
+  responsible?: string;
+  phone?: string;
+  email?: string;
 };
 
 export type UpdateInscriptionResponse = {

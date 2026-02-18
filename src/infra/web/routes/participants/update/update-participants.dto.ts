@@ -1,11 +1,13 @@
-import { genderType } from 'generated/prisma';
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 
 export type UpdateParticipantsRequest = {
-  participantId: string;
-  name: string;
-  birthDate: Date;
-  gender: genderType;
-  typeInscriptionId: string;
+  id: string;
+  name?: string;
+  birthDate?: Date;
+  gender?: genderType;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 };
 
 export type UpdateParticipantsResponse = {

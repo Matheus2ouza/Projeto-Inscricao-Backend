@@ -1,6 +1,7 @@
 import { UpdateParticipantsInput } from 'src/usecases/web/participants/update/update-participants.usecase';
 
 import { Body, Controller, Param, Put } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import { UpdateParticipantsUsecase } from 'src/usecases/web/participants/update/update-participants.usecase';
 import type {
   UpdateParticipantsRequest,
@@ -14,17 +15,20 @@ export class UpdateParticipantsRoute {
     private readonly updateParticipantsUsecase: UpdateParticipantsUsecase,
   ) {}
 
+  @IsPublic()
   @Put(':id/update')
   public async handle(
-    @Param('id') participantId: string,
+    @Param() param: UpdateParticipantsRequest,
     @Body() request: UpdateParticipantsRequest,
   ): Promise<UpdateParticipantsResponse> {
     const input: UpdateParticipantsInput = {
-      participantId: participantId,
+      id: param.id,
       name: request.name,
       birthDate: request.birthDate,
       gender: request.gender,
-      typeInscriptionId: request.typeInscriptionId,
+      preferredName: request.preferredName,
+      shirtSize: request.shirtSize,
+      shirtType: request.shirtType,
     };
 
     const response = await this.updateParticipantsUsecase.execute(input);

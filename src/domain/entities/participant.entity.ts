@@ -173,12 +173,16 @@ export class Participant extends Entity {
     name,
     birthDate,
     gender,
-    typeInscriptionId,
+    preferredName,
+    shirtSize,
+    shirtType,
   }: {
     name?: string;
     birthDate?: Date;
     gender?: genderType;
-    typeInscriptionId: string;
+    preferredName?: string;
+    shirtSize?: ShirtSize;
+    shirtType?: ShirtType;
   }): void {
     if (name !== undefined) {
       this.setName(name);
@@ -189,9 +193,17 @@ export class Participant extends Entity {
     if (gender !== undefined) {
       this.setGender(gender);
     }
-    if (typeInscriptionId !== undefined) {
-      this.setTypeInscription(typeInscriptionId);
+    if (preferredName !== undefined) {
+      this.preferredName = preferredName;
     }
+    if (shirtSize !== undefined) {
+      this.shirtSize = shirtSize;
+    }
+    if (shirtType !== undefined) {
+      this.shirtType = shirtType;
+    }
+    this.updatedAt = new Date();
+    this.validate();
   }
 
   protected validate(): void {

@@ -60,6 +60,7 @@ import { RegisterGroupInscriptionUsecase } from './web/inscription/group/registe
 import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
+import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
@@ -198,6 +199,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Inscriptions
     UpdateInscriptionUsecase,
+    UpdateGuestInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
@@ -343,6 +345,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Inscriptions
     UpdateInscriptionUsecase,
+    UpdateGuestInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
