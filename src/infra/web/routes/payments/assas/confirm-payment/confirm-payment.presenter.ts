@@ -1,7 +1,7 @@
 // src/infra/web/routes/webhooks/asaas/presenter/confirmPayment.presenter.ts
 
-import { ConfirmPaymentOutput } from 'src/usecases/web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
-import { ConfirmPaymentResponse } from './confirmPayment.dto';
+import { ConfirmPaymentOutput } from 'src/usecases/web/payments/asaas/confirm-payment/confirm-payment.usecase';
+import { ConfirmPaymentResponse } from './confirm-payment.dto';
 
 export class ConfirmPaymentPresenter {
   public static toHttp(output: ConfirmPaymentOutput): ConfirmPaymentResponse {

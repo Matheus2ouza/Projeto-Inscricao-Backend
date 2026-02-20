@@ -74,8 +74,9 @@ import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participan
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
-import { ConfirmPaymentUsecase } from './web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
-import { PaymentCanceledUseCase } from './web/payments/asaas/PaymentCanceled/paymentCanceled.usecase';
+import { ConfirmPaymentUsecase } from './web/payments/asaas/confirm-payment/confirm-payment.usecase';
+import { PaymentCanceledUseCase } from './web/payments/asaas/payment-canceled/payment-canceled.usecase';
+import { PaymentReprovedUsecase } from './web/payments/asaas/payment-reproved/payment-reproved.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
@@ -233,6 +234,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //ASAAS
     ConfirmPaymentUsecase,
     PaymentCanceledUseCase,
+    PaymentReprovedUsecase,
 
     // Participants
     ListParticipantsUsecase,
@@ -379,6 +381,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     //ASAAS
     ConfirmPaymentUsecase,
     PaymentCanceledUseCase,
+    PaymentReprovedUsecase,
 
     // Participants
     ListParticipantsUsecase,

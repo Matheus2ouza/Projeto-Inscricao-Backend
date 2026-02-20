@@ -52,29 +52,9 @@ export class GeneratePdfInscriptionUsecase
       inscription.getEventId(),
     );
 
-    let publicImageUrl = '';
-    const imagePath = eventDetails?.getImageUrl();
-    if (imagePath) {
-      try {
-        publicImageUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-      } catch {
-        publicImageUrl = '';
-      }
-    }
-
-    let eventImageBase64 = '';
-    if (publicImageUrl) {
-      try {
-        const response = await axios.get<ArrayBuffer>(publicImageUrl, {
-          responseType: 'arraybuffer',
-        });
-        const base64Image = Buffer.from(response.data).toString('base64');
-        eventImageBase64 = `data:image/jpeg;base64,${base64Image}`;
-      } catch {
-        eventImageBase64 = '';
-      }
-    }
+    const eventImageBase64 = await this.getImageBase64(
+      eventDetails?.getImageUrl(),
+    );
 
     const participants = await this.participantGateway.findByInscriptionId(
       inscription.getId(),
@@ -145,6 +125,36 @@ export class GeneratePdfInscriptionUsecase
       : 'inscricao';
 
     return `lista-inscricao-${sanitizedEventName}-${inscriptionId}.pdf`;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
+  }
+
+  private async getImageBase64(path?: string): Promise<string> {
+    const publicUrl = await this.getPublicUrl(path);
+    if (!publicUrl) {
+      return '';
+    }
+
+    try {
+      const response = await axios.get<ArrayBuffer>(publicUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const base64Image = Buffer.from(response.data).toString('base64');
+      return `data:image/jpeg;base64,${base64Image}`;
+    } catch {
+      return '';
+    }
   }
 
   private formatEventPeriod(

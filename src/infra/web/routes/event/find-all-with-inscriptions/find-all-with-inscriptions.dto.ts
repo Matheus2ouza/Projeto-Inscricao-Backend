@@ -20,7 +20,9 @@ export type Events = {
   status: string;
   startDate: string;
   endDate: string;
+  location?: string;
   countInscriptions: number;
+  countGuestInscriptions: number;
   countInscriptionsAnalysis: number;
   countSingleInscriptions: number;
   countSingleDebit: number;

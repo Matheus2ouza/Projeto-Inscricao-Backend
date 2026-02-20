@@ -1,4 +1,4 @@
-import { genderType } from 'generated/prisma';
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { AccountParticipantValidatorFactory } from '../factories/account-participant/account-participant.validator.factory';
 import { Entity } from '../shared/entities/entity';
@@ -15,6 +15,9 @@ export type AccountParticipantWithDto = {
   accountId: string;
   name: string;
   birthDate: Date;
+  preferredName?: string;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
@@ -30,6 +33,9 @@ export class AccountParticipant extends Entity {
     private gender: genderType,
     createdAt: Date,
     updatedAt: Date,
+    private preferredName?: string,
+    private shirtSize?: ShirtSize,
+    private shirtType?: ShirtType,
     private isRegistered?: boolean,
   ) {
     super(id, createdAt, updatedAt);
@@ -62,6 +68,9 @@ export class AccountParticipant extends Entity {
     accountId,
     name,
     birthDate,
+    preferredName,
+    shirtSize,
+    shirtType,
     gender,
     createdAt,
     updatedAt,
@@ -75,6 +84,9 @@ export class AccountParticipant extends Entity {
       gender,
       createdAt,
       updatedAt,
+      preferredName,
+      shirtSize,
+      shirtType,
       isRegistered,
     );
   }
@@ -101,6 +113,18 @@ export class AccountParticipant extends Entity {
 
   public getBirthDate(): Date {
     return this.birthDate;
+  }
+
+  public getPreferredName(): string | undefined {
+    return this.preferredName;
+  }
+
+  public getShirtSize(): ShirtSize | undefined {
+    return this.shirtSize;
+  }
+
+  public getShirtType(): ShirtType | undefined {
+    return this.shirtType;
   }
 
   public getGender(): genderType {

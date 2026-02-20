@@ -1,5 +1,5 @@
-import { PaymentCanceledOutput } from 'src/usecases/web/payments/asaas/PaymentCanceled/paymentCanceled.usecase';
-import { PaymentCanceledResponse } from './paymentCanceled.dto';
+import { PaymentCanceledOutput } from 'src/usecases/web/payments/asaas/payment-canceled/payment-canceled.usecase';
+import { PaymentCanceledResponse } from './payment-canceled.dto';
 
 export class PaymentCanceledPresenter {
   public static toHttp(output: PaymentCanceledOutput): PaymentCanceledResponse {

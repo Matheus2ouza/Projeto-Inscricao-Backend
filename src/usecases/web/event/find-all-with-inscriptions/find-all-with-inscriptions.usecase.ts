@@ -27,7 +27,9 @@ export type Events = {
   status: string;
   startDate: string;
   endDate: string;
+  location?: string;
   countInscriptions: number;
+  countGuestInscriptions: number;
   countInscriptionsAnalysis: number;
   countSingleInscriptions: number;
   countSingleDebit: number;
@@ -69,11 +71,15 @@ export class FindAllWithInscriptionsUsecase
       allEvents.map(async (event) => {
         const imagePath = await this.getPublicImageUrl(event.getImageUrl());
 
-        const [countInscriptions, countInscriptionsAnalysis] =
-          await Promise.all([
-            this.inscriptionGateway.countAllByEvent(event.getId()),
-            this.inscriptionGateway.countAllInAnalysis(event.getId()),
-          ]);
+        const [
+          countInscriptions,
+          countGuestInscriptions,
+          countInscriptionsAnalysis,
+        ] = await Promise.all([
+          this.inscriptionGateway.countAllByEvent(event.getId()),
+          this.inscriptionGateway.countAllGuestByEvent(event.getId()),
+          this.inscriptionGateway.countAllInAnalysis(event.getId()),
+        ]);
 
         const [countSingleInscriptions, countSingleDebit] = await Promise.all([
           this.onSiteRegistrationGateway.countAll(event.getId()),
@@ -87,7 +93,9 @@ export class FindAllWithInscriptionsUsecase
           imageUrl: imagePath,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),
+          location: event.getLocation(),
           countInscriptions,
+          countGuestInscriptions,
           countInscriptionsAnalysis,
           countSingleInscriptions,
           countSingleDebit,

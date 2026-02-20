@@ -1,6 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { AnalysisInscriptionUsecase } from 'src/usecases/web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
+import {
+  AnalysisInscriptionInput,
+  AnalysisInscriptionUsecase,
+} from 'src/usecases/web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import type {
   AnalysisInscriptionRequest,
   AnalysisInscriptionResponse,
@@ -21,17 +24,16 @@ export class AnalysisInscriptionRoute {
       'lista de participantes e informações de paginação. Usado no painel de análise de inscrições do evento.',
   })
   async handle(
-    @Param('id') id: string,
+    @Param() param: AnalysisInscriptionRequest,
     @Query() query: AnalysisInscriptionRequest,
   ): Promise<AnalysisInscriptionResponse> {
-    const inscriptionId = String(id);
-
-    const response = await this.analysisInscriptionUsecase.execute({
-      inscriptionId,
+    const input: AnalysisInscriptionInput = {
+      id: param.id,
       page: query.page,
       pageSize: query.pageSize,
-    });
+    };
 
+    const response = await this.analysisInscriptionUsecase.execute(input);
     return AnalysisInscriptionPresenter.toHttp(response);
   }
 }

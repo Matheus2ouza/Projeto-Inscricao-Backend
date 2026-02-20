@@ -1,10 +1,16 @@
-export type FindAllPaginatedInscriptionRequest = {
+import { Type } from 'class-transformer';
+import { IsOptional } from 'class-validator';
+
+export class FindAllPaginatedInscriptionRequest {
   eventId: string;
+  @IsOptional()
+  @Type(() => Boolean)
   isGuest?: boolean;
+  orderBy?: 'asc' | 'desc';
   limitTime?: string;
   page: number;
   pageSize: number;
-};
+}
 
 export type FindAllPaginatedInscriptionResponse = {
   event: Event;
@@ -20,6 +26,8 @@ export type Event = {
   startDate: string;
   endDate: string;
   totalInscription: number;
+  totalGuestInscription?: number;
+  totalParticipants: number;
   totalPaid: number;
   totalDue: number;
   inscriptions: Inscription[];
