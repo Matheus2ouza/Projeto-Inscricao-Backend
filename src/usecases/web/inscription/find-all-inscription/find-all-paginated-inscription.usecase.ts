@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
@@ -11,6 +11,7 @@ export type FindAllPaginatedInscriptionInput = {
   eventId: string;
   userId?: string;
   isGuest?: boolean;
+  orderBy?: 'asc' | 'desc';
   limitTime?: string;
   page: number;
   pageSize: number;
@@ -30,6 +31,7 @@ export type Event = {
   startDate: string;
   endDate: string;
   totalInscription: number;
+  totalGuestInscription?: number;
   totalParticipants: number;
   totalPaid: number;
   totalDue: number;
@@ -52,7 +54,7 @@ export class FindAllPaginatedInscriptionsUsecase
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
-    private readonly paymentGateway: PaymentGateway,
+    private readonly participantGateway: ParticipantGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -79,27 +81,44 @@ export class FindAllPaginatedInscriptionsUsecase
       limitTime: input.limitTime,
       isGuest: input.isGuest,
       accountId: input.userId,
+      orderBy: input.orderBy,
     };
 
-    const [inscriptions, totalInscription] = await Promise.all([
-      this.inscriptionGateway.findManyPaginated(
-        event.getId(),
-        safePage,
-        safePageSize,
-        filters,
-      ),
-      this.inscriptionGateway.countAll(event.getId(), filters),
-    ]);
+    const [inscriptions, totalInscription, totalParticipants] =
+      await Promise.all([
+        this.inscriptionGateway.findManyPaginated(
+          event.getId(),
+          safePage,
+          safePageSize,
+          filters,
+        ),
+        this.inscriptionGateway.countAll(event.getId(), filters),
+        this.accountParticipantInEventGateway.countParticipantsByEventId(
+          event.getId(),
+        ),
+      ]);
+
+    const totalGuestInscription =
+      await this.participantGateway.countAllByEventId(event.getId());
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
     let totalDue = 0;
     const inscriptionData = await Promise.all(
       inscriptions.map(async (i) => {
-        const totalParticipant =
-          await this.accountParticipantInEventGateway.countByInscriptionId(
+        let totalParticipant: number | null = null;
+        if (i.getIsGuest()) {
+          totalParticipant = await this.participantGateway.countByInscriptionId(
             i.getId(),
           );
+        }
+
+        if (!i.getIsGuest()) {
+          totalParticipant =
+            await this.accountParticipantInEventGateway.countByInscriptionId(
+              i.getId(),
+            );
+        }
 
         totalDue +=
           Number(i.getTotalValue() ?? 0) - Number(i.getTotalPaid() ?? 0);
@@ -107,7 +126,8 @@ export class FindAllPaginatedInscriptionsUsecase
           id: i.getId(),
           responsible: i.getResponsible(),
           status: i.getStatus(),
-          totalParticipant,
+          isGuest: i.getIsGuest(),
+          totalParticipant: totalParticipant ?? 0,
         };
       }),
     );
@@ -119,7 +139,8 @@ export class FindAllPaginatedInscriptionsUsecase
       startDate: event.getStartDate().toISOString(),
       endDate: event.getEndDate().toISOString(),
       totalInscription,
-      totalParticipants: event.getQuantityParticipants(),
+      totalGuestInscription,
+      totalParticipants,
       totalPaid: event.getAmountCollected(),
       totalDue,
       inscriptions: inscriptionData,

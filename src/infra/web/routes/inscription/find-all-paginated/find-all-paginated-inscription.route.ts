@@ -7,7 +7,7 @@ import {
   FindAllPaginatedInscriptionInput,
   FindAllPaginatedInscriptionsUsecase,
 } from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
-import type {
+import {
   FindAllPaginatedInscriptionRequest,
   FindAllPaginatedInscriptionResponse,
 } from './find-all-paginated-inscription.dto';
@@ -37,7 +37,8 @@ export class FindAllPaginatedInscriptionsRoute {
       userId: user.userRole === roleType.USER ? user.userId : undefined,
       page: query.page,
       pageSize: query.pageSize,
-      isGuest: query.isGuest,
+      isGuest: user.userRole !== roleType.USER ? query.isGuest : false,
+      orderBy: query.orderBy || 'desc',
       limitTime: query.limitTime,
     };
 

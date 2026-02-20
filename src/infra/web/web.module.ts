@@ -60,8 +60,7 @@ import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/updat
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
-import { AnalysisInscriptionRoute } from './routes/inscription/analysis/analysis-inscription/analysis-inscription.route';
-import { UpdateStatusInscriptionRoute } from './routes/inscription/analysis/update-status-inscription/update-status-inscription.route';
+import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsGuestInscriptionRoute } from './routes/inscription/find-details-gues-inscription/find-details-gues-inscription.route';
@@ -72,6 +71,7 @@ import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
+import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
@@ -83,8 +83,9 @@ import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/g
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
-import { ConfirmPaymentRoute } from './routes/payments/assas/ConfirmPayment/confirmPayment.route';
-import { PaymentCanceledRoute } from './routes/payments/assas/PaymentCanceled/PaymentCanceled.route';
+import { ConfirmPaymentRoute } from './routes/payments/assas/confirm-payment/confirm-payment.route';
+import { PaymentCanceledRoute } from './routes/payments/assas/payment-canceled/payment-canceled.route';
+import { PaymentReprovedRoute } from './routes/payments/assas/payment-reproved/payment-reproved.route';
 import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
@@ -249,6 +250,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Payment - ASAAS
     ConfirmPaymentRoute,
     PaymentCanceledRoute,
+    PaymentReprovedRoute,
 
     // Participants
     ListParticipantsRoute,

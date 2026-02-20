@@ -11,6 +11,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   constructor(private readonly prisma: PrismaService) {}
 
   // CRUD básico
+  // Cria uma nova inscrição
   async create(inscription: Inscription): Promise<Inscription> {
     const data = EntityToPrisma.map(inscription);
     const created = await this.prisma.inscription.create({ data });
@@ -173,9 +174,9 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map((item) => PrismaToEntity.map(item));
   }
 
-  async findMany(eventId: string): Promise<Inscription[]> {
+  async findMany(eventId: string, isGuest?: boolean): Promise<Inscription[]> {
     const found = await this.prisma.inscription.findMany({
-      where: { eventId },
+      where: { eventId, isGuest },
     });
 
     return found.map(PrismaToEntity.map);
@@ -222,11 +223,12 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     filters?: {
       isGuest?: boolean;
       accountId?: string;
-      limitTime?: string;
+      orderBy: 'asc' | 'desc';
     },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
     const where = this.buildWhereClauseInscription(filters);
+    const sortOrder = filters?.orderBy === 'asc' ? 'asc' : 'desc';
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId,
@@ -234,7 +236,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       },
       skip,
       take: pageSize,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: sortOrder },
     });
     return found.map(PrismaToEntity.map);
   }
@@ -390,9 +392,16 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
   }
 
-  async countAllByEvent(eventId: string): Promise<number> {
+  async countAllByEvent(eventId: string, isGuest?: boolean): Promise<number> {
     const total = await this.prisma.inscription.count({
-      where: { eventId },
+      where: { eventId, isGuest },
+    });
+    return total;
+  }
+
+  async countAllGuestByEvent(eventId: string): Promise<number> {
+    const total = await this.prisma.inscription.count({
+      where: { eventId, isGuest: true },
     });
     return total;
   }

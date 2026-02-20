@@ -12,12 +12,12 @@ import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decor
 import {
   ConfirmPaymentInput,
   ConfirmPaymentUsecase,
-} from 'src/usecases/web/payments/asaas/ConfirmPayment/confirmPayment.usecase';
+} from 'src/usecases/web/payments/asaas/confirm-payment/confirm-payment.usecase';
 import type {
   ConfirmPaymentRequest,
   ConfirmPaymentResponse,
-} from './confirmPayment.dto';
-import { ConfirmPaymentPresenter } from './confirmPayment.presenter';
+} from './confirm-payment.dto';
+import { ConfirmPaymentPresenter } from './confirm-payment.presenter';
 
 @Controller('webhooks')
 export class ConfirmPaymentRoute {

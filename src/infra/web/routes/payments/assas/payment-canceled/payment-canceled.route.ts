@@ -12,8 +12,8 @@ import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decor
 import {
   PaymentCanceledInput,
   PaymentCanceledUseCase,
-} from 'src/usecases/web/payments/asaas/PaymentCanceled/paymentCanceled.usecase';
-import { PaymentCanceledPresenter } from './PaymentCanceled.presenter';
+} from 'src/usecases/web/payments/asaas/payment-canceled/payment-canceled.usecase';
+import { PaymentCanceledPresenter } from './payment-canceled.presenter';
 
 @Controller('webhooks')
 export class PaymentCanceledRoute {

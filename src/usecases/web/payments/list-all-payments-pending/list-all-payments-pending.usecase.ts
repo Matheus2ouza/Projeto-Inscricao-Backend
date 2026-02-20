@@ -65,9 +65,7 @@ export class ListAllPaymentsPendingUsecase
         },
       ),
 
-      this.inscriptionGateway.countTotal(event.getId(), input.accountId, {
-        status: 'PENDING',
-      }),
+      this.inscriptionGateway.countTotal(event.getId(), input.accountId),
     ]);
 
     const inscriptionsData = await Promise.all(

@@ -1,4 +1,5 @@
 export type AnalysisInscriptionRequest = {
+  id: string;
   page: number;
   pageSize: number;
 };

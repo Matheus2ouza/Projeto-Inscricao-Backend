@@ -56,7 +56,7 @@ export class AccountParticipantInEventPrismaRepository
       participantId: string;
       name: string;
       birthDate: Date;
-      gender: import('generated/prisma').genderType;
+      gender: genderType;
       typeInscriptionDescription?: string;
     }[]
   > {

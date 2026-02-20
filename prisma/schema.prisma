@@ -33,13 +33,16 @@ model Accounts {
 }
 
 model AccountParticipant {
-  id        String     @id @default(uuid())
-  accountId String     @map("account_id")
-  name      String
-  birthDate DateTime   @map("birth_date")
-  gender    genderType
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  id            String     @id @default(uuid())
+  accountId     String     @map("account_id")
+  name          String
+  preferredName String?    @map("preferred_name")
+  shirtSize     ShirtSize? @map("shirt_size")
+  shirtType     ShirtType? @map("shirt_type")
+  birthDate     DateTime   @map("birth_date")
+  gender        genderType
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
 
   account Accounts @relation("AccountToParticipants", fields: [accountId], references: [id], onDelete: Cascade)
 

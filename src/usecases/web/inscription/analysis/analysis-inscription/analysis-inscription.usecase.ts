@@ -6,7 +6,7 @@ import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 
 export type AnalysisInscriptionInput = {
-  inscriptionId: string;
+  id: string;
   page: number;
   pageSize: number;
 };
@@ -50,13 +50,11 @@ export class AnalysisInscriptionUsecase
       Math.min(20, Math.floor(input.pageSize || 10)),
     );
 
-    const inscription = await this.inscriptionGateway.findById(
-      input.inscriptionId,
-    );
+    const inscription = await this.inscriptionGateway.findById(input.id);
 
     if (!inscription) {
       throw new InscriptionNotFoundUsecaseException(
-        `attempt to search for registration data for analysis but the registration was not found, id: ${input.inscriptionId}`,
+        `attempt to search for registration data for analysis but the registration was not found, id: ${input.id}`,
         `Inscrição não encontrada`,
         AnalysisInscriptionUsecase.name,
       );

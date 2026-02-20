@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
@@ -62,6 +63,12 @@ async function bootstrap() {
       uptime: `${process.uptime().toFixed(2)}s`,
     });
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   // Inicialização
   const port = Number(process.env.PORT ?? 3000);
