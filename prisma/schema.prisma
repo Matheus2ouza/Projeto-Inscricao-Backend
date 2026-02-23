@@ -257,6 +257,7 @@ model Payment {
   totalValue        Decimal       @default(0) @db.Decimal(10, 2)
   totalNetValue     Decimal       @default(0) @db.Decimal(10, 2)
   totalPaid         Decimal       @default(0) @db.Decimal(10, 2)
+  totalReceived     Decimal       @default(0) @db.Decimal(10, 2)
   installments      Int?          @default(1) @map("installment")
   paidInstallments  Int?          @default(0) @map("paid_installments")
   rejectionReason   String?
@@ -278,15 +279,17 @@ model Payment {
 }
 
 model PaymentInstallment {
-  id                  String   @id @default(uuid())
-  paymentId           String   @map("payment_id")
-  installmentNumber   Int      @map("installment_number")
-  value               Decimal  @db.Decimal(10, 2)
-  netValue            Decimal  @map("net_value") @db.Decimal(10, 2)
-  asaasPaymentId      String?  @unique @map("asaas_payment_id")
-  financialMovementId String?  @map("financial_movement_id")
-  paidAt              DateTime @default(now()) @map("paid_at")
-  createdAt           DateTime @default(now()) @map("created_at")
+  id                  String    @id @default(uuid())
+  paymentId           String    @map("payment_id")
+  installmentNumber   Int       @map("installment_number")
+  received            Boolean   @default(false)
+  value               Decimal   @db.Decimal(10, 2)
+  netValue            Decimal   @map("net_value") @db.Decimal(10, 2)
+  asaasPaymentId      String?   @unique @map("asaas_payment_id")
+  financialMovementId String?   @map("financial_movement_id")
+  paidAt              DateTime  @default(now()) @map("paid_at")
+  estimatedAt         DateTime? @map("estimated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
 
   payment           Payment            @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   financialMovement FinancialMovement? @relation(fields: [financialMovementId], references: [id])

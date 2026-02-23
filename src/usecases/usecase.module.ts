@@ -59,9 +59,11 @@ import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-in
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
 import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
+import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
+import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -76,6 +78,7 @@ import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
 import { ConfirmPaymentUsecase } from './web/payments/asaas/confirm-payment/confirm-payment.usecase';
 import { PaymentCanceledUseCase } from './web/payments/asaas/payment-canceled/payment-canceled.usecase';
+import { PaymentReceivedUsecase } from './web/payments/asaas/payment-received/payment-received.usecase';
 import { PaymentReprovedUsecase } from './web/payments/asaas/payment-reproved/payment-reproved.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
@@ -86,6 +89,7 @@ import { RegisterPaymentCredUsecase } from './web/payments/register-cred/registe
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
+import { UpdatePaymentReceiptUsecase } from './web/payments/update-payment-receipt/update-payment-receipt.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
 import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
@@ -199,14 +203,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllInscriptionUsecase,
 
     // Inscriptions
-    UpdateInscriptionUsecase,
-    UpdateGuestInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
     FindCacheUsecase,
-    GeneratePdfInscriptionUsecase,
-    GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
@@ -217,6 +217,16 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsInscriptionAvulUsecase,
     FindDetailsGuestInscriptionUsecase,
     FindAllWithParticipantsUsecase,
+
+    // Updates
+    UpdateInscriptionUsecase,
+    UpdateGuestInscriptionUsecase,
+    UpdateValidateInscriptionUsecase,
+
+    // Inscription PDF
+    GeneratePdfInscriptionUsecase,
+    GeneratePdfSelectedInscriptionUsecase,
+    GeneratePdfAllInscriptionsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -231,8 +241,11 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
 
+    UpdatePaymentReceiptUsecase,
+
     //ASAAS
     ConfirmPaymentUsecase,
+    PaymentReceivedUsecase,
     PaymentCanceledUseCase,
     PaymentReprovedUsecase,
 
@@ -346,14 +359,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllInscriptionUsecase,
 
     // Inscriptions
-    UpdateInscriptionUsecase,
-    UpdateGuestInscriptionUsecase,
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
     FindCacheUsecase,
-    GeneratePdfInscriptionUsecase,
-    GeneratePdfSelectedInscriptionUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
@@ -364,6 +373,16 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsInscriptionAvulUsecase,
     FindDetailsGuestInscriptionUsecase,
     FindAllWithParticipantsUsecase,
+
+    // Updates
+    UpdateInscriptionUsecase,
+    UpdateGuestInscriptionUsecase,
+    UpdateValidateInscriptionUsecase,
+
+    // Inscription PDF
+    GeneratePdfInscriptionUsecase,
+    GeneratePdfSelectedInscriptionUsecase,
+    GeneratePdfAllInscriptionsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -378,8 +397,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
 
+    // Payement - Updates
+    UpdatePaymentReceiptUsecase,
+
     //ASAAS
     ConfirmPaymentUsecase,
+    PaymentReceivedUsecase,
     PaymentCanceledUseCase,
     PaymentReprovedUsecase,
 

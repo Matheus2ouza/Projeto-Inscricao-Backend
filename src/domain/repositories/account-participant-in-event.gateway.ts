@@ -11,16 +11,23 @@ export abstract class AccountParticipantInEventGateway {
   ): Promise<void>;
 
   // Buscas e listagens
+  // Busca por accountParticipantId e eventId e retorna um AccountParticipantInEvent
   abstract findByParticipantAndEvent(
     accountParticipantId: string,
     eventId: string,
   ): Promise<AccountParticipantInEvent | null>;
+
+  // Busca por inscriptionId e retorna uma lista de AccountParticipantInEvent
   abstract findByInscriptionId(
     inscriptionId: string,
   ): Promise<AccountParticipantInEvent[]>;
+
+  // Busca por inscriptionIds e retorna uma lista de AccountParticipantInEvent
   abstract findManyByInscriptionIds(
     inscriptionIds: string[],
   ): Promise<AccountParticipantInEvent[]>;
+
+  // Busca por eventId e accountIds e retorna uma lista de AccountParticipantInEvent
   abstract findByEventIdAndAccountIds(
     eventId: string,
     accountIds: string[],
@@ -39,15 +46,9 @@ export abstract class AccountParticipantInEventGateway {
   // Detalhes agregados de participantes por inscrição
   abstract findParticipantDetailsByInscriptionId(
     inscriptionId: string,
-  ): Promise<
-    {
-      participantId: string;
-      name: string;
-      birthDate: Date;
-      gender: genderType;
-      typeInscriptionDescription?: string;
-    }[]
-  >;
+  ): Promise<AccountParticipantInEvent[]>;
+
+  // Busca por inscriptionId e retorna uma lista de AccountParticipantInEvent paginada
   abstract findParticipantDetailsByInscriptionIdPaginated(
     inscriptionId: string,
     page: number,
@@ -63,11 +64,18 @@ export abstract class AccountParticipantInEventGateway {
   >;
 
   // Agregações e contagens
+  // Conta o número de participantes por inscrição
   abstract countByInscriptionId(inscriptionId: string): Promise<number>;
+  // Conta o número de participantes por inscrição
   abstract countParticipantByInscriptionId(
     inscriptionId: string,
   ): Promise<number>;
-  abstract countParticipantsByEventId(eventId: string): Promise<number>;
+  // Conta o número de participantes por evento
+  abstract countParticipantsByEventId(
+    eventId: string,
+    userId?: string,
+  ): Promise<number>;
+  // Conta o número de participantes por evento e gênero
   abstract countParticipantsByEventIdAndGender(
     eventId: string,
     gender: genderType,

@@ -17,6 +17,7 @@ export class PaymentEntityToPaymentPrismaModelMapper {
       totalValue: Decimal(payment.getTotalValue()),
       totalPaid: Decimal(payment.getTotalPaid()),
       totalNetValue: Decimal(payment.getTotalNetValue()),
+      totalReceived: Decimal(payment.getTotalReceived()),
       installments: payment.getInstallments() || null,
       paidInstallments: payment.getPaidInstallments(),
       rejectionReason: payment.getRejectionReason() || null,

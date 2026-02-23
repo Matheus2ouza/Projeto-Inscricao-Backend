@@ -19,6 +19,18 @@ export class PaymentInstallmentPrismaRepository
     return PrismaToEntity.map(created);
   }
 
+  async update(
+    paymentInstallment: PaymentInstallment,
+  ): Promise<PaymentInstallment> {
+    const data = EntityToPrisma.map(paymentInstallment);
+    const updated = await this.prisma.paymentInstallment.update({
+      where: { id: paymentInstallment.getId() },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
   // Deletar as parcelas de um pagamento pelo ID do pagamento
   async deleteMany(paymentId: string): Promise<void> {
     await this.prisma.paymentInstallment.deleteMany({

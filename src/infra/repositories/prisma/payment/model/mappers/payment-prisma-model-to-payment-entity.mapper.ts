@@ -16,6 +16,7 @@ export class PaymentPrismaModelToPaymentEntityMapper {
       totalValue: Number(payment.totalValue),
       totalPaid: Number(payment.totalPaid),
       totalNetValue: Number(payment.totalNetValue),
+      totalReceived: Number(payment.totalReceived),
       installments: payment.installments || 1,
       paidInstallments: payment.paidInstallments || 0,
       imageUrl: payment.imageUrl || undefined,

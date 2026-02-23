@@ -16,7 +16,7 @@ export class UpdateStatusInscriptionRoute {
     private readonly updateStatusUsecase: UpdateStatusInscriptionUsecase,
   ) {}
 
-  @Patch(':id/update')
+  @Patch(':id/status')
   @ApiOperation({
     summary: 'Atualiza o status de uma inscrição (análise)',
     description:

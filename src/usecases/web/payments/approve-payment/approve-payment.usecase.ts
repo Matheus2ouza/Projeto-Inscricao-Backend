@@ -62,10 +62,6 @@ export class ApprovePaymentUsecase
 
     this.logger.log(`Total de alocações encontradas: ${allocations.length}`);
 
-    const inscriptionIds = allocations.map((allocation) =>
-      allocation.getInscriptionId(),
-    );
-
     // Cria a movimentação financeira para o pagamento
     const financialMovement = FinancialMovement.create({
       eventId: payment.getEventId(),
@@ -84,10 +80,12 @@ export class ApprovePaymentUsecase
     const paymentInstallment = PaymentInstallment.create({
       paymentId: payment.getId(),
       installmentNumber: 1,
+      received: true,
       value: payment.getTotalValue(),
       netValue: payment.getTotalValue(),
       financialMovementId: financialMovement.getId(),
       paidAt: new Date(),
+      estimatedAt: new Date(),
     });
 
     await this.paymentInstallmentGateway.create(paymentInstallment);
@@ -99,6 +97,9 @@ export class ApprovePaymentUsecase
       paymentInstallment.getValue(),
       paymentInstallment.getNetValue(),
     );
+
+    // Adiciona o valor recebido ao pagamento
+    payment.setTotalReceived(paymentInstallment.getNetValue());
 
     this.logger.log(
       `Pagamento ${payment.getId()} adicionado à parcela ${paymentInstallment.getInstallmentNumber()}`,

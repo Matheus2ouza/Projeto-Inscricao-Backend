@@ -42,10 +42,7 @@ export class ConfirmPaymentRoute {
     this.logger.debug(`Payload: ${JSON.stringify(body, null, 2)}`);
 
     // Processar apenas eventos de pagamento confirmado
-    if (
-      body.event === 'PAYMENT_CONFIRMED' ||
-      body.event === 'PAYMENT_RECEIVED'
-    ) {
+    if (body.event === 'PAYMENT_CONFIRMED') {
       const input: ConfirmPaymentInput = {
         checkoutSession: body.payment.checkoutSession,
         asaasPaymentId: body.payment.id,
@@ -54,19 +51,20 @@ export class ConfirmPaymentRoute {
         value: body.payment.value,
         netValue: body.payment.netValue,
         confirmedDate: body.payment.confirmedDate,
+        estimatedCreditDate: body.payment.estimatedCreditDate,
       };
 
       const response = await this.confirmPaymentUsecase.execute(input);
 
       this.logger.log(
-        `✅ Pagamento ${body.payment.id} confirmado! Status: ${response.status}`,
+        `Pagamento ${body.payment.id} confirmado! Status: ${response.status}`,
       );
 
       return ConfirmPaymentPresenter.toHttp(response);
     }
 
     // ✅ IMPORTANTE: Retornar resposta para outros eventos
-    this.logger.log(`ℹ️ Evento ${body.event} recebido mas não processado`);
+    this.logger.log(`Evento ${body.event} recebido mas não processado`);
     return ConfirmPaymentPresenter.toEventReceived(body.event);
   }
 }

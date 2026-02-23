@@ -22,8 +22,9 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type GeneratePdfAllInscriptionsInput = {
   eventId: string;
-  isGuest: boolean;
+  isGuest?: boolean;
   details: boolean;
+  participants: boolean;
 };
 
 type InscriptionsDetails = {
@@ -32,12 +33,12 @@ type InscriptionsDetails = {
   locality: string;
   status: InscriptionStatus;
   createdAt: Date;
+  isGuest?: boolean;
   participants?: ParticipantDetails[];
 };
 
 type ParticipantDetails = {
   name: string;
-  preferredName: string;
   birthDate: Date;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
@@ -93,76 +94,55 @@ export class GeneratePdfAllInscriptionsUsecase
       );
     }
 
-    const inscriptionDetails: InscriptionsDetails[] = input.details
-      ? await Promise.all(
-          inscriptions.map(async (i) => {
-            let participants: ParticipantDetails[] = (
-              await this.accountParticipantGateway.findByInscriptionId(
-                i.getId(),
-              )
+    const inscriptionDetails: InscriptionsDetails[] = await Promise.all(
+      inscriptions.map(async (i) => {
+        let participants: ParticipantDetails[] = [];
+
+        if (input.participants) {
+          participants = (
+            await this.accountParticipantGateway.findByInscriptionId(i.getId())
+          ).map((p) => ({
+            name: p.getName(),
+            birthDate: p.getBirthDate(),
+            shirtSize: p.getShirtSize(),
+            shirtType: p.getShirtType(),
+            gender: p.getGender(),
+          }));
+
+          if (i.getIsGuest() && input.isGuest !== false) {
+            participants = (
+              await this.participantGateway.findByInscriptionId(i.getId())
             ).map((p) => ({
               name: p.getName(),
-              preferredName: p.getPreferredName() ?? p.getName(),
               birthDate: p.getBirthDate(),
               shirtSize: p.getShirtSize(),
               shirtType: p.getShirtType(),
               gender: p.getGender(),
             }));
+          }
+        }
 
-            if (i.getIsGuest() && input.isGuest !== false) {
-              participants = (
-                await this.participantGateway.findByInscriptionId(i.getId())
-              ).map((p) => ({
-                name: p.getName(),
-                preferredName: p.getPreferredName() ?? p.getName(),
-                birthDate: p.getBirthDate(),
-                shirtSize: p.getShirtSize(),
-                shirtType: p.getShirtType(),
-                gender: p.getGender(),
-              }));
-            }
+        let locality = '';
+        if (i.getIsGuest()) {
+          locality = i.getGuestLocality() ?? '';
+        }
 
-            let locality = '';
-            if (i.getIsGuest()) {
-              locality = i.getGuestLocality() ?? '';
-            } else if (i.getAccountId()) {
-              const account = await this.accountGateway.findById(
-                i.getAccountId()!,
-              );
-              locality = account?.getUsername() ?? '';
-            }
+        if (!i.getIsGuest()) {
+          const account = await this.accountGateway.findById(i.getAccountId()!);
+          locality = account?.getUsername() ?? '';
+        }
 
-            return {
-              id: i.getId(),
-              responsible: i.getResponsible(),
-              locality,
-              status: i.getStatus(),
-              createdAt: i.getCreatedAt(),
-              participants,
-            };
-          }),
-        )
-      : await Promise.all(
-          inscriptions.map(async (i) => {
-            let locality = '';
-            if (i.getIsGuest()) {
-              locality = i.getGuestLocality() ?? '';
-            } else if (i.getAccountId()) {
-              const account = await this.accountGateway.findById(
-                i.getAccountId()!,
-              );
-              locality = account?.getUsername() ?? '';
-            }
-
-            return {
-              id: i.getId(),
-              responsible: i.getResponsible(),
-              locality,
-              status: i.getStatus(),
-              createdAt: i.getCreatedAt(),
-            };
-          }),
-        );
+        return {
+          id: i.getId(),
+          responsible: i.getResponsible(),
+          locality,
+          status: i.getStatus(),
+          createdAt: i.getCreatedAt(),
+          isGuest: i.getIsGuest(),
+          participants,
+        };
+      }),
+    );
 
     const eventImageBase64 = await this.getImageBase64(event.getImageUrl());
 
@@ -178,7 +158,7 @@ export class GeneratePdfAllInscriptionsUsecase
       },
       inscriptions: inscriptionDetails,
       totals: {
-        totalInscriptions: totalInscription,
+        totalInscriptions: input.details ? totalInscription : undefined,
         totalAccountParticipants,
         totalGuestParticipants,
       },
@@ -194,7 +174,7 @@ export class GeneratePdfAllInscriptionsUsecase
       filename: this.buildFilename(
         event.getName(),
         event.getId(),
-        input.isGuest,
+        input.isGuest ?? false,
       ),
     };
   }

@@ -11,6 +11,7 @@ export type PaymentData = {
   value: number;
   netValue: number;
   confirmedDate: string;
+  estimatedCreditDate: string;
 };
 
 export type ConfirmPaymentResponse = {

@@ -31,7 +31,6 @@ const printer = new PdfPrinter(fonts);
 
 export type ListInscriptionsPdfParticipant = {
   name: string;
-  preferredName: string;
   birthDate: Date;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
@@ -44,6 +43,7 @@ export type ListInscriptionsPdfInscription = {
   locality: string;
   status: InscriptionStatus;
   createdAt: Date;
+  isGuest?: boolean;
   participants?: ListInscriptionsPdfParticipant[];
 };
 
@@ -51,7 +51,7 @@ export type ListInscriptionsPdfData = {
   header: PdfHeaderDefinition;
   inscriptions: ListInscriptionsPdfInscription[];
   totals?: {
-    totalInscriptions: number;
+    totalInscriptions?: number;
     totalAccountParticipants: number;
     totalGuestParticipants: number;
   };
@@ -63,64 +63,52 @@ export class ListInscriptionsPdfGeneratorUtils {
   ): Promise<Buffer> {
     const headerContent = buildPdfHeaderSection(data.header);
 
-    const totals = data.totals
-      ? [
-          {
-            columns: [
-              {
-                width: '33.33%',
-                stack: [
-                  { text: 'Total de inscrições', style: 'labelText' },
-                  {
-                    text: String(data.totals.totalInscriptions),
-                    style: 'valueText',
-                  },
-                ],
-              },
-              {
-                width: '33.33%',
-                stack: [
-                  { text: 'Participantes (conta)', style: 'labelText' },
-                  {
-                    text: String(data.totals.totalAccountParticipants),
-                    style: 'valueText',
-                  },
-                ],
-              },
-              {
-                width: '33.33%',
-                stack: [
-                  { text: 'Participantes (guest)', style: 'labelText' },
-                  {
-                    text: String(data.totals.totalGuestParticipants),
-                    style: 'valueText',
-                  },
-                ],
-              },
-            ],
-            margin: [0, 0, 0, 12],
-          },
-          {
-            canvas: [
-              {
-                type: 'line',
-                x1: 0,
-                y1: 0,
-                x2: 515,
-                y2: 0,
-                lineWidth: 1,
-                lineColor: '#e2e8f0',
-              },
-            ],
-            margin: [0, 0, 0, 16],
-          },
-        ]
-      : [];
+    const totals =
+      data.totals?.totalInscriptions != null
+        ? [
+            {
+              columns: [
+                {
+                  width: '50%',
+                  stack: [
+                    { text: 'Total de inscrições', style: 'labelText' },
+                    {
+                      text: String(data.totals.totalInscriptions),
+                      style: 'valueText',
+                    },
+                  ],
+                },
+                {
+                  width: '50%',
+                  stack: [
+                    { text: ' ', style: 'labelText' },
+                    { text: ' ', style: 'valueText' },
+                  ],
+                },
+              ],
+              margin: [0, 0, 0, 10],
+            },
+            {
+              canvas: [
+                {
+                  type: 'line',
+                  x1: 0,
+                  y1: 0,
+                  x2: 515,
+                  y2: 0,
+                  lineWidth: 1,
+                  lineColor: '#e2e8f0',
+                },
+              ],
+              margin: [0, 0, 0, 16],
+            },
+          ]
+        : [];
 
     const content = [
       ...headerContent,
       ...totals,
-      ...this.buildInscriptionsContent(data.inscriptions),
+      ...this.buildInscriptionsContent(data.inscriptions, data.totals),
     ];
 
     const generatedAt = new Date();
@@ -215,6 +203,7 @@ export class ListInscriptionsPdfGeneratorUtils {
 
   private static buildInscriptionsContent(
     inscriptions: ListInscriptionsPdfInscription[],
+    totals?: ListInscriptionsPdfData['totals'],
   ) {
     if (!inscriptions.length) {
       return [
@@ -227,6 +216,55 @@ export class ListInscriptionsPdfGeneratorUtils {
       ];
     }
 
+    const allocatedInscriptions = inscriptions.filter((i) => !i.isGuest);
+    const guestInscriptions = inscriptions.filter((i) => i.isGuest);
+
+    const allocatedQuantity =
+      totals?.totalAccountParticipants ??
+      (() => {
+        const sum = allocatedInscriptions.reduce(
+          (acc, i) => acc + (i.participants?.length ?? 0),
+          0,
+        );
+        return sum || allocatedInscriptions.length;
+      })();
+
+    const guestQuantity =
+      totals?.totalGuestParticipants ??
+      (() => {
+        const sum = guestInscriptions.reduce(
+          (acc, i) => acc + (i.participants?.length ?? 0),
+          0,
+        );
+        return sum || guestInscriptions.length;
+      })();
+
+    const content: any[] = [];
+
+    if (allocatedInscriptions.length) {
+      content.push({
+        text: `Participantes (${allocatedQuantity})`,
+        style: 'sectionTitle',
+        margin: [0, 0, 0, 12],
+      });
+      content.push(...this.buildInscriptionBlocks(allocatedInscriptions));
+    }
+
+    if (guestInscriptions.length) {
+      content.push({
+        text: `Participantes não alocados (${guestQuantity})`,
+        style: 'sectionTitle',
+        margin: [0, content.length ? 24 : 0, 0, 12],
+      });
+      content.push(...this.buildInscriptionBlocks(guestInscriptions));
+    }
+
+    return content;
+  }
+
+  private static buildInscriptionBlocks(
+    inscriptions: ListInscriptionsPdfInscription[],
+  ) {
     return inscriptions.map((inscription, index) => {
       const details = [
         {
@@ -264,7 +302,7 @@ export class ListInscriptionsPdfGeneratorUtils {
               width: '50%',
               stack: [
                 { text: 'Status', style: 'labelText' },
-                ...buildStatusBadge(inscription.status),
+                buildStatusBadge(inscription.status),
               ],
             },
           ],
@@ -320,13 +358,12 @@ function buildParticipantsTable(
   return {
     table: {
       headerRows: 1,
-      widths: ['6%', '22%', '22%', '14%', '12%', '12%', '12%'],
+      widths: ['6%', '30%', '16%', '16%', '16%', '16%'],
       body: [
         [
           { text: '#', style: 'tableHeader', alignment: 'center' },
           { text: 'Nome', style: 'tableHeader' },
-          { text: 'Nome preferido', style: 'tableHeader' },
-          { text: 'Nasc.', style: 'tableHeader', alignment: 'center' },
+          { text: 'Idade', style: 'tableHeader', alignment: 'center' },
           { text: 'Tamanho', style: 'tableHeader', alignment: 'center' },
           { text: 'Tipo', style: 'tableHeader', alignment: 'center' },
           { text: 'Gênero', style: 'tableHeader', alignment: 'center' },
@@ -356,10 +393,9 @@ function buildParticipantRows(participants: ListInscriptionsPdfParticipant[]) {
           text: 'Nenhum participante cadastrado para esta inscrição.',
           style: 'tableRow',
           italics: true,
-          colSpan: 7,
+          colSpan: 6,
           alignment: 'center',
         },
-        {},
         {},
         {},
         {},
@@ -372,9 +408,8 @@ function buildParticipantRows(participants: ListInscriptionsPdfParticipant[]) {
   return participants.map((participant, index) => [
     { text: String(index + 1), style: 'tableRow', alignment: 'center' },
     { text: participant.name || '-', style: 'tableRow' },
-    { text: participant.preferredName || '-', style: 'tableRow' },
     {
-      text: formatDate(participant.birthDate),
+      text: formatAge(participant.birthDate),
       style: 'tableRow',
       alignment: 'center',
     },
@@ -396,20 +431,23 @@ function buildParticipantRows(participants: ListInscriptionsPdfParticipant[]) {
   ]);
 }
 
-function buildStatusBadge(status: InscriptionStatus): any[] {
+function buildStatusBadge(status: InscriptionStatus): any {
   const { label, color } = formatStatus(status);
 
-  return [
-    {
-      text: label,
-      style: 'badge',
-      margin: [0, 2, 0, 0],
-      color: '#ffffff',
-      fillColor: color,
-      alignment: 'left',
-      padding: [6, 2, 6, 2],
+  return {
+    table: {
+      widths: ['auto'],
+      body: [[{ text: label, style: 'badge', fillColor: color }]],
     },
-  ];
+    layout: {
+      hLineWidth: () => 0,
+      vLineWidth: () => 0,
+      paddingLeft: () => 6,
+      paddingRight: () => 6,
+      paddingTop: () => 2,
+      paddingBottom: () => 2,
+    },
+  };
 }
 
 function formatStatus(status: InscriptionStatus): {
@@ -432,9 +470,23 @@ function formatStatus(status: InscriptionStatus): {
   }
 }
 
-function formatDate(date?: Date | null): string {
+function formatAge(date?: Date | null): string {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString('pt-BR');
+
+  const birthDate = new Date(date);
+  if (Number.isNaN(birthDate.getTime())) return '-';
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDelta = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDelta < 0 ||
+    (monthDelta === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age -= 1;
+  }
+
+  return age < 0 ? '-' : String(age);
 }
 
 function formatDateTime(date: Date): string {

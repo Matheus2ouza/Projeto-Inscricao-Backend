@@ -270,6 +270,12 @@ export class Inscription extends Entity {
     this.validate();
   }
 
+  public setExpiresAt(expiresAt: Date): void {
+    this.expiresAt = expiresAt;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
   public inscriptionPaid(): void {
     this.status = InscriptionStatus.PAID;
     this.updatedAt = new Date();
@@ -285,6 +291,13 @@ export class Inscription extends Entity {
   public markAsExpired(): void {
     this.status = InscriptionStatus.EXPIRED;
     this.cancelledAt = new Date();
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public removeExpires(): void {
+    this.cancelledAt = undefined;
+    this.status = InscriptionStatus.PENDING;
     this.updatedAt = new Date();
     this.validate();
   }

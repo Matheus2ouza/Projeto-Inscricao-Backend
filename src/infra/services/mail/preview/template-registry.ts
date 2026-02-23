@@ -7,6 +7,7 @@ import type {
 } from '../types/inscription/inscription-email.types';
 import type { InscriptionStatusEmailData } from '../types/inscription/inscription-status-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
+import type { PaymentReceiptUpdateEmailData } from '../types/payment/payment-receipt-update-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
 import type { TicketReleaseEmailData } from '../types/tickets/ticket-release-email.types';
 import type { TicketSaleNotificationEmailData } from '../types/tickets/ticket-sale-notification-email.types';
@@ -119,6 +120,12 @@ const mockPaymentReviewNotificationData =
     ],
   });
 
+const mockPaymentReceiptUpdateData = (): PaymentReceiptUpdateEmailData => ({
+  paymentId: 'pay_123456',
+  imageUrl: 'https://example.com/comprovante-atualizado.webp',
+  eventName: 'Congresso de Tecnologia 2025',
+});
+
 const mockTicketReleaseData = (): TicketReleaseEmailData => ({
   buyerName: 'Carolina Dias',
   eventName: 'Congresso de Tecnologia 2025',
@@ -205,6 +212,26 @@ export const templateDefinitions: TemplateDefinition[] = [
     },
     getProps: () => ({
       paymentData: mockPaymentReviewNotificationData(),
+      responsibles: mockResponsibles(),
+      year: new Date().getFullYear(),
+      currentDate: new Date(),
+    }),
+  },
+  {
+    id: 'payment/payment-receipt-update',
+    category: 'payment',
+    title: 'Comprovante atualizado',
+    description:
+      'Alerta os responsáveis do evento quando um comprovante é atualizado.',
+    previewText: 'O comprovante de pagamento foi atualizado.',
+    loader: async () => {
+      const module = await import(
+        '../templates/payment/payment-receipt-update/index.js'
+      );
+      return { default: module.PaymentReceiptUpdateEmail };
+    },
+    getProps: () => ({
+      paymentData: mockPaymentReceiptUpdateData(),
       responsibles: mockResponsibles(),
       year: new Date().getFullYear(),
       currentDate: new Date(),

@@ -13,7 +13,8 @@ export type PaymentCreateDto = {
   status: StatusPayment;
   methodPayment?: PaymentMethod;
   totalValue: number;
-  totalPaid?: number;
+  totalPaid: number;
+  totalReceived: number;
   installment: number;
   asaasCheckoutId?: string;
   externalReference?: string;
@@ -33,6 +34,7 @@ export type PaymentWithDto = {
   totalValue: number;
   totalPaid: number;
   totalNetValue: number;
+  totalReceived: number;
   installments: number;
   paidInstallments: number;
   rejectionReason?: string;
@@ -53,6 +55,7 @@ export class Payment extends Entity {
     private totalValue: number,
     private totalPaid: number,
     private totalNetValue: number,
+    private totalReceived: number,
     private installments: number,
     private paidInstallments: number,
     createdAt: Date,
@@ -82,6 +85,7 @@ export class Payment extends Entity {
     status,
     totalValue,
     totalPaid,
+    totalReceived,
     installment,
     imageUrl,
     asaasCheckoutId,
@@ -91,6 +95,7 @@ export class Payment extends Entity {
     const id = Utils.generateUUID();
     const methodPaymentDefault = methodPayment || PaymentMethod.PIX;
     const totalPaidDefault = totalPaid || 0;
+    const totalReceivedDefault = totalReceived || 0;
     const totalNetValueDefault = 0;
     const installmentsDefault = installment || 1;
     const paidInstallmentsDefault = 0;
@@ -115,6 +120,7 @@ export class Payment extends Entity {
       totalValue,
       totalPaidDefault,
       totalNetValueDefault,
+      totalReceivedDefault,
       installmentsDefault,
       paidInstallmentsDefault,
       createdAt,
@@ -143,6 +149,7 @@ export class Payment extends Entity {
     totalValue,
     totalPaid,
     totalNetValue,
+    totalReceived,
     installments,
     paidInstallments,
     imageUrl,
@@ -161,6 +168,7 @@ export class Payment extends Entity {
       totalValue,
       totalPaid,
       totalNetValue,
+      totalReceived,
       installments,
       paidInstallments,
       createdAt,
@@ -224,6 +232,10 @@ export class Payment extends Entity {
 
   public getTotalPaid(): number {
     return this.totalPaid;
+  }
+
+  public getTotalReceived(): number {
+    return this.totalReceived;
   }
 
   public getTotalNetValue(): number {
@@ -316,5 +328,18 @@ export class Payment extends Entity {
 
   public setInstallments(installments: number): void {
     this.installments = installments;
+  }
+
+  public setTotalReceived(totalReceived: number): void {
+    this.totalReceived += totalReceived;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public updateImage(imageUrl: string): void {
+    this.imageUrl = imageUrl;
+    this.status = StatusPayment.UNDER_REVIEW;
+    this.updatedAt = new Date();
+    this.validate();
   }
 }
