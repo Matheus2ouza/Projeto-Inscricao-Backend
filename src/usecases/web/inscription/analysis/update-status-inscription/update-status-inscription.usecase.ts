@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { InscriptionStatusEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-status-email.handler';
-import { Inscription } from 'src/domain/entities/inscription.entity';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 

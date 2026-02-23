@@ -9,11 +9,13 @@ export class PaymentInstallmentPrismaModelToEntityMapper {
       id: paymentInstallment.id,
       paymentId: paymentInstallment.paymentId,
       installmentNumber: paymentInstallment.installmentNumber,
+      received: paymentInstallment.received,
       value: Number(paymentInstallment.value),
       netValue: Number(paymentInstallment.netValue),
       asaasPaymentId: paymentInstallment.asaasPaymentId || undefined,
       financialMovementId: paymentInstallment.financialMovementId || undefined,
       paidAt: paymentInstallment.paidAt,
+      estimatedAt: paymentInstallment.estimatedAt || undefined,
       createdAt: paymentInstallment.createdAt,
     });
   }

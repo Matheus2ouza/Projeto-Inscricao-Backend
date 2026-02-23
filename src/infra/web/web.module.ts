@@ -13,6 +13,7 @@ import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/use
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
+import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment-installment/payment-installment-not-fund-usecase-exception.filter';
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
 import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
@@ -68,10 +69,12 @@ import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-i
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
+import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
+import { UpdateValidateInscriptionRoute } from './routes/inscription/update-validate-inscription/update-validate-inscription.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
@@ -85,6 +88,7 @@ import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payment
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
 import { ConfirmPaymentRoute } from './routes/payments/assas/confirm-payment/confirm-payment.route';
 import { PaymentCanceledRoute } from './routes/payments/assas/payment-canceled/payment-canceled.route';
+import { PaymentReceivedRoute } from './routes/payments/assas/payment-received/payment-received.route';
 import { PaymentReprovedRoute } from './routes/payments/assas/payment-reproved/payment-reproved.route';
 import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
@@ -95,6 +99,7 @@ import { RegisterPaymentCredRoute } from './routes/payments/register-cred/regist
 import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
 import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
 import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
+import { UpdatePaymentReceiptRoute } from './routes/payments/update-payment-receipt/update-payment-receipt.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
 import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
@@ -206,7 +211,6 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions
     FindAllPaginatedInscriptionsRoute,
     DeleteInscriptionRoute,
-    GeneratePdfInscriptionRoute,
     FindDetailsInscriptionRoute,
 
     // Inscriptions - Group
@@ -219,11 +223,17 @@ import { WelcomeRoute } from './routes/welcome.route';
     RegisterGuestInscriptionRoute,
     FindDetailsGuestInscriptionRoute,
 
+    GeneratePdfAllInscriptionsRoute,
+    GeneratePdfInscriptionRoute,
+
     //Update - Inscription
     UpdateInscriptionRoute,
 
     // Update - Guest Inscription
     UpdateGuestInscriptionRoute,
+
+    // Update - Validate Inscription
+    UpdateValidateInscriptionRoute,
 
     // Inscriptions - Analysis
     AnalysisInscriptionRoute,
@@ -247,10 +257,14 @@ import { WelcomeRoute } from './routes/welcome.route';
     RejectedPaymentRoute,
     ReversePaymentRoute,
 
+    // Payment - Update
+    UpdatePaymentReceiptRoute,
+
     // Payment - ASAAS
     ConfirmPaymentRoute,
     PaymentCanceledRoute,
     PaymentReprovedRoute,
+    PaymentReceivedRoute,
 
     // Participants
     ListParticipantsRoute,
@@ -307,6 +321,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentNotFoundUsecaseExceptionFilterProvider,
     InvalidImageFormatUsecaseExceptionFilterProvider,
     CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider,
+
+    // Payment Installment
+    PaymentInstallmentNotFoundUsecaseExceptionFilterProvider,
 
     // Type Inscription
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,

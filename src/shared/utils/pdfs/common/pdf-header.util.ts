@@ -22,34 +22,31 @@ export const buildPdfHeaderSection = (header: PdfHeaderDefinition) => {
     });
   }
 
-  const textColumn = header.image
-    ? {
-        width: '*',
-        stack: titleStack,
-        margin: [12, 10, 0, 0],
-      }
-    : {
-        width: '*',
-        stack: titleStack,
-      };
-
-  const columns = header.image
-    ? [
-        {
-          width: 120,
-          image: header.image,
-          fit: [120, 120],
-          alignment: 'left',
-          margin: [0, -35, 0, 0],
-        },
-        textColumn,
-      ]
-    : [textColumn];
-
   const nodes: any[] = [
     {
-      columns,
-      columnGap: 16,
+      ...(header.image
+        ? {
+            table: {
+              widths: [120, '*'],
+              body: [
+                [
+                  {
+                    image: header.image,
+                    fit: [120, 120],
+                    alignment: 'left',
+                    valign: 'middle',
+                  },
+                  {
+                    stack: titleStack,
+                    margin: [12, 0, 0, 0],
+                    valign: 'middle',
+                  },
+                ],
+              ],
+            },
+            layout: 'noBorders',
+          }
+        : { stack: titleStack }),
       margin: [0, 0, 0, header.subtitle ? 6 : 16],
     },
   ];

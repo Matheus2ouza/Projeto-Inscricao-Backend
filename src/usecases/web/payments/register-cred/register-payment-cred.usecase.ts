@@ -177,6 +177,7 @@ export class RegisterPaymentCredUsecase
       status: StatusPayment.UNDER_REVIEW,
       totalValue: input.totalValue,
       totalPaid: 0,
+      totalReceived: 0,
       installment: 1,
       methodPayment: PaymentMethod.CARTAO,
       asaasCheckoutId: checkout.id,
@@ -284,7 +285,7 @@ export class RegisterPaymentCredUsecase
           },
         ],
         installment: {
-          maxInstallmentCount: 3,
+          maxInstallmentCount: 2,
         },
         customerData,
       },

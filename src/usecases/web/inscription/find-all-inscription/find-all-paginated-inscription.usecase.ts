@@ -95,15 +95,21 @@ export class FindAllPaginatedInscriptionsUsecase
         this.inscriptionGateway.countAll(event.getId(), filters),
         this.accountParticipantInEventGateway.countParticipantsByEventId(
           event.getId(),
+          input.userId,
         ),
       ]);
 
-    const totalGuestInscription =
-      await this.participantGateway.countAllByEventId(event.getId());
+    let totalGuestInscription: number | undefined = undefined;
+    if (input.userId === undefined) {
+      totalGuestInscription = await this.participantGateway.countAllByEventId(
+        event.getId(),
+      );
+    }
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
     let totalDue = 0;
+    let totalPaid = 0;
     const inscriptionData = await Promise.all(
       inscriptions.map(async (i) => {
         let totalParticipant: number | null = null;
@@ -120,6 +126,9 @@ export class FindAllPaginatedInscriptionsUsecase
             );
         }
 
+        if (input.userId) {
+          totalPaid += Number(i.getTotalPaid() ?? 0);
+        }
         totalDue +=
           Number(i.getTotalValue() ?? 0) - Number(i.getTotalPaid() ?? 0);
         return {
@@ -141,7 +150,7 @@ export class FindAllPaginatedInscriptionsUsecase
       totalInscription,
       totalGuestInscription,
       totalParticipants,
-      totalPaid: event.getAmountCollected(),
+      totalPaid: input.userId ? totalPaid : event.getAmountCollected(),
       totalDue,
       inscriptions: inscriptionData,
     };

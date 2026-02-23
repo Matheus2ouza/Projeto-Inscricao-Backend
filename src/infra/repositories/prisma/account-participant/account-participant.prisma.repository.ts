@@ -80,6 +80,9 @@ export class AccountParticipantPrismaRepository
           },
         },
       },
+      orderBy: {
+        name: 'asc',
+      },
     });
     return find.map(PrismaModelToEntity.map);
   }

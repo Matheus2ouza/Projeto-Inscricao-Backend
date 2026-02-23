@@ -367,15 +367,18 @@ export class Event extends Entity {
   public incrementAmountCollected(amount: number): void {
     this.amountCollected += amount;
     this.updatedAt = new Date();
+    this.validate();
   }
 
   public decrementAmountCollected(amount: number): void {
     this.amountCollected -= amount;
     this.updatedAt = new Date();
+    this.validate();
   }
 
   public updateTicketStatus(ticketEnabled: boolean): void {
     this.ticketEnabled = ticketEnabled;
     this.updatedAt = new Date();
+    this.validate();
   }
 }

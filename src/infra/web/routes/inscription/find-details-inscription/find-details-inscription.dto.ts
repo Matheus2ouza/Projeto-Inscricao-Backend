@@ -1,3 +1,5 @@
+import { genderType } from 'generated/prisma';
+
 export type FindDetailsInscriptionRequest = {
   id: string;
 };
@@ -18,18 +20,20 @@ type Inscription = {
   totalPaid: number;
   totalDebt: number;
   createdAt: Date;
+  expiresAt?: Date;
 };
 
 type Participant = {
   id: string;
-  typeInscription: string | undefined;
-  name: string;
-  birthDate: Date;
-  gender: string;
+  typeInscription?: string;
+  name?: string;
+  birthDate?: Date;
+  gender?: genderType;
 };
 
 type Payment = {
   id: string;
+  paymentId: string;
   value: number;
   createdAt: Date;
 };

@@ -5,10 +5,12 @@ import { Entity } from '../shared/entities/entity';
 export type PaymentInstallmentCreateDto = {
   paymentId: string;
   installmentNumber: number;
+  received?: boolean;
   value: number;
   netValue: number;
   asaasPaymentId?: string;
   financialMovementId?: string;
+  estimatedAt?: Date;
   paidAt: Date;
 };
 
@@ -16,11 +18,13 @@ export type PaymentInstallmentWithDto = {
   id: string;
   paymentId: string;
   installmentNumber: number;
+  received: boolean;
   value: number;
   netValue: number;
   asaasPaymentId?: string;
   financialMovementId?: string;
   paidAt: Date;
+  estimatedAt?: Date;
   createdAt: Date;
 };
 
@@ -29,10 +33,12 @@ export class PaymentInstallment extends Entity {
     id: string,
     private paymentId: string,
     private installmentNumber: number,
+    private received: boolean,
     private value: number,
     private netValue: number,
     private paidAt: Date,
     createdAt: Date,
+    private estimatedAt?: Date,
     private asaasPaymentId?: string,
     private financialMovementId?: string,
   ) {
@@ -43,13 +49,16 @@ export class PaymentInstallment extends Entity {
   public static create({
     paymentId,
     installmentNumber,
+    received,
     value,
     netValue,
     asaasPaymentId,
     financialMovementId,
     paidAt,
+    estimatedAt,
   }: PaymentInstallmentCreateDto): PaymentInstallment {
     const id = Utils.generateUUID();
+    const receivedDefault = received || false;
     const paidAtDefault = paidAt || new Date();
     const createdAt = new Date();
 
@@ -57,10 +66,12 @@ export class PaymentInstallment extends Entity {
       id,
       paymentId,
       installmentNumber,
+      receivedDefault,
       value,
       netValue,
       paidAtDefault,
       createdAt,
+      estimatedAt,
       asaasPaymentId,
       financialMovementId,
     );
@@ -70,21 +81,25 @@ export class PaymentInstallment extends Entity {
     id,
     paymentId,
     installmentNumber,
+    received,
     value,
     netValue,
     asaasPaymentId,
     financialMovementId,
     paidAt,
+    estimatedAt,
     createdAt,
   }: PaymentInstallmentWithDto): PaymentInstallment {
     return new PaymentInstallment(
       id,
       paymentId,
       installmentNumber,
+      received,
       value,
       netValue,
       paidAt,
       createdAt,
+      estimatedAt,
       asaasPaymentId,
       financialMovementId,
     );
@@ -106,6 +121,10 @@ export class PaymentInstallment extends Entity {
     return this.installmentNumber;
   }
 
+  public getReceived(): boolean {
+    return this.received;
+  }
+
   public getValue(): number {
     return this.value;
   }
@@ -125,8 +144,17 @@ export class PaymentInstallment extends Entity {
   public getPaidAt(): Date {
     return this.paidAt;
   }
+  public getEstimatedAt(): Date | undefined {
+    return this.estimatedAt;
+  }
 
   public getCreatedAt(): Date {
     return this.createdAt;
+  }
+
+  public setReceived(received: boolean): void {
+    this.received = received;
+    this.updatedAt = new Date();
+    this.validate();
   }
 }

@@ -7,6 +7,7 @@ import { GuestInscriptionEmailHandler } from './handlers/inscription/guest-inscr
 import { InscriptionEmailHandler } from './handlers/inscription/inscription-email.handler';
 import { InscriptionStatusEmailHandler } from './handlers/inscription/inscription-status-email.handler';
 import { PaymentApprovedEmailHandler } from './handlers/payment/payment-approved-email.handler';
+import { PaymentReceiptUpdateEmailHandler } from './handlers/payment/payment-receipt-update-email.handler';
 import { PaymentRejectedEmailHandler } from './handlers/payment/payment-rejected-email.handler';
 import { PaymentReviewNotificationEmailHandler } from './handlers/payment/payment-review-notification-email.handler';
 import { TicketSaleNotificationEmailHandler } from './handlers/tickets/ticket-sale-notification-email.handler';
@@ -27,6 +28,7 @@ import { MailService } from './mail.service';
     PaymentApprovedEmailHandler,
     PaymentRejectedEmailHandler,
     PaymentReviewNotificationEmailHandler,
+    PaymentReceiptUpdateEmailHandler,
 
     // Tickets
     TicketSaleNotificationEmailHandler,
@@ -47,6 +49,8 @@ import { MailService } from './mail.service';
     PaymentRejectedEmailHandler,
     //Under review
     PaymentReviewNotificationEmailHandler,
+    //Receipt update
+    PaymentReceiptUpdateEmailHandler,
 
     // Tickets
     TicketSaleNotificationEmailHandler,

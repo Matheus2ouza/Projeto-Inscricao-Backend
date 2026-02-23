@@ -51,15 +51,9 @@ export class AccountParticipantInEventPrismaRepository
     return PrismaToEntity.map(accountParticipantInEvent);
   }
 
-  async findParticipantDetailsByInscriptionId(inscriptionId: string): Promise<
-    {
-      participantId: string;
-      name: string;
-      birthDate: Date;
-      gender: genderType;
-      typeInscriptionDescription?: string;
-    }[]
-  > {
+  async findParticipantDetailsByInscriptionId(
+    inscriptionId: string,
+  ): Promise<AccountParticipantInEvent[]> {
     const found = await this.prisma.accountParticipantInEvent.findMany({
       where: { inscriptionId },
       include: {
@@ -71,13 +65,7 @@ export class AccountParticipantInEventPrismaRepository
       orderBy: { createdAt: 'asc' },
     });
 
-    return found.map((item) => ({
-      participantId: item.accountParticipantId,
-      name: item.participant.name,
-      birthDate: item.participant.birthDate,
-      gender: item.participant.gender,
-      typeInscriptionDescription: item.typeInscription?.description,
-    }));
+    return found.map(PrismaToEntity.map);
   }
 
   async findParticipantDetailsByInscriptionIdPaginated(
@@ -201,11 +189,15 @@ export class AccountParticipantInEventPrismaRepository
     });
   }
 
-  async countParticipantsByEventId(eventId: string): Promise<number> {
+  async countParticipantsByEventId(
+    eventId: string,
+    userId?: string,
+  ): Promise<number> {
     const count = await this.prisma.accountParticipantInEvent.count({
       where: {
         inscription: {
           eventId,
+          accountId: userId,
         },
       },
     });

@@ -144,6 +144,7 @@ export class RegisterPaymentPixUsecase
       status: StatusPayment.UNDER_REVIEW,
       totalValue: input.totalValue,
       totalPaid: 0,
+      totalReceived: 0,
       installment: 1,
       methodPayment: PaymentMethod.PIX,
       imageUrl: imagePath,

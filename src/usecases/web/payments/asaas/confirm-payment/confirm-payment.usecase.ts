@@ -25,6 +25,7 @@ export type ConfirmPaymentInput = {
   value: number;
   netValue: number;
   confirmedDate: string;
+  estimatedCreditDate: string;
 };
 
 export type ConfirmPaymentOutput = {
@@ -134,6 +135,7 @@ export class ConfirmPaymentUsecase
       asaasPaymentId: input.asaasPaymentId,
       financialMovementId: financialMovement.getId(),
       paidAt: new Date(input.confirmedDate),
+      estimatedAt: new Date(input.estimatedCreditDate),
     });
 
     await this.paymentInstallmentGateway.create(paymentInstallment);
@@ -141,12 +143,6 @@ export class ConfirmPaymentUsecase
     // Adiciona a parcela paga ao pagamento
     payment.addPaidInstallment(
       paymentInstallment.getValue(),
-      paymentInstallment.getNetValue(),
-    );
-
-    // Atualiza o evento com o valor líquido da parcela
-    await this.eventGateway.incrementAmountCollected(
-      payment.getEventId(),
       paymentInstallment.getNetValue(),
     );
 

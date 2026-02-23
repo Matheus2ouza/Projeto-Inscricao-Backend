@@ -123,6 +123,8 @@ export class MailService {
       import('./templates/payment/payment-rejected/index.js'),
     'payment/payment-review-notification': () =>
       import('./templates/payment/payment-review-notification/index.js'),
+    'payment/payment-receipt-update': () =>
+      import('./templates/payment/payment-receipt-update/index.js'),
     'inscription/inscription-notification': () =>
       import('./templates/inscription/inscription-notification/index.js'),
     'inscription/status-approved': () =>
