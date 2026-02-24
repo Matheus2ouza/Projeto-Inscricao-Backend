@@ -35,7 +35,9 @@ export class PaymentPrismaRepository implements PaymentGateway {
   async findByPaymentLink(paymentLinkId: string): Promise<Payment | null> {
     const found = await this.prisma.payment.findFirst({
       where: {
-        paymentLinkId,
+        paymentLink: {
+          asaasPaymentLinkId: paymentLinkId,
+        },
       },
     });
 
