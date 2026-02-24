@@ -81,6 +81,7 @@ export class AnalysisPaymentsPendingUsecase
         ),
         this.paymentGateway.countAllFiltered(event.getId(), {
           status: [StatusPayment.UNDER_REVIEW],
+          paymentMethod: [PaymentMethod.PIX],
         }),
         this.paymentGateway.countAllInAnalysis(event.getId()),
         this.paymentGateway.countTotalAmountInAnalysis(event.getId()),

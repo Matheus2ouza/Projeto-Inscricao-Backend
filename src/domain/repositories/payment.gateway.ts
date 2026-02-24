@@ -40,6 +40,7 @@ export abstract class PaymentGateway {
     filters?: {
       accountId?: string;
       status?: StatusPayment[];
+      paymentMethod?: PaymentMethod[];
     },
   ): Promise<number>;
   abstract countParticipantByInscriptionId(

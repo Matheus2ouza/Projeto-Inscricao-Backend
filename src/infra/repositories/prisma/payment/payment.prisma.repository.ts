@@ -148,6 +148,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
     filters: {
       accountId?: string;
       status?: StatusPayment[];
+      paymentMethod?: PaymentMethod[];
     },
   ): Promise<number> {
     const where = this.buildWhereClauseEvent(filters);
@@ -177,16 +178,16 @@ export class PaymentPrismaRepository implements PaymentGateway {
   private buildWhereClauseEvent(filter?: {
     accountId?: string;
     status?: StatusPayment[];
-    paymentMethod?: PaymentMethod[];
+    methodPayment?: PaymentMethod[];
   }) {
-    const { accountId, status, paymentMethod } = filter || {};
+    const { accountId, status, methodPayment } = filter || {};
 
     return {
       accountId,
       status: status && status.length > 0 ? { in: status } : undefined,
       paymentMethod:
-        paymentMethod && paymentMethod.length > 0
-          ? { in: paymentMethod }
+        methodPayment && methodPayment.length > 0
+          ? { in: methodPayment }
           : undefined,
     };
   }
@@ -287,6 +288,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
       where: {
         eventId,
         status: StatusPayment.UNDER_REVIEW,
+        methodPayment: PaymentMethod.PIX,
       },
     });
 
@@ -298,6 +300,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
       where: {
         eventId,
         status: StatusPayment.UNDER_REVIEW,
+        methodPayment: PaymentMethod.PIX,
       },
       _sum: {
         totalValue: true,
