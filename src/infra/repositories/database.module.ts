@@ -15,6 +15,7 @@ import { OnSiteRegistrationPrismaRepositoryProvider } from './prisma/on-site-reg
 import { ParticipantPrismaRepositoryProvider } from './prisma/participant/model/participant.prisma.repository.provider';
 import { PaymentAllocationPrismaRepositoryProvider } from './prisma/payment-allocation/model/payment-allocation.prisma.repository.provider';
 import { PaymentInstallmentPrismaRepositoryProvider } from './prisma/payment-installment/model/payment-installment.repository.provider';
+import { PaymentLinkPrismaRepositoryProvider } from './prisma/payment-link/model/payment-link.prisma.repository.provider';
 import { PaymentPrismaRepositoryProvider } from './prisma/payment/model/payment.prisma.repository.provider';
 import { PrismaModule } from './prisma/prisma.module';
 import { RegionPrismaRepositoryProvider } from './prisma/region/model/region.prisma.repository.provider';
@@ -39,6 +40,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     PaymentPrismaRepositoryProvider,
     PaymentAllocationPrismaRepositoryProvider,
     PaymentInstallmentPrismaRepositoryProvider,
+    PaymentLinkPrismaRepositoryProvider,
     FinancialMovementPrismaRepositoryProvider,
     EventTicketPrismaRepositoryProvider,
     EventResponsiblePrismaRepositoryProvider,
@@ -63,6 +65,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     CacheRecordRepositoryProvider,
     PaymentPrismaRepositoryProvider,
     PaymentInstallmentPrismaRepositoryProvider,
+    PaymentLinkPrismaRepositoryProvider,
     PaymentAllocationPrismaRepositoryProvider,
     FinancialMovementPrismaRepositoryProvider,
     EventTicketPrismaRepositoryProvider,

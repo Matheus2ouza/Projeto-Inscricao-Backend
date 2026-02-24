@@ -15,6 +15,7 @@ async function bootstrap() {
       'https://sistema-inscricao-five.vercel.app',
       'http://localhost:3333',
       'http://localhost:8081',
+      'https://localhost:3333',
       'http://172.18.208.1:3333',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

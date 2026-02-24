@@ -9,6 +9,7 @@ export class FindDetailsInscriptionPresenter {
       inscription: input.inscription,
       participants: input.participants,
       payments: input.payments,
+      paymentLink: input.paymentLink,
     };
     return aInscription;
   }

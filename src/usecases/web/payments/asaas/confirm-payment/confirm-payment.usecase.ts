@@ -19,6 +19,7 @@ import { PaymentNotFoundUsecaseException } from 'src/usecases/web/exceptions/pay
 
 export type ConfirmPaymentInput = {
   checkoutSession: string;
+  paymentLink: string;
   asaasPaymentId: string;
   description: string | null;
   installmentNumber: number | null;
@@ -57,17 +58,28 @@ export class ConfirmPaymentUsecase
     const installmentNumber = input.installmentNumber ?? 1;
     const description = input.description ?? '';
     this.logger.log(
+      `Iniciando confirmação de pagamento para sessão: ${input.checkoutSession}`,
+    );
+    this.logger.log(
       `Confirmando parcela ${installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
     );
 
     // Busca o pagamento pelo checkoutSession
-    const payment = await this.paymentGateway.findByAsaasCheckout(
+    let payment = await this.paymentGateway.findByAsaasCheckout(
       input.checkoutSession,
     );
 
+    // Caso não encontre pelo checkoutSession, tentar pelo paymentLink
+    if (!payment) {
+      this.logger.warn(
+        `Pagamento não encontrado via checkout session: ${input.checkoutSession}. Tentando via paymentLink: ${input.paymentLink}`,
+      );
+      payment = await this.paymentGateway.findByPaymentLink(input.paymentLink);
+    }
+
     if (!payment) {
       throw new PaymentNotFoundUsecaseException(
-        `Payment with checkoutSession ${input.checkoutSession} not found.`,
+        `Payment not found with checkoutSession ${input.checkoutSession} and paymentLink ${input.paymentLink}.`,
         `Pagamento não encontrado.`,
         ConfirmPaymentUsecase.name,
       );

@@ -11,6 +11,7 @@ export abstract class PaymentGateway {
   abstract findByAsaasCheckout(
     asaasCheckoutId: string,
   ): Promise<Payment | null>;
+  abstract findByPaymentLink(paymentLinkId: string): Promise<Payment | null>;
   abstract findByExternalReference(
     externalReference: string,
   ): Promise<Payment | null>;
@@ -30,6 +31,7 @@ export abstract class PaymentGateway {
   ): Promise<Payment[]>;
   abstract findAllByInscriptionId(inscriptionId: string): Promise<Payment[]>;
   abstract findByInscriptionId(inscriptionId: string): Promise<Payment | null>;
+  abstract findResponsible(id: string): Promise<string | undefined>;
 
   // Agregações e contagens
   abstract countAllFiltered(

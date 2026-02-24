@@ -6,6 +6,7 @@ export type ConfirmPaymentRequest = {
 export type PaymentData = {
   id: string;
   checkoutSession: string;
+  paymentLink: string;
   description: string | null;
   installmentNumber: number | null;
   value: number;

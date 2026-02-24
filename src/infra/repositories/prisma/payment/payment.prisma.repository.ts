@@ -32,6 +32,16 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
+  async findByPaymentLink(paymentLinkId: string): Promise<Payment | null> {
+    const found = await this.prisma.payment.findFirst({
+      where: {
+        paymentLinkId,
+      },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findByExternalReference(
     externalReference: string,
   ): Promise<Payment | null> {
@@ -107,6 +117,23 @@ export class PaymentPrismaRepository implements PaymentGateway {
       },
     });
     return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findResponsible(id: string): Promise<string | undefined> {
+    const responsible = await this.prisma.payment.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        account: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    return responsible?.account?.username;
   }
 
   // Agregações e contagens

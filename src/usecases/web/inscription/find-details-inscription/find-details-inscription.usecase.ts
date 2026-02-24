@@ -5,6 +5,7 @@ import { AccountParticipantGateway } from 'src/domain/repositories/account-parti
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
+import { PaymentLinkGateway } from 'src/domain/repositories/payment-link.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
@@ -17,6 +18,7 @@ export type FindDetailsInscriptionOutput = {
   inscription: Inscription;
   participants: ParticipantAllocation[];
   payments: Payment[];
+  paymentLink?: PaymentLink;
 };
 
 type Inscription = {
@@ -47,6 +49,12 @@ type Payment = {
   createdAt: Date;
 };
 
+type PaymentLink = {
+  id: string;
+  url: string;
+  active: boolean;
+};
+
 @Injectable()
 export class FindDetailsInscriptionUsecase
   implements Usecase<FindDetailsInscriptionInput, FindDetailsInscriptionOutput>
@@ -58,6 +66,7 @@ export class FindDetailsInscriptionUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly paymentLinkGateway: PaymentLinkGateway,
   ) {}
 
   public async execute(
@@ -91,6 +100,29 @@ export class FindDetailsInscriptionUsecase
         return payment;
       }),
     );
+
+    const paymentIdForPaymentLink =
+      payments.length === 0
+        ? undefined
+        : payments
+            .reduce((latest, current) => {
+              return current.getCreatedAt() > latest.getCreatedAt()
+                ? current
+                : latest;
+            })
+            .getPaymentId();
+
+    const paymentLinkEntity = paymentIdForPaymentLink
+      ? await this.paymentLinkGateway.findByPaymentId(paymentIdForPaymentLink)
+      : null;
+
+    const paymentLink = paymentLinkEntity
+      ? {
+          id: paymentLinkEntity.getId(),
+          url: paymentLinkEntity.getUrl(),
+          active: paymentLinkEntity.getActive(),
+        }
+      : undefined;
 
     let participantsData: ParticipantAllocation[] = [];
     if (!inscription.getIsGuest()) {
@@ -156,6 +188,7 @@ export class FindDetailsInscriptionUsecase
       },
       payments: enrichedPayments,
       participants: participantsData,
+      paymentLink,
     };
 
     return output;

@@ -15,7 +15,7 @@ export class PaymentInstallmentPrismaModelToEntityMapper {
       asaasPaymentId: paymentInstallment.asaasPaymentId || undefined,
       financialMovementId: paymentInstallment.financialMovementId || undefined,
       paidAt: paymentInstallment.paidAt,
-      estimatedAt: paymentInstallment.estimatedAt || undefined,
+      estimatedAt: paymentInstallment.estimatedAt,
       createdAt: paymentInstallment.createdAt,
     });
   }

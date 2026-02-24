@@ -10,7 +10,7 @@ export type PaymentInstallmentCreateDto = {
   netValue: number;
   asaasPaymentId?: string;
   financialMovementId?: string;
-  estimatedAt?: Date;
+  estimatedAt: Date;
   paidAt: Date;
 };
 
@@ -24,7 +24,7 @@ export type PaymentInstallmentWithDto = {
   asaasPaymentId?: string;
   financialMovementId?: string;
   paidAt: Date;
-  estimatedAt?: Date;
+  estimatedAt: Date;
   createdAt: Date;
 };
 
@@ -37,8 +37,8 @@ export class PaymentInstallment extends Entity {
     private value: number,
     private netValue: number,
     private paidAt: Date,
+    private estimatedAt: Date,
     createdAt: Date,
-    private estimatedAt?: Date,
     private asaasPaymentId?: string,
     private financialMovementId?: string,
   ) {
@@ -70,8 +70,8 @@ export class PaymentInstallment extends Entity {
       value,
       netValue,
       paidAtDefault,
-      createdAt,
       estimatedAt,
+      createdAt,
       asaasPaymentId,
       financialMovementId,
     );
@@ -98,8 +98,8 @@ export class PaymentInstallment extends Entity {
       value,
       netValue,
       paidAt,
-      createdAt,
       estimatedAt,
+      createdAt,
       asaasPaymentId,
       financialMovementId,
     );
@@ -144,7 +144,7 @@ export class PaymentInstallment extends Entity {
   public getPaidAt(): Date {
     return this.paidAt;
   }
-  public getEstimatedAt(): Date | undefined {
+  public getEstimatedAt(): Date {
     return this.estimatedAt;
   }
 

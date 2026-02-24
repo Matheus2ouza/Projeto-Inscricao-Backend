@@ -23,6 +23,7 @@ export class PaymentEntityToPaymentPrismaModelMapper {
       rejectionReason: payment.getRejectionReason() || null,
       imageUrl: payment.getImageUrl() || null,
       asaasCheckoutId: payment.getAsaasCheckoutId() || null,
+      paymentLinkId: payment.getPaymentLinkId() || null,
       externalReference: payment.getExternalReference() || null,
       approvedBy: payment.getApprovedBy() || null,
       createdAt: payment.getCreatedAt(),
