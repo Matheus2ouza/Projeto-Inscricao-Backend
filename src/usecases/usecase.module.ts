@@ -80,7 +80,9 @@ import { ConfirmPaymentUsecase } from './web/payments/asaas/confirm-payment/conf
 import { PaymentCanceledUseCase } from './web/payments/asaas/payment-canceled/payment-canceled.usecase';
 import { PaymentReceivedUsecase } from './web/payments/asaas/payment-received/payment-received.usecase';
 import { PaymentReprovedUsecase } from './web/payments/asaas/payment-reproved/payment-reproved.usecase';
+import { CreatePaymentLinkUsecase } from './web/payments/create-payment-link/create-payment-link.usecase';
 import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.usecase';
+import { FindPaymentsDatesUsecase } from './web/payments/find-payments-dates/find-payments-dates.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
@@ -232,8 +234,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
+    FindPaymentsDatesUsecase,
+
+    // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
+    CreatePaymentLinkUsecase,
+
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     PaymentsDetailsUsecase,
@@ -388,8 +395,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
     ListPaymentPendingDetailsUsecase,
+    FindPaymentsDatesUsecase,
+
+    // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
+    CreatePaymentLinkUsecase,
+
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
     PaymentsDetailsUsecase,

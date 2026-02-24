@@ -8,6 +8,7 @@ export type FindDetailsInscriptionResponse = {
   inscription: Inscription;
   participants: Participant[];
   payments: Payment[];
+  paymentLink?: PaymentLink;
 };
 
 type Inscription = {
@@ -36,4 +37,10 @@ type Payment = {
   paymentId: string;
   value: number;
   createdAt: Date;
+};
+
+type PaymentLink = {
+  id: string;
+  url: string;
+  active: boolean;
 };

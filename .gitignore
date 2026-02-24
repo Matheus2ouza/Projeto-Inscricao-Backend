@@ -324,3 +324,6 @@ estrutura.txt
 postgres-data
 .vercel
 .env*.local
+
+
+/scripts*

@@ -14,7 +14,7 @@ export class PaymentInstallmentEntityToPrismaModelMapper {
       asaasPaymentId: entity.getAsaasPaymentId() ?? null,
       financialMovementId: entity.getFinancialMovementId() ?? null,
       paidAt: entity.getPaidAt(),
-      estimatedAt: entity.getEstimatedAt() ?? null,
+      estimatedAt: entity.getEstimatedAt(),
       createdAt: entity.getCreatedAt(),
     };
   }

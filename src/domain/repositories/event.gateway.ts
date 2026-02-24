@@ -28,6 +28,7 @@ export abstract class EventGateway {
   // Buscas e listagens
   abstract findById(id: string): Promise<Event | null>;
   abstract findByRegion(regionId: string): Promise<Event[]>;
+  abstract findByPaymentId(paymentId: string): Promise<Event | null>;
   abstract findByNameAndRegionId(
     name: string,
     regionId: string,

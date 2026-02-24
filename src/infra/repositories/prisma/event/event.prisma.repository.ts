@@ -149,6 +149,20 @@ export class EventPrismaRepository implements EventGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  async findByPaymentId(paymentId: string): Promise<Event | null> {
+    const found = await this.prisma.events.findFirst({
+      where: {
+        payments: {
+          some: {
+            id: paymentId,
+          },
+        },
+      },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findRegionById(regionId: string): Promise<Region | null> {
     const found = await this.prisma.regions.findUnique({
       where: { id: regionId },

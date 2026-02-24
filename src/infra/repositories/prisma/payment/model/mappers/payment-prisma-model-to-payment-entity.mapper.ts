@@ -21,6 +21,7 @@ export class PaymentPrismaModelToPaymentEntityMapper {
       paidInstallments: payment.paidInstallments || 0,
       imageUrl: payment.imageUrl || undefined,
       asaasCheckoutId: payment.asaasCheckoutId || undefined,
+      paymentLinkId: payment.paymentLinkId || undefined,
       externalReference: payment.externalReference || undefined,
       createdAt: payment.createdAt,
       updatedAt: payment.updatedAt,

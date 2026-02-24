@@ -337,6 +337,12 @@ export class Inscription extends Entity {
     }
   }
 
+  public incrementeTotalPaid(value: number): void {
+    this.totalPaid += value;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
   public decrementTotalPaid(value: number): void {
     this.totalPaid -= value;
     this.updatedAt = new Date();

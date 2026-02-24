@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMethod } from 'generated/prisma';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentInstallmentEntityToPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/payment-installment/model/mappers/payment-installment-entity-to-payment-installment-prisma-model.mapper';
@@ -58,6 +59,21 @@ export class PaymentInstallmentPrismaRepository
     const found = await this.prisma.paymentInstallment.findMany({
       where: { paymentId },
     });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByRegionId(regionId: string): Promise<PaymentInstallment[]> {
+    const found = await this.prisma.paymentInstallment.findMany({
+      where: {
+        payment: {
+          event: {
+            regionId,
+          },
+          methodPayment: PaymentMethod.CARTAO,
+        },
+      },
+    });
+
     return found.map(PrismaToEntity.map);
   }
 }

@@ -17,6 +17,7 @@ export type PaymentCreateDto = {
   totalReceived: number;
   installment: number;
   asaasCheckoutId?: string;
+  paymentLinkId?: string;
   externalReference?: string;
   imageUrl?: string;
 };
@@ -40,6 +41,7 @@ export type PaymentWithDto = {
   rejectionReason?: string;
   imageUrl?: string;
   asaasCheckoutId?: string;
+  paymentLinkId?: string;
   externalReference?: string;
   approvedBy?: string;
   createdAt: Date;
@@ -67,6 +69,7 @@ export class Payment extends Entity {
     private isGuest?: boolean,
     private imageUrl?: string,
     private asaasCheckoutId?: string,
+    private paymentLinkId?: string,
     private externalReference?: string,
     private rejectionReason?: string,
     private approvedBy?: string,
@@ -89,6 +92,7 @@ export class Payment extends Entity {
     installment,
     imageUrl,
     asaasCheckoutId,
+    paymentLinkId,
     externalReference,
     methodPayment,
   }: PaymentCreateDto): Payment {
@@ -132,6 +136,7 @@ export class Payment extends Entity {
       isGuest,
       imageUrl,
       asaasCheckoutId,
+      paymentLinkId,
       externalReference,
     );
   }
@@ -154,6 +159,7 @@ export class Payment extends Entity {
     paidInstallments,
     imageUrl,
     asaasCheckoutId,
+    paymentLinkId,
     externalReference,
     createdAt,
     updatedAt,
@@ -180,6 +186,7 @@ export class Payment extends Entity {
       isGuest,
       imageUrl,
       asaasCheckoutId,
+      paymentLinkId,
       externalReference,
       rejectionReason,
       approvedBy,
@@ -256,6 +263,10 @@ export class Payment extends Entity {
 
   public getAsaasCheckoutId(): string | undefined {
     return this.asaasCheckoutId;
+  }
+
+  public getPaymentLinkId(): string | undefined {
+    return this.paymentLinkId;
   }
 
   public getExternalReference(): string | undefined {

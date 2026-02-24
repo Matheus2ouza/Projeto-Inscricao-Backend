@@ -45,6 +45,7 @@ export class ConfirmPaymentRoute {
     if (body.event === 'PAYMENT_CONFIRMED') {
       const input: ConfirmPaymentInput = {
         checkoutSession: body.payment.checkoutSession,
+        paymentLink: body.payment.paymentLink,
         asaasPaymentId: body.payment.id,
         description: body.payment.description,
         installmentNumber: body.payment.installmentNumber,

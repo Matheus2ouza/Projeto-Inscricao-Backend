@@ -90,7 +90,9 @@ import { ConfirmPaymentRoute } from './routes/payments/assas/confirm-payment/con
 import { PaymentCanceledRoute } from './routes/payments/assas/payment-canceled/payment-canceled.route';
 import { PaymentReceivedRoute } from './routes/payments/assas/payment-received/payment-received.route';
 import { PaymentReprovedRoute } from './routes/payments/assas/payment-reproved/payment-reproved.route';
+import { CreatePaymentLinkRoute } from './routes/payments/create-payment-link/create-payment-link.route';
 import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.route';
+import { FindPaymentsDatesRoute } from './routes/payments/find-payments-dates/find-payments-dates.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
@@ -248,8 +250,13 @@ import { WelcomeRoute } from './routes/welcome.route';
     ListAllPaymentsRoute,
     ListAllPaymentsPendingRoute,
     ListPaymentPendingDetailsRoute,
+    FindPaymentsDatesRoute,
+
+    // Payment Creates
     RegisterPaymentPixRoute,
     RegisterPaymentCredRoute,
+    CreatePaymentLinkRoute,
+
     DeletePaymentRoute,
     AnalysisPaymentsPendingRoute,
     PaymentsDetailsRoute,
