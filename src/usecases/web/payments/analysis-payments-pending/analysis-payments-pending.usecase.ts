@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { StatusPayment } from 'generated/prisma';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
@@ -76,6 +76,7 @@ export class AnalysisPaymentsPendingUsecase
           safePageSize,
           {
             status: [StatusPayment.UNDER_REVIEW],
+            paymentMethod: [PaymentMethod.PIX],
           },
         ),
         this.paymentGateway.countAllFiltered(event.getId(), {
