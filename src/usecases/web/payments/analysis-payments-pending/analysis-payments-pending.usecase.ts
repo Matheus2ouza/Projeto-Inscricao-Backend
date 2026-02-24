@@ -76,7 +76,7 @@ export class AnalysisPaymentsPendingUsecase
           safePageSize,
           {
             status: [StatusPayment.UNDER_REVIEW],
-            paymentMethod: [PaymentMethod.PIX],
+            methodPayment: [PaymentMethod.PIX],
           },
         ),
         this.paymentGateway.countAllFiltered(event.getId(), {

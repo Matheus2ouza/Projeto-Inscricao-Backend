@@ -60,7 +60,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
     filter?: {
       accountId?: string;
       status?: StatusPayment[];
-      paymentMethod?: PaymentMethod[];
+      methodPayment?: PaymentMethod[];
     },
   ): Promise<Payment[]> {
     const skip = (page - 1) * pageSize;

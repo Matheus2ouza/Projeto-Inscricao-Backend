@@ -22,7 +22,7 @@ export abstract class PaymentGateway {
     filter?: {
       accountId?: string;
       status?: StatusPayment[];
-      paymentMethod?: PaymentMethod[];
+      methodPayment?: PaymentMethod[];
     },
   ): Promise<Payment[]>;
   abstract findAllByInscriptionIdPaginated(
