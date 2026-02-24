@@ -8,6 +8,7 @@ import {
 } from 'generated/prisma';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
+import { Payment } from 'src/domain/entities/payment.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -18,8 +19,8 @@ import { Usecase } from 'src/usecases/usecase';
 import { PaymentNotFoundUsecaseException } from 'src/usecases/web/exceptions/payment/payment-not-found.usecase.exception';
 
 export type ConfirmPaymentInput = {
-  checkoutSession: string;
-  paymentLink: string;
+  checkoutSession: string | null;
+  paymentLink: string | null;
   asaasPaymentId: string;
   description: string | null;
   installmentNumber: number | null;
@@ -64,17 +65,24 @@ export class ConfirmPaymentUsecase
       `Confirmando parcela ${installmentNumber} - Asaas ID: ${input.asaasPaymentId}`,
     );
 
-    // Busca o pagamento pelo checkoutSession
-    let payment = await this.paymentGateway.findByAsaasCheckout(
-      input.checkoutSession,
-    );
+    let payment: Payment | null = null;
+
+    if (input.checkoutSession) {
+      payment = await this.paymentGateway.findByAsaasCheckout(
+        input.checkoutSession,
+      );
+    }
 
     // Caso não encontre pelo checkoutSession, tentar pelo paymentLink
     if (!payment) {
       this.logger.warn(
         `Pagamento não encontrado via checkout session: ${input.checkoutSession}. Tentando via paymentLink: ${input.paymentLink}`,
       );
-      payment = await this.paymentGateway.findByPaymentLink(input.paymentLink);
+      if (input.paymentLink) {
+        payment = await this.paymentGateway.findByPaymentLink(
+          input.paymentLink,
+        );
+      }
     }
 
     if (!payment) {
@@ -112,6 +120,27 @@ export class ConfirmPaymentUsecase
     if (installmentAlreadyPaid) {
       this.logger.warn(
         `Parcela ${input.installmentNumber} já foi paga anteriormente!`,
+      );
+      return {
+        id: payment.getId(),
+        status: payment.getStatus(),
+        totalValue: payment.getTotalValue(),
+        totalPaid: payment.getTotalPaid(),
+        totalNetValue: payment.getTotalNetValue(),
+        paidInstallments: payment.getPaidInstallments(),
+        installments: payment.getInstallments(),
+      };
+    }
+
+    const installmentsAlreadyRegistered =
+      await this.paymentInstallmentGateway.findByPaymentId(payment.getId());
+    const installmentAlreadyRegistered = installmentsAlreadyRegistered.find(
+      (i) => i.getInstallmentNumber() === installmentNumber,
+    );
+
+    if (installmentAlreadyRegistered) {
+      this.logger.warn(
+        `Parcela ${installmentNumber} já registrada para o pagamento ${payment.getId()}. Ignorando.`,
       );
       return {
         id: payment.getId(),
