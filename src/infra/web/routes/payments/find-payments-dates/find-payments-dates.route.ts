@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
+import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import {
   UserInfo,
   type UserInfoType,
 } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   FindPaymentsDatesInput,
   FindPaymentsDatesUsecase,
@@ -16,6 +18,7 @@ export class FindPaymentsDatesRoute {
     private readonly findPaymentsDatesUsecase: FindPaymentsDatesUsecase,
   ) {}
 
+  @Roles(RoleTypeHierarchy.MANAGER)
   @Get('dates')
   async handle(
     @UserInfo() userInfo: UserInfoType,
