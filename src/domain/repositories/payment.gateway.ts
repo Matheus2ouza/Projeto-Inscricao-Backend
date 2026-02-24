@@ -1,4 +1,4 @@
-import { StatusPayment } from 'generated/prisma';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { PaymentsSummary } from 'src/usecases/web/payments/list-all-payments/list-all-payments.usecase';
 import { Payment } from '../entities/payment.entity';
 
@@ -22,6 +22,7 @@ export abstract class PaymentGateway {
     filter?: {
       accountId?: string;
       status?: StatusPayment[];
+      paymentMethod?: PaymentMethod[];
     },
   ): Promise<Payment[]>;
   abstract findAllByInscriptionIdPaginated(

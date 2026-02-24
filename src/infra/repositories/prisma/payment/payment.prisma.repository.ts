@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { StatusPayment } from 'generated/prisma';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { Payment } from 'src/domain/entities/payment.entity';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { PaymentEntityToPaymentPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/payment/model/mappers/payment-entity-to-payment-prisma-model.mapper';
@@ -57,7 +57,11 @@ export class PaymentPrismaRepository implements PaymentGateway {
     eventId: string,
     page: number,
     pageSize: number,
-    filter?: { accountId?: string; status?: StatusPayment[] },
+    filter?: {
+      accountId?: string;
+      status?: StatusPayment[];
+      paymentMethod?: PaymentMethod[];
+    },
   ): Promise<Payment[]> {
     const skip = (page - 1) * pageSize;
     const where = this.buildWhereClauseEvent(filter);
@@ -173,12 +177,17 @@ export class PaymentPrismaRepository implements PaymentGateway {
   private buildWhereClauseEvent(filter?: {
     accountId?: string;
     status?: StatusPayment[];
+    paymentMethod?: PaymentMethod[];
   }) {
-    const { accountId, status } = filter || {};
+    const { accountId, status, paymentMethod } = filter || {};
 
     return {
       accountId,
       status: status && status.length > 0 ? { in: status } : undefined,
+      paymentMethod:
+        paymentMethod && paymentMethod.length > 0
+          ? { in: paymentMethod }
+          : undefined,
     };
   }
 
