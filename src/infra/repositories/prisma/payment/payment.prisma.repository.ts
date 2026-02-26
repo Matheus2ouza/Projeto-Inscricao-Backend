@@ -185,7 +185,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return {
       accountId,
       status: status && status.length > 0 ? { in: status } : undefined,
-      paymentMethod:
+      methodPayment:
         methodPayment && methodPayment.length > 0
           ? { in: methodPayment }
           : undefined,

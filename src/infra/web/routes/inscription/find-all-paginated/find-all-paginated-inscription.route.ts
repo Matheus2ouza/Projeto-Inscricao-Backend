@@ -8,7 +8,7 @@ import {
   FindAllPaginatedInscriptionsUsecase,
 } from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import {
-  FindAllPaginatedInscriptionRequest,
+  type FindAllPaginatedInscriptionRequest,
   FindAllPaginatedInscriptionResponse,
 } from './find-all-paginated-inscription.dto';
 import { FindAllPaginatedInscriptionPresenter } from './find-all-paginated-inscription.presenter';
@@ -35,11 +35,13 @@ export class FindAllPaginatedInscriptionsRoute {
     const input: FindAllPaginatedInscriptionInput = {
       eventId: param.eventId,
       userId: user.userRole === roleType.USER ? user.userId : undefined,
-      page: query.page,
-      pageSize: query.pageSize,
-      isGuest: user.userRole !== roleType.USER ? query.isGuest : false,
+      status: query.status,
+      isGuest:
+        user.userRole !== roleType.USER ? query.isGuest === 'true' : false,
       orderBy: query.orderBy || 'desc',
       limitTime: query.limitTime,
+      page: query.page,
+      pageSize: query.pageSize,
     };
 
     const response =

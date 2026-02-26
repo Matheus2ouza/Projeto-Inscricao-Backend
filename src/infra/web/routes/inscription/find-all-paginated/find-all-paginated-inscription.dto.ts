@@ -1,16 +1,14 @@
-import { Type } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { InscriptionStatus } from 'generated/prisma';
 
-export class FindAllPaginatedInscriptionRequest {
+export type FindAllPaginatedInscriptionRequest = {
   eventId: string;
-  @IsOptional()
-  @Type(() => Boolean)
-  isGuest?: boolean;
+  status: InscriptionStatus[];
+  isGuest?: string | boolean;
   orderBy?: 'asc' | 'desc';
   limitTime?: string;
   page: number;
   pageSize: number;
-}
+};
 
 export type FindAllPaginatedInscriptionResponse = {
   event: Event;

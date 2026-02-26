@@ -1,4 +1,5 @@
 import { Body, Controller, Param, Patch } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   UpdatePaymentReceiptInput,
   UpdatePaymentReceiptUsecase,
@@ -15,6 +16,7 @@ export class UpdatePaymentReceiptRoute {
     private readonly updatePaymentReceiptUsecase: UpdatePaymentReceiptUsecase,
   ) {}
 
+  @IsPublic()
   @Patch(':paymentId/receipt')
   async handle(
     @Param() param: UpdatePaymentReceiptResquest,

@@ -18,7 +18,7 @@ export class DeleteInscriptionRoute {
     private readonly deleteInscriptionUsecase: DeleteInscriptionUsecase,
   ) {}
 
-  @Delete(':id')
+  @Delete(':inscriptionId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Exclui uma inscrição',
@@ -36,7 +36,7 @@ export class DeleteInscriptionRoute {
   })
   async handle(@Param() param: DeleteInscriptionRequest): Promise<void> {
     const input: DeleteInscriptionInput = {
-      id: param.id,
+      inscriptionId: param.inscriptionId,
     };
     await this.deleteInscriptionUsecase.execute(input);
   }

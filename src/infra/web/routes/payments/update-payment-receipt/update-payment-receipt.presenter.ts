@@ -7,7 +7,7 @@ export class UpdatePaymentReceipitPresenter {
   ): UpdatePaymentReceiptResponse {
     return {
       paymentId: output.paymentId,
-      imageUrl: output.imageUrl,
+      image: output.image,
     };
   }
 }

@@ -8,6 +8,7 @@ import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { PaymentReceiptUpdateEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-receipt-update-email.handler';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { UserInfoType } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
@@ -15,13 +16,14 @@ import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/paymen
 
 export type UpdatePaymentReceiptInput = {
   paymentId: string;
+  user?: UserInfoType;
   isGuest: boolean;
   image: string;
 };
 
 export type UpdatePaymentReceiptOutput = {
   paymentId: string;
-  imageUrl: string;
+  image: string;
 };
 
 @Injectable()
@@ -62,15 +64,14 @@ export class UpdatePaymentReceiptUsecase
     );
 
     // Atualiza a imagem do pagamento, passando a nova URL do pagamento
-    // e definindo o status do pagamento como 'UNDER_REVIEW'
-    payment.updateImage(imagePath);
+    payment.updateImage(imagePath, payment.getStatus());
     await this.paymentGateway.update(payment);
 
     await this.notifyEventResponsiblesAboutPaymentReceiptUpdate(payment);
 
     const output: UpdatePaymentReceiptOutput = {
       paymentId: payment.getId(),
-      imageUrl: payment.getImageUrl()!,
+      image: payment.getImageUrl()!,
     };
 
     return output;

@@ -347,9 +347,9 @@ export class Payment extends Entity {
     this.validate();
   }
 
-  public updateImage(imageUrl: string): void {
+  public updateImage(imageUrl: string, status: StatusPayment): void {
     this.imageUrl = imageUrl;
-    this.status = StatusPayment.UNDER_REVIEW;
+    this.status = StatusPayment.REFUSED ? StatusPayment.UNDER_REVIEW : status;
     this.updatedAt = new Date();
     this.validate();
   }

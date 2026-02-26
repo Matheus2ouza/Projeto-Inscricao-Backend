@@ -21,7 +21,6 @@ model Accounts {
   imageUrl  String?
   region    Regions? @relation(fields: [regionId], references: [id])
 
-  CacheRecords         CacheRecords[]
   responsibleForEvents EventResponsibles[]
   FinancialMovement    FinancialMovement[]
   Inscription          Inscription[]
@@ -190,19 +189,6 @@ model Participant {
   typeInscription   TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
 
   @@map("participants")
-}
-
-model CacheRecords {
-  id        String    @id @default(uuid())
-  cacheKey  String    @unique
-  accountId String    @map("account_id")
-  expiresAt DateTime?
-  createdAt DateTime  @default(now()) @map("created_at")
-  payload   Json
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  account   Accounts  @relation(fields: [accountId], references: [id])
-
-  @@map("cache_records")
 }
 
 model OnSiteRegistration {

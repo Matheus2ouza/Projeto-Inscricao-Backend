@@ -1,4 +1,5 @@
 import { Controller, Delete, HttpCode, Param } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   DeletePaymentInput,
   DeletePaymentUsecase,
@@ -9,6 +10,7 @@ import type { DeletePaymentRequest } from './delete-payment.dto';
 export class DeletePaymentRoute {
   constructor(private readonly deletePaymentUsecase: DeletePaymentUsecase) {}
 
+  @IsPublic()
   @Delete('/:id')
   @HttpCode(204)
   async handle(@Param() param: DeletePaymentRequest): Promise<void> {

@@ -221,9 +221,11 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     page: number,
     pageSize: number,
     filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       accountId?: string;
-      orderBy: 'asc' | 'desc';
+      orderBy?: 'asc' | 'desc';
+      limitTime?: string;
     },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
@@ -247,7 +249,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     pageSize: number,
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
-
     const modals = await this.prisma.inscription.findMany({
       skip,
       take: pageSize,
@@ -378,6 +379,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countAll(
     eventId: string,
     filters: {
+      status: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;
@@ -666,27 +668,26 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return countParticipants + countAccountParticipants;
   }
 
-  // Métodos privados
-  private buildWhereClause(filters: { limitTime?: string }) {
-    const { limitTime } = filters || {};
-
-    return {
-      limitTime,
-    };
-  }
-
   private buildWhereClauseInscription(filters?: {
     isGuest?: boolean;
-    status?: InscriptionStatus[];
+    status?: InscriptionStatus | InscriptionStatus[];
     accountId?: string;
     limitTime?: string;
   }) {
     const { isGuest, status, accountId, limitTime } = filters || {};
+
+    const statusArray = status
+      ? Array.isArray(status)
+        ? status
+        : [status]
+      : [];
+
     return {
       isGuest,
-      status: status ? { in: status } : undefined,
+      status:
+        statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
       accountId,
-      limitTime,
+      createdAt: limitTime ? { gte: new Date(limitTime) } : undefined,
     };
   }
 

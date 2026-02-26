@@ -1,3 +1,3 @@
 export type DeleteInscriptionRequest = {
-  id: string;
+  inscriptionId: string;
 };
