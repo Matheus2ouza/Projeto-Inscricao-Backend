@@ -14,6 +14,7 @@ import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-sto
 import { Usecase } from 'src/usecases/usecase';
 import { CardPaymentDeletionNotAllowedUsecaseException } from '../../exceptions/payment/card-payment-deletion-not-allowed.usecase.exception';
 import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
+import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/paymentInscription/overpayment-not-allowed.usecase.exception';
 
 export type DeletePaymentInput = {
   id: string;
@@ -46,6 +47,14 @@ export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
       throw new CardPaymentDeletionNotAllowedUsecaseException(
         `Attempted to delete a card payment with id ${input.id}`,
         'Para excluir um pagamento com método de cartão, é necessário entrar em contato com o suporte',
+        DeletePaymentUsecase.name,
+      );
+    }
+
+    if (payment.getStatus() === StatusPayment.APPROVED) {
+      throw new OverpaymentNotAllowedUsecaseException(
+        `An attempt to delete a payment, but it had already been approved: ${payment.getId()}`,
+        `Seu pagamento já foi aprovado, para apaga-lo entre em contato com o suporte`,
         DeletePaymentUsecase.name,
       );
     }
@@ -129,7 +138,6 @@ export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
 
     // Deleta a imagem do pagamento do bucket do supabase
     await this.supabaseStorageService.deleteFile(payment.getImageUrl());
-
     // Deleta o pagamento
     await this.paymentGateway.delete(payment.getId());
   }

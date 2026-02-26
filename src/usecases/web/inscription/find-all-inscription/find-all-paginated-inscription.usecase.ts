@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -10,7 +11,8 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 export type FindAllPaginatedInscriptionInput = {
   eventId: string;
   userId?: string;
-  isGuest?: boolean;
+  status: InscriptionStatus[];
+  isGuest?: string | boolean;
   orderBy?: 'asc' | 'desc';
   limitTime?: string;
   page: number;
@@ -77,9 +79,15 @@ export class FindAllPaginatedInscriptionsUsecase
       );
     }
 
+    let isGuest: boolean | undefined = undefined;
+    if (Boolean(input.isGuest === false)) {
+      isGuest = false;
+    }
+
     const filters = {
+      status: input.status,
       limitTime: input.limitTime,
-      isGuest: input.isGuest,
+      isGuest,
       accountId: input.userId,
       orderBy: input.orderBy,
     };

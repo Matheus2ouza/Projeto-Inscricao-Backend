@@ -7,7 +7,7 @@ import { InscriptionHasPaymentUsecaseException } from 'src/usecases/web/exceptio
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 
 export type DeleteInscriptionInput = {
-  id: string;
+  inscriptionId: string;
 };
 
 @Injectable()
@@ -20,11 +20,13 @@ export class DeleteInscriptionUsecase {
   ) {}
 
   async execute(input: DeleteInscriptionInput) {
-    const inscription = await this.inscriptionGateway.findById(input.id);
+    const inscription = await this.inscriptionGateway.findById(
+      input.inscriptionId,
+    );
 
     if (!inscription) {
       throw new InscriptionNotFoundUsecaseException(
-        `attempt to search for registration data for analysis but the registration was not found, id: ${input.id}`,
+        `attempt to search for registration data for analysis but the registration was not found, id: ${input.inscriptionId}`,
         `Inscrição não encontrada`,
         DeleteInscriptionUsecase.name,
       );
@@ -36,7 +38,7 @@ export class DeleteInscriptionUsecase {
 
     if (payment && payment.length >= 1) {
       throw new InscriptionHasPaymentUsecaseException(
-        `attempt to delete inscription ${input.id} that already has linked payments`,
+        `attempt to delete inscription ${input.inscriptionId} that already has linked payments`,
         `Não é possível excluir uma inscrição que já possui pagamentos vinculados.`,
         DeleteInscriptionUsecase.name,
       );

@@ -53,7 +53,6 @@ import { FindDetailsInscriptionAvulUsecase } from './web/inscription/avul/find-d
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
 import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/delete-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
-import { FindCacheUsecase } from './web/inscription/find-cache/find-cache.usecase';
 import { FindDetailsGuestInscriptionUsecase } from './web/inscription/find-details-gues-inscription/find-details-gues-inscription';
 import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-inscription/find-details-inscription.usecase';
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
@@ -123,7 +122,6 @@ import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
 import { CancelExpiredInscriptionsUseCase } from './worker/cancel-expired-inscriptions/cancel-expired-inscriptions.usecase';
 import { CleanupCancelledTicketSalesUsecase } from './worker/cleanup-cancelled-ticket-sales/cleanup-cancelled-ticket-sales.usecase';
-import { CleanupExpiredCacheUsecase } from './worker/cleanup-expired-cache/cleanup-expired-cache.usecase';
 import { CleanupGuestInscriptionUsecase } from './worker/cleanup-guest-inscription/cleanup-guest-inscription.usecase';
 import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
 
@@ -208,7 +206,6 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
-    FindCacheUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
@@ -292,7 +289,6 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Background tasks
     CancelExpiredInscriptionsUseCase,
     CleanupGuestInscriptionUsecase,
-    CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,
   ],
@@ -369,7 +365,6 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
-    FindCacheUsecase,
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
@@ -454,7 +449,6 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Background tasks
     CancelExpiredInscriptionsUseCase,
     CleanupGuestInscriptionUsecase,
-    CleanupExpiredCacheUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,
   ],

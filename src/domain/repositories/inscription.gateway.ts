@@ -100,6 +100,7 @@ export abstract class InscriptionGateway {
     page: number,
     pageSize: number,
     filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       accountId?: string;
       orderBy?: 'asc' | 'desc';
@@ -138,6 +139,7 @@ export abstract class InscriptionGateway {
   abstract countAll(
     eventId: string,
     filters: {
+      status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;

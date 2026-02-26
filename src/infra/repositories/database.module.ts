@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AccountParticipantInEventPrismaRepositoryProvider } from './prisma/account-participant-in-event/model/account-participant-in-event.prisma.repository.provider';
 import { AccountParticipantPrismaRepositoryProvider } from './prisma/account-participant/model/account-participant.prisma.repository.provider';
 import { AccountPrismaRepositoryProvider } from './prisma/account/model/account.prisma.repository.provider';
-import { CacheRecordRepositoryProvider } from './prisma/cache-record/model/cache-record.prisma.repository.provider';
 import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
@@ -36,7 +35,6 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
-    CacheRecordRepositoryProvider,
     PaymentPrismaRepositoryProvider,
     PaymentAllocationPrismaRepositoryProvider,
     PaymentInstallmentPrismaRepositoryProvider,
@@ -62,7 +60,6 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
-    CacheRecordRepositoryProvider,
     PaymentPrismaRepositoryProvider,
     PaymentInstallmentPrismaRepositoryProvider,
     PaymentLinkPrismaRepositoryProvider,

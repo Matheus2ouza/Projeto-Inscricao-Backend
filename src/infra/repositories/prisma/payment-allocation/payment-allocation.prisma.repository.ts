@@ -48,6 +48,9 @@ export class PaymentAllocationPrismaRepository
     const found = await this.prisma.paymentAllocation.findMany({
       where: {
         inscriptionId,
+        payment: {
+          status: 'APPROVED',
+        },
       },
     });
     return found.map(PrismaToEntity.map);
