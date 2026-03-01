@@ -118,7 +118,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }): Promise<Inscription[]> {
     const where = this.buildWhereClauseInscription(filters);
     const found = await this.prisma.inscription.findMany({
-      where,
+      where: {
+        eventId: filters?.eventId,
+        ...where,
+      },
     });
     return found.map(PrismaToEntity.map);
   }

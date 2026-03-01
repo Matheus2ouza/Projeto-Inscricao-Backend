@@ -34,6 +34,7 @@ export type RegisterGuestInscriptionInput = {
 
 export type ParticipantGuest = {
   name: string;
+  cpf: string;
   birthDate: Date;
   preferredName?: string;
   shirtSize?: ShirtSize;
@@ -109,12 +110,11 @@ export class RegisterGuestInscriptionUsecase
 
     await this.inscriptionGateway.create(inscription);
 
-    console.log(input);
-
     const participant = Participant.create({
       inscriptionId: inscription.getId(),
       typeInscriptionId: typeInscription.getId(),
       name: input.participant.name,
+      cpf: input.participant.cpf,
       preferredName: input.participant.preferredName ?? input.participant.name,
       shirtSize: input.participant.shirtSize,
       shirtType: input.participant.shirtType,

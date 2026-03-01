@@ -8,6 +8,7 @@ import { CreateCashRegisterUsecase } from './web/cash-register/create-cash-regis
 import { FindAllCashRegisterUsecase } from './web/cash-register/find-all-cash-register/find-all-cash-register.usecase';
 import { FindAllMovimentsCashRegisterUsecase } from './web/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.usecase';
 import { FindDetailsCashRegisterUsecase } from './web/cash-register/find-details-cash-register/find-details-cash-register.usecase';
+import { GenerateReportPdfUsecase } from './web/cash-register/pdf/generate-report/generate-report-pdf.usecase';
 import { FindActiveEventsAdminUsecase } from './web/dashboard/admin/find-active-events.usecase';
 import { FindActiveParticipantsAdminUsecase } from './web/dashboard/admin/find-active-participants.usecase';
 import { FindTotalCollectedAdminUsecase } from './web/dashboard/admin/find-total-collected.usecase';
@@ -148,6 +149,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllCashRegisterUsecase,
     // findAllMoviments
     FindAllMovimentsCashRegisterUsecase,
+    GenerateReportPdfUsecase,
 
     // Dashboard
     FindActiveEventsAdminUsecase,
@@ -318,6 +320,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllCashRegisterUsecase,
     // findAllMoviments
     FindAllMovimentsCashRegisterUsecase,
+    GenerateReportPdfUsecase,
 
     // Dashboard
     FindActiveEventsAdminUsecase,

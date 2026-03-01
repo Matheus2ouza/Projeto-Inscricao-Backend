@@ -2,7 +2,9 @@ import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entit
 import CashRegisterEventPrismaModel from '../cash-register-event.prisma.model';
 
 export class CashRegisterEventPrismaModelToCashRegisterEventEntityMapper {
-  public static map(linkPrisma: CashRegisterEventPrismaModel): CashRegisterEvent {
+  public static map(
+    linkPrisma: CashRegisterEventPrismaModel,
+  ): CashRegisterEvent {
     return CashRegisterEvent.with({
       id: linkPrisma.id,
       cashRegisterId: linkPrisma.cashRegisterId,

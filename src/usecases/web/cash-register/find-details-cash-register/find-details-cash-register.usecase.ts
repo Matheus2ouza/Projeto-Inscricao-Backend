@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CashRegisterStatus } from 'generated/prisma';
+import { CashRegisterStatus, PaymentMethod } from 'generated/prisma';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
@@ -15,6 +16,11 @@ export type FindDetailsCashRegisterOutput = {
   status: CashRegisterStatus;
   balance: number;
   allocationEvents: AllocationEvent[];
+  totalIncome: number;
+  totalExpense: number;
+  totalPix: number;
+  totalCard: number;
+  totalCash: number;
   openedAt: Date;
   closedAt?: Date;
 };
@@ -31,6 +37,7 @@ export class FindDetailsCashRegisterUsecase
 {
   constructor(
     private readonly cashRegisterGateway: CashRegisterGateway,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly eventGateway: EventGateway,
   ) {}
 
@@ -47,9 +54,24 @@ export class FindDetailsCashRegisterUsecase
       );
     }
 
-    const events = await this.eventGateway.findByCashRegisterId(
-      cashRegister.getId(),
-    );
+    const [events, totalIncome, totalExpense, totalPix, totalCard, totalCash] =
+      await Promise.all([
+        this.eventGateway.findByCashRegisterId(cashRegister.getId()),
+        this.cashRegisterEntryGateway.sumTotalIncome(cashRegister.getId()),
+        this.cashRegisterEntryGateway.sumTotalExpense(cashRegister.getId()),
+        this.cashRegisterEntryGateway.sumTotalByMethod(
+          cashRegister.getId(),
+          PaymentMethod.PIX,
+        ),
+        this.cashRegisterEntryGateway.sumTotalByMethod(
+          cashRegister.getId(),
+          PaymentMethod.CARTAO,
+        ),
+        this.cashRegisterEntryGateway.sumTotalByMethod(
+          cashRegister.getId(),
+          PaymentMethod.DINHEIRO,
+        ),
+      ]);
 
     const allocationEvents: AllocationEvent[] = events.map((e) => ({
       id: e.getId(),
@@ -62,6 +84,11 @@ export class FindDetailsCashRegisterUsecase
       status: cashRegister.getStatus(),
       balance: cashRegister.getBalance(),
       allocationEvents,
+      totalIncome,
+      totalExpense,
+      totalPix,
+      totalCard,
+      totalCash,
       openedAt: cashRegister.getOpenedAt(),
       closedAt: cashRegister.getClosedAt(),
     };

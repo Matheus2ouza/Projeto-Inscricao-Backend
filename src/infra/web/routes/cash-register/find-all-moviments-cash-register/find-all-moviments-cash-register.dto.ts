@@ -16,8 +16,6 @@ export type FindAllMovimentsCashRegisterRequest = {
 export type FindAllMovimentsCashRegisterResponse = {
   moviments: Moviment[];
   totalMoviments: number;
-  totalIncome: number;
-  totalExpense: number;
   page: number;
   pageCount: number;
 };

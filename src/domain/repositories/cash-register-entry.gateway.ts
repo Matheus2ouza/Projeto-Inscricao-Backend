@@ -1,4 +1,4 @@
-import { CashEntryType } from 'generated/prisma';
+import { CashEntryType, PaymentMethod } from 'generated/prisma';
 import { CashRegisterEntry } from '../entities/cash-register-entry.entity';
 
 export abstract class CashRegisterEntryGateway {
@@ -23,5 +23,11 @@ export abstract class CashRegisterEntryGateway {
       limitTime?: string;
       orderBy?: 'desc' | 'asc';
     },
+  ): Promise<number>;
+  abstract sumTotalIncome(cashRegisterId: string): Promise<number>;
+  abstract sumTotalExpense(cashRegisterId: string): Promise<number>;
+  abstract sumTotalByMethod(
+    cashRegisterId: string,
+    method: PaymentMethod,
   ): Promise<number>;
 }

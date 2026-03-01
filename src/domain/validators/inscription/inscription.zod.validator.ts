@@ -41,7 +41,7 @@ export class InscriptionZodValidator implements Validator<Inscription> {
       accountId: z.uuid().optional(),
       eventId: z.uuid(),
       //Dados do guest
-      guestEmail: z.email('Informe um email válido').optional(),
+      guestEmail: z.string().optional(),
       guestName: z
         .string()
         .min(1, 'O nome do convidado é obrigatório')
@@ -51,13 +51,8 @@ export class InscriptionZodValidator implements Validator<Inscription> {
       responsible: z
         .string()
         .min(1, 'O responsavel pela inscrição é obrigatório'),
-      email: z.email('Informe um email válido').optional(),
-      phone: z
-        .string()
-        .regex(
-          /^\(\d{2}\)\s9\d{4}-?\d{4}$/,
-          'Informe um telefone válido no formato (DDD) 9XXXX-XXXX',
-        ),
+      email: z.string().optional(),
+      phone: z.string().optional(),
       status: z.enum(
         [
           InscriptionStatus.PENDING,

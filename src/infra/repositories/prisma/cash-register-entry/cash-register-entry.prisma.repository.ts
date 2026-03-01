@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CashEntryType } from 'generated/prisma';
+import { CashEntryType, PaymentMethod } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { PrismaService } from '../prisma.service';
@@ -62,6 +62,48 @@ export class CashRegisterEntryPrismaRepository
     });
 
     return count;
+  }
+
+  async sumTotalIncome(cashRegisterId: string): Promise<number> {
+    const sum = await this.prisma.cashRegisterEntry.aggregate({
+      where: { cashRegisterId, type: CashEntryType.INCOME },
+      _sum: {
+        value: true,
+      },
+    });
+
+    return sum._sum.value?.toNumber() || 0;
+  }
+
+  async sumTotalExpense(cashRegisterId: string): Promise<number> {
+    const sum = await this.prisma.cashRegisterEntry.aggregate({
+      where: {
+        cashRegisterId,
+        type: CashEntryType.EXPENSE,
+      },
+      _sum: {
+        value: true,
+      },
+    });
+
+    return sum._sum.value?.toNumber() || 0;
+  }
+
+  async sumTotalByMethod(
+    cashRegisterId: string,
+    method: PaymentMethod,
+  ): Promise<number> {
+    const sum = await this.prisma.cashRegisterEntry.aggregate({
+      where: {
+        cashRegisterId,
+        method,
+      },
+      _sum: {
+        value: true,
+      },
+    });
+
+    return sum._sum.value?.toNumber() || 0;
   }
 
   private buildWhereClauseCashRegisterEntry(filters?: {

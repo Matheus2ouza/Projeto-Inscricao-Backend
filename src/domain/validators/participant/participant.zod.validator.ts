@@ -47,10 +47,8 @@ export class ParticipantZodValidator implements Validator<Participant> {
         .optional(),
       cpf: z
         .string()
-        .regex(
-          /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
-          'Formato inválido: XXX.XXX.XXX-XX',
-        )
+        .max(11, 'CPF deve ter no máximo 11 caracteres')
+        .min(11, 'CPF deve ter no mínimo 11 caracteres')
         .optional(),
       birthDate: z
         .date({

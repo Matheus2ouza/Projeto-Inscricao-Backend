@@ -10,6 +10,11 @@ export type FindDetailsCashRegisterResponse = {
   status: CashRegisterStatus;
   balance: number;
   allocationEvents: AllocationEvent[];
+  totalIncome: number;
+  totalExpense: number;
+  totalPix: number;
+  totalCard: number;
+  totalCash: number;
   openedAt: Date;
   closedAt?: Date;
 };
