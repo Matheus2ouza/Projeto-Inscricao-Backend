@@ -35,7 +35,13 @@ export class CashRegisterEvent extends Entity {
     const createdAt = new Date();
     const updatedAt = new Date();
 
-    return new CashRegisterEvent(id, cashRegisterId, eventId, createdAt, updatedAt);
+    return new CashRegisterEvent(
+      id,
+      cashRegisterId,
+      eventId,
+      createdAt,
+      updatedAt,
+    );
   }
 
   public static with({
@@ -45,7 +51,13 @@ export class CashRegisterEvent extends Entity {
     createdAt,
     updatedAt,
   }: CashRegisterEventWithDto): CashRegisterEvent {
-    return new CashRegisterEvent(id, cashRegisterId, eventId, createdAt, updatedAt);
+    return new CashRegisterEvent(
+      id,
+      cashRegisterId,
+      eventId,
+      createdAt,
+      updatedAt,
+    );
   }
 
   public getId(): string {

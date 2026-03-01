@@ -12,6 +12,7 @@ import { ParticipantGateway } from 'src/domain/repositories/participant.gateway'
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
@@ -125,6 +126,7 @@ export class ReportFinancialUsecase
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
     private readonly ticketSalePaymentGateway: TicketSalePaymentGateway,
     private readonly eventTicketsGateway: EventTicketsGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(input: ReportFinancialInput): Promise<ReportFinancialOutput> {
@@ -355,8 +357,8 @@ export class ReportFinancialUsecase
       name: event.getName(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
-      image: event.getImageUrl() ?? '',
-      logo: event.getLogoUrl(),
+      image: await this.getPublicUrl(event.getImageUrl()),
+      logo: await this.getPublicUrl(event.getLogoUrl()),
       totalGeral,
       totalCash,
       totalCard,
@@ -395,5 +397,17 @@ export class ReportFinancialUsecase
       },
     };
     return output;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
   }
 }

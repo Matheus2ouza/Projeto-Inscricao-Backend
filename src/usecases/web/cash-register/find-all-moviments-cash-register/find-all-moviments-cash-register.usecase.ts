@@ -21,8 +21,6 @@ export type FindAllMovimentsCashRegisterInput = {
 export type FindAllMovimentsCashRegisterOutput = {
   moviments: Moviment[];
   totalMoviments: number;
-  totalIncome: number;
-  totalExpense: number;
   page: number;
   pageCount: number;
 };
@@ -83,24 +81,15 @@ export class FindAllMovimentsCashRegisterUsecase
 
     const { type: _ignoredType, ...filtersWithoutType } = filters;
 
-    const [moviments, totalMoviments, totalIncome, totalExpense] =
-      await Promise.all([
-        this.cashRegisterEntryGateway.findManyPaginated(
-          cashRegister.getId(),
-          safePage,
-          safePageSize,
-          filters,
-        ),
-        this.cashRegisterEntryGateway.countAll(cashRegister.getId(), filters),
-        this.cashRegisterEntryGateway.countAll(cashRegister.getId(), {
-          ...filtersWithoutType,
-          type: CashEntryType.INCOME,
-        }),
-        this.cashRegisterEntryGateway.countAll(cashRegister.getId(), {
-          ...filtersWithoutType,
-          type: CashEntryType.EXPENSE,
-        }),
-      ]);
+    const [moviments, totalMoviments] = await Promise.all([
+      this.cashRegisterEntryGateway.findManyPaginated(
+        cashRegister.getId(),
+        safePage,
+        safePageSize,
+        filters,
+      ),
+      this.cashRegisterEntryGateway.countAll(cashRegister.getId(), filters),
+    ]);
 
     const movimentsData: Moviment[] = moviments.map((m) => ({
       id: m.getId(),
@@ -122,8 +111,6 @@ export class FindAllMovimentsCashRegisterUsecase
     const output: FindAllMovimentsCashRegisterOutput = {
       moviments: movimentsData,
       totalMoviments,
-      totalIncome,
-      totalExpense,
       page: safePage,
       pageCount: Math.max(1, Math.ceil(totalMoviments / safePageSize)),
     };

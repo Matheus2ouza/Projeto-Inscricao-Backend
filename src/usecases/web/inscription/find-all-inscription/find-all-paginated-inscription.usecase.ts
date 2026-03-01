@@ -80,7 +80,7 @@ export class FindAllPaginatedInscriptionsUsecase
     }
 
     let isGuest: boolean | undefined = undefined;
-    if (Boolean(input.isGuest === false)) {
+    if (input.isGuest === false) {
       isGuest = false;
     }
 

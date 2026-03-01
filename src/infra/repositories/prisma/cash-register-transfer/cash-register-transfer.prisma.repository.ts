@@ -11,9 +11,7 @@ export class CashRegisterTransferPrismaRepository
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    transfer: CashRegisterTransfer,
-  ): Promise<CashRegisterTransfer> {
+  async create(transfer: CashRegisterTransfer): Promise<CashRegisterTransfer> {
     const data = EntityToPrisma.map(transfer);
     const created = await this.prisma.cashRegisterTransfer.create({ data });
     return PrismaToEntity.map(created);

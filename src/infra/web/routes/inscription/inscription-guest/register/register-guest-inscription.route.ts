@@ -30,6 +30,8 @@ export class RegisterGuestInscriptionRoute {
       participant: body.participant,
     };
 
+    console.log(input);
+
     const response = await this.registerGuestInscriptionUsecase.execute(input);
     return RegisterGuestInscriptionPresenter.toHtpp(response);
   }

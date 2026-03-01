@@ -6,8 +6,8 @@ import {
 import {
   type FindDetailsCashRegisterRequest,
   FindDetailsCashRegisterResponse,
-} from './find-by-id.dto';
-import { FindDetailsCashRegisterPresenter } from './find-by-id.presenter';
+} from './find-details-cash-register.dto';
+import { FindDetailsCashRegisterPresenter } from './find-details-cash-register.presenter';
 
 @Controller('cash-register')
 export class FindDetailsCashRegisterRoute {

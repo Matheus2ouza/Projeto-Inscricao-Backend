@@ -8,8 +8,6 @@ export class FindAllMovimentsCashRegisterPresenter {
     return {
       moviments: output.moviments,
       totalMoviments: output.totalMoviments,
-      totalIncome: output.totalIncome,
-      totalExpense: output.totalExpense,
       page: output.page,
       pageCount: output.pageCount,
     };

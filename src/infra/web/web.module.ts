@@ -25,7 +25,8 @@ import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filt
 import { CreateCashRegisterRoute } from './routes/cash-register/create-cash-register/create-cash-register.route';
 import { FindAllCashRegisterRoute } from './routes/cash-register/find-all-cash-register/find-all-cash-register.route';
 import { FindAllMovimentsCashRegisterRoute } from './routes/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.route';
-import { FindDetailsCashRegisterRoute } from './routes/cash-register/find-by-id/find-by-id.route';
+import { FindDetailsCashRegisterRoute } from './routes/cash-register/find-details-cash-register/find-details-cash-register.route';
+import { GenerateReportPdfRoute } from './routes/cash-register/pdf/generate-report/generate-report-pdf.route';
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
@@ -154,6 +155,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllCashRegisterRoute,
     // findAllMoviments
     FindAllMovimentsCashRegisterRoute,
+    GenerateReportPdfRoute,
 
     // Dashboard
     DashboardAdminRoute,
