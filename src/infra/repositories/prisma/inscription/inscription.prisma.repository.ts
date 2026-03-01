@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import Decimal from 'decimal.js';
 import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -370,10 +371,16 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       },
       select: {
         totalValue: true,
+        totalPaid: true,
       },
     });
 
-    return debt.reduce((acc, cur) => acc + cur.totalValue.toNumber(), 0);
+    const totalDebt = debt.reduce((acc, cur) => {
+      const inscriptionDebt = cur.totalValue.minus(cur.totalPaid);
+      return acc.plus(inscriptionDebt);
+    }, new Decimal(0));
+
+    return totalDebt.toNumber();
   }
 
   async countAll(

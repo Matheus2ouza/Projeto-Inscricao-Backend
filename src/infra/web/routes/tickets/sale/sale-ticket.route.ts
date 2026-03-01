@@ -1,5 +1,9 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import {
+  UserInfo,
+  type UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import {
   SaleTicketInput,
   SaleTicketUsecase,
 } from 'src/usecases/web/tickets/sale/sale-ticket.usecase';
@@ -14,8 +18,10 @@ export class SaleTicketRoute {
   async handle(
     @Param('id') id: string,
     @Body() request: SaleTicketRequest,
+    @UserInfo() user: UserInfoType,
   ): Promise<SaleTicketResponse> {
     const input: SaleTicketInput = {
+      userId: user.userId,
       eventId: id,
       name: request.name,
       items: request.items,

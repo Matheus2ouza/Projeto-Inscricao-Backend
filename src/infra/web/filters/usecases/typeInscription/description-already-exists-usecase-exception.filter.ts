@@ -8,7 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
 import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { LogUtils } from 'src/shared/utils/log-utils';
-import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/typeInscription/description-already-exists.usecase.exception';
+import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/type-Inscription/description-already-exists.usecase.exception';
 
 @Catch(DescriptionAlreadyExistsUsecaseException)
 export class DescriptionAlreadyExistsUsecaseExcepitonFilter

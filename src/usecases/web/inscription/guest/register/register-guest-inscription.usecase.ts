@@ -109,6 +109,8 @@ export class RegisterGuestInscriptionUsecase
 
     await this.inscriptionGateway.create(inscription);
 
+    console.log(input);
+
     const participant = Participant.create({
       inscriptionId: inscription.getId(),
       typeInscriptionId: typeInscription.getId(),
@@ -116,7 +118,7 @@ export class RegisterGuestInscriptionUsecase
       preferredName: input.participant.preferredName ?? input.participant.name,
       shirtSize: input.participant.shirtSize,
       shirtType: input.participant.shirtType,
-      birthDate: input.participant.birthDate,
+      birthDate: new Date(input.participant.birthDate),
       gender: input.participant.gender,
     });
 

@@ -1,5 +1,6 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
+import { ParticipantValidatorFactory } from '../factories/participant/participant.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type ParticipantCreateDto = {
@@ -10,6 +11,7 @@ export type ParticipantCreateDto = {
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   birthDate: Date;
+  cpf?: string;
   gender: genderType;
 };
 
@@ -22,6 +24,7 @@ export type ParticipantWithDto = {
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   birthDate: Date;
+  cpf?: string;
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +43,7 @@ export class Participant extends Entity {
     private preferredName?: string,
     private shirtSize?: ShirtSize,
     private shirtType?: ShirtType,
+    private cpf?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -53,6 +57,7 @@ export class Participant extends Entity {
     shirtSize,
     shirtType,
     birthDate,
+    cpf,
     gender,
   }: ParticipantCreateDto) {
     const id = Utils.generateUUID();
@@ -74,6 +79,7 @@ export class Participant extends Entity {
       preferredName,
       shirtSizeDefault,
       shirtTypeDefault,
+      cpf,
     );
   }
 
@@ -86,6 +92,7 @@ export class Participant extends Entity {
     shirtSize,
     shirtType,
     birthDate,
+    cpf,
     gender,
     createdAt,
     updatedAt,
@@ -102,6 +109,7 @@ export class Participant extends Entity {
       preferredName,
       shirtSize,
       shirtType,
+      cpf,
     );
   }
   // Getters
@@ -131,6 +139,10 @@ export class Participant extends Entity {
 
   public getBirthDate(): Date {
     return this.birthDate;
+  }
+
+  public getCpf(): string | undefined {
+    return this.cpf;
   }
 
   public getGender(): genderType {
@@ -207,28 +219,6 @@ export class Participant extends Entity {
   }
 
   protected validate(): void {
-    if (!this.inscriptionId) {
-      throw new Error('Id da Inscrição é obrigatório');
-    }
-
-    if (!this.typeInscriptionId) {
-      throw new Error('Id do Tipo de Inscrição é obrigatório');
-    }
-
-    if (!this.name || this.name.trim().length === 0) {
-      throw new Error('Nome do participante é obrigatório');
-    }
-
-    if (!this.birthDate) {
-      throw new Error('Data de nascimento é obrigatória');
-    }
-
-    if (this.birthDate > new Date()) {
-      throw new Error('Data de nascimento não pode ser futura');
-    }
-
-    if (!this.gender || this.gender.trim().length === 0) {
-      throw new Error('Gênero é obrigatório');
-    }
+    ParticipantValidatorFactory.create().validate(this);
   }
 }

@@ -4,10 +4,15 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
+import { CreateCashRegisterUsecase } from './web/cash-register/create-cash-register/create-cash-register.usecase';
+import { FindAllCashRegisterUsecase } from './web/cash-register/find-all-cash-register/find-all-cash-register.usecase';
+import { FindAllMovimentsCashRegisterUsecase } from './web/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.usecase';
+import { FindDetailsCashRegisterUsecase } from './web/cash-register/find-details-cash-register/find-details-cash-register.usecase';
 import { FindActiveEventsAdminUsecase } from './web/dashboard/admin/find-active-events.usecase';
 import { FindActiveParticipantsAdminUsecase } from './web/dashboard/admin/find-active-participants.usecase';
 import { FindTotalCollectedAdminUsecase } from './web/dashboard/admin/find-total-collected.usecase';
 import { FindTotalDebtAdminUsecase } from './web/dashboard/admin/find-total-debt.usecase';
+import { FindTotalExpenseUsecase } from './web/dashboard/admin/find-total-expense.usecase';
 import { FindActiveEventsUserUsecase } from './web/dashboard/user/find-active-events.usecase';
 import { FindTotalDebtUserUsecase } from './web/dashboard/user/find-total-debt.usecase';
 import { FindTotalInscriptionsUserUsecase } from './web/dashboard/user/find-total-inscriptions.usecase';
@@ -93,7 +98,7 @@ import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-pa
 import { UpdatePaymentReceiptUsecase } from './web/payments/update-payment-receipt/update-payment-receipt.usecase';
 import { CreateRegionUseCase } from './web/region/create/create-region.usecase';
 import { FindAllPaginatedRegionsUsecase } from './web/region/findAllRegion/find-all-paginated-regions.usecase';
-import { FindAllRegionNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
+import { FindAllNamesUsecase } from './web/region/findAllRegionNames/find-all-region-names.usecase';
 import { ReportFinancialUsecase } from './web/report/report-general/financial/report-financial.usecase';
 import { ReportGeneralUsecase } from './web/report/report-general/general/report-general.usecase';
 import { GeneratePdfFinancialReportUsecase } from './web/report/report-general/pdf-financial/generate-pdf-financial-report.usecase';
@@ -134,11 +139,22 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     MailModule,
   ],
   providers: [
+    // CashRegister
+    // create
+    CreateCashRegisterUsecase,
+    // FindDetails
+    FindDetailsCashRegisterUsecase,
+    //findAll
+    FindAllCashRegisterUsecase,
+    // findAllMoviments
+    FindAllMovimentsCashRegisterUsecase,
+
     // Dashboard
     FindActiveEventsAdminUsecase,
     FindActiveParticipantsAdminUsecase,
     FindTotalCollectedAdminUsecase,
     FindTotalDebtAdminUsecase,
+    FindTotalExpenseUsecase,
     FindActiveEventsUserUsecase,
     FindTotalDebtUserUsecase,
     FindTotalInscriptionsUserUsecase,
@@ -193,7 +209,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Regions
     CreateRegionUseCase,
-    FindAllRegionNamesUsecase,
+    FindAllNamesUsecase,
     FindAllPaginatedRegionsUsecase,
 
     // Type Inscriptions
@@ -293,11 +309,22 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     CleanupCancelledTicketSalesUsecase,
   ],
   exports: [
+    // CashRegister
+    // create
+    CreateCashRegisterUsecase,
+    // FindDetails
+    FindDetailsCashRegisterUsecase,
+    //findAll
+    FindAllCashRegisterUsecase,
+    // findAllMoviments
+    FindAllMovimentsCashRegisterUsecase,
+
     // Dashboard
     FindActiveEventsAdminUsecase,
     FindActiveParticipantsAdminUsecase,
     FindTotalCollectedAdminUsecase,
     FindTotalDebtAdminUsecase,
+    FindTotalExpenseUsecase,
     FindActiveEventsUserUsecase,
     FindTotalDebtUserUsecase,
     FindTotalInscriptionsUserUsecase,
@@ -352,7 +379,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Regions
     CreateRegionUseCase,
-    FindAllRegionNamesUsecase,
+    FindAllNamesUsecase,
     FindAllPaginatedRegionsUsecase,
 
     // Type Inscriptions

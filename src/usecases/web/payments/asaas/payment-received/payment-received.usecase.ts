@@ -1,4 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
+import {
+  CashEntryOrigin,
+  CashEntryType,
+  PaymentMethod,
+} from 'generated/prisma';
+import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
+import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
+import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
@@ -23,6 +32,9 @@ export class PaymentReceivedUsecase
     private readonly eventGateway: EventGateway,
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
+    private readonly cashRegisterEventGateway: CashRegisterEventGateway,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly cashRegisterGateway: CashRegisterGateway,
   ) {}
 
   async execute(input: PaymentReceivedInput): Promise<PaymentReceivedOutput> {
@@ -65,20 +77,52 @@ export class PaymentReceivedUsecase
 
       const event = await this.eventGateway.findById(payment.getEventId());
 
-      if (event) {
-        this.logger.log(`Evento encontrado: ${JSON.stringify(event, null, 2)}`);
-        this.logger.log(
-          `Incrementando o valor arrecadado pela parcela ${installment.getId()}`,
+      if (!event) {
+        this.logger.warn(
+          `Evento não encontrado para pagamento ${payment.getId()} (Event ID: ${payment.getEventId()})`,
         );
-        this.logger.log(
-          `Valor arrecadado antes: ${event.getAmountCollected()}`,
-        );
-        event.incrementAmountCollected(installment.getNetValue());
-        this.logger.log(
-          `Valor arrecadado depois: ${event.getAmountCollected()}`,
-        );
-        await this.eventGateway.update(event);
+
+        installment.setReceived(true);
+        await this.paymentInstallmentGateway.update(installment);
+
+        const output: PaymentReceivedOutput = {
+          status: 'ignored',
+          message: 'Evento não encontrado, operação ignorada',
+        };
+
+        return output;
       }
+
+      const cashRegisterEvent =
+        await this.cashRegisterEventGateway.findByEventId(payment.getEventId());
+
+      if (cashRegisterEvent.length > 0) {
+        const entries = cashRegisterEvent.map((c) =>
+          CashRegisterEntry.create({
+            cashRegisterId: c.getCashRegisterId(),
+            type: CashEntryType.INCOME,
+            origin: CashEntryOrigin.ASAAS,
+            method: PaymentMethod.CARTAO,
+            value: installment.getNetValue(),
+            description: `Pagamento Cartão ${payment.getId()}`,
+            eventId: payment.getEventId(),
+            paymentInstallmentId: installment.getId(),
+            responsible: 'WEBHOOK-ASAAS',
+          }),
+        );
+
+        await this.cashRegisterEntryGateway.createMany(entries);
+        await this.updateCashRegisterBalances(entries);
+      }
+
+      this.logger.log(`Evento encontrado: ${event.getName()}`);
+      this.logger.log(
+        `Incrementando o valor arrecadado pela parcela ${installment.getId()}`,
+      );
+      this.logger.log(`Valor arrecadado antes: ${event.getAmountCollected()}`);
+      event.incrementAmountCollected(installment.getNetValue());
+      this.logger.log(`Valor arrecadado depois: ${event.getAmountCollected()}`);
+      await this.eventGateway.update(event);
     }
 
     installment.setReceived(true);
@@ -94,5 +138,41 @@ export class PaymentReceivedUsecase
     };
 
     return output;
+  }
+
+  private async updateCashRegisterBalances(
+    entries: CashRegisterEntry[],
+  ): Promise<void> {
+    const deltaByCashRegisterId = new Map<string, number>();
+
+    for (const entry of entries) {
+      const cashRegisterId = entry.getCashRegisterId();
+      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const delta =
+        entry.getType() === CashEntryType.INCOME
+          ? entry.getValue()
+          : -entry.getValue();
+
+      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+    }
+
+    await Promise.all(
+      [...deltaByCashRegisterId.entries()].map(
+        async ([cashRegisterId, delta]) => {
+          if (delta === 0) return;
+          const cashRegister =
+            await this.cashRegisterGateway.findById(cashRegisterId);
+          if (!cashRegister) return;
+
+          if (delta > 0) {
+            cashRegister.incrementBalance(delta);
+          } else {
+            cashRegister.decrementBalance(-delta);
+          }
+
+          await this.cashRegisterGateway.update(cashRegister);
+        },
+      ),
+    );
   }
 }

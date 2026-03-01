@@ -224,6 +224,14 @@ export class ConfirmPaymentUsecase
 
       this.logger.log(`Total de alocações encontradas: ${allocations.length}`);
 
+      const event = await this.eventGateway.findById(payment.getEventId());
+
+      if (!event) {
+        this.logger.warn(
+          `Evento não encontrado ao confirmar pagamento ${payment.getId()} (Event ID: ${payment.getEventId()})`,
+        );
+      }
+
       for (const allocation of allocations) {
         const inscription = await this.inscriptionGateway.findById(
           allocation.getInscriptionId(),
@@ -251,12 +259,19 @@ export class ConfirmPaymentUsecase
                 inscription.getId(),
               );
 
-            await this.eventGateway.incrementQuantityParticipants(
-              payment.getEventId(),
-              countParticipants,
-            );
+            if (event) {
+              await this.eventGateway.incrementQuantityParticipants(
+                event.getId(),
+                countParticipants,
+              );
+            }
           }
         }
+      }
+
+      if (event && payment.getStatus() === StatusPayment.APPROVED) {
+        event.incrementAmountCollected(paymentInstallment.getValue());
+        await this.eventGateway.update(event);
       }
       this.logger.log(
         `Payment ${payment.getId()} APROVADO! ` +

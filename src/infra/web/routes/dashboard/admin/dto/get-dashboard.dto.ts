@@ -1,5 +1,5 @@
 export type GetDashboardAdminResponse = {
-  activeEvents: number;
+  totalExpense: number;
   totalCollected: number;
   totalDebt: number;
   activeParticipants: number;

@@ -180,10 +180,11 @@ export class EventPrismaRepository implements EventGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  async findAll(): Promise<Event[]> {
+  async findAll(filters?: { regionId?: string }): Promise<Event[]> {
+    const where = this.buildWhereClauseEvent(filters);
     const found = await this.prisma.events.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
-      include: { region: { select: { name: true } } },
     });
     return found.map(PrismaToEntity.map);
   }
@@ -276,6 +277,20 @@ export class EventPrismaRepository implements EventGateway {
     const found = await this.prisma.events.findMany({
       where: { regionId },
       orderBy: { startDate: 'asc' },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByCashRegisterId(cashRegisterId: string): Promise<Event[]> {
+    const found = await this.prisma.events.findMany({
+      where: {
+        cashRegisterEvents: {
+          some: {
+            cashRegisterId,
+          },
+        },
+      },
     });
 
     return found.map(PrismaToEntity.map);

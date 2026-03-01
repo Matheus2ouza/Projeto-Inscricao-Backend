@@ -1,12 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  CashEntryOrigin,
+  CashEntryType,
   InscriptionStatus,
+  PaymentMethod,
   StatusPayment,
   TransactionType,
 } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
+import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
+import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
+import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -40,6 +47,9 @@ export class ApprovePaymentUsecase
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly cashRegisterEventGateway: CashRegisterEventGateway,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly cashRegisterGateway: CashRegisterGateway,
     private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
   ) {}
 
@@ -105,10 +115,34 @@ export class ApprovePaymentUsecase
       `Pagamento ${payment.getId()} adicionado à parcela ${paymentInstallment.getInstallmentNumber()}`,
     );
 
-    // Atualiza o evento com o valor líquido da parcela
+    const cashRegisterEvent = await this.cashRegisterEventGateway.findByEventId(
+      payment.getEventId(),
+    );
+
+    if (cashRegisterEvent.length > 0) {
+      const entries = cashRegisterEvent.map((c) =>
+        CashRegisterEntry.create({
+          cashRegisterId: c.getCashRegisterId(),
+          type: CashEntryType.INCOME,
+          origin: CashEntryOrigin.INTERNAL,
+          method: PaymentMethod.PIX,
+          value: paymentInstallment.getNetValue(),
+          description: `Pagamento PIX ${payment.getId()}`,
+          eventId: payment.getEventId(),
+          paymentInstallmentId: paymentInstallment.getId(),
+          responsible: input.accountId,
+          imageUrl: payment.getImageUrl(),
+        }),
+      );
+
+      await this.cashRegisterEntryGateway.createMany(entries);
+      await this.updateCashRegisterBalances(entries);
+    }
+
+    // Atualiza o evento com o valor bruto da parcela
     await this.eventGateway.incrementAmountCollected(
       payment.getEventId(),
-      paymentInstallment.getNetValue(),
+      paymentInstallment.getValue(),
     );
 
     this.logger.log(
@@ -236,5 +270,41 @@ export class ApprovePaymentUsecase
     };
 
     return output;
+  }
+
+  private async updateCashRegisterBalances(
+    entries: CashRegisterEntry[],
+  ): Promise<void> {
+    const deltaByCashRegisterId = new Map<string, number>();
+
+    for (const entry of entries) {
+      const cashRegisterId = entry.getCashRegisterId();
+      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const delta =
+        entry.getType() === CashEntryType.INCOME
+          ? entry.getValue()
+          : -entry.getValue();
+
+      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+    }
+
+    await Promise.all(
+      [...deltaByCashRegisterId.entries()].map(
+        async ([cashRegisterId, delta]) => {
+          if (delta === 0) return;
+          const cashRegister =
+            await this.cashRegisterGateway.findById(cashRegisterId);
+          if (!cashRegister) return;
+
+          if (delta > 0) {
+            cashRegister.incrementBalance(delta);
+          } else {
+            cashRegister.decrementBalance(-delta);
+          }
+
+          await this.cashRegisterGateway.update(cashRegister);
+        },
+      ),
+    );
   }
 }

@@ -9,6 +9,7 @@ import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
+import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
@@ -21,6 +22,10 @@ import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filter
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
+import { CreateCashRegisterRoute } from './routes/cash-register/create-cash-register/create-cash-register.route';
+import { FindAllCashRegisterRoute } from './routes/cash-register/find-all-cash-register/find-all-cash-register.route';
+import { FindAllMovimentsCashRegisterRoute } from './routes/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.route';
+import { FindDetailsCashRegisterRoute } from './routes/cash-register/find-by-id/find-by-id.route';
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
@@ -103,8 +108,8 @@ import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejecte
 import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
 import { UpdatePaymentReceiptRoute } from './routes/payments/update-payment-receipt/update-payment-receipt.route';
 import { CreateRegionRoute } from './routes/region/create/create-region.route';
+import { FindAllNamesRoute } from './routes/region/find-all-names/find-all-names.route';
 import { FindAllPaginatedRegionsRoute } from './routes/region/find-all-paginated/find-all-paginated-regions.route';
-import { FindAllRegionsRoute } from './routes/region/findAllRegionNames/find-all-region-names.route';
 import { ReportFinancialRoute } from './routes/report/report-general/financial/report-financial.route';
 import { ReportGeneralRoute } from './routes/report/report-general/general/report-general.route';
 import { GeneratePdfFinancialReportRoute } from './routes/report/report-general/pdf-financial/generate-pdf-financial-report.route';
@@ -139,6 +144,16 @@ import { WelcomeRoute } from './routes/welcome.route';
   controllers: [
     // Welcome
     WelcomeRoute,
+
+    // CashRegister
+    // Create
+    CreateCashRegisterRoute,
+    // findId
+    FindDetailsCashRegisterRoute,
+    // findAll
+    FindAllCashRegisterRoute,
+    // findAllMoviments
+    FindAllMovimentsCashRegisterRoute,
 
     // Dashboard
     DashboardAdminRoute,
@@ -201,7 +216,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Regions
     CreateRegionRoute,
-    FindAllRegionsRoute,
+    FindAllNamesRoute,
     FindAllPaginatedRegionsRoute,
 
     // Type Inscriptions
@@ -319,6 +334,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    // Cash-Register
+    CashRegisterNotFoundUsecaseExceptionFilterProvider,
 
     // Inscription
     InscriptionNotFoundUsecaseExceptionFilterProvider,

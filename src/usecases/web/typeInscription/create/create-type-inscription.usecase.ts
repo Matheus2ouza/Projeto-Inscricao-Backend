@@ -4,7 +4,7 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
-import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/typeInscription/description-already-exists.usecase.exception';
+import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/type-Inscription/description-already-exists.usecase.exception';
 
 export type CreateTypeInscriptionInput = {
   description: string;

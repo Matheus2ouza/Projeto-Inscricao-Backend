@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { Decimal } from 'decimal.js';
-import { genderType, InscriptionStatus, PaymentMethod } from 'generated/prisma';
+import {
+  CashEntryOrigin,
+  CashEntryType,
+  genderType,
+  InscriptionStatus,
+  PaymentMethod,
+} from 'generated/prisma';
+import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
 import { OnSiteRegistration } from 'src/domain/entities/on-site-registration.entity';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
+import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
+import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
@@ -41,6 +51,9 @@ export class CreateInscriptionAvulUsecase
     private readonly eventGateway: EventGateway,
     private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
+    private readonly cashRegisterEventGateway: CashRegisterEventGateway,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly cashRegisterGateway: CashRegisterGateway,
   ) {}
 
   async execute(
@@ -120,6 +133,41 @@ export class CreateInscriptionAvulUsecase
       ),
     );
 
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(eventExists.getId());
+
+    if (cashRegisterEvents.length > 0 && payments.length > 0) {
+      const participantNameById = new Map(
+        participants.map((p) => [p.getId(), p.getName()] as const),
+      );
+
+      const cashEntries = payments.flatMap((payment, idx) => {
+        const participantName =
+          participantNameById.get(payment.getParticipantId()) ?? '';
+
+        const financialMovement = financialMovements[idx];
+
+        return cashRegisterEvents.map((c) =>
+          CashRegisterEntry.create({
+            cashRegisterId: c.getCashRegisterId(),
+            type: CashEntryType.INCOME,
+            origin: CashEntryOrigin.ONSITE,
+            method: payment.getPaymentMethod(),
+            value: payment.getValue().toNumber(),
+            description: participantName
+              ? `Pagamento ${payment.getPaymentMethod()} - ${participantName}`
+              : `Pagamento ${payment.getPaymentMethod()}`,
+            eventId: eventExists.getId(),
+            onSiteRegistrationId: createdRegistration.getId(),
+            responsible: input.responsible,
+          }),
+        );
+      });
+
+      await this.cashRegisterEntryGateway.createMany(cashEntries);
+      await this.updateCashRegisterBalances(cashEntries);
+    }
+
     // Incrementar o valor coletado no evento
     await this.eventGateway.incrementAmountCollected(
       eventExists.getId(),
@@ -133,5 +181,41 @@ export class CreateInscriptionAvulUsecase
     );
 
     return { id: createdRegistration.getId() };
+  }
+
+  private async updateCashRegisterBalances(
+    entries: CashRegisterEntry[],
+  ): Promise<void> {
+    const deltaByCashRegisterId = new Map<string, number>();
+
+    for (const entry of entries) {
+      const cashRegisterId = entry.getCashRegisterId();
+      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const delta =
+        entry.getType() === CashEntryType.INCOME
+          ? entry.getValue()
+          : -entry.getValue();
+
+      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+    }
+
+    await Promise.all(
+      [...deltaByCashRegisterId.entries()].map(
+        async ([cashRegisterId, delta]) => {
+          if (delta === 0) return;
+          const cashRegister =
+            await this.cashRegisterGateway.findById(cashRegisterId);
+          if (!cashRegister) return;
+
+          if (delta > 0) {
+            cashRegister.incrementBalance(delta);
+          } else {
+            cashRegister.decrementBalance(-delta);
+          }
+
+          await this.cashRegisterGateway.update(cashRegister);
+        },
+      ),
+    );
   }
 }
