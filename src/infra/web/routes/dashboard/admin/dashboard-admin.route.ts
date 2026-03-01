@@ -3,10 +3,6 @@ import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
-  FindActiveEventsAdminInput,
-  FindActiveEventsAdminUsecase,
-} from 'src/usecases/web/dashboard/admin/find-active-events.usecase';
-import {
   FindActiveParticipantsAdminInput,
   FindActiveParticipantsAdminUsecase,
 } from 'src/usecases/web/dashboard/admin/find-active-participants.usecase';
@@ -18,15 +14,19 @@ import {
   FindTotalDebtAdminInput,
   FindTotalDebtAdminUsecase,
 } from 'src/usecases/web/dashboard/admin/find-total-debt.usecase';
-import { FindActiveEventsAdminResponse } from './dto/find-active-events.dto';
+import {
+  FindTotalExpenseInput,
+  FindTotalExpenseUsecase,
+} from 'src/usecases/web/dashboard/admin/find-total-expense.usecase';
 import { FindActiveParticipantsAdminResponse } from './dto/find-active-participants.dto';
 import { FindTotalCollectedAdminResponse } from './dto/find-total-collected.dto';
 import { FindTotalDebtAdminResponse } from './dto/find-total-debt.dto';
+import { FindTotalExpenseAdminResponse } from './dto/find-total-expense.dto';
 import { GetDashboardAdminResponse } from './dto/get-dashboard.dto';
-import { FindActiveEventsAdminPresenter } from './presenter/find-active-events.presenter';
 import { FindActiveParticipantsAdminPresenter } from './presenter/find-active-participants.presenter';
 import { FindTotalCollectedAdminPresenter } from './presenter/find-total-collected.presenter';
 import { FindTotalDebtAdminPresenter } from './presenter/find-total-debt.presenter';
+import { FindTotalExpenseAdminPresenter } from './presenter/find-total-expense.presenter';
 import { GetDashboardAdminPresenter } from './presenter/get-dashboard.presenter';
 
 @Controller('dashboard/admin')
@@ -35,7 +35,7 @@ export class DashboardAdminRoute {
     private readonly findTotalCollectedUsecase: FindTotalCollectedAdminUsecase,
     private readonly findTotalDebtUsecase: FindTotalDebtAdminUsecase,
     private readonly findActiveParticipantsUsecase: FindActiveParticipantsAdminUsecase,
-    private readonly findActiveEventsUsecase: FindActiveEventsAdminUsecase,
+    private readonly findTotalExpenseUsecase: FindTotalExpenseUsecase,
   ) {}
   @Get()
   @Roles(RoleTypeHierarchy.MANAGER)
@@ -47,30 +47,32 @@ export class DashboardAdminRoute {
       regionId: userInfo.regionId,
       eventId,
     };
-    const activeEvents = await this.findActiveEventsUsecase.execute(input);
+    const totalExpense = await this.findTotalExpenseUsecase.execute(input);
     const totalCollected = await this.findTotalCollectedUsecase.execute(input);
     const totalDebt = await this.findTotalDebtUsecase.execute(input);
     const activeParticipants =
       await this.findActiveParticipantsUsecase.execute(input);
 
     return GetDashboardAdminPresenter.tohttp({
-      activeEvents,
+      totalExpense,
       totalCollected,
       totalDebt,
       activeParticipants,
     });
   }
 
-  @Get('active-events')
+  @Get('expenses')
   @Roles(RoleTypeHierarchy.MANAGER)
-  public async getActiveEvents(
+  public async getExpenses(
     @UserInfo() userInfo: { regionId: string },
-  ): Promise<FindActiveEventsAdminResponse> {
-    const input: FindActiveEventsAdminInput = {
+    @Query('eventId') eventId?: string,
+  ): Promise<FindTotalExpenseAdminResponse> {
+    const input: FindTotalExpenseInput = {
       regionId: userInfo.regionId,
+      eventId,
     };
-    const activeEvents = await this.findActiveEventsUsecase.execute(input);
-    return FindActiveEventsAdminPresenter.tohttp(activeEvents);
+    const totalExpense = await this.findTotalExpenseUsecase.execute(input);
+    return FindTotalExpenseAdminPresenter.tohttp(totalExpense);
   }
 
   @Get('collected')

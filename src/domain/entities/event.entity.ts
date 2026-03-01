@@ -24,6 +24,7 @@ export type EventWithDto = {
   endDate: Date;
   quantityParticipants: number;
   amountCollected: number;
+  amountSpent: number;
   regionId: string;
   imageUrl?: string;
   logoUrl?: string;
@@ -47,6 +48,7 @@ export class Event extends Entity {
     private endDate: Date,
     private quantityParticipants: number,
     private amountCollected: number,
+    private amountSpent: number,
     private regionId: string,
     createdAt: Date,
     updatedAt: Date,
@@ -84,6 +86,7 @@ export class Event extends Entity {
     const updatedAt = new Date();
     const quantityParticipants = 0;
     const amountCollected = 0;
+    const amountSpent = 0;
     const allowCard = false;
     const allowGuest = false;
     return new Event(
@@ -93,6 +96,7 @@ export class Event extends Entity {
       endDate,
       quantityParticipants,
       amountCollected,
+      amountSpent,
       regionId,
       createdAt,
       updatedAt,
@@ -116,6 +120,7 @@ export class Event extends Entity {
     endDate,
     quantityParticipants,
     amountCollected,
+    amountSpent,
     regionId,
     imageUrl,
     logoUrl,
@@ -137,6 +142,7 @@ export class Event extends Entity {
       endDate,
       quantityParticipants,
       amountCollected,
+      amountSpent,
       regionId,
       createdAt,
       updatedAt,
@@ -183,6 +189,10 @@ export class Event extends Entity {
 
   public getAmountCollected(): number {
     return this.amountCollected;
+  }
+
+  public getAmountSpent(): number {
+    return this.amountSpent;
   }
 
   public getRegionId(): string {
@@ -372,6 +382,18 @@ export class Event extends Entity {
 
   public decrementAmountCollected(amount: number): void {
     this.amountCollected -= amount;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public incrementAmountSpent(spent: number): void {
+    this.amountSpent += spent;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public decrementAmountSpent(spent: number): void {
+    this.amountSpent -= spent;
     this.updatedAt = new Date();
     this.validate();
   }

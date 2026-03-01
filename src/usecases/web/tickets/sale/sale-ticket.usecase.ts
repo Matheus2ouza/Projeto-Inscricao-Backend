@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentMethod, TicketSaleStatus } from 'generated/prisma';
+import {
+  CashEntryOrigin,
+  CashEntryType,
+  PaymentMethod,
+  TicketSaleStatus,
+} from 'generated/prisma';
 import { Buffer } from 'node:buffer';
+import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
+import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
+import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
@@ -15,6 +24,7 @@ import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not
 import { TicketNotFoundUsecaseException } from '../../exceptions/tickets/ticket-not-found.usecase.exception';
 
 export type SaleTicketInput = {
+  userId: string;
   eventId: string;
   name: string;
   items: TicketSaleItemInput[];
@@ -47,6 +57,9 @@ export class SaleTicketUsecase
     private readonly ticketSaleGateway: TicketSaleGateway,
     private readonly ticketSalePaymentGateway: TicketSalePaymentGateway,
     private readonly ticketSaleItemGateway: TicketSaleItemGateway,
+    private readonly cashRegisterEventGateway: CashRegisterEventGateway,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly cashRegisterGateway: CashRegisterGateway,
   ) {}
 
   async execute(input: SaleTicketInput): Promise<SaleTicketOutput> {
@@ -180,6 +193,32 @@ export class SaleTicketUsecase
       await this.ticketSalePaymentGateway.create(paymentEntity);
     }
 
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(input.eventId);
+
+    if (cashRegisterEvents.length > 0) {
+      const cashEntries = normalizedPayments.flatMap((payment) =>
+        cashRegisterEvents.map((c) =>
+          CashRegisterEntry.create({
+            cashRegisterId: c.getCashRegisterId(),
+            type: CashEntryType.INCOME,
+            origin: CashEntryOrigin.TICKET,
+            method: payment.paymentMethod,
+            value: payment.value,
+            description: `Venda de ticket ${sale.getId()} - ${input.name}`,
+            eventId: input.eventId,
+            ticketSaleId: sale.getId(),
+            responsible: input.userId,
+          }),
+        ),
+      );
+
+      if (cashEntries.length > 0) {
+        await this.cashRegisterEntryGateway.createMany(cashEntries);
+        await this.updateCashRegisterBalances(cashEntries);
+      }
+    }
+
     for (const item of normalizedItems) {
       const saleItem = TicketSaleItem.create({
         ticketSaleId: sale.getId(),
@@ -233,5 +272,41 @@ export class SaleTicketUsecase
 
   private static centsToNumber(cents: number) {
     return Number((cents / 100).toFixed(2));
+  }
+
+  private async updateCashRegisterBalances(
+    entries: CashRegisterEntry[],
+  ): Promise<void> {
+    const deltaByCashRegisterId = new Map<string, number>();
+
+    for (const entry of entries) {
+      const cashRegisterId = entry.getCashRegisterId();
+      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const delta =
+        entry.getType() === CashEntryType.INCOME
+          ? entry.getValue()
+          : -entry.getValue();
+
+      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+    }
+
+    await Promise.all(
+      [...deltaByCashRegisterId.entries()].map(
+        async ([cashRegisterId, delta]) => {
+          if (delta === 0) return;
+          const cashRegister =
+            await this.cashRegisterGateway.findById(cashRegisterId);
+          if (!cashRegister) return;
+
+          if (delta > 0) {
+            cashRegister.incrementBalance(delta);
+          } else {
+            cashRegister.decrementBalance(-delta);
+          }
+
+          await this.cashRegisterGateway.update(cashRegister);
+        },
+      ),
+    );
   }
 }

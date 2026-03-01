@@ -13,6 +13,7 @@ export class ParticipantPrismaModelToParticipantEntityMapper {
       typeInscriptionId: participantPrisma.typeInscriptionId,
       name: participantPrisma.name,
       birthDate: participantPrisma.birthDate,
+      cpf: participantPrisma.cpf || undefined,
       preferredName: participantPrisma.preferredName || undefined,
       shirtSize: participantPrisma.shirtSize || undefined,
       shirtType: participantPrisma.shirtType || undefined,

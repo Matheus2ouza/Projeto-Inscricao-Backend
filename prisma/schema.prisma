@@ -67,13 +67,14 @@ model AccountParticipantInEvent {
 }
 
 model Regions {
-  id                 String     @id @default(uuid())
-  name               String     @unique
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-  outstandingBalance Decimal    @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
+  id                 String         @id @default(uuid())
+  name               String         @unique
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  outstandingBalance Decimal        @default(0.00) @map("outstanding_balance") @db.Decimal(10, 2)
   accounts           Accounts[]
   events             Events[]
+  cashRegisters      CashRegister[]
 
   @@map("regions")
 }
@@ -84,6 +85,7 @@ model Events {
   createdAt            DateTime             @default(now())
   regionId             String
   amountCollected      Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  amountSpent          Decimal              @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
   imageUrl             String?              @map("image_url")
   quantityParticipants Int                  @default(0) @map("quantity_participants")
   updatedAt            DateTime             @updatedAt
@@ -107,6 +109,8 @@ model Events {
   OnSiteRegistration   OnSiteRegistration[]
   typeInscriptions     TypeInscriptions[]
   payments             Payment[]
+  cashRegisterEvents   CashRegisterEvent[]
+  cashRegisterEntries  CashRegisterEntry[]
 
   @@map("events")
 }
@@ -181,6 +185,7 @@ model Participant {
   shirtSize         ShirtSize?       @map("shirt_size")
   shirtType         ShirtType?       @map("shirt_type")
   birthDate         DateTime         @map("birth_date")
+  cpf               String?          @unique
   typeInscriptionId String           @map("type_inscription_id")
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")
@@ -192,16 +197,17 @@ model Participant {
 }
 
 model OnSiteRegistration {
-  id                String              @id @default(uuid())
-  eventId           String              @map("event_id")
-  phone             String?
-  status            InscriptionStatus   @default(PAID)
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  responsible       String
-  totalValue        Decimal             @db.Decimal(10, 2)
-  OnSiteParticipant OnSiteParticipant[]
-  event             Events              @relation(fields: [eventId], references: [id])
+  id                  String              @id @default(uuid())
+  eventId             String              @map("event_id")
+  phone               String?
+  status              InscriptionStatus   @default(PAID)
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  responsible         String
+  totalValue          Decimal             @db.Decimal(10, 2)
+  OnSiteParticipant   OnSiteParticipant[]
+  event               Events              @relation(fields: [eventId], references: [id])
+  cashRegisterEntries CashRegisterEntry[]
 
   @@map("on_site_registrations")
 }
@@ -296,8 +302,9 @@ model PaymentInstallment {
   estimatedAt         DateTime @map("estimated_at")
   createdAt           DateTime @default(now()) @map("created_at")
 
-  payment           Payment            @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  financialMovement FinancialMovement? @relation(fields: [financialMovementId], references: [id])
+  payment             Payment             @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  financialMovement   FinancialMovement?  @relation(fields: [financialMovementId], references: [id])
+  cashRegisterEntries CashRegisterEntry[]
 
   @@unique([paymentId, installmentNumber])
   @@map("payment_installments")
@@ -358,18 +365,19 @@ model EventTickets {
 }
 
 model TicketSale {
-  id              String              @id @default(uuid())
-  totalValue      Decimal             @db.Decimal(10, 2)
-  createdAt       DateTime            @default(now()) @map("created_at")
-  updatedAt       DateTime            @updatedAt @map("updated_at")
-  email           String?
-  name            String
-  phone           String?
-  status          TicketSaleStatus    @default(PENDING)
-  eventId         String              @map("event_id")
-  approvedBy      String?             @map("approved_by")
-  ticketSaleItems TicketSaleItem[]
-  payments        TicketSalePayment[]
+  id                  String              @id @default(uuid())
+  totalValue          Decimal             @db.Decimal(10, 2)
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  email               String?
+  name                String
+  phone               String?
+  status              TicketSaleStatus    @default(PENDING)
+  eventId             String              @map("event_id")
+  approvedBy          String?             @map("approved_by")
+  ticketSaleItems     TicketSaleItem[]
+  payments            TicketSalePayment[]
+  cashRegisterEntries CashRegisterEntry[]
 
   @@map("ticket_sales")
 }
@@ -416,17 +424,128 @@ model TicketUnit {
 }
 
 model EventExpenses {
-  id            String        @id @default(uuid())
-  eventId       String        @map("event_id")
-  description   String
-  value         Decimal       @db.Decimal(10, 2)
-  paymentMethod PaymentMethod
-  responsible   String
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-  event         Events        @relation(fields: [eventId], references: [id])
+  id                  String              @id @default(uuid())
+  eventId             String              @map("event_id")
+  description         String
+  value               Decimal             @db.Decimal(10, 2)
+  paymentMethod       PaymentMethod
+  responsible         String
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+  event               Events              @relation(fields: [eventId], references: [id])
+  cashRegisterEntries CashRegisterEntry[]
 
   @@map("event_expenses")
+}
+
+model CashRegister {
+  id        String             @id @default(uuid())
+  name      String
+  regionId  String             @map("region_id")
+  status    CashRegisterStatus @default(OPEN)
+  balance   Decimal            @default(0.00) @db.Decimal(10, 2)
+  openedAt  DateTime           @default(now()) @map("opened_at")
+  closedAt  DateTime?          @map("closed_at")
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  region Regions @relation(fields: [regionId], references: [id])
+
+  events       CashRegisterEvent[]
+  entries      CashRegisterEntry[]
+  transfersOut CashRegisterTransfer[] @relation("TransferFrom")
+  transfersIn  CashRegisterTransfer[] @relation("TransferTo")
+
+  @@map("cash_registers")
+}
+
+// Relação N:N entre CashRegister e Events
+model CashRegisterEvent {
+  id             String   @id @default(uuid())
+  cashRegisterId String   @map("cash_register_id")
+  eventId        String   @map("event_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  cashRegister CashRegister @relation(fields: [cashRegisterId], references: [id])
+  event        Events       @relation(fields: [eventId], references: [id])
+
+  @@unique([cashRegisterId, eventId])
+  @@map("cash_register_events")
+}
+
+// Cada movimentação de entrada ou saída do caixa
+model CashRegisterEntry {
+  id             String          @id @default(uuid())
+  cashRegisterId String          @map("cash_register_id")
+  type           CashEntryType
+  origin         CashEntryOrigin
+  method         PaymentMethod
+  value          Decimal         @db.Decimal(10, 2)
+  description    String?
+
+  eventId              String? @map("event_id")
+  paymentInstallmentId String? @map("payment_installment_id") // ASAAS | INTERNAL
+  onSiteRegistrationId String? @map("on_site_registration_id") // ONSITE
+  eventExpenseId       String? @map("event_expense_id") // EXPENSE
+  ticketSaleId         String? @map("ticket_sale_id") // TICKET
+  transferId           String? @map("transfer_id") // TRANSFER
+
+  responsible String?
+  imageUrl    String? @map("image_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cashRegister       CashRegister          @relation(fields: [cashRegisterId], references: [id])
+  event              Events?               @relation(fields: [eventId], references: [id])
+  paymentInstallment PaymentInstallment?   @relation(fields: [paymentInstallmentId], references: [id])
+  onSiteRegistration OnSiteRegistration?   @relation(fields: [onSiteRegistrationId], references: [id])
+  eventExpense       EventExpenses?        @relation(fields: [eventExpenseId], references: [id])
+  ticketSale         TicketSale?           @relation(fields: [ticketSaleId], references: [id])
+  transfer           CashRegisterTransfer? @relation(fields: [transferId], references: [id])
+
+  @@map("cash_register_entries")
+}
+
+// Transferências entre caixas
+model CashRegisterTransfer {
+  id          String   @id @default(uuid())
+  fromCashId  String   @map("from_cash_id")
+  toCashId    String   @map("to_cash_id")
+  value       Decimal  @db.Decimal(10, 2)
+  description String?
+  responsible String?
+  imageUrl    String?  @map("image_url") // comprovante
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  fromCash CashRegister        @relation("TransferFrom", fields: [fromCashId], references: [id])
+  toCash   CashRegister        @relation("TransferTo", fields: [toCashId], references: [id])
+  entries  CashRegisterEntry[] // sempre serão 2 entries por transferência
+
+  @@map("cash_register_transfers")
+}
+
+enum CashRegisterStatus {
+  OPEN
+  CLOSED
+}
+
+enum CashEntryType {
+  INCOME // entrada (Asaas liberou, PIX manual, dinheiro on-site)
+  EXPENSE // saída para pagar despesa do evento
+  WITHDRAWAL // retirada/saque manual
+}
+
+enum CashEntryOrigin {
+  ASAAS // parcela liberada pelo Asaas (paymentInstallmentId)
+  INTERNAL // inscrição aprovada via PIX manual (paymentInstallmentId)
+  ONSITE // dinheiro físico de registro on-site (onSiteRegistrationId)
+  EXPENSE // saída de despesa do evento (eventExpenseId)
+  TICKET // venda de ticket (ticketSaleId)
+  TRANSFER // transferência entre caixas (transferId)
+  MANUAL // entrada/saída registrada manualmente, sem origem vinculada
 }
 
 enum InscriptionStatus {

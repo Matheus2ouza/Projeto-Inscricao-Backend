@@ -12,9 +12,9 @@ import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-insta
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
+import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/payment-Inscription/overpayment-not-allowed.usecase.exception';
 import { CardPaymentDeletionNotAllowedUsecaseException } from '../../exceptions/payment/card-payment-deletion-not-allowed.usecase.exception';
 import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
-import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/paymentInscription/overpayment-not-allowed.usecase.exception';
 
 export type DeletePaymentInput = {
   id: string;

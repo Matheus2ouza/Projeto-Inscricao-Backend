@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { AccountParticipantInEventPrismaRepositoryProvider } from './prisma/account-participant-in-event/model/account-participant-in-event.prisma.repository.provider';
 import { AccountParticipantPrismaRepositoryProvider } from './prisma/account-participant/model/account-participant.prisma.repository.provider';
 import { AccountPrismaRepositoryProvider } from './prisma/account/model/account.prisma.repository.provider';
+import { CashRegisterEntryPrismaRepositoryProvider } from './prisma/cash-register-entry/model/cash-register-entry.prisma.repository.provider';
+import { CashRegisterEventPrismaRepositoryProvider } from './prisma/cash-register-event/model/cash-register-event.prisma.repository.provider';
+import { CashRegisterPrismaRepositoryProvider } from './prisma/cash-register/model/cash-register.prisma.repository.provider';
+import { CashRegisterTransferPrismaRepositoryProvider } from './prisma/cash-register-transfer/model/cash-register-transfer.prisma.repository.provider';
 import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
@@ -30,6 +34,10 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     AccountPrismaRepositoryProvider,
     AccountParticipantPrismaRepositoryProvider,
     AccountParticipantInEventPrismaRepositoryProvider,
+    CashRegisterPrismaRepositoryProvider,
+    CashRegisterEntryPrismaRepositoryProvider,
+    CashRegisterEventPrismaRepositoryProvider,
+    CashRegisterTransferPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
@@ -55,6 +63,10 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     AccountPrismaRepositoryProvider,
     AccountParticipantPrismaRepositoryProvider,
     AccountParticipantInEventPrismaRepositoryProvider,
+    CashRegisterPrismaRepositoryProvider,
+    CashRegisterEntryPrismaRepositoryProvider,
+    CashRegisterEventPrismaRepositoryProvider,
+    CashRegisterTransferPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,

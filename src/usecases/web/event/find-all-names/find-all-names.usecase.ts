@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { Usecase } from 'src/usecases/usecase';
+
+export type FindAllNamesEventInput = {
+  regionId?: string;
+};
 
 export type FindAllNamesEventOutput = {
   id: string;
@@ -7,15 +12,23 @@ export type FindAllNamesEventOutput = {
 }[];
 
 @Injectable()
-export class FindAllnamesEventUsecase {
+export class FindAllnamesEventUsecase
+  implements Usecase<FindAllNamesEventInput, FindAllNamesEventOutput>
+{
   public constructor(private readonly eventGateway: EventGateway) {}
 
-  public async execute(): Promise<FindAllNamesEventOutput> {
-    const allEventsName = await this.eventGateway.findAll();
+  public async execute(
+    input: FindAllNamesEventInput,
+  ): Promise<FindAllNamesEventOutput> {
+    const filters = {
+      regionId: input.regionId,
+    };
 
-    const output: FindAllNamesEventOutput = allEventsName.map((eventsName) => ({
-      id: eventsName.getId(),
-      name: eventsName.getName(),
+    const allEventsName = await this.eventGateway.findAll(filters);
+
+    const output: FindAllNamesEventOutput = allEventsName.map((e) => ({
+      id: e.getId(),
+      name: e.getName(),
     }));
 
     return output;

@@ -12,6 +12,7 @@ export class ParticipantEntityToParticipantPrismaModelMapper {
       shirtSize: participant.getShirtSize() ?? null,
       shirtType: participant.getShirtType() ?? null,
       birthDate: participant.getBirthDate(),
+      cpf: participant.getCpf() ?? null,
       gender: participant.getGender(),
       createdAt: participant.getCreatedAt(),
       updatedAt: participant.getUpdatedAt(),
