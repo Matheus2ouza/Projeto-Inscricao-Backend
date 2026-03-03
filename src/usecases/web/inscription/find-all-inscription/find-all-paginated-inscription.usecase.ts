@@ -15,6 +15,7 @@ export type FindAllPaginatedInscriptionInput = {
   isGuest?: string | boolean;
   orderBy?: 'asc' | 'desc';
   limitTime?: string;
+  responsible?: string;
   page: number;
   pageSize: number;
 };
@@ -90,6 +91,7 @@ export class FindAllPaginatedInscriptionsUsecase
       isGuest,
       accountId: input.userId,
       orderBy: input.orderBy,
+      responsible: input.responsible,
     };
 
     const [inscriptions, totalInscription, totalParticipants] =

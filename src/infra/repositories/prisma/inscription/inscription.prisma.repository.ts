@@ -69,10 +69,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return deleted.count;
   }
 
-  async deleteExpiredGuestInscription(
-    ids: string[],
-    expiredDate: Date,
-  ): Promise<number> {
+  async deleteExpiredGuestInscription(ids: string[]): Promise<number> {
     const deleted = await this.prisma.inscription.deleteMany({
       where: {
         id: { in: ids },
@@ -86,8 +83,14 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   // Buscas por identificador único
-  async findById(id: string): Promise<Inscription | null> {
-    const found = await this.prisma.inscription.findUnique({ where: { id } });
+  async findById(
+    id: string,
+    filters?: { isGuest?: boolean },
+  ): Promise<Inscription | null> {
+    const where = this.buildWhereClauseInscription(filters);
+    const found = await this.prisma.inscription.findUnique({
+      where: { id, ...where },
+    });
     return found ? PrismaToEntity.map(found) : null;
   }
 
@@ -112,14 +115,16 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByEventId(filters?: {
-    eventId: string;
-    status?: InscriptionStatus[];
-  }): Promise<Inscription[]> {
+  async findByEventId(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus[];
+    },
+  ): Promise<Inscription[]> {
     const where = this.buildWhereClauseInscription(filters);
     const found = await this.prisma.inscription.findMany({
       where: {
-        eventId: filters?.eventId,
+        eventId,
         ...where,
       },
     });
@@ -230,6 +235,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       accountId?: string;
       orderBy?: 'asc' | 'desc';
       limitTime?: string;
+      responsible?: string;
     },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
@@ -239,6 +245,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         eventId,
         ...where,
+        responsible: {
+          contains: filters?.responsible,
+          mode: 'insensitive',
+        },
       },
       skip,
       take: pageSize,
@@ -285,6 +295,16 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         eventId,
       },
     });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByLocality(eventId: string): Promise<Inscription[]> {
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId,
+      },
+    });
+
     return found.map(PrismaToEntity.map);
   }
 
@@ -393,6 +413,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;
+      responsible?: string;
     },
   ): Promise<number> {
     const where = this.buildWhereClauseInscription(filters);
@@ -400,6 +421,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         eventId,
         ...where,
+        responsible: {
+          contains: filters?.responsible,
+          mode: 'insensitive',
+        },
       },
     });
   }

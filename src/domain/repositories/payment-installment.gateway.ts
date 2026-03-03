@@ -19,5 +19,8 @@ export abstract class PaymentInstallmentGateway {
   ): Promise<PaymentInstallment | null>;
 
   abstract findByPaymentId(paymentId: string): Promise<PaymentInstallment[]>;
+  abstract findManyByPaymentId(
+    paymentId: string,
+  ): Promise<PaymentInstallment[]>;
   abstract findByRegionId(regionId: string): Promise<PaymentInstallment[]>;
 }

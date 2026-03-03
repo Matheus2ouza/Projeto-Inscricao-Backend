@@ -215,9 +215,9 @@ export class ReportFinancialUsecase
       const sumPix = ticketDetails.reduce((acc, d) => acc + d.totalPix, 0);
     }
 
-    const inscriptions = await this.inscriptionGateway.findByEventId({
-      eventId: event.getId(),
-    });
+    const inscriptions = await this.inscriptionGateway.findByEventId(
+      event.getId(),
+    );
     const inscriptionIds = inscriptions.map((i) => i.getId());
     const allocations =
       await this.paymentAllocationGateway.findManyByInscriptionIds(

@@ -47,10 +47,12 @@ export class ListInscriptionToAnalysisUsecase
       );
     }
 
-    const inscriptions = await this.inscriptionGateway.findByEventId({
-      eventId: eventExists.getId(),
-      status: ['UNDER_REVIEW'],
-    });
+    const inscriptions = await this.inscriptionGateway.findByEventId(
+      eventExists.getId(),
+      {
+        status: ['UNDER_REVIEW'],
+      },
+    );
 
     // Organizar inscrições por conta
     const accountsMap = new Map<

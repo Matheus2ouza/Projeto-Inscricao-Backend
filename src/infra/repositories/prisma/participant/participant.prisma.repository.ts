@@ -121,6 +121,16 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return modals.map(PrismaToEntity.map);
   }
 
+  async findByInscriptions(inscriptionIds: string[]): Promise<Participant[]> {
+    const found = await this.prisma.participant.findMany({
+      where: {
+        inscriptionId: { in: inscriptionIds },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async countAllByInscriptionId(inscriptionId: string): Promise<number> {
     const total = await this.prisma.participant.count({
       where: { inscriptionId: inscriptionId },

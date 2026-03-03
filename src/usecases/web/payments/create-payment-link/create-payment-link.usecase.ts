@@ -205,7 +205,7 @@ export class CreatePaymentLinkUsecase
       value: totalValue,
       billingType: 'CREDIT_CARD',
       chargeType: 'INSTALLMENT',
-      maxInstallmentCount: 3,
+      maxInstallmentCount: 2,
       externalReference,
       notificationEnabled: false,
       callback: {
