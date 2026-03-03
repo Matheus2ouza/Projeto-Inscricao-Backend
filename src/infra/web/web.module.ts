@@ -69,6 +69,7 @@ import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-av
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
 import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
+import { FindAllNamesInscriptionRoute } from './routes/inscription/find-all-names/find-all-names-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
 import { FindDetailsGuestInscriptionRoute } from './routes/inscription/find-details-gues-inscription/find-details-gues-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
@@ -76,6 +77,7 @@ import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
 import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.route';
+import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
@@ -88,6 +90,7 @@ import { DeleteParticipantsRoute } from './routes/participants/delete/delete-par
 import { ListGuestParticipantsRoute } from './routes/participants/list-guest-participants/list-guest-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
+import { GeneratePdfLocalityRoute } from './routes/participants/pdf/generate-pdf-locality/generate-pdf-locality.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
@@ -231,6 +234,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedInscriptionsRoute,
     DeleteInscriptionRoute,
     FindDetailsInscriptionRoute,
+    FindAllNamesInscriptionRoute,
 
     // Inscriptions - Group
     RegisterGroupInscriptionRoute,
@@ -244,6 +248,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     GeneratePdfAllInscriptionsRoute,
     GeneratePdfInscriptionRoute,
+    GeneratePdfDetailsGuestInscriptionRoute,
 
     //Update - Inscription
     UpdateInscriptionRoute,
@@ -297,6 +302,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     DeleteParticipantsRoute,
     GeneratePdfSelectedParticipantRoute,
     GeneratePdfEtiquetaRoute,
+    GeneratePdfLocalityRoute,
 
     // Tickets
     CreateTicketRoute,

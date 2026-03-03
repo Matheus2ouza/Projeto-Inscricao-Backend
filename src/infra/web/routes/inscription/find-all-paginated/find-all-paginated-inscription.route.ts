@@ -40,6 +40,7 @@ export class FindAllPaginatedInscriptionsRoute {
         user.userRole !== roleType.USER ? query.isGuest === 'true' : false,
       orderBy: query.orderBy || 'desc',
       limitTime: query.limitTime,
+      responsible: query.responsible,
       page: query.page,
       pageSize: query.pageSize,
     };

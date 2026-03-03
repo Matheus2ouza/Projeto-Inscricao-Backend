@@ -6,6 +6,7 @@ export type FindAllPaginatedInscriptionRequest = {
   isGuest?: string | boolean;
   orderBy?: 'asc' | 'desc';
   limitTime?: string;
+  responsible?: string;
   page: number;
   pageSize: number;
 };

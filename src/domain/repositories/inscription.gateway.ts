@@ -29,7 +29,10 @@ export abstract class InscriptionGateway {
 
   // Buscas por identificador único
   // Busca uma inscrição pelo ID
-  abstract findById(id: string): Promise<Inscription | null>;
+  abstract findById(
+    id: string,
+    filters?: { isGuest?: boolean },
+  ): Promise<Inscription | null>;
 
   // Buscas por relacionamento
   // Busca inscrições pelo ID da conta
@@ -39,10 +42,12 @@ export abstract class InscriptionGateway {
   abstract findByPaymentId(paymentId: string): Promise<Inscription[]>;
 
   // Busca inscrições pelo ID do evento com filtros opcionais de status
-  abstract findByEventId(filters?: {
-    eventId: string;
-    status?: InscriptionStatus[];
-  }): Promise<Inscription[]>;
+  abstract findByEventId(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus[];
+    },
+  ): Promise<Inscription[]>;
 
   // Busca inscrições pelo ID do evento e ID da conta
   abstract findByEventIdAndAccountId(
@@ -105,6 +110,7 @@ export abstract class InscriptionGateway {
       accountId?: string;
       orderBy?: 'asc' | 'desc';
       limitTime?: string;
+      responsible?: string;
     },
   ): Promise<Inscription[]>;
 
@@ -123,6 +129,9 @@ export abstract class InscriptionGateway {
 
   // Busca inscrições com status pago de um evento
   abstract findInscriptionsWithPaid(eventId: string): Promise<Inscription[]>;
+
+  // Busca pela localidade
+  abstract findByLocality(eventId: string): Promise<Inscription[]>;
 
   // Busca IDs de contas de um evento de forma paginada
   abstract findAccountIdsByEventIdPaginated(
@@ -143,6 +152,7 @@ export abstract class InscriptionGateway {
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;
+      responsible?: string;
     },
   ): Promise<number>;
 
