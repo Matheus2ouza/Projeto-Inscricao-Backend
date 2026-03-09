@@ -8,6 +8,7 @@ export type FindDetailsCashRegisterResponse = {
   id: string;
   name: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
   allocationEvents: AllocationEvent[];
   totalIncome: number;
@@ -15,6 +16,8 @@ export type FindDetailsCashRegisterResponse = {
   totalPix: number;
   totalCard: number;
   totalCash: number;
+  expectedValues: number;
+  expectedNetValues: number;
   openedAt: Date;
   closedAt?: Date;
 };

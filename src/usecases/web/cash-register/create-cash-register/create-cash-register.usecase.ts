@@ -11,6 +11,7 @@ export type CreateCashRegisterInput = {
   name: string;
   regionId: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
   allocationEvent: string;
 };
@@ -38,6 +39,7 @@ export class CreateCashRegisterUsecase
       name: input.name,
       regionId: input.regionId,
       status: input.status,
+      initialBalance: input.initialBalance,
       balance: input.balance,
     });
     await this.cashRegisterGateway.create(cashRegister);

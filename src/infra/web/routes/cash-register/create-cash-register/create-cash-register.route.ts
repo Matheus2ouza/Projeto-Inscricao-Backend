@@ -30,6 +30,7 @@ export class CreateCashRegisterRoute {
       regionId:
         user.userRole !== roleType.SUPER ? user.regionId! : body.regionId,
       status: body.status,
+      initialBalance: body.initialBalance,
       balance: body.balance,
       allocationEvent: body.allocationEvent,
     };

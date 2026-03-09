@@ -8,6 +8,7 @@ export class CashRegisterPrismaModelToCashRegisterEntityMapper {
       name: cashRegisterPrisma.name,
       regionId: cashRegisterPrisma.regionId,
       status: cashRegisterPrisma.status,
+      initialBalance: cashRegisterPrisma.initialBalance.toNumber(),
       balance: cashRegisterPrisma.balance.toNumber(),
       openedAt: cashRegisterPrisma.openedAt,
       closedAt: cashRegisterPrisma.closedAt ?? undefined,

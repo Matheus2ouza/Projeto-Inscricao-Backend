@@ -22,7 +22,6 @@ export class GeneratePdfLocalityRoute {
     const input: GeneratePdfLocalityInput = {
       eventId: param.eventId,
     };
-
     const response = await this.generatePdfLocalityUsecase.execute(input);
     return GeneratePdfLocalityPresenter.toHttp(response);
   }

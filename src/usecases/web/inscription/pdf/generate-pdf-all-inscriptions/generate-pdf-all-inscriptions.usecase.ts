@@ -3,8 +3,10 @@ import axios from 'axios';
 import {
   genderType,
   InscriptionStatus,
+  PaymentMethod,
   ShirtSize,
   ShirtType,
+  StatusPayment,
 } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
@@ -12,6 +14,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
   ListInscriptionsPdfData,
@@ -22,9 +25,15 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type GeneratePdfAllInscriptionsInput = {
   eventId: string;
+
+  // filtros
+  participants?: boolean;
+  payment?: boolean;
+  status?: InscriptionStatus | InscriptionStatus[];
+  statusPayment?: StatusPayment | StatusPayment[];
+  methodPayment?: PaymentMethod | PaymentMethod[];
   isGuest?: boolean;
-  details: boolean;
-  participants: boolean;
+  limitTime?: string;
 };
 
 type InscriptionsDetails = {
@@ -35,6 +44,13 @@ type InscriptionsDetails = {
   createdAt: Date;
   isGuest?: boolean;
   participants?: ParticipantDetails[];
+  payment?: {
+    guestName?: string;
+    status: StatusPayment;
+    totalPaid: number;
+    createdAt: Date;
+    receiptPath?: string;
+  };
 };
 
 type ParticipantDetails = {
@@ -62,6 +78,7 @@ export class GeneratePdfAllInscriptionsUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
+    private readonly paymentGateway: PaymentGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -78,10 +95,24 @@ export class GeneratePdfAllInscriptionsUsecase
       );
     }
 
+    const filters = {
+      status: input.status,
+      statusPayment: input.statusPayment,
+      methodPayment: input.methodPayment,
+      isGuest: input.isGuest,
+      limitTime: input.limitTime,
+    };
+
     const [inscriptions, totalInscription, totalAccountParticipants] =
       await Promise.all([
-        this.inscriptionGateway.findMany(event.getId(), input.isGuest),
-        this.inscriptionGateway.countAllByEvent(event.getId(), input.isGuest),
+        this.inscriptionGateway.findManyInscriptionsToGenerateReport(
+          event.getId(),
+          filters,
+        ),
+        this.inscriptionGateway.countAllInscriptionsToGenerateReport(
+          event.getId(),
+          filters,
+        ),
         this.accountParticipantInEventGateway.countParticipantsByEventId(
           event.getId(),
         ),
@@ -96,7 +127,7 @@ export class GeneratePdfAllInscriptionsUsecase
 
     const inscriptionDetails: InscriptionsDetails[] = await Promise.all(
       inscriptions.map(async (i) => {
-        let participants: ParticipantDetails[] = [];
+        let participants: ParticipantDetails[] | undefined = undefined;
 
         if (input.participants) {
           participants = (
@@ -132,6 +163,13 @@ export class GeneratePdfAllInscriptionsUsecase
           locality = account?.getUsername() ?? '';
         }
 
+        const payment = input.payment
+          ? await this.paymentGateway.findByInscriptionId(i.getId())
+          : null;
+        const receiptPath = payment
+          ? this.extractReceiptPath(payment.getImageUrl())
+          : '';
+
         return {
           id: i.getId(),
           responsible: i.getResponsible(),
@@ -140,6 +178,16 @@ export class GeneratePdfAllInscriptionsUsecase
           createdAt: i.getCreatedAt(),
           isGuest: i.getIsGuest(),
           participants,
+          payment:
+            payment && input.payment
+              ? {
+                  guestName: payment.getGuestName(),
+                  status: payment.getStatus(),
+                  totalPaid: payment.getTotalPaid(),
+                  createdAt: payment.getCreatedAt(),
+                  receiptPath,
+                }
+              : undefined,
         };
       }),
     );
@@ -158,7 +206,7 @@ export class GeneratePdfAllInscriptionsUsecase
       },
       inscriptions: inscriptionDetails,
       totals: {
-        totalInscriptions: input.details ? totalInscription : undefined,
+        totalInscriptions: totalInscription,
         totalAccountParticipants,
         totalGuestParticipants,
       },
@@ -244,5 +292,24 @@ export class GeneratePdfAllInscriptionsUsecase
     } catch {
       return '';
     }
+  }
+
+  private extractReceiptPath(imageUrl?: string): string {
+    if (!imageUrl) return '';
+
+    const guestMarker = '/guest/';
+    const normalMarker = '/normal/';
+
+    const guestIndex = imageUrl.indexOf(guestMarker);
+    if (guestIndex >= 0) {
+      return `/${imageUrl.slice(guestIndex + guestMarker.length)}`;
+    }
+
+    const normalIndex = imageUrl.indexOf(normalMarker);
+    if (normalIndex >= 0) {
+      return `/${imageUrl.slice(normalIndex + normalMarker.length)}`;
+    }
+
+    return imageUrl;
   }
 }

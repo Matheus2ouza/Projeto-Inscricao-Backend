@@ -44,6 +44,7 @@ export class GenerateReportPdfUsecase
           name: cashRegisterDetails.name,
           status: cashRegisterDetails.status,
           balance: cashRegisterDetails.balance,
+          initialBalance: cashRegisterDetails.initialBalance,
           totalIncome: cashRegisterDetails.totalIncome,
           totalExpense: cashRegisterDetails.totalExpense,
           totalCash: cashRegisterDetails.totalCash,
@@ -54,6 +55,7 @@ export class GenerateReportPdfUsecase
         },
         moviments: moviments.map((m, idx) => ({
           index: idx + 1,
+          type: String(m.type),
           method: String(m.method),
           origin: String(m.origin),
           value: m.value,

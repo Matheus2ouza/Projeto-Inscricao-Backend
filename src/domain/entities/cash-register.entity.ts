@@ -7,6 +7,7 @@ export type CashRegisterCreateDto = {
   name: string;
   regionId: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
 };
 
@@ -15,6 +16,7 @@ export type CashRegisterWithDto = {
   name: string;
   regionId: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
   openedAt: Date;
   closedAt?: Date;
@@ -28,6 +30,7 @@ export class CashRegister extends Entity {
     private name: string,
     private regionId: string,
     private status: CashRegisterStatus,
+    private initialBalance: number,
     private balance: number,
     private openedAt: Date,
     createdAt: Date,
@@ -42,9 +45,11 @@ export class CashRegister extends Entity {
     name,
     regionId,
     status,
+    initialBalance,
     balance,
   }: CashRegisterCreateDto): CashRegister {
     const id = Utils.generateUUID();
+    const initialBalanceDefault = initialBalance || 0;
     const openedAt = new Date();
     const createdAt = new Date();
     const updatedAt = new Date();
@@ -54,6 +59,7 @@ export class CashRegister extends Entity {
       name,
       regionId,
       status,
+      initialBalanceDefault,
       balance,
       openedAt,
       createdAt,
@@ -66,6 +72,7 @@ export class CashRegister extends Entity {
     name,
     regionId,
     status,
+    initialBalance,
     balance,
     openedAt,
     closedAt,
@@ -77,6 +84,7 @@ export class CashRegister extends Entity {
       name,
       regionId,
       status,
+      initialBalance,
       balance,
       openedAt,
       createdAt,
@@ -99,6 +107,10 @@ export class CashRegister extends Entity {
 
   public getStatus(): CashRegisterStatus {
     return this.status;
+  }
+
+  public getInitialBalance(): number {
+    return this.initialBalance;
   }
 
   public getBalance(): number {

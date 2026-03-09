@@ -23,4 +23,12 @@ export abstract class PaymentInstallmentGateway {
     paymentId: string,
   ): Promise<PaymentInstallment[]>;
   abstract findByRegionId(regionId: string): Promise<PaymentInstallment[]>;
+  abstract findFutureReleasesByEventId(
+    eventId: string,
+  ): Promise<PaymentInstallment[]>;
+
+  abstract sumExpectedValues(eventId: string): Promise<{
+    value: number;
+    netValue: number;
+  }>;
 }

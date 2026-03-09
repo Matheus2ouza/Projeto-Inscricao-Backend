@@ -4,7 +4,8 @@ export type FindAllPaginatedInscriptionRequest = {
   eventId: string;
   status: InscriptionStatus[];
   isGuest?: string | boolean;
-  orderBy?: 'asc' | 'desc';
+  orderByCreatedAt?: 'asc' | 'desc';
+  orderByResponsible?: 'asc' | 'desc';
   limitTime?: string;
   responsible?: string;
   page: number;

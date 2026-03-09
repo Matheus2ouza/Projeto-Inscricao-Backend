@@ -225,6 +225,7 @@ export class ConfirmPaymentUsecase
       this.logger.log(`Total de alocações encontradas: ${allocations.length}`);
 
       const event = await this.eventGateway.findById(payment.getEventId());
+      let shouldUpdateEvent = false;
 
       if (!event) {
         this.logger.warn(
@@ -253,6 +254,9 @@ export class ConfirmPaymentUsecase
               `Inscrição ${inscription.getId()} marcada como PAGA`,
             );
 
+            this.logger.log(
+              `Incrementando o valor arrecadado pela inscrição ${inscription.getId()} e incrementando os participantes a contagem do evento`,
+            );
             // Atualiza a quantidade de participantes no evento
             const countParticipants =
               await this.inscriptionGateway.countParticipants(
@@ -260,9 +264,14 @@ export class ConfirmPaymentUsecase
               );
 
             if (event) {
-              await this.eventGateway.incrementQuantityParticipants(
-                event.getId(),
-                countParticipants,
+              const participantsBefore = event.getQuantityParticipants();
+              this.logger.log(
+                `Contagem de participantes antes: ${participantsBefore}, incrementando ${countParticipants}`,
+              );
+              event.incrementQuantityParticipants(countParticipants);
+              shouldUpdateEvent = true;
+              this.logger.log(
+                `Contagem de participantes depois: ${event.getQuantityParticipants()}`,
               );
             }
           }
@@ -271,6 +280,13 @@ export class ConfirmPaymentUsecase
 
       if (event && payment.getStatus() === StatusPayment.APPROVED) {
         event.incrementAmountCollected(paymentInstallment.getValue());
+        event.incrementAmountNetValueCollected(
+          paymentInstallment.getNetValue(),
+        );
+        shouldUpdateEvent = true;
+      }
+
+      if (event && shouldUpdateEvent) {
         await this.eventGateway.update(event);
       }
       this.logger.log(

@@ -1,5 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
+  InscriptionStatus,
+  PaymentMethod,
+  StatusPayment,
+} from 'generated/prisma';
+import {
   GeneratePdfAllInscriptionsInput,
   GeneratePdfAllInscriptionsUsecase,
 } from 'src/usecases/web/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
@@ -20,12 +25,15 @@ export class GeneratePdfAllInscriptionsRoute {
     @Param() param: GeneratePdfAllInscriptionsRequest,
     @Query() query: GeneratePdfAllInscriptionsRequest,
   ): Promise<GeneratePdfAllInscriptionsResponse> {
-    console.log('a query', query);
     const input: GeneratePdfAllInscriptionsInput = {
       eventId: param.eventId,
-      isGuest: query.isGuest,
-      details: query.details === 'true',
       participants: query.participants === 'true',
+      payment: query.payment === 'true',
+      status: query.status as InscriptionStatus | InscriptionStatus[],
+      statusPayment: query.statusPayment as StatusPayment | StatusPayment[],
+      methodPayment: query.methodPayment as PaymentMethod | PaymentMethod[],
+      isGuest: query.isGuest === 'true',
+      limitTime: query.limitTime,
     };
 
     const response =

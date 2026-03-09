@@ -4,6 +4,8 @@ import {
   CashEntryType,
   PaymentMethod,
 } from 'generated/prisma';
+import { Account } from 'src/domain/entities/account.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { Usecase } from 'src/usecases/usecase';
@@ -31,14 +33,7 @@ type Moviment = {
   origin: CashEntryOrigin;
   method: PaymentMethod;
   value: number;
-  description?: string;
-  eventId?: string;
-  paymentInstallmentId?: string;
-  onSiteRegistrationId?: string;
-  eventExpenseId?: string;
-  ticketSaleId?: string;
   responsible?: string;
-  imageUrl?: string;
   createdAt: Date;
 };
 
@@ -53,6 +48,7 @@ export class FindAllMovimentsCashRegisterUsecase
   constructor(
     private readonly cashRegisterGateway: CashRegisterGateway,
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly userGateway: AccountGateway,
   ) {}
 
   async execute(
@@ -91,25 +87,26 @@ export class FindAllMovimentsCashRegisterUsecase
       this.cashRegisterEntryGateway.countAll(cashRegister.getId(), filters),
     ]);
 
-    const movimentsData: Moviment[] = moviments.map((m) => ({
-      id: m.getId(),
-      type: m.getType(),
-      origin: m.getOrigin(),
-      method: m.getMethod(),
-      value: m.getValue(),
-      description: m.getDescription(),
-      eventId: m.getEventId(),
-      paymentInstallmentId: m.getPaymentInstallmentId(),
-      onSiteRegistrationId: m.getOnSiteRegistrationId(),
-      eventExpenseId: m.getEventExpenseId(),
-      ticketSaleId: m.getTicketSaleId(),
-      responsible: m.getResponsible(),
-      imageUrl: m.getImageUrl(),
-      createdAt: m.getCreatedAt(),
-    }));
+    const movimentsArray: Moviment[] = await Promise.all(
+      moviments.map(async (m) => {
+        let responsible: Account | null = null;
+        if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
+          responsible = await this.userGateway.findById(m.getResponsible()!);
+        }
 
+        return {
+          id: m.getId(),
+          type: m.getType(),
+          origin: m.getOrigin(),
+          method: m.getMethod(),
+          value: m.getValue(),
+          responsible: responsible?.getUsername() || m.getResponsible(),
+          createdAt: m.getCreatedAt(),
+        };
+      }),
+    );
     const output: FindAllMovimentsCashRegisterOutput = {
-      moviments: movimentsData,
+      moviments: movimentsArray,
       totalMoviments,
       page: safePage,
       pageCount: Math.max(1, Math.ceil(totalMoviments / safePageSize)),

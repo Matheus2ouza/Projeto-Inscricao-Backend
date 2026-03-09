@@ -26,13 +26,6 @@ type Moviment = {
   origin: CashEntryOrigin;
   method: PaymentMethod;
   value: number;
-  description?: string;
-  eventId?: string;
-  paymentInstallmentId?: string;
-  onSiteRegistrationId?: string;
-  eventExpenseId?: string;
-  ticketSaleId?: string;
   responsible?: string;
-  imageUrl?: string;
   createdAt: Date;
 };

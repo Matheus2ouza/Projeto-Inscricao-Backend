@@ -175,7 +175,7 @@ export class SaleTicketUsecase
     );
 
     const sale = TicketSale.create({
-      eventId: input.eventId,
+      eventId: event.getId(),
       name: input.name,
       status: TicketSaleStatus.PAID,
       totalValue: saleTotalValue,
@@ -206,7 +206,7 @@ export class SaleTicketUsecase
             method: payment.paymentMethod,
             value: payment.value,
             description: `Venda de ticket ${sale.getId()} - ${input.name}`,
-            eventId: input.eventId,
+            eventId: event.getId(),
             ticketSaleId: sale.getId(),
             responsible: input.userId,
           }),
@@ -254,10 +254,9 @@ export class SaleTicketUsecase
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
     // Incrementa o valor coletado do evento
-    await this.eventGateway.incrementAmountCollected(
-      input.eventId,
-      saleTotalValue,
-    );
+    event.incrementAmountCollected(saleTotalValue);
+    event.incrementAmountNetValueCollected(saleTotalValue);
+    await this.eventGateway.update(event);
 
     return {
       saleId: sale.getId(),

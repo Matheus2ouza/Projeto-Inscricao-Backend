@@ -11,6 +11,7 @@ export class EventEntityToEventPrismaModelMapper {
       endDate: event.getEndDate(),
       quantityParticipants: event.getQuantityParticipants(),
       amountCollected: new Decimal(event.getAmountCollected()),
+      amountNetValueCollected: new Decimal(event.getAmountNetValueCollected()),
       amountSpent: new Decimal(event.getAmountSpent()),
       status: event.getStatus(),
       paymentEnabled: event.getPaymentEnabled(),

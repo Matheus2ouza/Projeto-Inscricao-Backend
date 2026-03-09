@@ -22,8 +22,9 @@ export class RegisterPaymentCredRoute {
     @Param() param: RegisterPaymentCredRequest,
     @Body() body: RegisterPaymentCredRequest,
   ): Promise<RegisterPaymentCredResponse> {
-    // O accountId vem tando do body ou do userInfo
-    // porque no front pode enviar o link para outra pessoa não logada possa também fazer o pagamento
+    console.log('param', param);
+    console.log('body', body);
+
     const input: RegisterPaymentCredInput = {
       eventId: param.eventId,
       accountId: body.accountId,
@@ -32,8 +33,10 @@ export class RegisterPaymentCredRoute {
       totalValue: body.totalValue,
       client: body.client,
       inscriptions: body.inscriptions,
-      passCustomerToAsaas: body.passCustomerToAsaas === 'true' ? true : false,
+      passCustomerToAsaas: body.passCustomerToAsaas,
     };
+
+    console.log('input', input);
 
     const response = await this.registerCredUsecase.execute(input);
     return RegisterPaymentCredPresenter.toHttp(response);

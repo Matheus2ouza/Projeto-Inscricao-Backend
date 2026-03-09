@@ -80,37 +80,38 @@ model Regions {
 }
 
 model Events {
-  id                   String               @id @default(uuid())
-  name                 String
-  createdAt            DateTime             @default(now())
-  regionId             String
-  amountCollected      Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
-  amountSpent          Decimal              @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
-  imageUrl             String?              @map("image_url")
-  quantityParticipants Int                  @default(0) @map("quantity_participants")
-  updatedAt            DateTime             @updatedAt
-  endDate              DateTime             @map("end_date")
-  startDate            DateTime             @map("start_date")
-  location             String?
-  latitude             Float?
-  longitude            Float?
-  status               statusEvent
-  paymentEnabled       Boolean              @default(false) @map("payment_enabled")
-  logoUrl              String?
-  ticketEnabled        Boolean              @default(false) @map("ticket_enabled")
-  allowCard            Boolean              @default(false) @map("allow_card")
-  allowGuest           Boolean              @default(false) @map("allow_guest")
-  EventExpenses        EventExpenses[]
-  responsibles         EventResponsibles[]
-  EventTickets         EventTickets[]
-  region               Regions              @relation(fields: [regionId], references: [id])
-  FinancialMovement    FinancialMovement[]
-  Inscription          Inscription[]
-  OnSiteRegistration   OnSiteRegistration[]
-  typeInscriptions     TypeInscriptions[]
-  payments             Payment[]
-  cashRegisterEvents   CashRegisterEvent[]
-  cashRegisterEntries  CashRegisterEntry[]
+  id                      String               @id @default(uuid())
+  name                    String
+  createdAt               DateTime             @default(now())
+  regionId                String
+  amountCollected         Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  amountNetValueCollected Decimal              @default(0.00) @map("amount_net_value_collected") @db.Decimal(10, 2)
+  amountSpent             Decimal              @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
+  imageUrl                String?              @map("image_url")
+  quantityParticipants    Int                  @default(0) @map("quantity_participants")
+  updatedAt               DateTime             @updatedAt
+  endDate                 DateTime             @map("end_date")
+  startDate               DateTime             @map("start_date")
+  location                String?
+  latitude                Float?
+  longitude               Float?
+  status                  statusEvent
+  paymentEnabled          Boolean              @default(false) @map("payment_enabled")
+  logoUrl                 String?
+  ticketEnabled           Boolean              @default(false) @map("ticket_enabled")
+  allowCard               Boolean              @default(false) @map("allow_card")
+  allowGuest              Boolean              @default(false) @map("allow_guest")
+  EventExpenses           EventExpenses[]
+  responsibles            EventResponsibles[]
+  EventTickets            EventTickets[]
+  region                  Regions              @relation(fields: [regionId], references: [id])
+  FinancialMovement       FinancialMovement[]
+  Inscription             Inscription[]
+  OnSiteRegistration      OnSiteRegistration[]
+  typeInscriptions        TypeInscriptions[]
+  payments                Payment[]
+  cashRegisterEvents      CashRegisterEvent[]
+  cashRegisterEntries     CashRegisterEntry[]
 
   @@map("events")
 }
@@ -178,21 +179,23 @@ model Inscription {
 }
 
 model Participant {
-  id                String           @id @default(uuid())
-  inscriptionId     String           @map("inscription_id")
+  id                String     @id @default(uuid())
+  inscriptionId     String     @map("inscription_id")
   name              String
-  preferredName     String?          @map("preferred_name")
-  shirtSize         ShirtSize?       @map("shirt_size")
-  shirtType         ShirtType?       @map("shirt_type")
-  birthDate         DateTime         @map("birth_date")
-  cpf               String?          @unique
-  typeInscriptionId String           @map("type_inscription_id")
-  createdAt         DateTime         @default(now()) @map("created_at")
-  updatedAt         DateTime         @updatedAt @map("updated_at")
+  preferredName     String?    @map("preferred_name")
+  shirtSize         ShirtSize? @map("shirt_size")
+  shirtType         ShirtType? @map("shirt_type")
+  birthDate         DateTime   @map("birth_date")
+  cpf               String?
+  typeInscriptionId String     @map("type_inscription_id")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
   gender            genderType
-  inscription       Inscription      @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
-  typeInscription   TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
 
+  inscription     Inscription      @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
+  typeInscription TypeInscriptions @relation(fields: [typeInscriptionId], references: [id])
+
+  @@unique([cpf, inscriptionId])
   @@map("participants")
 }
 
@@ -439,15 +442,16 @@ model EventExpenses {
 }
 
 model CashRegister {
-  id        String             @id @default(uuid())
-  name      String
-  regionId  String             @map("region_id")
-  status    CashRegisterStatus @default(OPEN)
-  balance   Decimal            @default(0.00) @db.Decimal(10, 2)
-  openedAt  DateTime           @default(now()) @map("opened_at")
-  closedAt  DateTime?          @map("closed_at")
-  createdAt DateTime           @default(now()) @map("created_at")
-  updatedAt DateTime           @updatedAt @map("updated_at")
+  id             String             @id @default(uuid())
+  name           String
+  regionId       String             @map("region_id")
+  status         CashRegisterStatus @default(OPEN)
+  balance        Decimal            @default(0.00) @db.Decimal(10, 2)
+  initialBalance Decimal            @default(0.00) @map("initial_balance") @db.Decimal(10, 2)
+  openedAt       DateTime           @default(now()) @map("opened_at")
+  closedAt       DateTime?          @map("closed_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
 
   region Regions @relation(fields: [regionId], references: [id])
 

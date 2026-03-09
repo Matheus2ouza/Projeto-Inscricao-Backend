@@ -9,6 +9,7 @@ export class CashRegisterEntityToCashRegisterPrismaModelMapper {
       name: cashRegister.getName(),
       regionId: cashRegister.getRegionId(),
       status: cashRegister.getStatus(),
+      initialBalance: new Decimal(cashRegister.getInitialBalance()),
       balance: new Decimal(cashRegister.getBalance()),
       openedAt: cashRegister.getOpenedAt(),
       closedAt: cashRegister.getClosedAt() ?? null,

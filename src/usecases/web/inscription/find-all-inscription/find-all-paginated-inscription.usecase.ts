@@ -13,7 +13,8 @@ export type FindAllPaginatedInscriptionInput = {
   userId?: string;
   status: InscriptionStatus[];
   isGuest?: string | boolean;
-  orderBy?: 'asc' | 'desc';
+  orderByCreatedAt?: 'asc' | 'desc';
+  orderByResponsible?: 'asc' | 'desc';
   limitTime?: string;
   responsible?: string;
   page: number;
@@ -90,7 +91,8 @@ export class FindAllPaginatedInscriptionsUsecase
       limitTime: input.limitTime,
       isGuest,
       accountId: input.userId,
-      orderBy: input.orderBy,
+      orderByCreatedAt: input.orderByCreatedAt,
+      orderByResponsible: input.orderByResponsible,
       responsible: input.responsible,
     };
 

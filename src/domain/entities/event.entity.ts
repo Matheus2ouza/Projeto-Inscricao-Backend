@@ -24,6 +24,7 @@ export type EventWithDto = {
   endDate: Date;
   quantityParticipants: number;
   amountCollected: number;
+  amountNetValueCollected: number;
   amountSpent: number;
   regionId: string;
   imageUrl?: string;
@@ -48,6 +49,7 @@ export class Event extends Entity {
     private endDate: Date,
     private quantityParticipants: number,
     private amountCollected: number,
+    private amountNetValueCollected: number,
     private amountSpent: number,
     private regionId: string,
     createdAt: Date,
@@ -86,6 +88,7 @@ export class Event extends Entity {
     const updatedAt = new Date();
     const quantityParticipants = 0;
     const amountCollected = 0;
+    const amountNetValueCollected = 0;
     const amountSpent = 0;
     const allowCard = false;
     const allowGuest = false;
@@ -96,6 +99,7 @@ export class Event extends Entity {
       endDate,
       quantityParticipants,
       amountCollected,
+      amountNetValueCollected,
       amountSpent,
       regionId,
       createdAt,
@@ -120,6 +124,7 @@ export class Event extends Entity {
     endDate,
     quantityParticipants,
     amountCollected,
+    amountNetValueCollected,
     amountSpent,
     regionId,
     imageUrl,
@@ -142,6 +147,7 @@ export class Event extends Entity {
       endDate,
       quantityParticipants,
       amountCollected,
+      amountNetValueCollected,
       amountSpent,
       regionId,
       createdAt,
@@ -189,6 +195,10 @@ export class Event extends Entity {
 
   public getAmountCollected(): number {
     return this.amountCollected;
+  }
+
+  public getAmountNetValueCollected(): number {
+    return this.amountNetValueCollected;
   }
 
   public getAmountSpent(): number {
@@ -374,6 +384,16 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
+  public incrementQuantityParticipants(quantity: number): void {
+    this.quantityParticipants += quantity;
+    this.updatedAt = new Date();
+  }
+
+  public decrementQuantityParticipants(quantity: number): void {
+    this.quantityParticipants -= quantity;
+    this.updatedAt = new Date();
+  }
+
   public incrementAmountCollected(amount: number): void {
     this.amountCollected += amount;
     this.updatedAt = new Date();
@@ -382,6 +402,18 @@ export class Event extends Entity {
 
   public decrementAmountCollected(amount: number): void {
     this.amountCollected -= amount;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public incrementAmountNetValueCollected(amount: number): void {
+    this.amountNetValueCollected += amount;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public decrementAmountNetValueCollected(amount: number): void {
+    this.amountNetValueCollected -= amount;
     this.updatedAt = new Date();
     this.validate();
   }

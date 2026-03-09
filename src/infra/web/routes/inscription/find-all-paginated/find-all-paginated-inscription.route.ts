@@ -38,7 +38,8 @@ export class FindAllPaginatedInscriptionsRoute {
       status: query.status,
       isGuest:
         user.userRole !== roleType.USER ? query.isGuest === 'true' : false,
-      orderBy: query.orderBy || 'desc',
+      orderByCreatedAt: query.orderByCreatedAt || 'desc',
+      orderByResponsible: query.orderByResponsible || 'desc',
       limitTime: query.limitTime,
       responsible: query.responsible,
       page: query.page,

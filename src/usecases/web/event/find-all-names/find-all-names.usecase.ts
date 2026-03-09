@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllNamesEventInput = {
   regionId?: string;
+  status?: statusEvent[];
 };
 
 export type FindAllNamesEventOutput = {
@@ -22,6 +24,7 @@ export class FindAllnamesEventUsecase
   ): Promise<FindAllNamesEventOutput> {
     const filters = {
       regionId: input.regionId,
+      status: input.status,
     };
 
     const allEventsName = await this.eventGateway.findAll(filters);

@@ -60,8 +60,12 @@ export class GeneratePdfLocalityUseCase
           localityByInscriptionId.get(participant.getInscriptionId()) ?? '-';
         return {
           name: participant.getName(),
+          preferredName: participant.getPreferredName(),
           locality,
           age: this.calculateAge(participant.getBirthDate()),
+          shirtSize: participant.getShirtSize(),
+          shirtType: participant.getShirtType(),
+          gender: participant.getGender(),
         };
       })
       .sort((a, b) => {

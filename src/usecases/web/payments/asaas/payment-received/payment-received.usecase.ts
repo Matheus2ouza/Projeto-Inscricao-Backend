@@ -104,25 +104,16 @@ export class PaymentReceivedUsecase
             origin: CashEntryOrigin.ASAAS,
             method: PaymentMethod.CARTAO,
             value: installment.getNetValue(),
-            description: `Pagamento Cartão ${payment.getId()}`,
+            description: `Pagamento do cartão recebido referente a parcela ${installment.getInstallmentNumber()} de ${payment.getInstallments()} do pagamento ${payment.getId()}.`,
             eventId: payment.getEventId(),
             paymentInstallmentId: installment.getId(),
-            responsible: 'WEBHOOK-ASAAS',
+            responsible: `WEBHOOK-ASAAS`,
           }),
         );
 
         await this.cashRegisterEntryGateway.createMany(entries);
         await this.updateCashRegisterBalances(entries);
       }
-
-      this.logger.log(`Evento encontrado: ${event.getName()}`);
-      this.logger.log(
-        `Incrementando o valor arrecadado pela parcela ${installment.getId()}`,
-      );
-      this.logger.log(`Valor arrecadado antes: ${event.getAmountCollected()}`);
-      event.incrementAmountCollected(installment.getNetValue());
-      this.logger.log(`Valor arrecadado depois: ${event.getAmountCollected()}`);
-      await this.eventGateway.update(event);
     }
 
     installment.setReceived(true);
