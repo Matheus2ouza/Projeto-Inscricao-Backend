@@ -4,6 +4,7 @@ export type CreateCashRegisterRequest = {
   name: string;
   regionId: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
   allocationEvent: string;
 };

@@ -23,6 +23,13 @@ export class CashRegisterEntryPrismaRepository
     await this.prisma.cashRegisterEntry.createMany({ data });
   }
 
+  async findById(id: string): Promise<CashRegisterEntry | null> {
+    const found = await this.prisma.cashRegisterEntry.findUnique({
+      where: { id },
+    });
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findManyPaginated(
     cashRegisterId: string,
     page: number,

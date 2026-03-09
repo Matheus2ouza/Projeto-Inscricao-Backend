@@ -1,4 +1,9 @@
-import { genderType, InscriptionStatus } from 'generated/prisma';
+import {
+  genderType,
+  InscriptionStatus,
+  PaymentMethod,
+  StatusPayment,
+} from 'generated/prisma';
 import { Inscription } from '../entities/inscription.entity';
 
 export abstract class InscriptionGateway {
@@ -62,7 +67,27 @@ export abstract class InscriptionGateway {
   ): Promise<Inscription[]>;
 
   // Busca todas as inscrições de um evento
-  abstract findMany(eventId: string, isGuest?: boolean): Promise<Inscription[]>;
+  abstract findMany(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus[];
+      isGuest?: boolean;
+      limitTime?: string;
+      accountId?: string;
+      responsible?: string;
+    },
+  ): Promise<Inscription[]>;
+
+  abstract findManyInscriptionsToGenerateReport(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      statusPayment?: StatusPayment | StatusPayment[];
+      methodPayment?: PaymentMethod | PaymentMethod[];
+      isGuest?: boolean;
+      limitTime?: string;
+    },
+  ): Promise<Inscription[]>;
 
   // Busca múltiplas inscrições pelos IDs
   abstract findManyByIds(ids: string[]): Promise<Inscription[]>;
@@ -108,7 +133,8 @@ export abstract class InscriptionGateway {
       status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       accountId?: string;
-      orderBy?: 'asc' | 'desc';
+      orderByCreatedAt?: 'asc' | 'desc';
+      orderByResponsible?: 'asc' | 'desc';
       limitTime?: string;
       responsible?: string;
     },
@@ -148,7 +174,7 @@ export abstract class InscriptionGateway {
   abstract countAll(
     eventId: string,
     filters: {
-      status?: InscriptionStatus | InscriptionStatus[];
+      status?: InscriptionStatus[];
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;
@@ -157,7 +183,25 @@ export abstract class InscriptionGateway {
   ): Promise<number>;
 
   // Conta todas as inscrições de um evento
-  abstract countAllByEvent(eventId: string, isGuest?: boolean): Promise<number>;
+  abstract countAllByEvent(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus[];
+      isGuest?: boolean;
+      methodPayment?: PaymentMethod;
+    },
+  ): Promise<number>;
+
+  abstract countAllInscriptionsToGenerateReport(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      statusPayment?: StatusPayment | StatusPayment[];
+      methodPayment?: PaymentMethod | PaymentMethod[];
+      isGuest?: boolean;
+      limitTime?: string;
+    },
+  ): Promise<number>;
 
   // Conta todas as inscrições em análise de um evento
   abstract countAllInAnalysis(eventId: string): Promise<number>;

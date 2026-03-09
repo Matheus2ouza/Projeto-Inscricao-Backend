@@ -5,14 +5,11 @@ export class FindAllCashRegisterPresenter {
   public static toHttp(
     output: FindAllCashRegisterOutput,
   ): FindAllCashRegisterResponse {
-    return output.map((c) => ({
-      id: c.id,
-      name: c.name,
-      status: c.status,
-      balance: c.balance,
-      openedAt: c.openedAt,
-      closedAt: c.closedAt,
-      createdAt: c.createdAt,
-    }));
+    return {
+      cashRegisters: output.cashRegisters,
+      total: output.total,
+      page: output.page,
+      pageCount: output.pageCount,
+    };
   }
 }

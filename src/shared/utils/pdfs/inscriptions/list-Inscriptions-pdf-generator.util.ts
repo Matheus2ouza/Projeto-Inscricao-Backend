@@ -3,6 +3,7 @@ import {
   InscriptionStatus,
   ShirtSize,
   ShirtType,
+  StatusPayment,
 } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
@@ -45,6 +46,13 @@ export type ListInscriptionsPdfInscription = {
   createdAt: Date;
   isGuest?: boolean;
   participants?: ListInscriptionsPdfParticipant[];
+  payment?: {
+    guestName?: string;
+    status: StatusPayment;
+    totalPaid: number;
+    createdAt: Date;
+    receiptPath?: string;
+  };
 };
 
 export type ListInscriptionsPdfData = {
@@ -321,6 +329,73 @@ export class ListInscriptionsPdfGeneratorUtils {
           ]
         : [];
 
+      const paymentBlock = inscription.payment
+        ? [
+            {
+              text: 'Pagamentos',
+              style: 'labelText',
+              margin: [0, 6, 0, 4],
+            },
+            {
+              columns: [
+                {
+                  width: '50%',
+                  stack: [
+                    { text: 'Nome (pagamento)', style: 'labelText' },
+                    {
+                      text: inscription.payment.guestName || '-',
+                      style: 'valueText',
+                    },
+                  ],
+                },
+                {
+                  width: '50%',
+                  stack: [
+                    { text: 'Status do pagamento', style: 'labelText' },
+                    buildPaymentStatusBadge(inscription.payment.status),
+                  ],
+                },
+              ],
+              margin: [0, 0, 0, 8],
+            },
+            {
+              columns: [
+                {
+                  width: '50%',
+                  stack: [
+                    { text: 'Total pago', style: 'labelText' },
+                    {
+                      text: formatCurrency(inscription.payment.totalPaid),
+                      style: 'valueText',
+                    },
+                  ],
+                },
+                {
+                  width: '50%',
+                  stack: [
+                    { text: 'Criado em (pagamento)', style: 'labelText' },
+                    {
+                      text: formatDateTime(inscription.payment.createdAt),
+                      style: 'valueText',
+                    },
+                  ],
+                },
+              ],
+              margin: [0, 0, 0, 10],
+            },
+            {
+              stack: [
+                { text: 'Diretório do comprovante', style: 'labelText' },
+                {
+                  text: inscription.payment.receiptPath || '-',
+                  style: 'valueText',
+                },
+              ],
+              margin: [0, 0, 0, 10],
+            },
+          ]
+        : [];
+
       return {
         unbreakable: true,
         stack: [
@@ -331,6 +406,7 @@ export class ListInscriptionsPdfGeneratorUtils {
           },
           ...details,
           ...participantsBlock,
+          ...paymentBlock,
           {
             canvas: [
               {
@@ -450,6 +526,25 @@ function buildStatusBadge(status: InscriptionStatus): any {
   };
 }
 
+function buildPaymentStatusBadge(status: StatusPayment): any {
+  const { label, color } = formatPaymentStatus(status);
+
+  return {
+    table: {
+      widths: ['auto'],
+      body: [[{ text: label, style: 'badge', fillColor: color }]],
+    },
+    layout: {
+      hLineWidth: () => 0,
+      vLineWidth: () => 0,
+      paddingLeft: () => 6,
+      paddingRight: () => 6,
+      paddingTop: () => 2,
+      paddingBottom: () => 2,
+    },
+  };
+}
+
 function formatStatus(status: InscriptionStatus): {
   label: string;
   color: string;
@@ -465,6 +560,22 @@ function formatStatus(status: InscriptionStatus): {
       return { label: 'Cancelado', color: '#9b2c2c' };
     case 'EXPIRED':
       return { label: 'Expirado', color: '#4a5568' };
+    default:
+      return { label: String(status), color: '#4a5568' };
+  }
+}
+
+function formatPaymentStatus(status: StatusPayment): {
+  label: string;
+  color: string;
+} {
+  switch (status) {
+    case 'APPROVED':
+      return { label: 'Aprovado', color: '#2f855a' };
+    case 'UNDER_REVIEW':
+      return { label: 'Em análise', color: '#2b6cb0' };
+    case 'REFUSED':
+      return { label: 'Recusado', color: '#9b2c2c' };
     default:
       return { label: String(status), color: '#4a5568' };
   }
@@ -491,6 +602,13 @@ function formatAge(date?: Date | null): string {
 
 function formatDateTime(date: Date): string {
   return new Date(date).toLocaleString('pt-BR');
+}
+
+function formatCurrency(value?: number | null): string {
+  if (value == null) return '-';
+  const safe = Number(value);
+  if (Number.isNaN(safe)) return '-';
+  return safe.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 function formatGender(gender?: genderType | null): string {

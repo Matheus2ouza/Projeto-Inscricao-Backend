@@ -2,6 +2,7 @@ import { EventExpenses } from '../entities/event-expenses.entity';
 
 export abstract class EventExpensesGateway {
   abstract create(eventExpenses: EventExpenses): Promise<EventExpenses>;
+  abstract findById(id: string): Promise<EventExpenses | null>;
   abstract findMany(eventId: string): Promise<EventExpenses[]>;
   abstract findManyByEventId(eventId: string): Promise<EventExpenses[]>;
   abstract findManyPaginated(

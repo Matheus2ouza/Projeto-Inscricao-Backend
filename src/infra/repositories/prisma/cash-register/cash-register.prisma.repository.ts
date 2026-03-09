@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CashRegisterStatus } from 'generated/prisma';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { PrismaService } from '../prisma.service';
@@ -31,20 +32,50 @@ export class CashRegisterPrismaRepository implements CashRegisterGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  async findMany(filters: { regionId?: string }): Promise<CashRegister[]> {
+  async findMany(
+    page: number,
+    pageSize: number,
+    filters: { regionId?: string; status?: CashRegisterStatus[] },
+  ): Promise<CashRegister[]> {
+    const skip = (page - 1) * pageSize;
     const where = this.buildWhereClauseCashRegister(filters);
     const found = await this.prisma.cashRegister.findMany({
       where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
     });
 
     return found.map(PrismaToEntity.map);
   }
 
-  private buildWhereClauseCashRegister(filters: { regionId?: string }) {
-    const { regionId } = filters || {};
+  async count(filters: {
+    regionId?: string;
+    status?: CashRegisterStatus[];
+  }): Promise<number> {
+    const where = this.buildWhereClauseCashRegister(filters);
+    const count = await this.prisma.cashRegister.count({
+      where,
+    });
+    return count;
+  }
+
+  private buildWhereClauseCashRegister(filters: {
+    regionId?: string;
+    status?: CashRegisterStatus[];
+  }) {
+    const { regionId, status } = filters || {};
+
+    const statusArray = status
+      ? Array.isArray(status)
+        ? status
+        : [status]
+      : [];
 
     return {
       regionId,
+      status:
+        statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
     };
   }
 }

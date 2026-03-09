@@ -222,32 +222,4 @@ export class UpdatePaymentReceiptUsecase
 
     return imageUrl;
   }
-
-  private async loadEventImage(
-    imagePath?: string | null,
-  ): Promise<string | undefined> {
-    if (!imagePath) return undefined;
-
-    try {
-      const signedUrl =
-        await this.supabaseStorageService.getPublicUrl(imagePath);
-      const response = await fetch(signedUrl);
-
-      if (!response.ok) {
-        console.warn(
-          `Failed to load event image: ${response.status} ${response.statusText}`,
-        );
-        return undefined;
-      }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-      // Retorna apenas o base64, sem o prefixo "data:image/jpeg;base64,"
-      return base64;
-    } catch (error) {
-      console.warn('Error while loading event image:', error);
-      return undefined;
-    }
-  }
 }

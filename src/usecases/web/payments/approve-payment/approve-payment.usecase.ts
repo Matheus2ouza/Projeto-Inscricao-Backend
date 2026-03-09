@@ -66,6 +66,8 @@ export class ApprovePaymentUsecase
 
     this.logger.log(`Payment encontrado: ${payment.getId()}`);
 
+    const event = await this.eventGateway.findById(payment.getEventId());
+
     const allocations = await this.paymentAllocationGateway.findByPaymentId(
       payment.getId(),
     );
@@ -127,7 +129,7 @@ export class ApprovePaymentUsecase
           origin: CashEntryOrigin.INTERNAL,
           method: PaymentMethod.PIX,
           value: paymentInstallment.getNetValue(),
-          description: `Pagamento PIX ${payment.getId()}`,
+          description: `Pagamento PIX referente a parcela ${paymentInstallment.getInstallmentNumber()} de ${payment.getInstallments()} do pagamento ${payment.getId()}`,
           eventId: payment.getEventId(),
           paymentInstallmentId: paymentInstallment.getId(),
           responsible: input.accountId,
@@ -139,11 +141,10 @@ export class ApprovePaymentUsecase
       await this.updateCashRegisterBalances(entries);
     }
 
-    // Atualiza o evento com o valor bruto da parcela
-    await this.eventGateway.incrementAmountCollected(
-      payment.getEventId(),
-      paymentInstallment.getValue(),
-    );
+    if (event) {
+      event.incrementAmountCollected(paymentInstallment.getValue());
+      event.incrementAmountNetValueCollected(paymentInstallment.getNetValue());
+    }
 
     this.logger.log(
       `Movimento financeiro associado à parcela: ${financialMovement.getId()}`,
@@ -175,6 +176,8 @@ export class ApprovePaymentUsecase
     }
 
     if (shouldReleaseInscription) {
+      let totalParticipantsToAdd = 0;
+
       for (const allocation of allocations) {
         const inscription = await this.inscriptionGateway.findById(
           allocation.getInscriptionId(),
@@ -198,10 +201,7 @@ export class ApprovePaymentUsecase
                 inscription.getId(),
               );
 
-            await this.eventGateway.incrementQuantityParticipants(
-              payment.getEventId(),
-              quantityParticipants,
-            );
+            totalParticipantsToAdd += quantityParticipants;
 
             this.logger.log(
               `Participantes incrementados no evento ${payment.getEventId()}: ${quantityParticipants}`,
@@ -210,10 +210,20 @@ export class ApprovePaymentUsecase
         }
       }
 
+      if (event) {
+        for (let i = 0; i < totalParticipantsToAdd; i += 1) {
+          event.incrementParticipantsCount();
+        }
+      }
+
       this.logger.log(
         `Payment ${payment.getId()} APROVADO! ` +
           `Total recebido: R$ ${payment.getTotalNetValue().toFixed(2)}`,
       );
+    }
+
+    if (event) {
+      await this.eventGateway.update(event);
     }
 
     await this.paymentGateway.update(payment);

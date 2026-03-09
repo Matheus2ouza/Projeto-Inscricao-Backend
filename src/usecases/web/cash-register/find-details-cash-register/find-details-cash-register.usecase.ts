@@ -3,6 +3,7 @@ import { CashRegisterStatus, PaymentMethod } from 'generated/prisma';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { CashRegisterNotFoundUsecaseException } from '../../exceptions/cash-register/cash-register-not-found.usecase.exception';
 
@@ -14,6 +15,7 @@ export type FindDetailsCashRegisterOutput = {
   id: string;
   name: string;
   status: CashRegisterStatus;
+  initialBalance: number;
   balance: number;
   allocationEvents: AllocationEvent[];
   totalIncome: number;
@@ -21,6 +23,8 @@ export type FindDetailsCashRegisterOutput = {
   totalPix: number;
   totalCard: number;
   totalCash: number;
+  expectedValues: number;
+  expectedNetValues: number;
   openedAt: Date;
   closedAt?: Date;
 };
@@ -38,6 +42,7 @@ export class FindDetailsCashRegisterUsecase
   constructor(
     private readonly cashRegisterGateway: CashRegisterGateway,
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly eventGateway: EventGateway,
   ) {}
 
@@ -73,6 +78,19 @@ export class FindDetailsCashRegisterUsecase
         ),
       ]);
 
+    let expectedValues = 0;
+    let expectedNetValues = 0;
+    await Promise.all(
+      events.map(async (e) => {
+        const value = await this.paymentInstallmentGateway.sumExpectedValues(
+          e.getId(),
+        );
+        expectedValues += value.value;
+        expectedNetValues += value.netValue;
+        return value;
+      }),
+    );
+
     const allocationEvents: AllocationEvent[] = events.map((e) => ({
       id: e.getId(),
       name: e.getName(),
@@ -82,6 +100,7 @@ export class FindDetailsCashRegisterUsecase
       id: cashRegister.getId(),
       name: cashRegister.getName(),
       status: cashRegister.getStatus(),
+      initialBalance: cashRegister.getInitialBalance(),
       balance: cashRegister.getBalance(),
       allocationEvents,
       totalIncome,
@@ -89,6 +108,8 @@ export class FindDetailsCashRegisterUsecase
       totalPix,
       totalCard,
       totalCash,
+      expectedValues,
+      expectedNetValues,
       openedAt: cashRegister.getOpenedAt(),
       closedAt: cashRegister.getClosedAt(),
     };

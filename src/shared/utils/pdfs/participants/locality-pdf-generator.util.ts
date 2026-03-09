@@ -1,3 +1,4 @@
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
 import { buildPdfHeaderSection } from '../common/pdf-header.util';
@@ -23,8 +24,12 @@ const printer = new PdfPrinter(fonts);
 export type ParticipantLocalityPdfRow = {
   index: number;
   name: string;
+  preferredName?: string;
   locality: string;
   age: number;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
+  gender?: genderType;
 };
 
 export type ParticipantLocalityPdfData = {
@@ -70,7 +75,7 @@ export class LocalityPdfGeneratorUtils {
       ...headerContent,
       {
         text: `Gerado em ${formatDate(new Date())}`,
-        style: 'muted',
+        style: 'footer',
         margin: [0, 0, 0, 12],
       },
     ];
@@ -83,35 +88,13 @@ export class LocalityPdfGeneratorUtils {
       const locality = sortedLocalities[localityIndex];
       const participants = groups.get(locality) ?? [];
 
-      const tableBody = [
-        [
-          { text: '#', style: 'tableHeader' },
-          { text: 'Nome', style: 'tableHeader' },
-          { text: 'Localidade', style: 'tableHeader' },
-          { text: 'Idade', style: 'tableHeader' },
-        ],
-        ...participants.map((p) => [
-          { text: String(p.index), style: 'tableCell' },
-          { text: p.name, style: 'tableCell' },
-          { text: p.locality || '-', style: 'tableCell' },
-          { text: String(p.age), style: 'tableCell', alignment: 'right' },
-        ]),
-      ];
-
       content.push(
         {
           text: String(locality).toUpperCase(),
           style: 'sectionTitle',
           margin: [0, 10, 0, 8],
         },
-        {
-          table: {
-            headerRows: 1,
-            widths: [24, '*', 160, 40],
-            body: tableBody,
-          },
-          layout: 'lightHorizontalLines',
-        },
+        ...buildParticipantBlocks(participants),
       );
 
       if (localityIndex < sortedLocalities.length - 1) {
@@ -120,24 +103,50 @@ export class LocalityPdfGeneratorUtils {
     }
 
     const docDefinition: any = {
-      pageMargins: [32, 32, 32, 32],
+      pageSize: 'A4',
+      pageMargins: [40, 60, 40, 60],
       defaultStyle: {
         font: 'OpenSans',
         fontSize: 10,
-        color: '#222222',
+        lineHeight: 1.3,
       },
       content,
       styles: {
-        headerTitle: { fontSize: 18, bold: true, color: '#1b1f23' },
-        headerTitleDetail: { fontSize: 11, color: '#5b5b5b' },
-        muted: { fontSize: 9, color: '#6b7280' },
-        sectionTitle: { fontSize: 12, bold: true, color: '#111827' },
-        tableHeader: {
+        headerTitle: {
+          fontSize: 20,
           bold: true,
-          fillColor: '#f3f4f6',
-          margin: [0, 4, 0, 4],
+          color: '#1a365d',
+          lineHeight: 1.15,
         },
-        tableCell: { margin: [0, 3, 0, 3] },
+        headerTitleDetail: {
+          fontSize: 11,
+          color: '#2d3748',
+          lineHeight: 1.3,
+        },
+        sectionTitle: {
+          fontSize: 13,
+          bold: true,
+          color: '#2d3748',
+        },
+        labelText: {
+          fontSize: 10,
+          bold: true,
+          color: '#2d3748',
+          margin: [0, 0, 0, 2],
+        },
+        valueText: {
+          fontSize: 10,
+          color: '#1a202c',
+        },
+        participantTitle: {
+          fontSize: 13,
+          bold: true,
+          color: '#2d3748',
+        },
+        footer: {
+          fontSize: 9,
+          color: '#4a5568',
+        },
       },
     };
 
@@ -150,4 +159,118 @@ export class LocalityPdfGeneratorUtils {
       pdfDoc.end();
     });
   }
+}
+
+function buildParticipantBlocks(participants: ParticipantLocalityPdfRow[]) {
+  return participants.map((p, index) => {
+    const localIndex = index + 1;
+    const nameLine = p.name;
+    const preferredName =
+      p.preferredName && p.preferredName.trim().length > 0
+        ? p.preferredName
+        : undefined;
+
+    return {
+      unbreakable: true,
+      stack: [
+        { text: `#${localIndex} - ${nameLine}`, style: 'participantTitle' },
+        {
+          columns: [
+            {
+              width: '25%',
+              stack: [
+                { text: 'Nome', style: 'labelText' },
+                { text: nameLine || '-', style: 'valueText' },
+              ],
+            },
+            {
+              width: '25%',
+              stack: [
+                { text: 'Como ser chamado', style: 'labelText' },
+                { text: preferredName || '-', style: 'valueText' },
+              ],
+            },
+            {
+              width: '25%',
+              stack: [
+                { text: 'Localidade', style: 'labelText' },
+                { text: p.locality || '-', style: 'valueText' },
+              ],
+            },
+            {
+              width: '25%',
+              stack: [
+                { text: 'Idade', style: 'labelText' },
+                { text: String(p.age), style: 'valueText' },
+              ],
+            },
+          ],
+          margin: [0, 6, 0, 0],
+        },
+        {
+          columns: [
+            {
+              width: '33%',
+              stack: [
+                { text: 'Gênero', style: 'labelText' },
+                { text: formatGender(p.gender), style: 'valueText' },
+              ],
+            },
+            {
+              width: '33%',
+              stack: [
+                { text: 'Tamanho', style: 'labelText' },
+                { text: formatShirtSize(p.shirtSize), style: 'valueText' },
+              ],
+            },
+            {
+              width: '34%',
+              stack: [
+                { text: 'Tipo', style: 'labelText' },
+                { text: formatShirtType(p.shirtType), style: 'valueText' },
+              ],
+            },
+          ],
+          margin: [0, 18, 0, 0],
+        },
+        {
+          canvas: [
+            {
+              type: 'line',
+              x1: 0,
+              y1: 0,
+              x2: 531,
+              y2: 0,
+              lineWidth: 1,
+              lineColor: '#e5e7eb',
+            },
+          ],
+          margin: [0, 12, 0, 0],
+        },
+      ],
+      margin: [0, index === 0 ? 0 : 12, 0, 0],
+    };
+  });
+}
+
+function formatGender(gender?: genderType | null): string {
+  if (!gender) return '-';
+  switch (gender) {
+    case 'MASCULINO':
+      return 'Masculino';
+    case 'FEMININO':
+      return 'Feminino';
+    default:
+      return String(gender);
+  }
+}
+
+function formatShirtSize(size?: ShirtSize | null): string {
+  if (!size) return '-';
+  return String(size);
+}
+
+function formatShirtType(type?: ShirtType | null): string {
+  if (!type) return '-';
+  return String(type);
 }

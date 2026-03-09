@@ -5,6 +5,7 @@ export abstract class CashRegisterEntryGateway {
   abstract create(entry: CashRegisterEntry): Promise<CashRegisterEntry>;
   abstract createMany(cashRegisterEntry: CashRegisterEntry[]): Promise<void>;
 
+  abstract findById(id: string): Promise<CashRegisterEntry | null>;
   abstract findManyPaginated(
     cashRegisterId: string,
     page: number,

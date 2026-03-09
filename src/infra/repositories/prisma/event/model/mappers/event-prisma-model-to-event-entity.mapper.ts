@@ -10,6 +10,7 @@ export class EventPrismaModelToEventEntityMapper {
       endDate: event.endDate,
       quantityParticipants: event.quantityParticipants,
       amountCollected: Number(event.amountCollected),
+      amountNetValueCollected: Number(event.amountNetValueCollected),
       amountSpent: Number(event.amountSpent),
       imageUrl: event.imageUrl ?? undefined,
       logoUrl: event.logoUrl ?? undefined,

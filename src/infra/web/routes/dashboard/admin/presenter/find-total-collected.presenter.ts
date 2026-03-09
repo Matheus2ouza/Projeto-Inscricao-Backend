@@ -5,6 +5,9 @@ export class FindTotalCollectedAdminPresenter {
   static tohttp(
     output: FindTotalCollectedAdminOutput,
   ): FindTotalCollectedAdminResponse {
-    return { totalCollected: output.totalCollected };
+    return {
+      totalCollected: output.totalCollected,
+      totalNetValueCollected: output.totalNetValueCollected,
+    };
   }
 }

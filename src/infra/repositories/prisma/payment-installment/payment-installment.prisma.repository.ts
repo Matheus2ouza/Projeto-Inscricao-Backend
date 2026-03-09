@@ -83,4 +83,42 @@ export class PaymentInstallmentPrismaRepository
 
     return found.map(PrismaToEntity.map);
   }
+
+  async findFutureReleasesByEventId(
+    eventId: string,
+  ): Promise<PaymentInstallment[]> {
+    const found = await this.prisma.paymentInstallment.findMany({
+      where: {
+        payment: {
+          eventId,
+        },
+        received: false,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async sumExpectedValues(eventId: string): Promise<{
+    value: number;
+    netValue: number;
+  }> {
+    const sum = await this.prisma.paymentInstallment.aggregate({
+      where: {
+        payment: {
+          eventId,
+        },
+        received: false,
+      },
+      _sum: {
+        value: true,
+        netValue: true,
+      },
+    });
+
+    return {
+      value: Number(sum._sum.value || 0),
+      netValue: Number(sum._sum.netValue || 0),
+    };
+  }
 }

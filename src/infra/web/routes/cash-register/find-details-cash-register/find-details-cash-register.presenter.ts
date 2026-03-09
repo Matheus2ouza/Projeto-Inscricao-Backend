@@ -9,6 +9,7 @@ export class FindDetailsCashRegisterPresenter {
       id: output.id,
       name: output.name,
       status: output.status,
+      initialBalance: output.initialBalance,
       balance: output.balance,
       allocationEvents: output.allocationEvents,
       totalIncome: output.totalIncome,
@@ -16,6 +17,8 @@ export class FindDetailsCashRegisterPresenter {
       totalPix: output.totalPix,
       totalCard: output.totalCard,
       totalCash: output.totalCash,
+      expectedValues: output.expectedValues,
+      expectedNetValues: output.expectedNetValues,
       openedAt: output.openedAt,
       closedAt: output.closedAt,
     };

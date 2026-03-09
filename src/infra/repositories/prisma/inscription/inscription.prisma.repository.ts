@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import Decimal from 'decimal.js';
-import { genderType, InscriptionStatus } from 'generated/prisma';
+import {
+  genderType,
+  InscriptionStatus,
+  PaymentMethod,
+  StatusPayment,
+} from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PrismaService } from '../prisma.service';
@@ -183,9 +188,51 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map((item) => PrismaToEntity.map(item));
   }
 
-  async findMany(eventId: string, isGuest?: boolean): Promise<Inscription[]> {
+  async findMany(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus[];
+      isGuest?: boolean;
+      limitTime?: string;
+      accountId?: string;
+      responsible?: string;
+    },
+  ): Promise<Inscription[]> {
+    const where = this.buildWhereClauseInscription(filters);
     const found = await this.prisma.inscription.findMany({
-      where: { eventId, isGuest },
+      where: {
+        eventId,
+        ...where,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findManyInscriptionsToGenerateReport(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      statusPayment?: StatusPayment | StatusPayment[];
+      methodPayment?: PaymentMethod | PaymentMethod[];
+      isGuest?: boolean;
+      limitTime?: string;
+    },
+  ): Promise<Inscription[]> {
+    const where = this.buildWhereClauseInscription(filters);
+    const found = await this.prisma.inscription.findMany({
+      where: {
+        eventId,
+        ...where,
+        payments: {
+          some: {
+            payment: {
+              status: where.statusPayment,
+              methodPayment: where.methodPayment,
+            },
+          },
+        },
+      },
     });
 
     return found.map(PrismaToEntity.map);
@@ -233,14 +280,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
       accountId?: string;
-      orderBy?: 'asc' | 'desc';
+      orderByCreatedAt?: 'asc' | 'desc';
+      orderByResponsible?: 'asc' | 'desc';
       limitTime?: string;
       responsible?: string;
     },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
     const where = this.buildWhereClauseInscription(filters);
-    const sortOrder = filters?.orderBy === 'asc' ? 'asc' : 'desc';
+    const sortOrderCreatedAt =
+      filters?.orderByCreatedAt === 'asc' ? 'asc' : 'desc';
+    const sortOrderResponsible =
+      filters?.orderByResponsible === 'asc' ? 'asc' : 'desc';
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId,
@@ -252,7 +303,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       },
       skip,
       take: pageSize,
-      orderBy: { createdAt: sortOrder },
+      orderBy: [
+        { responsible: sortOrderResponsible },
+        { createdAt: sortOrderCreatedAt },
+      ],
     });
     return found.map(PrismaToEntity.map);
   }
@@ -409,7 +463,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countAll(
     eventId: string,
     filters: {
-      status: InscriptionStatus | InscriptionStatus[];
+      status?: InscriptionStatus[];
       isGuest?: boolean;
       limitTime?: string;
       accountId?: string;
@@ -429,9 +483,40 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     });
   }
 
-  async countAllByEvent(eventId: string, isGuest?: boolean): Promise<number> {
+  async countAllInscriptionsToGenerateReport(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      statusPayment?: StatusPayment | StatusPayment[];
+      methodPayment?: PaymentMethod | PaymentMethod[];
+      isGuest?: boolean;
+      limitTime?: string;
+    },
+  ): Promise<number> {
+    const where = this.buildWhereClauseInscription(filters);
+    const count = await this.prisma.inscription.count({
+      where: {
+        eventId,
+        ...where,
+        payments: {
+          some: {
+            payment: {
+              status: where.statusPayment,
+              methodPayment: where.methodPayment,
+            },
+          },
+        },
+      },
+    });
+    return count;
+  }
+
+  async countAllByEvent(
+    eventId: string,
+    filters?: { isGuest?: boolean },
+  ): Promise<number> {
     const total = await this.prisma.inscription.count({
-      where: { eventId, isGuest },
+      where: { eventId, ...filters },
     });
     return total;
   }
@@ -704,12 +789,23 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   private buildWhereClauseInscription(filters?: {
-    isGuest?: boolean;
     status?: InscriptionStatus | InscriptionStatus[];
-    accountId?: string;
+    statusPayment?: StatusPayment | StatusPayment[];
+    methodPayment?: PaymentMethod | PaymentMethod[];
+    isGuest?: boolean;
     limitTime?: string;
+    accountId?: string;
+    responsible?: string;
   }) {
-    const { isGuest, status, accountId, limitTime } = filters || {};
+    const {
+      status,
+      statusPayment,
+      methodPayment,
+      isGuest,
+      limitTime,
+      accountId,
+      responsible,
+    } = filters || {};
 
     const statusArray = status
       ? Array.isArray(status)
@@ -717,12 +813,33 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : [status]
       : [];
 
+    const statusPaymentArray = statusPayment
+      ? Array.isArray(statusPayment)
+        ? statusPayment
+        : [statusPayment]
+      : [];
+
+    const methodPaymentArray = methodPayment
+      ? Array.isArray(methodPayment)
+        ? methodPayment
+        : [methodPayment]
+      : [];
+
     return {
-      isGuest,
       status:
         statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
-      accountId,
+      statusPayment:
+        statusPaymentArray && statusPaymentArray.length > 0
+          ? { in: statusPaymentArray }
+          : undefined,
+      methodPayment:
+        methodPaymentArray && methodPaymentArray.length > 0
+          ? { in: methodPaymentArray }
+          : undefined,
+      isGuest,
       createdAt: limitTime ? { gte: new Date(limitTime) } : undefined,
+      accountId,
+      responsible: responsible ? { contains: responsible } : undefined,
     };
   }
 

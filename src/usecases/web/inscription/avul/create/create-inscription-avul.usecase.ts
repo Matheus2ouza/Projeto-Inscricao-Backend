@@ -145,8 +145,6 @@ export class CreateInscriptionAvulUsecase
         const participantName =
           participantNameById.get(payment.getParticipantId()) ?? '';
 
-        const financialMovement = financialMovements[idx];
-
         return cashRegisterEvents.map((c) =>
           CashRegisterEntry.create({
             cashRegisterId: c.getCashRegisterId(),
@@ -168,17 +166,10 @@ export class CreateInscriptionAvulUsecase
       await this.updateCashRegisterBalances(cashEntries);
     }
 
-    // Incrementar o valor coletado no evento
-    await this.eventGateway.incrementAmountCollected(
-      eventExists.getId(),
-      totalPaymentsValue.toNumber(),
-    );
-
-    // Incrementar a quantidade de participantes no evento
-    await this.eventGateway.incrementQuantityParticipants(
-      eventExists.getId(),
-      participants.length,
-    );
+    eventExists.incrementAmountCollected(totalPaymentsValue.toNumber());
+    eventExists.incrementAmountNetValueCollected(totalPaymentsValue.toNumber());
+    eventExists.incrementQuantityParticipants(participants.length);
+    await this.eventGateway.update(eventExists);
 
     return { id: createdRegistration.getId() };
   }

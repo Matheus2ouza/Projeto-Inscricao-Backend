@@ -18,6 +18,13 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     return PrismaToEntity.map(created);
   }
 
+  async findById(id: string): Promise<EventExpenses | null> {
+    const found = await this.prisma.eventExpenses.findUnique({
+      where: { id },
+    });
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findMany(eventId: string): Promise<EventExpenses[]> {
     const found = await this.prisma.eventExpenses.findMany({
       where: { eventId },

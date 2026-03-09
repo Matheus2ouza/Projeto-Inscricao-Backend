@@ -1,3 +1,4 @@
+import { CashRegisterStatus } from 'generated/prisma';
 import { CashRegister } from '../entities/cash-register.entity';
 
 export abstract class CashRegisterGateway {
@@ -9,5 +10,14 @@ export abstract class CashRegisterGateway {
   // Busca um unico caixa pelo id dele
   abstract findById(id: string): Promise<CashRegister | null>;
   // Busca todos os caixas, com um filtro opcional de região
-  abstract findMany(filters: { regionId?: string }): Promise<CashRegister[]>;
+  abstract findMany(
+    page: number,
+    pageSize: number,
+    filters: { regionId?: string; status?: CashRegisterStatus[] },
+  ): Promise<CashRegister[]>;
+
+  abstract count(filters: {
+    regionId?: string;
+    status?: CashRegisterStatus[];
+  }): Promise<number>;
 }

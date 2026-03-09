@@ -9,6 +9,7 @@ export type FindTotalCollectedAdminInput = {
 
 export type FindTotalCollectedAdminOutput = {
   totalCollected: number;
+  totalNetValueCollected: number;
 };
 
 @Injectable()
@@ -28,11 +29,13 @@ export class FindTotalCollectedAdminUsecase
     if (!event) {
       return {
         totalCollected: 0,
+        totalNetValueCollected: 0,
       };
     }
 
     const output: FindTotalCollectedAdminOutput = {
       totalCollected: event.getAmountCollected(),
+      totalNetValueCollected: event.getAmountNetValueCollected(),
     };
 
     return output;

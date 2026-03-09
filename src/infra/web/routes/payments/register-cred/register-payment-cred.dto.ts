@@ -6,7 +6,7 @@ export type RegisterPaymentCredRequest = {
   totalValue: number;
   client: Client;
   inscriptions: Inscription[];
-  passCustomerToAsaas?: string;
+  passCustomerToAsaas?: boolean;
 };
 
 type Client = {

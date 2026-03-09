@@ -180,7 +180,10 @@ export class EventPrismaRepository implements EventGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  async findAll(filters?: { regionId?: string }): Promise<Event[]> {
+  async findAll(filters?: {
+    regionId?: string;
+    status?: statusEvent[];
+  }): Promise<Event[]> {
     const where = this.buildWhereClauseEvent(filters);
     const found = await this.prisma.events.findMany({
       where,
@@ -252,7 +255,7 @@ export class EventPrismaRepository implements EventGateway {
     const result = await this.prisma.events.findFirst({
       where: {
         regionId,
-        status: { in: ['OPEN', 'CLOSE', 'FINALIZED'] },
+        status: { in: [statusEvent.OPEN] },
         OR: [
           {
             startDate: { lte: now },
@@ -380,9 +383,16 @@ export class EventPrismaRepository implements EventGateway {
   }) {
     const { regionId, status, paymentEnabled, ticketEnabled } = filter || {};
 
+    const statusArray = status
+      ? Array.isArray(status)
+        ? status
+        : [status]
+      : [];
+
     return {
       regionId,
-      status: status && status.length > 0 ? { in: status } : undefined,
+      status:
+        statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
       paymentEnabled: paymentEnabled !== undefined ? paymentEnabled : undefined,
       ticketEnabled: ticketEnabled !== undefined ? ticketEnabled : undefined,
     };
