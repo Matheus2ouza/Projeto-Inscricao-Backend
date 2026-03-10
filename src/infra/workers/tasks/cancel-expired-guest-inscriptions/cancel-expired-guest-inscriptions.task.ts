@@ -4,19 +4,19 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { CancelExpiredInscriptionsUseCase } from 'src/usecases/worker/cancel-expired-inscriptions/cancel-expired-inscriptions.usecase';
+import { CancelExpiredGuestInscriptionsUsecase } from 'src/usecases/worker/cancel-expired-guest-inscriptions/cancel-expired-guest-inscriptions.usecase';
 
 @Injectable()
-export class CancelExpiredInscriptionsTask
+export class CancelExpiredGuestInscriptionsTask
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly logger = new Logger(CancelExpiredInscriptionsTask.name);
+  private readonly logger = new Logger(CancelExpiredGuestInscriptionsTask.name);
   private intervalId: NodeJS.Timeout | null = null;
   // Intervalo de execução (30 minutos)
   private readonly CANCEL_INTERVAL_MS = 30 * 60 * 1000;
 
   public constructor(
-    private readonly cancelExpiredInscriptionsUsecase: CancelExpiredInscriptionsUseCase,
+    private readonly cancelExpiredGuestInscriptionsUsecase: CancelExpiredGuestInscriptionsUsecase,
   ) {}
 
   onModuleInit() {
@@ -48,17 +48,17 @@ export class CancelExpiredInscriptionsTask
   private async executeCancel() {
     try {
       // Executa o usecase e registra o resultado
-      const result = await this.cancelExpiredInscriptionsUsecase.execute();
+      const result = await this.cancelExpiredGuestInscriptionsUsecase.execute();
       if (result.countInscriptionsCancelled > 0) {
         this.logger.log(
-          `Inscrições canceladas: ${result.countInscriptionsCancelled}`,
+          `Inscrições Guest canceladas: ${result.countInscriptionsCancelled}`,
         );
       } else {
-        this.logger.log('Nenhuma inscrição expirada para cancelar');
+        this.logger.log('Nenhuma inscrição Guest expirada para cancelar');
       }
     } catch (error) {
       this.logger.error(
-        `Erro ao executar cancelamento de inscrições expiradas: ${error.message}`,
+        `Erro ao executar cancelamento de inscrições Guest expiradas: ${error.message}`,
         error.stack,
       );
     }
