@@ -193,7 +193,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     filters?: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
       accountId?: string;
       responsible?: string;
     },
@@ -216,7 +216,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       statusPayment?: StatusPayment | StatusPayment[];
       methodPayment?: PaymentMethod | PaymentMethod[];
       isGuest?: boolean;
-      limitTime?: string;
+      startDate?: string;
+      endDate?: string;
     },
   ): Promise<Inscription[]> {
     const where = this.buildWhereClauseInscription(filters);
@@ -224,14 +225,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         eventId,
         ...where,
-        payments: {
-          some: {
-            payment: {
-              status: where.statusPayment,
-              methodPayment: where.methodPayment,
-            },
-          },
-        },
       },
     });
 
@@ -282,7 +275,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
-      limitTime?: string;
+      endDate?: string;
       responsible?: string;
     },
   ): Promise<Inscription[]> {
@@ -465,7 +458,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
       accountId?: string;
       responsible?: string;
     },
@@ -490,7 +483,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       statusPayment?: StatusPayment | StatusPayment[];
       methodPayment?: PaymentMethod | PaymentMethod[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
     },
   ): Promise<number> {
     const where = this.buildWhereClauseInscription(filters);
@@ -498,14 +491,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         eventId,
         ...where,
-        payments: {
-          some: {
-            payment: {
-              status: where.statusPayment,
-              methodPayment: where.methodPayment,
-            },
-          },
-        },
       },
     });
     return count;
@@ -793,7 +778,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     statusPayment?: StatusPayment | StatusPayment[];
     methodPayment?: PaymentMethod | PaymentMethod[];
     isGuest?: boolean;
-    limitTime?: string;
+    startDate?: string;
+    endDate?: string;
     accountId?: string;
     responsible?: string;
   }) {
@@ -802,7 +788,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       statusPayment,
       methodPayment,
       isGuest,
-      limitTime,
+      startDate,
+      endDate,
       accountId,
       responsible,
     } = filters || {};
@@ -825,21 +812,39 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : [methodPayment]
       : [];
 
+    const createdAt =
+      startDate || endDate
+        ? {
+            gte: startDate ? new Date(startDate) : undefined,
+            lte: endDate ? new Date(endDate) : undefined,
+          }
+        : undefined;
+
+    const paymentFilter =
+      (statusPaymentArray && statusPaymentArray.length > 0) ||
+      (methodPaymentArray && methodPaymentArray.length > 0)
+        ? {
+            status:
+              statusPaymentArray && statusPaymentArray.length > 0
+                ? { in: statusPaymentArray }
+                : undefined,
+            methodPayment:
+              methodPaymentArray && methodPaymentArray.length > 0
+                ? { in: methodPaymentArray }
+                : undefined,
+          }
+        : undefined;
+
     return {
       status:
         statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
-      statusPayment:
-        statusPaymentArray && statusPaymentArray.length > 0
-          ? { in: statusPaymentArray }
-          : undefined,
-      methodPayment:
-        methodPaymentArray && methodPaymentArray.length > 0
-          ? { in: methodPaymentArray }
-          : undefined,
       isGuest,
-      createdAt: limitTime ? { gte: new Date(limitTime) } : undefined,
+      createdAt,
       accountId,
       responsible: responsible ? { contains: responsible } : undefined,
+      payments: paymentFilter
+        ? { some: { payment: paymentFilter } }
+        : undefined,
     };
   }
 

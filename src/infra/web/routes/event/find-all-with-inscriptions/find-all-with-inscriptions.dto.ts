@@ -1,4 +1,4 @@
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 
 export type FindAllWithInscriptionsRequest = {
   page: number;
@@ -17,7 +17,8 @@ export type Events = {
   id: string;
   name: string;
   imageUrl: string;
-  status: string;
+  status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   startDate: string;
   endDate: string;
   location?: string;

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
@@ -24,7 +24,8 @@ export type Events = {
   id: string;
   name: string;
   imageUrl: string;
-  status: string;
+  status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   startDate: string;
   endDate: string;
   location?: string;
@@ -90,6 +91,7 @@ export class FindAllWithInscriptionsUsecase
           id: event.getId(),
           name: event.getName(),
           status: event.getStatus(),
+          allowedInscriptionModes: event.getAllowedInscriptionModes(),
           imageUrl: imagePath,
           startDate: event.getStartDate().toISOString(),
           endDate: event.getEndDate().toISOString(),

@@ -99,10 +99,8 @@ export class GeneratePdfDetailsGuestInscriptionUsecase
         title: `Participante ${index + 1}`,
         name: p.getName ? String(p.getName()) : '-',
         cpf: p.getCpf ? String(p.getCpf()) : undefined,
-        birthDate: p.getBirthDate ? (p.getBirthDate() as Date) : undefined,
-        age: p.getBirthDate
-          ? this.calculateAge(p.getBirthDate() as Date)
-          : undefined,
+        birthDate: p.getBirthDate ? p.getBirthDate() : undefined,
+        age: p.getBirthDate ? this.calculateAge(p.getBirthDate()) : undefined,
         gender: p.getGender ? String(p.getGender()) : undefined,
         complementary,
       };

@@ -8,9 +8,12 @@ export class FindAllMembersByAccountPresenter {
     return output.map((member) => ({
       id: member.id,
       name: member.name,
+      preferredName: member.preferredName,
+      cpf: member.cpf,
       birthDate: member.birthDate,
       gender: member.gender,
-      registered: member.registered ?? false,
+      shirtSize: member.shirtSize,
+      shirtType: member.shirtType,
     }));
   }
 }

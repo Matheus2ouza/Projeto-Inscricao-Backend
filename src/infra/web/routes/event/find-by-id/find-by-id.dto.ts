@@ -1,4 +1,4 @@
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 
 export type FindByIdEventRequest = {
   id: string;
@@ -17,9 +17,9 @@ export type FindByIdEventResponse = {
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnebled: boolean;
   allowCard?: boolean;
-  allowGuest: boolean;
   createdAt: Date;
   regionName: string;
   responsibles: Responsible[];

@@ -22,9 +22,6 @@ export class RegisterPaymentCredRoute {
     @Param() param: RegisterPaymentCredRequest,
     @Body() body: RegisterPaymentCredRequest,
   ): Promise<RegisterPaymentCredResponse> {
-    console.log('param', param);
-    console.log('body', body);
-
     const input: RegisterPaymentCredInput = {
       eventId: param.eventId,
       accountId: body.accountId,
@@ -35,8 +32,6 @@ export class RegisterPaymentCredRoute {
       inscriptions: body.inscriptions,
       passCustomerToAsaas: body.passCustomerToAsaas,
     };
-
-    console.log('input', input);
 
     const response = await this.registerCredUsecase.execute(input);
     return RegisterPaymentCredPresenter.toHttp(response);

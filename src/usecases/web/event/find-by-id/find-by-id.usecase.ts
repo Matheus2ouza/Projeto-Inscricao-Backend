@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -25,9 +25,9 @@ export type FindByIdEventOutput = {
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnebled: boolean;
   allowCard?: boolean;
-  allowGuest: boolean;
   createdAt: Date;
   regionName: string;
   responsibles: Responsible[];
@@ -97,9 +97,9 @@ export class FindByIdEventUsecase
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
+      allowedInscriptionModes: event.getAllowedInscriptionModes(),
       paymentEnebled: event.getPaymentEnabled(),
       allowCard: event.getAllowCard() ?? false,
-      allowGuest: event.getAllowGuest(),
       createdAt: event.getCreatedAt(),
       regionName: region?.getName() || '',
       responsibles: responsibleUsers,

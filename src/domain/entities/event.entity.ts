@@ -1,4 +1,4 @@
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
@@ -13,6 +13,7 @@ export type EventCreateDto = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
 };
@@ -33,10 +34,10 @@ export type EventWithDto = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnabled: boolean;
   ticketEnabled?: boolean;
   allowCard?: boolean;
-  allowGuest: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -55,8 +56,8 @@ export class Event extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private status: statusEvent,
+    private allowedInscriptionModes: InscriptionMode[],
     private paymentEnabled: boolean,
-    private allowGuest: boolean,
     private ticketEnabled?: boolean,
     private imageUrl?: string,
     private logoUrl?: string,
@@ -80,6 +81,7 @@ export class Event extends Entity {
     longitude,
     latitude,
     status,
+    allowedInscriptionModes,
     paymentEnabled,
     ticketEnabled,
   }: EventCreateDto): Event {
@@ -91,7 +93,6 @@ export class Event extends Entity {
     const amountNetValueCollected = 0;
     const amountSpent = 0;
     const allowCard = false;
-    const allowGuest = false;
     return new Event(
       id,
       name,
@@ -105,8 +106,8 @@ export class Event extends Entity {
       createdAt,
       updatedAt,
       status,
+      allowedInscriptionModes,
       paymentEnabled,
-      allowGuest,
       ticketEnabled,
       imageUrl,
       logoUrl,
@@ -133,10 +134,10 @@ export class Event extends Entity {
     longitude,
     latitude,
     status,
+    allowedInscriptionModes,
     paymentEnabled,
     ticketEnabled,
     allowCard,
-    allowGuest,
     createdAt,
     updatedAt,
   }: EventWithDto): Event {
@@ -153,8 +154,8 @@ export class Event extends Entity {
       createdAt,
       updatedAt,
       status,
+      allowedInscriptionModes,
       paymentEnabled,
-      allowGuest,
       ticketEnabled,
       imageUrl,
       logoUrl,
@@ -242,6 +243,10 @@ export class Event extends Entity {
     return this.status;
   }
 
+  public getAllowedInscriptionModes(): InscriptionMode[] {
+    return this.allowedInscriptionModes;
+  }
+
   public getPaymentEnabled(): boolean {
     return this.paymentEnabled;
   }
@@ -252,10 +257,6 @@ export class Event extends Entity {
 
   public getAllowCard(): boolean | undefined {
     return this.allowCard;
-  }
-
-  public getAllowGuest(): boolean {
-    return this.allowGuest;
   }
 
   public setName(name: string): void {
@@ -296,11 +297,6 @@ export class Event extends Entity {
     this.updatedAt = new Date();
   }
 
-  public setAllowGuest(allowGuest: boolean): void {
-    this.allowGuest = allowGuest;
-    this.updatedAt = new Date();
-  }
-
   public update({
     name,
     startDate,
@@ -308,6 +304,7 @@ export class Event extends Entity {
     location,
     longitude,
     latitude,
+    allowedInscriptionModes,
   }: {
     name?: string;
     startDate?: Date;
@@ -315,6 +312,7 @@ export class Event extends Entity {
     location?: string;
     longitude?: number | null;
     latitude?: number | null;
+    allowedInscriptionModes?: InscriptionMode[];
   }): void {
     if (name !== undefined) {
       this.setName(name);
@@ -333,6 +331,9 @@ export class Event extends Entity {
     }
     if (latitude !== undefined) {
       this.setLatitude(latitude);
+    }
+    if (allowedInscriptionModes !== undefined) {
+      this.allowedInscriptionModes = allowedInscriptionModes;
     }
   }
 

@@ -16,7 +16,8 @@ export type FindAllPaginatedMembersResponse = {
 export type Member = {
   id: string;
   name: string;
-  birthDate: string;
+  cpf?: string;
+  birthDate: Date;
   gender: genderType;
-  createdAt: string;
+  createdAt: Date;
 };

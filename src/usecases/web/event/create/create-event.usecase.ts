@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 import { EventResponsible } from 'src/domain/entities/event-responsibles.entity';
 import { Event } from 'src/domain/entities/event.entity';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
@@ -25,6 +25,7 @@ export type CreateEventInput = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnabled: boolean;
   responsibles: {
     accountId: string;
@@ -59,6 +60,7 @@ export class CreateEventUseCase
     longitude,
     latitude,
     status,
+    allowedInscriptionModes,
     paymentEnabled,
     responsibles,
   }: CreateEventInput): Promise<CreateEventOutput> {
@@ -124,6 +126,7 @@ export class CreateEventUseCase
       longitude: longitude,
       latitude: latitude,
       status: status,
+      allowedInscriptionModes: allowedInscriptionModes,
       paymentEnabled: paymentEnabled,
       ticketEnabled: false,
     });

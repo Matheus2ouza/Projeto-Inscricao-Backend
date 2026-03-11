@@ -35,6 +35,7 @@ model AccountParticipant {
   id            String     @id @default(uuid())
   accountId     String     @map("account_id")
   name          String
+  cpf           String?    @unique @map("cpf")
   preferredName String?    @map("preferred_name")
   shirtSize     ShirtSize? @map("shirt_size")
   shirtType     ShirtType? @map("shirt_type")
@@ -80,38 +81,39 @@ model Regions {
 }
 
 model Events {
-  id                      String               @id @default(uuid())
+  id                      String            @id @default(uuid())
   name                    String
-  createdAt               DateTime             @default(now())
+  createdAt               DateTime          @default(now())
   regionId                String
-  amountCollected         Decimal              @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
-  amountNetValueCollected Decimal              @default(0.00) @map("amount_net_value_collected") @db.Decimal(10, 2)
-  amountSpent             Decimal              @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
-  imageUrl                String?              @map("image_url")
-  quantityParticipants    Int                  @default(0) @map("quantity_participants")
-  updatedAt               DateTime             @updatedAt
-  endDate                 DateTime             @map("end_date")
-  startDate               DateTime             @map("start_date")
+  amountCollected         Decimal           @default(0.00) @map("amount_collected") @db.Decimal(10, 2)
+  amountNetValueCollected Decimal           @default(0.00) @map("amount_net_value_collected") @db.Decimal(10, 2)
+  amountSpent             Decimal           @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
+  imageUrl                String?           @map("image_url")
+  quantityParticipants    Int               @default(0) @map("quantity_participants")
+  updatedAt               DateTime          @updatedAt
+  endDate                 DateTime          @map("end_date")
+  startDate               DateTime          @map("start_date")
   location                String?
   latitude                Float?
   longitude               Float?
   status                  statusEvent
-  paymentEnabled          Boolean              @default(false) @map("payment_enabled")
+  allowedInscriptionModes InscriptionMode[] @default([NORMAL]) @map("allowed_inscription_modes")
+  paymentEnabled          Boolean           @default(false) @map("payment_enabled")
   logoUrl                 String?
-  ticketEnabled           Boolean              @default(false) @map("ticket_enabled")
-  allowCard               Boolean              @default(false) @map("allow_card")
-  allowGuest              Boolean              @default(false) @map("allow_guest")
-  EventExpenses           EventExpenses[]
-  responsibles            EventResponsibles[]
-  EventTickets            EventTickets[]
-  region                  Regions              @relation(fields: [regionId], references: [id])
-  FinancialMovement       FinancialMovement[]
-  Inscription             Inscription[]
-  OnSiteRegistration      OnSiteRegistration[]
-  typeInscriptions        TypeInscriptions[]
-  payments                Payment[]
-  cashRegisterEvents      CashRegisterEvent[]
-  cashRegisterEntries     CashRegisterEntry[]
+  ticketEnabled           Boolean           @default(false) @map("ticket_enabled")
+  allowCard               Boolean           @default(false) @map("allow_card")
+
+  EventExpenses       EventExpenses[]
+  responsibles        EventResponsibles[]
+  EventTickets        EventTickets[]
+  region              Regions              @relation(fields: [regionId], references: [id])
+  FinancialMovement   FinancialMovement[]
+  Inscription         Inscription[]
+  OnSiteRegistration  OnSiteRegistration[]
+  typeInscriptions    TypeInscriptions[]
+  payments            Payment[]
+  cashRegisterEvents  CashRegisterEvent[]
+  cashRegisterEntries CashRegisterEntry[]
 
   @@map("events")
 }
@@ -529,6 +531,11 @@ model CashRegisterTransfer {
   entries  CashRegisterEntry[] // sempre serão 2 entries por transferência
 
   @@map("cash_register_transfers")
+}
+
+enum InscriptionMode {
+  NORMAL
+  GUEST
 }
 
 enum CashRegisterStatus {

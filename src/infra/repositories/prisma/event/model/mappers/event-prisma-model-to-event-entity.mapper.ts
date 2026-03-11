@@ -18,11 +18,11 @@ export class EventPrismaModelToEventEntityMapper {
       longitude: event.longitude ?? undefined,
       latitude: event.latitude ?? undefined,
       status: event.status,
+      allowedInscriptionModes: event.allowedInscriptionModes,
       paymentEnabled: event.paymentEnabled,
       ticketEnabled: event.ticketEnabled ?? undefined,
       regionId: event.regionId,
       allowCard: event.allowCard ?? false,
-      allowGuest: event.allowGuest,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     });
