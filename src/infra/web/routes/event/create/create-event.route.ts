@@ -29,6 +29,7 @@ export class CreateEventRoute {
       longitude: request.longitude,
       latitude: request.latitude,
       status: request.status,
+      allowedInscriptionModes: request.allowedInscriptionModes,
       paymentEnabled: request.paymentEnabled,
       responsibles: request.responsibles,
     };

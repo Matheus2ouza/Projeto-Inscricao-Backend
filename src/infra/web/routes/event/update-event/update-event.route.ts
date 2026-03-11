@@ -28,6 +28,7 @@ export class UpdateEventRoute {
       longitude: request.longitude,
       latitude: request.latitude,
       responsibles: request.responsibles,
+      allowedInscriptionModes: request.allowedInscriptionModes,
     };
 
     const response = await this.updateEventUseCase.execute(input);

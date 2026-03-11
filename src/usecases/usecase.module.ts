@@ -131,7 +131,7 @@ import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-n
 import { FindUserUsecase } from './web/user/find-by-id/find-user.usecase';
 import { LoginUserUsecase } from './web/user/login/login-user.usecase';
 import { RefreshAuthTokenUserUsecase } from './web/user/refresh-auth-token/refresh-auth-token-user.usecase';
-import { CancelExpiredInscriptionsUseCase } from './worker/cancel-expired-inscriptions/cancel-expired-inscriptions.usecase';
+import { CancelExpiredGuestInscriptionsUsecase } from './worker/cancel-expired-guest-inscriptions/cancel-expired-guest-inscriptions.usecase';
 import { CleanupCancelledTicketSalesUsecase } from './worker/cleanup-cancelled-ticket-sales/cleanup-cancelled-ticket-sales.usecase';
 import { CleanupGuestInscriptionUsecase } from './worker/cleanup-guest-inscription/cleanup-guest-inscription.usecase';
 import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/finalize-expired-events.usecase';
@@ -318,7 +318,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
-    CancelExpiredInscriptionsUseCase,
+    CancelExpiredGuestInscriptionsUsecase,
     CleanupGuestInscriptionUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,
@@ -498,7 +498,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfFinancialReportUsecase,
 
     // Background tasks
-    CancelExpiredInscriptionsUseCase,
+    CancelExpiredGuestInscriptionsUsecase,
     CleanupGuestInscriptionUsecase,
     FinalizeExpiredEventsUsecase,
     CleanupCancelledTicketSalesUsecase,

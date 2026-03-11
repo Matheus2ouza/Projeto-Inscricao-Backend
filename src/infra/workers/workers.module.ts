@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UsecaseModule } from 'src/usecases/usecase.module';
 import { ServiceModule } from '../services/service.module';
-import { CancelExpiredInscriptionsTask } from './tasks/cancel-expired-inscriptions/cancel-expired-inscriptions.task';
+import { CancelExpiredGuestInscriptionsTask } from './tasks/cancel-expired-guest-inscriptions/cancel-expired-guest-inscriptions.task';
 import { CleanupCancelledTicketSalesTask } from './tasks/cleanup-cancelled-ticket-sales/cleanup-cancelled-ticket-sales.task';
 import { CleanupGuestInscriptionTask } from './tasks/cleanup-guest-inscription/cleanup-guest-inscription.task';
 import { FinalizeExpiredEventsTask } from './tasks/finalize-expired-events/finalize-expired-events.task';
@@ -10,7 +10,7 @@ import { FinalizeExpiredEventsTask } from './tasks/finalize-expired-events/final
   imports: [UsecaseModule, ServiceModule],
   providers: [
     // Cancela inscrições expiradas
-    CancelExpiredInscriptionsTask,
+    CancelExpiredGuestInscriptionsTask,
     // Limpa inscrições guest canceladas
     CleanupGuestInscriptionTask,
     // Finaliza eventos que já terminaram
@@ -20,7 +20,7 @@ import { FinalizeExpiredEventsTask } from './tasks/finalize-expired-events/final
   ],
   exports: [
     // Cancela inscrições expiradas
-    CancelExpiredInscriptionsTask,
+    CancelExpiredGuestInscriptionsTask,
     // Limpa inscrições guest canceladas
     CleanupGuestInscriptionTask,
     // Finaliza eventos que já terminaram

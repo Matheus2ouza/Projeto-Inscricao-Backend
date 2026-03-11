@@ -19,9 +19,10 @@ export type FindAllPaginatedMembersOutput = {
 export type Member = {
   id: string;
   name: string;
-  birthDate: string;
+  cpf?: string;
+  birthDate: Date;
   gender: genderType;
-  createdAt: string;
+  createdAt: Date;
 };
 
 @Injectable()
@@ -54,9 +55,10 @@ export class FindAllPaginatedMembersUsecase
     const memberOutput: Member[] = members.map((member) => ({
       id: member.getId(),
       name: member.getName(),
-      birthDate: member.getBirthDate().toISOString(),
+      cpf: member.getCpf(),
+      birthDate: member.getBirthDate(),
       gender: member.getGender(),
-      createdAt: member.getCreatedAt().toISOString(),
+      createdAt: member.getCreatedAt(),
     }));
 
     const output: FindAllPaginatedMembersOutput = {

@@ -11,6 +11,7 @@ export class AccountParticipantEntityToAccountParticipantPrismaModelMapper {
       name: accountParticipant.getName(),
       birthDate: accountParticipant.getBirthDate(),
       preferredName: accountParticipant.getPreferredName() ?? null,
+      cpf: accountParticipant.getCpf() ?? null,
       shirtSize: accountParticipant.getShirtSize() ?? null,
       shirtType: accountParticipant.getShirtType() ?? null,
       gender: accountParticipant.getGender(),

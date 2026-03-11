@@ -14,6 +14,7 @@ import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import {
@@ -33,23 +34,35 @@ export type GeneratePdfAllInscriptionsInput = {
   statusPayment?: StatusPayment | StatusPayment[];
   methodPayment?: PaymentMethod | PaymentMethod[];
   isGuest?: boolean;
-  limitTime?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 type InscriptionsDetails = {
   id: string;
   responsible: string;
+  email?: string;
+  phone?: string;
   locality: string;
   status: InscriptionStatus;
   createdAt: Date;
   isGuest?: boolean;
   participants?: ParticipantDetails[];
   payment?: {
+    methodPayment: PaymentMethod;
     guestName?: string;
     status: StatusPayment;
     totalPaid: number;
+    totalReceived: number;
     createdAt: Date;
     receiptPath?: string;
+    installments?: {
+      installmentNumber: number;
+      received: boolean;
+      value: number;
+      netValue: number;
+      paidAt: Date;
+    }[];
   };
 };
 
@@ -79,6 +92,7 @@ export class GeneratePdfAllInscriptionsUsecase
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly paymentGateway: PaymentGateway,
+    private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -100,7 +114,8 @@ export class GeneratePdfAllInscriptionsUsecase
       statusPayment: input.statusPayment,
       methodPayment: input.methodPayment,
       isGuest: input.isGuest,
-      limitTime: input.limitTime,
+      startDate: input.startDate,
+      endDate: input.endDate,
     };
 
     const [inscriptions, totalInscription, totalAccountParticipants] =
@@ -125,12 +140,22 @@ export class GeneratePdfAllInscriptionsUsecase
       );
     }
 
+    // Acumuladores para os novos dados do sumário
+    let participantTotal = 0;
+    let participantMale = 0;
+    let participantFemale = 0;
+    const paymentMethodMap = new Map<
+      PaymentMethod,
+      { totalValue: number; totalNetValue: number; totalReceived: number }
+    >();
+
     const inscriptionDetails: InscriptionsDetails[] = await Promise.all(
       inscriptions.map(async (i) => {
         let participants: ParticipantDetails[] | undefined = undefined;
 
         if (input.participants) {
-          participants = (
+          // Participantes de conta
+          const accountParticipants = (
             await this.accountParticipantGateway.findByInscriptionId(i.getId())
           ).map((p) => ({
             name: p.getName(),
@@ -140,8 +165,10 @@ export class GeneratePdfAllInscriptionsUsecase
             gender: p.getGender(),
           }));
 
+          // Participantes convidados (se for convidado)
+          let guestParticipants: ParticipantDetails[] = [];
           if (i.getIsGuest() && input.isGuest !== false) {
-            participants = (
+            guestParticipants = (
               await this.participantGateway.findByInscriptionId(i.getId())
             ).map((p) => ({
               name: p.getName(),
@@ -150,6 +177,15 @@ export class GeneratePdfAllInscriptionsUsecase
               shirtType: p.getShirtType(),
               gender: p.getGender(),
             }));
+          }
+
+          participants = [...accountParticipants, ...guestParticipants];
+
+          // Atualiza contadores de participantes
+          participantTotal += participants.length;
+          for (const p of participants) {
+            if (p.gender === 'MASCULINO') participantMale++;
+            else if (p.gender === 'FEMININO') participantFemale++;
           }
         }
 
@@ -166,13 +202,65 @@ export class GeneratePdfAllInscriptionsUsecase
         const payment = input.payment
           ? await this.paymentGateway.findByInscriptionId(i.getId())
           : null;
-        const receiptPath = payment
-          ? this.extractReceiptPath(payment.getImageUrl())
-          : '';
+        const isPixPayment = payment?.getMethodPayment() === PaymentMethod.PIX;
+        const receiptPath =
+          payment && isPixPayment
+            ? this.extractReceiptPath(payment.getImageUrl())
+            : undefined;
+        const installments = payment
+          ? (
+              await this.paymentInstallmentGateway.findByPaymentId(
+                payment.getId(),
+              )
+            )
+              .map((installment) => ({
+                installmentNumber: installment.getInstallmentNumber(),
+                received: installment.getReceived(),
+                value: installment.getValue(),
+                netValue: installment.getNetValue(),
+                paidAt: installment.getPaidAt(),
+              }))
+              .sort((a, b) => a.installmentNumber - b.installmentNumber)
+          : undefined;
+
+        // Atualiza mapa de pagamentos se o filtro estiver ativo
+        if (payment && input.payment) {
+          const method = payment.getMethodPayment();
+
+          // Determina a data do último recebimento (prioridade: parcela recebida mais recente, senão createdAt)
+          let ultimoRecebimento = payment.getCreatedAt();
+          if (installments && installments.length > 0) {
+            const receivedInstallments = installments.filter(
+              (inst) => inst.received,
+            );
+            if (receivedInstallments.length > 0) {
+              ultimoRecebimento = receivedInstallments.reduce(
+                (latest, current) =>
+                  current.paidAt > latest ? current.paidAt : latest,
+                receivedInstallments[0].paidAt,
+              );
+            }
+          }
+
+          const existing = paymentMethodMap.get(method);
+          if (existing) {
+            existing.totalValue += payment.getTotalValue();
+            existing.totalNetValue += payment.getTotalNetValue();
+            existing.totalReceived += payment.getTotalReceived();
+          } else {
+            paymentMethodMap.set(method, {
+              totalValue: payment.getTotalValue(),
+              totalNetValue: payment.getTotalNetValue(),
+              totalReceived: payment.getTotalReceived(),
+            });
+          }
+        }
 
         return {
           id: i.getId(),
           responsible: i.getResponsible(),
+          email: i.getEmail() ?? i.getGuestEmail(),
+          phone: i.getPhone(),
           locality,
           status: i.getStatus(),
           createdAt: i.getCreatedAt(),
@@ -181,11 +269,14 @@ export class GeneratePdfAllInscriptionsUsecase
           payment:
             payment && input.payment
               ? {
+                  methodPayment: payment.getMethodPayment(),
                   guestName: payment.getGuestName(),
                   status: payment.getStatus(),
                   totalPaid: payment.getTotalPaid(),
+                  totalReceived: payment.getTotalReceived(),
                   createdAt: payment.getCreatedAt(),
                   receiptPath,
+                  installments,
                 }
               : undefined,
         };
@@ -193,6 +284,28 @@ export class GeneratePdfAllInscriptionsUsecase
     );
 
     const eventImageBase64 = await this.getImageBase64(event.getImageUrl());
+
+    // Monta os summaries condicionalmente
+    const participantSummary = input.participants
+      ? {
+          total: participantTotal,
+          male: participantMale,
+          female: participantFemale,
+        }
+      : undefined;
+
+    const paymentSummary = input.payment
+      ? {
+          byMethod: Array.from(paymentMethodMap.entries())
+            .map(([method, data]) => ({
+              method,
+              totalValue: data.totalValue,
+              totalNetValue: data.totalNetValue,
+              totalReceived: data.totalReceived,
+            }))
+            .sort((a, b) => a.method.localeCompare(b.method)),
+        }
+      : undefined;
 
     const pdfData: ListInscriptionsPdfData = {
       header: {
@@ -210,6 +323,8 @@ export class GeneratePdfAllInscriptionsUsecase
         totalAccountParticipants,
         totalGuestParticipants,
       },
+      participantSummary,
+      paymentSummary,
     };
 
     const pdfBuffer =

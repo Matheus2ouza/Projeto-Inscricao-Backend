@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InscriptionMode } from 'generated/prisma';
 import { EventResponsible } from 'src/domain/entities/event-responsibles.entity';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -14,6 +15,7 @@ export type UpdateEventInput = {
   longitude?: number | null;
   latitude?: number | null;
   responsibles: string[];
+  allowedInscriptionModes: InscriptionMode[];
 };
 
 export type UpdateEventOutput = {
@@ -48,6 +50,7 @@ export class UpdateEventUseCase
       location: input.location,
       longitude: input.longitude,
       latitude: input.latitude,
+      allowedInscriptionModes: input.allowedInscriptionModes,
     });
 
     // Salva o evento atualizado

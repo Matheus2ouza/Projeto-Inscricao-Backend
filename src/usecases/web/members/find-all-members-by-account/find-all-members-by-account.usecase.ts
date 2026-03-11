@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ShirtSize, ShirtType } from 'generated/prisma';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { Usecase } from 'src/usecases/usecase';
 
@@ -10,9 +11,12 @@ export type FindAllMembersByAccountUsecaseInput = {
 export type FindAllMembersByAccountUsecaseOutput = {
   id: string;
   name: string;
+  cpf?: string;
+  preferredName?: string;
   birthDate: Date;
   gender: string;
-  registered?: boolean;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 }[];
 
 @Injectable()
@@ -40,9 +44,12 @@ export class FindAllMembersByAccountUsecase
       (accountParticipant) => ({
         id: accountParticipant.getId(),
         name: accountParticipant.getName(),
+        cpf: accountParticipant.getCpf(),
+        preferredName: accountParticipant.getPreferredName(),
         birthDate: accountParticipant.getBirthDate(),
         gender: accountParticipant.getGender(),
-        registered: accountParticipant.getIsRegistered(),
+        shirtSize: accountParticipant.getShirtSize(),
+        shirtType: accountParticipant.getShirtType(),
       }),
     );
 

@@ -53,7 +53,7 @@ export class FindAccountWithInscriptionsUsecase
       );
     }
 
-    const inscriptions = await this.inscriptionGateway.findMany(input.eventId);
+    const inscriptions = await this.inscriptionGateway.findMany(event.getId());
 
     if (!inscriptions.length) {
       return { accounts: [] };

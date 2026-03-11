@@ -24,8 +24,12 @@ export class CreateMembersRoute {
     const input: CreateMembersInput = {
       accountId: userId,
       name: body.name,
+      preferredName: body.preferredName,
+      cpf: body.cpf,
       birthDate: body.birthDate,
       gender: body.gender,
+      shirtSize: body.shirtSize,
+      shirtType: body.shirtType,
     };
 
     const response = await this.createMembersUsecase.execute(input);

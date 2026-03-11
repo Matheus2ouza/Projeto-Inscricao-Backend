@@ -1,3 +1,5 @@
+import { ShirtSize, ShirtType } from 'generated/prisma';
+
 export type FindAllMembersByAccountUsecaseRequest = {
   userId: string;
   eventId: string;
@@ -6,7 +8,10 @@ export type FindAllMembersByAccountUsecaseRequest = {
 export type FindAllMembersByAccountUsecaseResponse = {
   id: string;
   name: string;
+  cpf?: string;
+  preferredName?: string;
   birthDate: Date;
   gender: string;
-  registered?: boolean;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 }[];

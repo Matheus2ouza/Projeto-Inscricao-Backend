@@ -25,15 +25,26 @@ export class GeneratePdfAllInscriptionsRoute {
     @Param() param: GeneratePdfAllInscriptionsRequest,
     @Query() query: GeneratePdfAllInscriptionsRequest,
   ): Promise<GeneratePdfAllInscriptionsResponse> {
+    const isGuest =
+      query.isGuest === undefined ||
+      query.isGuest === true ||
+      query.isGuest === 'true'
+        ? undefined
+        : query.isGuest === false || query.isGuest === 'false'
+          ? false
+          : undefined;
+
     const input: GeneratePdfAllInscriptionsInput = {
       eventId: param.eventId,
-      participants: query.participants === 'true',
-      payment: query.payment === 'true',
+      participants:
+        query.participants === true || query.participants === 'true',
+      payment: query.payment === true || query.payment === 'true',
       status: query.status as InscriptionStatus | InscriptionStatus[],
       statusPayment: query.statusPayment as StatusPayment | StatusPayment[],
       methodPayment: query.methodPayment as PaymentMethod | PaymentMethod[],
-      isGuest: query.isGuest === 'true',
-      limitTime: query.limitTime,
+      isGuest,
+      startDate: query.startDate,
+      endDate: query.endDate,
     };
 
     const response =

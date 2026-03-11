@@ -1,4 +1,4 @@
-import { statusEvent } from 'generated/prisma';
+import { InscriptionMode, statusEvent } from 'generated/prisma';
 
 export type CreateEventRequest = {
   name: string;
@@ -10,6 +10,7 @@ export type CreateEventRequest = {
   longitude?: number;
   latitude?: number;
   status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
   paymentEnabled: boolean;
   responsibles: {
     accountId: string;

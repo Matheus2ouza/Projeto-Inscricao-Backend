@@ -13,14 +13,12 @@ export class AccountParticipantPrismaModelToAccountParticipantEntityMapper {
       name: accountParticipant.name,
       birthDate: new Date(accountParticipant.birthDate),
       preferredName: accountParticipant.preferredName ?? undefined,
+      cpf: accountParticipant.cpf ?? undefined,
       shirtSize: accountParticipant.shirtSize ?? undefined,
       shirtType: accountParticipant.shirtType ?? undefined,
       gender: accountParticipant.gender,
       createdAt: accountParticipant.createdAt,
       updatedAt: accountParticipant.updatedAt,
-      isRegistered:
-        accountParticipant.eventLinks &&
-        accountParticipant.eventLinks.length > 0,
     });
   }
 }

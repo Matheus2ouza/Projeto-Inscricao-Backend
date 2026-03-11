@@ -14,15 +14,7 @@ export function normalizeLocalityText(input?: string | null): string {
     .replace(/\s+/g, ' ');
 }
 
-const DROP_TOKENS = new Set([
-  'PA',
-  'PARA',
-  'MA',
-  'MARANHAO',
-  'DO',
-  'DA',
-  'DE',
-]);
+const DROP_TOKENS = new Set(['PA', 'PARA', 'MA', 'MARANHAO', 'DO', 'DA', 'DE']);
 
 function tokensWithoutNoise(tokens: string[]): string[] {
   return tokens.filter((t) => t && !DROP_TOKENS.has(t));
@@ -70,7 +62,11 @@ export function canonicalLocality(input?: string | null): string {
     return 'Itinga do Maranhão';
   }
 
-  if (tokenSet.has('ALTO') && tokenSet.has('ALEGRE') && tokenSet.has('MARANHAO')) {
+  if (
+    tokenSet.has('ALTO') &&
+    tokenSet.has('ALEGRE') &&
+    tokenSet.has('MARANHAO')
+  ) {
     return 'Alto Alegre do Maranhão';
   }
 

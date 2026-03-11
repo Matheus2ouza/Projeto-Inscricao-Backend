@@ -32,15 +32,23 @@ export class FindAllPaginatedInscriptionsRoute {
     @Query() query: FindAllPaginatedInscriptionRequest,
     @UserInfo() user: UserInfoType,
   ): Promise<FindAllPaginatedInscriptionResponse> {
+    const isGuestFilter =
+      query.isGuest === undefined
+        ? undefined
+        : query.isGuest === false || query.isGuest === 'false'
+          ? false
+          : query.isGuest === true || query.isGuest === 'true'
+            ? true
+            : undefined;
+
     const input: FindAllPaginatedInscriptionInput = {
       eventId: param.eventId,
       userId: user.userRole === roleType.USER ? user.userId : undefined,
       status: query.status,
-      isGuest:
-        user.userRole !== roleType.USER ? query.isGuest === 'true' : false,
+      isGuest: user.userRole !== roleType.USER ? isGuestFilter : false,
       orderByCreatedAt: query.orderByCreatedAt || 'desc',
       orderByResponsible: query.orderByResponsible || 'desc',
-      limitTime: query.limitTime,
+      endDate: query.endDate,
       responsible: query.responsible,
       page: query.page,
       pageSize: query.pageSize,

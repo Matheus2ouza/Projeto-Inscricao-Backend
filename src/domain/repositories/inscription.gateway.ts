@@ -72,7 +72,7 @@ export abstract class InscriptionGateway {
     filters?: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
       accountId?: string;
       responsible?: string;
     },
@@ -85,7 +85,8 @@ export abstract class InscriptionGateway {
       statusPayment?: StatusPayment | StatusPayment[];
       methodPayment?: PaymentMethod | PaymentMethod[];
       isGuest?: boolean;
-      limitTime?: string;
+      startDate?: string;
+      endDate?: string;
     },
   ): Promise<Inscription[]>;
 
@@ -135,7 +136,7 @@ export abstract class InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
-      limitTime?: string;
+      endDate?: string;
       responsible?: string;
     },
   ): Promise<Inscription[]>;
@@ -176,7 +177,7 @@ export abstract class InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
       accountId?: string;
       responsible?: string;
     },
@@ -199,7 +200,7 @@ export abstract class InscriptionGateway {
       statusPayment?: StatusPayment | StatusPayment[];
       methodPayment?: PaymentMethod | PaymentMethod[];
       isGuest?: boolean;
-      limitTime?: string;
+      endDate?: string;
     },
   ): Promise<number>;
 

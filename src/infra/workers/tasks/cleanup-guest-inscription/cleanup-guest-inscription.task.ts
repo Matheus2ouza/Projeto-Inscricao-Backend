@@ -1,59 +1,31 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { CleanupGuestInscriptionUsecase } from 'src/usecases/worker/cleanup-guest-inscription/cleanup-guest-inscription.usecase';
 
 @Injectable()
-export class CleanupGuestInscriptionTask
-  implements OnModuleInit, OnModuleDestroy
-{
+export class CleanupGuestInscriptionTask {
   private readonly logger = new Logger(CleanupGuestInscriptionTask.name);
-  private intervalId: NodeJS.Timeout | null = null;
-
-  // Executa a cada 15 minutos (900000ms)
-  // Pode ser ajustado conforme necessário
-  private readonly CLEANUP_INTERVAL_MS = 60 * 15 * 1000;
 
   constructor(
     private readonly cleanupGuestInscriptionUsecase: CleanupGuestInscriptionUsecase,
   ) {}
 
-  onModuleInit() {
-    this.logger.log('Iniciando task de limpeza de inscrições de convidados...');
-
-    // Executa imediatamente na inicialização
-    this.executeCleanup();
-
-    // Configura execução periódica
-    this.intervalId = setInterval(() => {
-      this.executeCleanup();
-    }, this.CLEANUP_INTERVAL_MS);
-
-    this.logger.log(
-      `Task de limpeza configurada para executar a cada ${this.CLEANUP_INTERVAL_MS / 1000 / 60} minutos`,
-    );
-  }
-
-  onModuleDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.logger.log('Task de limpeza de inscrições de convidados parada');
-    }
-  }
-
-  private async executeCleanup() {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+    timeZone: 'America/Sao_Paulo',
+  })
+  public async executeCleanup() {
     try {
       this.logger.log(
-        'Executando limpeza de inscrições de convidados expiradas...',
+        'Executando limpeza de inscrições de convidados expiradas... Horario: ' +
+          new Date().toLocaleString('pt-BR', {
+            timeZone: 'America/Sao_Paulo',
+          }),
       );
       const result = await this.cleanupGuestInscriptionUsecase.execute();
 
       if (result.cleanedCount > 0) {
         this.logger.log(
-          `${result.cleanedCount} inscrição(ões) removida(s): ${result.inscriptionsDeleted
+          `${result.cleanedCount} inscrição(ões) guest removida(s): ${result.inscriptionsDeleted
             .map((i) => `${i.guestName} (${i.id})`)
             .join(', ')}`,
         );

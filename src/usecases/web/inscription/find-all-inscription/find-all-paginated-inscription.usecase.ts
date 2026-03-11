@@ -15,7 +15,7 @@ export type FindAllPaginatedInscriptionInput = {
   isGuest?: string | boolean;
   orderByCreatedAt?: 'asc' | 'desc';
   orderByResponsible?: 'asc' | 'desc';
-  limitTime?: string;
+  endDate?: string;
   responsible?: string;
   page: number;
   pageSize: number;
@@ -88,7 +88,7 @@ export class FindAllPaginatedInscriptionsUsecase
 
     const filters = {
       status: input.status,
-      limitTime: input.limitTime,
+      endDate: input.endDate,
       isGuest,
       accountId: input.userId,
       orderByCreatedAt: input.orderByCreatedAt,

@@ -17,11 +17,13 @@ export type Inscription = {
 };
 
 @Injectable()
-export class CancelExpiredInscriptionsUseCase
+export class CancelExpiredGuestInscriptionsUsecase
   implements
     Usecase<CancelExpiredInscriptionsInput, CancelExpiredInscriptionsOutput>
 {
-  private readonly logger = new Logger(CancelExpiredInscriptionsUseCase.name);
+  private readonly logger = new Logger(
+    CancelExpiredGuestInscriptionsUsecase.name,
+  );
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -33,7 +35,7 @@ export class CancelExpiredInscriptionsUseCase
     const now = new Date();
 
     this.logger.log(
-      `Cancelando inscrições expiradas antes de ${now.toISOString()}`,
+      `Cancelando inscrições Guest expiradas antes de ${now.toISOString()}`,
     );
 
     // Busca as inscrições Guest que expiraram

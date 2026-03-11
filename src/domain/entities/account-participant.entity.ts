@@ -6,22 +6,26 @@ import { Entity } from '../shared/entities/entity';
 export type AccountParticipantCreateDto = {
   accountId: string;
   name: string;
+  preferredName?: string;
+  cpf?: string;
   birthDate: Date;
   gender: genderType;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 };
 
 export type AccountParticipantWithDto = {
   id: string;
   accountId: string;
   name: string;
-  birthDate: Date;
   preferredName?: string;
+  cpf?: string;
+  birthDate: Date;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender: genderType;
   createdAt: Date;
   updatedAt: Date;
-  isRegistered?: boolean;
 };
 
 export class AccountParticipant extends Entity {
@@ -34,9 +38,9 @@ export class AccountParticipant extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private preferredName?: string,
+    private cpf?: string,
     private shirtSize?: ShirtSize,
     private shirtType?: ShirtType,
-    private isRegistered?: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -45,8 +49,12 @@ export class AccountParticipant extends Entity {
   public static create({
     accountId,
     name,
+    preferredName,
+    cpf,
     birthDate,
     gender,
+    shirtSize,
+    shirtType,
   }: AccountParticipantCreateDto): AccountParticipant {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -60,6 +68,10 @@ export class AccountParticipant extends Entity {
       gender,
       createdAt,
       updatedAt,
+      preferredName,
+      cpf,
+      shirtSize,
+      shirtType,
     );
   }
 
@@ -69,12 +81,12 @@ export class AccountParticipant extends Entity {
     name,
     birthDate,
     preferredName,
+    cpf,
     shirtSize,
     shirtType,
     gender,
     createdAt,
     updatedAt,
-    isRegistered,
   }: AccountParticipantWithDto): AccountParticipant {
     return new AccountParticipant(
       id,
@@ -85,18 +97,14 @@ export class AccountParticipant extends Entity {
       createdAt,
       updatedAt,
       preferredName,
+      cpf,
       shirtSize,
       shirtType,
-      isRegistered,
     );
   }
 
   protected validate(): void {
     AccountParticipantValidatorFactory.create().validate(this);
-  }
-
-  public getIsRegistered(): boolean | undefined {
-    return this.isRegistered;
   }
 
   public getId(): string {
@@ -111,12 +119,16 @@ export class AccountParticipant extends Entity {
     return this.name;
   }
 
-  public getBirthDate(): Date {
-    return this.birthDate;
-  }
-
   public getPreferredName(): string | undefined {
     return this.preferredName;
+  }
+
+  public getCpf(): string | undefined {
+    return this.cpf;
+  }
+
+  public getBirthDate(): Date {
+    return this.birthDate;
   }
 
   public getShirtSize(): ShirtSize | undefined {
