@@ -34,6 +34,24 @@ export class AccountParticipantInEventPrismaRepository
   }
 
   // Buscas e listagens
+  async findByIds(
+    accountParticipantsIds: string[],
+    eventId: string,
+  ): Promise<AccountParticipantInEvent[]> {
+    const found = await this.prisma.accountParticipantInEvent.findMany({
+      where: {
+        inscription: {
+          eventId,
+        },
+        accountParticipantId: {
+          in: accountParticipantsIds,
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async findByParticipantAndEvent(
     accountParticipantId: string,
     eventId: string,

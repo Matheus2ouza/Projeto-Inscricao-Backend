@@ -20,6 +20,13 @@ export class PaymentInstallmentPrismaRepository
     return PrismaToEntity.map(created);
   }
 
+  async createMany(paymentInstallment: PaymentInstallment[]): Promise<void> {
+    const data = paymentInstallment.map(EntityToPrisma.map);
+    const created = await this.prisma.paymentInstallment.createMany({
+      data,
+    });
+  }
+
   async update(
     paymentInstallment: PaymentInstallment,
   ): Promise<PaymentInstallment> {

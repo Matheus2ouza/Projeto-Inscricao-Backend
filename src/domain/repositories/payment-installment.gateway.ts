@@ -5,6 +5,7 @@ export abstract class PaymentInstallmentGateway {
   abstract create(
     paymentInstallment: PaymentInstallment,
   ): Promise<PaymentInstallment>;
+  abstract createMany(paymentInstallment: PaymentInstallment[]): Promise<void>;
   abstract update(
     paymentInstallment: PaymentInstallment,
   ): Promise<PaymentInstallment>;

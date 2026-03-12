@@ -11,6 +11,10 @@ export abstract class AccountParticipantInEventGateway {
   ): Promise<void>;
 
   // Buscas e listagens
+  abstract findByIds(
+    accountParticipantsIds: string[],
+    eventId: string,
+  ): Promise<AccountParticipantInEvent[]>;
   // Busca por accountParticipantId e eventId e retorna um AccountParticipantInEvent
   abstract findByParticipantAndEvent(
     accountParticipantId: string,
