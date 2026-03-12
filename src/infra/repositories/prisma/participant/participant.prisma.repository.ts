@@ -10,6 +10,37 @@ import { ParticipantPrismaModelToParticipantEntityMapper as PrismaToEntity } fro
 export class ParticipantPrismaRepository implements ParticipantGateway {
   constructor(private readonly prisma: PrismaService) {}
 
+  async create(participant: Participant): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const created = await this.prisma.participant.create({
+      data,
+      include: { typeInscription: { select: { description: true } } },
+    });
+    return PrismaToEntity.map(created);
+  }
+
+  async createMany(participants: Participant[]): Promise<Participant[]> {
+    const data = participants.map(EntityToPrisma.map);
+    const created = await this.prisma.participant.createMany({
+      data,
+    });
+    return created.count === participants.length ? participants : [];
+  }
+
+  async update(participant: Participant): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const updated = await this.prisma.participant.update({
+      where: { id: participant.getId() },
+      data,
+      include: { typeInscription: { select: { description: true } } },
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.participant.delete({ where: { id } });
+  }
+
   async findById(id: string): Promise<Participant | null> {
     const found = await this.prisma.participant.findUnique({ where: { id } });
     return found ? PrismaToEntity.map(found) : null;
@@ -28,29 +59,6 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       where: { name: { contains: name, mode: 'insensitive' } },
     });
     return found.map(PrismaToEntity.map);
-  }
-
-  async create(participant: Participant): Promise<Participant> {
-    const data = EntityToPrisma.map(participant);
-    const created = await this.prisma.participant.create({
-      data,
-      include: { typeInscription: { select: { description: true } } },
-    });
-    return PrismaToEntity.map(created);
-  }
-
-  async update(participant: Participant): Promise<Participant> {
-    const data = EntityToPrisma.map(participant);
-    const updated = await this.prisma.participant.update({
-      where: { id: participant.getId() },
-      data,
-      include: { typeInscription: { select: { description: true } } },
-    });
-    return PrismaToEntity.map(updated);
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.prisma.participant.delete({ where: { id } });
   }
 
   async findManyPaginated(

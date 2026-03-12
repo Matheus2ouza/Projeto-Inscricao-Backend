@@ -146,9 +146,8 @@ model TypeInscriptions {
 }
 
 model Inscription {
-  id        String  @id @default(uuid())
-  accountId String? @map("account_id")
-
+  id                        String                      @id @default(uuid())
+  accountId                 String?                     @map("account_id")
   accessToken               String?                     @unique @default(uuid())
   confirmationCode          String?                     @unique
   guestEmail                String?

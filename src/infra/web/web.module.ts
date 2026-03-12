@@ -71,6 +71,7 @@ import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/cre
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
 import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
+import { CreateInscriptionAdminRoute } from './routes/inscription/create-inscription-admin/create-inscription-admin.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
 import { FindAllNamesInscriptionRoute } from './routes/inscription/find-all-names/find-all-names-inscription.route';
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
@@ -257,6 +258,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions - Guest
     RegisterGuestInscriptionRoute,
     FindDetailsGuestInscriptionRoute,
+
+    // Inscriptions - Admin
+    CreateInscriptionAdminRoute,
 
     GeneratePdfAllInscriptionsRoute,
     GeneratePdfInscriptionRoute,

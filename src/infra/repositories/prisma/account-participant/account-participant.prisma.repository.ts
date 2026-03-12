@@ -58,29 +58,26 @@ export class AccountParticipantPrismaRepository
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
   }
 
-  async findAllByAccountId(
-    accountId: string,
-    eventId: string,
-  ): Promise<AccountParticipant[]> {
+  async findAllByAccountId(accountId: string): Promise<AccountParticipant[]> {
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.findMany({
         where: {
           accountId,
         },
-        include: {
-          eventLinks: {
-            where: {
-              inscription: {
-                eventId,
-              },
-            },
-            select: {
-              id: true,
-            },
-          },
-        },
       });
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+  }
+
+  async findAll(filter?: { regionId?: string }): Promise<AccountParticipant[]> {
+    const found = await this.prisma.accountParticipant.findMany({
+      where: {
+        account: {
+          regionId: filter?.regionId,
+        },
+      },
+    });
+
+    return found.map(PrismaModelToEntity.map);
   }
 
   async findByInscriptionId(

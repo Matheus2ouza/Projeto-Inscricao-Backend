@@ -4,6 +4,7 @@ import { Participant } from '../entities/participant.entity';
 export abstract class ParticipantGateway {
   // CRUD básico
   abstract create(participant: Participant): Promise<Participant>;
+  abstract createMany(participants: Participant[]): Promise<Participant[]>;
   abstract update(participant: Participant): Promise<Participant>;
   abstract delete(id: string): Promise<void>;
 

@@ -14,6 +14,7 @@ export type InscriptionCreateDto = {
   email?: string;
   phone: string;
   totalValue: number;
+  totalPaid?: number;
   status: InscriptionStatus;
   expiresAt?: Date;
 };
@@ -77,19 +78,11 @@ export class Inscription extends Entity {
     responsible,
     phone,
     totalValue,
+    totalPaid,
     status,
     email,
     expiresAt,
   }: InscriptionCreateDto): Inscription {
-    //com a adição do guest a relação com o account se tornou opcional
-    accountId = accountId || undefined;
-
-    //Dados do guest
-    guestEmail = guestEmail || undefined;
-    guestName = guestName || undefined;
-    guestLocality = guestLocality || undefined;
-    isGuest = isGuest || false;
-
     // Se for convidado, gerar token de acesso e código de confirmação
     let accessToken: string | undefined = undefined;
     let confirmationCode: string | undefined = undefined;
@@ -101,9 +94,9 @@ export class Inscription extends Entity {
       confirmationCode = undefined;
     }
     const id = Utils.generateUUID();
+    const totalPaidDefault = totalPaid || 0;
     const createdAt = new Date();
     const updatedAt = new Date();
-    const totalPaid = 0;
 
     return new Inscription(
       id,
@@ -111,7 +104,7 @@ export class Inscription extends Entity {
       responsible,
       phone,
       totalValue,
-      totalPaid,
+      totalPaidDefault,
       status,
       createdAt,
       updatedAt,

@@ -227,31 +227,22 @@ export class GeneratePdfAllInscriptionsUsecase
         if (payment && input.payment) {
           const method = payment.getMethodPayment();
 
-          // Determina a data do último recebimento (prioridade: parcela recebida mais recente, senão createdAt)
-          let ultimoRecebimento = payment.getCreatedAt();
-          if (installments && installments.length > 0) {
-            const receivedInstallments = installments.filter(
-              (inst) => inst.received,
-            );
-            if (receivedInstallments.length > 0) {
-              ultimoRecebimento = receivedInstallments.reduce(
-                (latest, current) =>
-                  current.paidAt > latest ? current.paidAt : latest,
-                receivedInstallments[0].paidAt,
-              );
-            }
-          }
+          const totalReceived = installments
+            ? installments
+                .filter((inst) => inst.received)
+                .reduce((sum, inst) => sum + inst.netValue, 0)
+            : 0;
 
           const existing = paymentMethodMap.get(method);
           if (existing) {
             existing.totalValue += payment.getTotalValue();
             existing.totalNetValue += payment.getTotalNetValue();
-            existing.totalReceived += payment.getTotalReceived();
+            existing.totalReceived += totalReceived;
           } else {
             paymentMethodMap.set(method, {
               totalValue: payment.getTotalValue(),
               totalNetValue: payment.getTotalNetValue(),
-              totalReceived: payment.getTotalReceived(),
+              totalReceived,
             });
           }
         }

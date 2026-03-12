@@ -5,15 +5,16 @@ export class FindAllMembersByAccountPresenter {
   public static toHttp(
     output: FindAllMembersByAccountUsecaseOutput,
   ): FindAllMembersByAccountUsecaseResponse {
-    return output.map((member) => ({
-      id: member.id,
-      name: member.name,
-      preferredName: member.preferredName,
-      cpf: member.cpf,
-      birthDate: member.birthDate,
-      gender: member.gender,
-      shirtSize: member.shirtSize,
-      shirtType: member.shirtType,
+    return output.map((o) => ({
+      id: o.id,
+      name: o.name,
+      cpf: o.cpf,
+      preferredName: o.preferredName,
+      birthDate: o.birthDate,
+      gender: o.gender,
+      shirtSize: o.shirtSize,
+      shirtType: o.shirtType,
+      registered: o.registered,
     }));
   }
 }

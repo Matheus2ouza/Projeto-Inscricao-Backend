@@ -1,5 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { roleType } from 'generated/prisma';
+import {
+  UserInfo,
+  type UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindAllMembersByAccountUsecase,
   FindAllMembersByAccountUsecaseInput,
@@ -16,16 +20,19 @@ export class FindAllMembersByAccountRoute {
     private readonly findAllMembersByAccountUsecase: FindAllMembersByAccountUsecase,
   ) {}
 
-  @Get(':eventId/all/names')
+  @Get(':eventId/all-names')
   async handle(
     @Param() param: FindAllMembersByAccountUsecaseRequest,
-    @UserInfo() user: FindAllMembersByAccountUsecaseRequest,
+    @Query() query: FindAllMembersByAccountUsecaseRequest,
+    @UserInfo() user: UserInfoType,
   ): Promise<FindAllMembersByAccountUsecaseResponse> {
     const input: FindAllMembersByAccountUsecaseInput = {
       eventId: param.eventId,
-      accountId: user.userId,
+      accountId:
+        user.userRole === roleType.USER ? user.userId : query.accountId,
     };
 
+    console.log(input);
     const response = await this.findAllMembersByAccountUsecase.execute(input);
     return FindAllMembersByAccountPresenter.toHttp(response);
   }

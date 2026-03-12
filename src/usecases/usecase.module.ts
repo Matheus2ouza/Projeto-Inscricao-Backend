@@ -59,6 +59,7 @@ import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/updat
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
 import { FindDetailsInscriptionAvulUsecase } from './web/inscription/avul/find-details-inscription-avul/find-details-inscription-avul.usecase';
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
+import { CreateInscriptionAdminUsecase } from './web/inscription/create-inscription-admin/create-inscription-admin.usecase';
 import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/delete-inscription.usecase';
 import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
 import { FindAllNamesInscriptionUsecase } from './web/inscription/find-all-names/find-all-names-inscription.usecase';
@@ -241,6 +242,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
+    CreateInscriptionAdminUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,
@@ -422,6 +424,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RegisterGroupInscriptionUsecase,
     RegisterIndivInscriptionUsecase,
     RegisterGuestInscriptionUsecase,
+    CreateInscriptionAdminUsecase,
     AnalysisInscriptionUsecase,
     UpdateStatusInscriptionUsecase,
     CreateInscriptionAvulUsecase,

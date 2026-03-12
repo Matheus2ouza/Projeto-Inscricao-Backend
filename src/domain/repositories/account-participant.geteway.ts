@@ -12,10 +12,10 @@ export abstract class AccountParticipantGateway {
   // Buscas e listagens
   abstract findById(id: string): Promise<AccountParticipant | null>;
   abstract findByIds(ids: string[]): Promise<AccountParticipant[]>;
-  abstract findAllByAccountId(
-    accountId: string,
-    eventId: string,
-  ): Promise<AccountParticipant[]>;
+  abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
+  abstract findAll(filter?: {
+    regionId?: string;
+  }): Promise<AccountParticipant[]>;
   abstract findByInscriptionId(
     inscriptionId: string,
   ): Promise<AccountParticipant[]>;

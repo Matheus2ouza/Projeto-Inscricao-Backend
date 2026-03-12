@@ -13,13 +13,16 @@ export type PaymentCreateDto = {
   status: StatusPayment;
   methodPayment?: PaymentMethod;
   totalValue: number;
-  totalPaid: number;
-  totalReceived: number;
+  totalPaid?: number;
+  totalNetValue?: number;
+  totalReceived?: number;
   installment: number;
+  paidInstallments?: number;
   asaasCheckoutId?: string;
   paymentLinkId?: string;
   externalReference?: string;
   imageUrl?: string;
+  approvedBy?: string;
 };
 
 export type PaymentWithDto = {
@@ -88,33 +91,33 @@ export class Payment extends Entity {
     status,
     totalValue,
     totalPaid,
+    totalNetValue,
     totalReceived,
     installment,
+    paidInstallments,
     imageUrl,
     asaasCheckoutId,
     paymentLinkId,
     externalReference,
     methodPayment,
+    approvedBy,
   }: PaymentCreateDto): Payment {
     const id = Utils.generateUUID();
     const methodPaymentDefault = methodPayment || PaymentMethod.PIX;
     const totalPaidDefault = totalPaid || 0;
     const totalReceivedDefault = totalReceived || 0;
-    const totalNetValueDefault = 0;
+    const totalNetValueDefault = totalNetValue || 0;
     const installmentsDefault = installment || 1;
-    const paidInstallmentsDefault = 0;
+    const paidInstallmentsDefault = paidInstallments || 0;
     const createdAt = new Date();
     const updatedAt = new Date();
+    const rejectionReason = undefined;
 
     if (isGuest) {
-      accountId = undefined;
       accessToken = Utils.generateUUID();
     } else {
       accessToken = undefined;
     }
-    guestName = guestName || undefined;
-    guestEmail = guestEmail || undefined;
-    isGuest = isGuest || false;
 
     return new Payment(
       id,
@@ -138,6 +141,8 @@ export class Payment extends Entity {
       asaasCheckoutId,
       paymentLinkId,
       externalReference,
+      rejectionReason,
+      approvedBy,
     );
   }
 
