@@ -76,6 +76,8 @@ import { UpdateValidateInscriptionUsecase } from './web/inscription/update-valid
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
+import { FindMemberByIdUsecase } from './web/members/find-member-by-id/find-member-by-id.usecase';
+import { UpdateMemberUsecase } from './web/members/update-member/update-member.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
 import { ListGuestParticipantsUsecase } from './web/participants/list-guest-participants/list-guest-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
@@ -181,8 +183,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Members
     CreateMembersUsecase,
+    UpdateMemberUsecase,
     FindAllPaginatedMembersUsecase,
     FindAllMembersByAccountUsecase,
+    FindMemberByIdUsecase,
 
     // Events - CRUD & Updates
     CreateEventUseCase,
@@ -360,8 +364,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Members
     CreateMembersUsecase,
+    UpdateMemberUsecase,
     FindAllPaginatedMembersUsecase,
     FindAllMembersByAccountUsecase,
+    FindMemberByIdUsecase,
 
     // Events - CRUD & Updates
     CreateEventUseCase,

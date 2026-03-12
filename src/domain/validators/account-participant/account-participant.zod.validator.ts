@@ -44,7 +44,7 @@ export class AccountParticipantZodValidator
       name: z
         .string()
         .min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
-      birthDate: z.date({
+      birthDate: z.coerce.date({
         message: 'Data de nascimento deve ser uma data válida',
       }),
       gender: z.enum(['MASCULINO', 'FEMININO'], {
