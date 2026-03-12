@@ -8,6 +8,7 @@ import { ValidatorDomainExceptionFilterProvider } from './filters/domain/validat
 import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/auth-token-not-valid-service-exception.filter';
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
+import { AccountParticipantNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account-participant/account-participant-not-found-usecase-exception.filter';
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
@@ -88,6 +89,8 @@ import { UpdateValidateInscriptionRoute } from './routes/inscription/update-vali
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
+import { FindMemberByIdRoute } from './routes/members/find-member-by-id/find-member-by-id.route';
+import { UpdateMemberRoute } from './routes/members/update-member/update-member.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
 import { ListGuestParticipantsRoute } from './routes/participants/list-guest-participants/list-guest-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
@@ -182,8 +185,10 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Members
     CreateMembersRoute,
+    UpdateMemberRoute,
     FindAllPaginatedMembersRoute,
     FindAllMembersByAccountRoute,
+    FindMemberByIdRoute,
 
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
@@ -349,6 +354,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    // Account Participant
+    AccountParticipantNotFoundUsecaseExceptionFilterProvider,
 
     // Cash-Register
     CashRegisterNotFoundUsecaseExceptionFilterProvider,

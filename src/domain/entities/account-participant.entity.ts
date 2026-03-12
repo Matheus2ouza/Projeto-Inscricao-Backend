@@ -14,6 +14,16 @@ export type AccountParticipantCreateDto = {
   shirtType?: ShirtType;
 };
 
+export type AccountParticipantUpdateDto = {
+  name?: string;
+  preferredName?: string;
+  cpf?: string;
+  birthDate?: Date;
+  gender?: genderType;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
+};
+
 export type AccountParticipantWithDto = {
   id: string;
   accountId: string;
@@ -101,6 +111,40 @@ export class AccountParticipant extends Entity {
       shirtSize,
       shirtType,
     );
+  }
+
+  public update(data: AccountParticipantUpdateDto): void {
+    if (data.name !== undefined) {
+      this.name = data.name;
+    }
+
+    if (data.preferredName !== undefined) {
+      this.preferredName = data.preferredName;
+    }
+
+    if (data.cpf !== undefined) {
+      this.cpf = data.cpf;
+    }
+
+    if (data.birthDate !== undefined) {
+      this.birthDate = data.birthDate;
+    }
+
+    if (data.gender !== undefined) {
+      this.gender = data.gender;
+    }
+
+    if (data.shirtSize !== undefined) {
+      this.shirtSize = data.shirtSize;
+    }
+
+    if (data.shirtType !== undefined) {
+      this.shirtType = data.shirtType;
+    }
+
+    this.updatedAt = new Date();
+
+    this.validate();
   }
 
   protected validate(): void {

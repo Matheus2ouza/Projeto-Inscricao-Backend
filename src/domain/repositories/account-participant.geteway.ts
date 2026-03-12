@@ -5,6 +5,9 @@ export abstract class AccountParticipantGateway {
   abstract create(
     accountParticipant: AccountParticipant,
   ): Promise<AccountParticipant>;
+  abstract update(
+    accountParticipant: AccountParticipant,
+  ): Promise<AccountParticipant>;
 
   // Buscas e listagens
   abstract findById(id: string): Promise<AccountParticipant | null>;

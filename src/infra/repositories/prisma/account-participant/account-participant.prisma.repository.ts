@@ -22,6 +22,20 @@ export class AccountParticipantPrismaRepository
     return PrismaModelToEntity.map(accountParticipantPrismaModel);
   }
 
+  async update(
+    accountParticipant: AccountParticipant,
+  ): Promise<AccountParticipant> {
+    const data = EntityToPrismaModel.map(accountParticipant);
+    const accountParticipantPrismaModel =
+      await this.prisma.accountParticipant.update({
+        where: {
+          id: accountParticipant.getId(),
+        },
+        data,
+      });
+    return PrismaModelToEntity.map(accountParticipantPrismaModel);
+  }
+
   //Busca e listagens
   async findById(id: string): Promise<AccountParticipant | null> {
     const found = await this.prisma.accountParticipant.findUnique({
