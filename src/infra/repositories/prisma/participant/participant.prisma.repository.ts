@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { genderType } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PrismaService } from '../prisma.service';
@@ -133,6 +133,7 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     const found = await this.prisma.participant.findMany({
       where: {
         inscriptionId: { in: inscriptionIds },
+        inscription: { status: InscriptionStatus.PAID },
       },
     });
 
