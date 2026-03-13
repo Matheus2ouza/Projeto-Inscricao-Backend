@@ -54,16 +54,31 @@ export class UpdatePaymentReceiptUsecase
       );
     }
 
+    const oldImagePath = payment.getImageUrl();
+
     const imagePath = await this.processEventImage(
       input.image,
       payment.getEventId(),
       payment.getTotalValue(),
-      input.isGuest,
+      payment.getIsGuest()!,
       payment.getAccountId(),
       payment.getGuestName(),
     );
 
-    // Atualiza a imagem do pagamento, passando a nova URL do pagamento
+    // Upload bem-sucedido — deleta a imagem antiga se existir
+    if (oldImagePath) {
+      try {
+        await this.supabaseStorageService.deleteFile(oldImagePath);
+        this.logger.log(`Imagem antiga deletada: ${oldImagePath}`);
+      } catch (error) {
+        // Não bloqueia o fluxo se falhar ao deletar a antiga
+        this.logger.warn(
+          `Falha ao deletar imagem antiga (${oldImagePath}): ${error.message}`,
+        );
+      }
+    }
+
+    this.logger.log('o pagamento:', JSON.stringify(payment, null, 2));
     payment.updateImage(imagePath, payment.getStatus());
     await this.paymentGateway.update(payment);
 
@@ -163,17 +178,23 @@ export class UpdatePaymentReceiptUsecase
       );
     }
 
-    // Otimiza imagem (ex: converte para webp e reduz tamanho)
-    const optimizedImage = await this.imageOptimizerService.optimizeImage(
-      buffer,
-      {
-        maxWidth: 800,
-        maxHeight: 800,
-        quality: 70,
-        format: 'webp',
-        maxFileSize: 300 * 1024, // 300KB
-      },
+    const MAX_SIZE_WITHOUT_OPTIMIZATION = 200 * 1024; // 200KB
+    const needsOptimization = buffer.length > MAX_SIZE_WITHOUT_OPTIMIZATION;
+
+    this.logger.log(
+      `Tamanho da imagem: ${(buffer.length / 1024).toFixed(1)}KB — ${needsOptimization ? 'otimização necessária' : 'otimização ignorada'}`,
     );
+
+    // Caso tenha mais que o tamanho maximo permitido entao otimiza o tamanho (tamanho maximo permitido: 200KB)
+    const optimizedImage = needsOptimization
+      ? await this.imageOptimizerService.optimizeImage(buffer, {
+          maxWidth: 800,
+          maxHeight: 800,
+          quality: 70,
+          format: 'webp',
+          maxFileSize: 300 * 1024,
+        })
+      : { buffer, format: extension };
 
     // Busca o nome do evento para incluir no nome do arquivo
     const eventName = await this.eventGateway.findById(eventId);

@@ -113,7 +113,9 @@ export class Payment extends Entity {
     const updatedAt = new Date();
     const rejectionReason = undefined;
 
-    if (isGuest) {
+    const isGuestDefault = isGuest || false;
+
+    if (isGuestDefault) {
       accessToken = Utils.generateUUID();
     } else {
       accessToken = undefined;
@@ -136,7 +138,7 @@ export class Payment extends Entity {
       guestName,
       guestEmail,
       accessToken,
-      isGuest,
+      isGuestDefault,
       imageUrl,
       asaasCheckoutId,
       paymentLinkId,
@@ -354,7 +356,8 @@ export class Payment extends Entity {
 
   public updateImage(imageUrl: string, status: StatusPayment): void {
     this.imageUrl = imageUrl;
-    this.status = StatusPayment.REFUSED ? StatusPayment.UNDER_REVIEW : status;
+    this.status =
+      status === StatusPayment.REFUSED ? StatusPayment.UNDER_REVIEW : status;
     this.updatedAt = new Date();
     this.validate();
   }
