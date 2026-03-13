@@ -244,13 +244,9 @@ export class ApprovePaymentUsecase
       }
 
       if (!payment.getIsGuest()) {
-        const accountId = payment.getAccountId();
-        if (accountId) {
-          const account = await this.inscriptionGateway.findById(inscriptionId);
-          responsibleName = account?.getResponsible() || '';
-          responsibleEmail = account?.getEmail() || '';
-          responsiblePhone = account?.getPhone() || '';
-        }
+        responsibleName = inscription?.getResponsible() || '';
+        responsibleEmail = inscription?.getEmail() || '';
+        responsiblePhone = inscription?.getPhone() || '';
       }
 
       if (responsibleEmail) {

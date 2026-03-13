@@ -129,7 +129,9 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return modals.map(PrismaToEntity.map);
   }
 
-  async findByInscriptions(inscriptionIds: string[]): Promise<Participant[]> {
+  async findByInscriptionsIds(
+    inscriptionIds: string[],
+  ): Promise<Participant[]> {
     const found = await this.prisma.participant.findMany({
       where: {
         inscriptionId: { in: inscriptionIds },
