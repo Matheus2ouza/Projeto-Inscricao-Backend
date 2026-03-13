@@ -49,7 +49,7 @@ export type ListInscriptionsPdfInscription = {
   createdAt: Date;
   isGuest?: boolean;
   participants?: ListInscriptionsPdfParticipant[];
-  payment?: {
+  payments?: Array<{
     methodPayment: PaymentMethod;
     guestName?: string;
     status: StatusPayment;
@@ -64,7 +64,7 @@ export type ListInscriptionsPdfInscription = {
       netValue: number;
       paidAt: Date;
     }[];
-  };
+  }>;
 };
 
 export type ListInscriptionsPdfData = {
@@ -208,10 +208,17 @@ export class ListInscriptionsPdfGeneratorUtils {
       const statusKey = formatStatus(inscription.status).label;
       statusCounts.set(statusKey, (statusCounts.get(statusKey) ?? 0) + 1);
 
-      const methodKey = inscription.payment?.methodPayment
-        ? formatPaymentMethod(inscription.payment.methodPayment).label
-        : 'Sem pagamento';
-      methodCounts.set(methodKey, (methodCounts.get(methodKey) ?? 0) + 1);
+      if (inscription.payments?.length) {
+        for (const payment of inscription.payments) {
+          const methodKey = formatPaymentMethod(payment.methodPayment).label;
+          methodCounts.set(methodKey, (methodCounts.get(methodKey) ?? 0) + 1);
+        }
+      } else {
+        methodCounts.set(
+          'Sem pagamento',
+          (methodCounts.get('Sem pagamento') ?? 0) + 1,
+        );
+      }
     }
 
     const statusRows = [...statusCounts.entries()]
@@ -436,102 +443,108 @@ export class ListInscriptionsPdfGeneratorUtils {
           ]
         : [];
 
-      const paymentBlock = inscription.payment
+      const paymentBlock = inscription.payments?.length
         ? [
             {
               text: 'Pagamentos',
               style: 'subsectionTitle',
               margin: [0, 6, 0, 4],
             },
-            {
-              columns: [
-                {
-                  width: '34%',
-                  stack: [
-                    { text: 'Nome (pagamento)', style: 'labelText' },
-                    {
-                      text: inscription.payment.guestName || '-',
-                      style: 'valueText',
-                    },
-                  ],
-                },
-                {
-                  width: '33%',
-                  stack: [
-                    { text: 'Método', style: 'labelText' },
-                    buildPaymentMethodBadge(inscription.payment.methodPayment),
-                  ],
-                },
-                {
-                  width: '33%',
-                  stack: [
-                    { text: 'Status do pagamento', style: 'labelText' },
-                    buildPaymentStatusBadge(inscription.payment.status),
-                  ],
-                },
-              ],
-              margin: [0, 0, 0, 8],
-            },
-            {
-              columns: [
-                {
-                  width: '34%',
-                  stack: [
-                    { text: 'Total pago', style: 'labelText' },
-                    {
-                      text: formatCurrency(inscription.payment.totalPaid),
-                      style: 'valueText',
-                    },
-                  ],
-                },
-                {
-                  width: '33%',
-                  stack: [
-                    { text: 'Total recebido', style: 'labelText' },
-                    {
-                      text: formatCurrency(inscription.payment.totalReceived),
-                      style: 'valueText',
-                    },
-                  ],
-                },
-                {
-                  width: '33%',
-                  stack: [
-                    { text: 'Criado em (pagamento)', style: 'labelText' },
-                    {
-                      text: formatDateTime(inscription.payment.createdAt),
-                      style: 'valueText',
-                    },
-                  ],
-                },
-              ],
-              margin: [0, 0, 0, 10],
-            },
-            {
-              text: 'Parcelas',
-              style: 'labelText',
-              margin: [0, 6, 0, 4],
-            },
-            buildInstallmentsTable(inscription.payment.installments),
-            ...(inscription.payment.methodPayment === PaymentMethod.PIX
-              ? [
+            ...inscription.payments.flatMap((payment, paymentIndex) => [
+              {
+                text: `Pagamento ${paymentIndex + 1}`,
+                style: 'labelText',
+                margin: [0, paymentIndex === 0 ? 0 : 6, 0, 4],
+              },
+              {
+                columns: [
                   {
+                    width: '34%',
                     stack: [
-                      { text: 'Diretório do comprovante', style: 'labelText' },
+                      { text: 'Nome (pagamento)', style: 'labelText' },
                       {
-                        text: inscription.payment.receiptPath || '-',
+                        text: payment.guestName || '-',
                         style: 'valueText',
                       },
                     ],
-                    margin: [0, 0, 0, 10],
                   },
-                ]
-              : []),
+                  {
+                    width: '33%',
+                    stack: [
+                      { text: 'Método', style: 'labelText' },
+                      buildPaymentMethodBadge(payment.methodPayment),
+                    ],
+                  },
+                  {
+                    width: '33%',
+                    stack: [
+                      { text: 'Status do pagamento', style: 'labelText' },
+                      buildPaymentStatusBadge(payment.status),
+                    ],
+                  },
+                ],
+                margin: [0, 0, 0, 8],
+              },
+              {
+                columns: [
+                  {
+                    width: '34%',
+                    stack: [
+                      { text: 'Total pago', style: 'labelText' },
+                      {
+                        text: formatCurrency(payment.totalPaid),
+                        style: 'valueText',
+                      },
+                    ],
+                  },
+                  {
+                    width: '33%',
+                    stack: [
+                      { text: 'Total recebido', style: 'labelText' },
+                      {
+                        text: formatCurrency(payment.totalReceived),
+                        style: 'valueText',
+                      },
+                    ],
+                  },
+                  {
+                    width: '33%',
+                    stack: [
+                      { text: 'Criado em (pagamento)', style: 'labelText' },
+                      {
+                        text: formatDateTime(payment.createdAt),
+                        style: 'valueText',
+                      },
+                    ],
+                  },
+                ],
+                margin: [0, 0, 0, 10],
+              },
+              {
+                text: 'Parcelas',
+                style: 'labelText',
+                margin: [0, 6, 0, 4],
+              },
+              buildInstallmentsTable(payment.installments),
+              ...(payment.methodPayment === PaymentMethod.PIX
+                ? [
+                    {
+                      stack: [
+                        { text: 'Diretório do comprovante', style: 'labelText' },
+                        {
+                          text: payment.receiptPath || '-',
+                          style: 'valueText',
+                        },
+                      ],
+                      margin: [0, 0, 0, 10],
+                    },
+                  ]
+                : []),
+            ]),
           ]
         : [];
 
       return {
-        unbreakable: true,
         stack: [
           {
             text: `Inscrição ${formatId(inscription.id)}`,
@@ -556,6 +569,7 @@ export class ListInscriptionsPdfGeneratorUtils {
             margin: [0, 16, 0, 0],
           },
         ],
+        pageBreak: index === inscriptions.length - 1 ? undefined : 'after',
         margin: [0, index === 0 ? 0 : 16, 0, 0],
       };
     });
