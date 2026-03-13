@@ -35,7 +35,9 @@ export abstract class ParticipantGateway {
     pageSize: number,
   ): Promise<Participant[]>;
 
-  abstract findByInscriptions(inscriptionIds: string[]): Promise<Participant[]>;
+  abstract findByInscriptionsIds(
+    inscriptionIds: string[],
+  ): Promise<Participant[]>;
 
   // Agregações e contagens
   abstract countAll(): Promise<number>;

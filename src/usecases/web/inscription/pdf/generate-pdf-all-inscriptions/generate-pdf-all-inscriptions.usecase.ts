@@ -48,7 +48,7 @@ type InscriptionsDetails = {
   createdAt: Date;
   isGuest?: boolean;
   participants?: ParticipantDetails[];
-  payment?: {
+  payments?: Array<{
     methodPayment: PaymentMethod;
     guestName?: string;
     status: StatusPayment;
@@ -63,7 +63,7 @@ type InscriptionsDetails = {
       netValue: number;
       paidAt: Date;
     }[];
-  };
+  }>;
 };
 
 type ParticipantDetails = {
@@ -199,53 +199,69 @@ export class GeneratePdfAllInscriptionsUsecase
           locality = account?.getUsername() ?? '';
         }
 
-        const payment = input.payment
-          ? await this.paymentGateway.findByInscriptionId(i.getId())
-          : null;
-        const isPixPayment = payment?.getMethodPayment() === PaymentMethod.PIX;
-        const receiptPath =
-          payment && isPixPayment
-            ? this.extractReceiptPath(payment.getImageUrl())
-            : undefined;
-        const installments = payment
-          ? (
-              await this.paymentInstallmentGateway.findByPaymentId(
-                payment.getId(),
-              )
+        const payments = input.payment
+          ? await this.paymentGateway.findAllByInscriptionId(i.getId())
+          : [];
+
+        const paymentDetails = input.payment
+          ? await Promise.all(
+              payments.map(async (payment) => {
+                const isPixPayment =
+                  payment.getMethodPayment() === PaymentMethod.PIX;
+                const receiptPath = isPixPayment
+                  ? this.extractReceiptPath(payment.getImageUrl())
+                  : undefined;
+                const installments = (
+                  await this.paymentInstallmentGateway.findByPaymentId(
+                    payment.getId(),
+                  )
+                )
+                  .map((installment) => ({
+                    installmentNumber: installment.getInstallmentNumber(),
+                    received: installment.getReceived(),
+                    value: installment.getValue(),
+                    netValue: installment.getNetValue(),
+                    paidAt: installment.getPaidAt(),
+                  }))
+                  .sort((a, b) => a.installmentNumber - b.installmentNumber);
+
+                const totalReceivedFromInstallments = installments
+                  .filter((inst) => inst.received)
+                  .reduce((sum, inst) => sum + inst.netValue, 0);
+
+                // Atualiza mapa de pagamentos se o filtro estiver ativo
+                if (input.payment) {
+                  const method = payment.getMethodPayment();
+                  const totalReceived =
+                    totalReceivedFromInstallments || payment.getTotalReceived();
+
+                  const existing = paymentMethodMap.get(method);
+                  if (existing) {
+                    existing.totalValue += payment.getTotalValue();
+                    existing.totalNetValue += payment.getTotalNetValue();
+                    existing.totalReceived += totalReceived;
+                  } else {
+                    paymentMethodMap.set(method, {
+                      totalValue: payment.getTotalValue(),
+                      totalNetValue: payment.getTotalNetValue(),
+                      totalReceived,
+                    });
+                  }
+                }
+
+                return {
+                  methodPayment: payment.getMethodPayment(),
+                  guestName: payment.getGuestName(),
+                  status: payment.getStatus(),
+                  totalPaid: payment.getTotalPaid(),
+                  totalReceived: payment.getTotalReceived(),
+                  createdAt: payment.getCreatedAt(),
+                  receiptPath,
+                  installments,
+                };
+              }),
             )
-              .map((installment) => ({
-                installmentNumber: installment.getInstallmentNumber(),
-                received: installment.getReceived(),
-                value: installment.getValue(),
-                netValue: installment.getNetValue(),
-                paidAt: installment.getPaidAt(),
-              }))
-              .sort((a, b) => a.installmentNumber - b.installmentNumber)
           : undefined;
-
-        // Atualiza mapa de pagamentos se o filtro estiver ativo
-        if (payment && input.payment) {
-          const method = payment.getMethodPayment();
-
-          const totalReceived = installments
-            ? installments
-                .filter((inst) => inst.received)
-                .reduce((sum, inst) => sum + inst.netValue, 0)
-            : 0;
-
-          const existing = paymentMethodMap.get(method);
-          if (existing) {
-            existing.totalValue += payment.getTotalValue();
-            existing.totalNetValue += payment.getTotalNetValue();
-            existing.totalReceived += totalReceived;
-          } else {
-            paymentMethodMap.set(method, {
-              totalValue: payment.getTotalValue(),
-              totalNetValue: payment.getTotalNetValue(),
-              totalReceived,
-            });
-          }
-        }
 
         return {
           id: i.getId(),
@@ -257,18 +273,9 @@ export class GeneratePdfAllInscriptionsUsecase
           createdAt: i.getCreatedAt(),
           isGuest: i.getIsGuest(),
           participants,
-          payment:
-            payment && input.payment
-              ? {
-                  methodPayment: payment.getMethodPayment(),
-                  guestName: payment.getGuestName(),
-                  status: payment.getStatus(),
-                  totalPaid: payment.getTotalPaid(),
-                  totalReceived: payment.getTotalReceived(),
-                  createdAt: payment.getCreatedAt(),
-                  receiptPath,
-                  installments,
-                }
+          payments:
+            paymentDetails && paymentDetails.length
+              ? paymentDetails
               : undefined,
         };
       }),

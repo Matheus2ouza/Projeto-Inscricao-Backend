@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountParticipantEntityToAccountParticipantPrismaModelMapper as EntityToPrismaModel } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-entity-to-account-participant-prisma-model.mapper';
@@ -66,6 +67,25 @@ export class AccountParticipantPrismaRepository
         },
       });
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+  }
+
+  async findByInscriptionsIds(
+    inscriptionIds: string[],
+  ): Promise<AccountParticipant[]> {
+    const found = await this.prisma.accountParticipant.findMany({
+      where: {
+        eventLinks: {
+          some: {
+            inscription: {
+              id: { in: inscriptionIds },
+              status: InscriptionStatus.PAID,
+            },
+          },
+        },
+      },
+    });
+
+    return found.map(PrismaModelToEntity.map);
   }
 
   async findAll(filter?: { regionId?: string }): Promise<AccountParticipant[]> {

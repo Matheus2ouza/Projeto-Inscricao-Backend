@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
@@ -23,6 +25,8 @@ export class GeneratePdfLocalityUseCase
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly accountGateway: AccountGateway,
+    private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly participantGateway: ParticipantGateway,
   ) {}
 
@@ -43,9 +47,34 @@ export class GeneratePdfLocalityUseCase
       input.eventId,
     );
 
-    const participants = await this.participantGateway.findByInscriptions(
-      inscriptions.map((inscription) => inscription.getId()),
+    const inscriptionIds = inscriptions.map((inscription) =>
+      inscription.getId(),
     );
+
+    // Buscar participantes normais (accountParticipant)
+    const participantsNormalArray =
+      await this.accountParticipantGateway.findByInscriptionsIds(
+        inscriptionIds,
+      );
+
+    const rowsNormal = await Promise.all(
+      participantsNormalArray.map(async (pn) => {
+        const account = await this.accountGateway.findById(pn.getAccountId());
+        return {
+          name: pn.getName(),
+          preferredName: pn.getPreferredName(),
+          locality: account?.getUsername() ?? '-',
+          age: this.calculateAge(pn.getBirthDate()),
+          shirtSize: pn.getShirtSize(),
+          shirtType: pn.getShirtType(),
+          gender: pn.getGender(),
+        };
+      }),
+    );
+
+    // Buscar participantes guest
+    const participantsGuest =
+      await this.participantGateway.findByInscriptionsIds(inscriptionIds);
 
     const localityByInscriptionId = new Map(
       inscriptions.map((inscription) => {
@@ -54,20 +83,22 @@ export class GeneratePdfLocalityUseCase
       }),
     );
 
-    const rows = participants
-      .map((participant) => {
-        const locality =
-          localityByInscriptionId.get(participant.getInscriptionId()) ?? '-';
-        return {
-          name: participant.getName(),
-          preferredName: participant.getPreferredName(),
-          locality,
-          age: this.calculateAge(participant.getBirthDate()),
-          shirtSize: participant.getShirtSize(),
-          shirtType: participant.getShirtType(),
-          gender: participant.getGender(),
-        };
-      })
+    const rowsGuest = participantsGuest.map((participant) => {
+      const locality =
+        localityByInscriptionId.get(participant.getInscriptionId()) ?? '-';
+      return {
+        name: participant.getName(),
+        preferredName: participant.getPreferredName(),
+        locality,
+        age: this.calculateAge(participant.getBirthDate()),
+        shirtSize: participant.getShirtSize(),
+        shirtType: participant.getShirtType(),
+        gender: participant.getGender(),
+      };
+    });
+
+    // Unir, ordenar por localidade e nome, e indexar
+    const rows = [...rowsNormal, ...rowsGuest]
       .sort((a, b) => {
         const localityCompare = a.locality.localeCompare(b.locality, 'pt-BR');
         if (localityCompare !== 0) return localityCompare;
