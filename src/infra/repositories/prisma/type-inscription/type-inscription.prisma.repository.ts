@@ -57,9 +57,13 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByEventId(eventId: string): Promise<TypeInscription[]> {
+  async findByEventId(
+    eventId: string,
+    filters?: { active: boolean },
+  ): Promise<TypeInscription[]> {
+    const where = this.buildWhereClauseTypeInscription(filters);
     const found = await this.prisma.typeInscriptions.findMany({
-      where: { eventId },
+      where: { eventId, ...where },
       orderBy: { value: 'desc' },
     });
     return found.map(PrismaToEntity.map);
@@ -85,5 +89,13 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
     return await this.prisma.typeInscriptions.count({
       where: { eventId },
     });
+  }
+
+  private buildWhereClauseTypeInscription(filters?: { active?: boolean }) {
+    const { active } = filters || {};
+
+    return {
+      active,
+    };
   }
 }

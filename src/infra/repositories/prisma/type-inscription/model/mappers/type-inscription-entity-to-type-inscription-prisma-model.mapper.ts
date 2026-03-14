@@ -9,6 +9,7 @@ export class TypeInscriptionEntityToTypeInscriptionPrismaModelMapper {
       eventId: typeInscription.getEventId(),
       rule: typeInscription.getRule(),
       specialType: typeInscription.getSpecialType(),
+      active: typeInscription.getActive(),
       createdAt: typeInscription.getCreatedAt(),
       updatedAt: typeInscription.getUpdatedAt(),
     };

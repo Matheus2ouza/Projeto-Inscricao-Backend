@@ -11,7 +11,10 @@ export abstract class TypeInscriptionGateway {
     description: string,
   ): Promise<TypeInscription | null>;
   abstract findAll(): Promise<TypeInscription[]>;
-  abstract findByEventId(eventId: string): Promise<TypeInscription[]>;
+  abstract findByEventId(
+    eventId: string,
+    filters?: { active?: boolean },
+  ): Promise<TypeInscription[]>;
   abstract findSpecialTypes(eventId: string): Promise<TypeInscription[]>;
   abstract findAllDescription(): Promise<TypeInscription[]>;
 

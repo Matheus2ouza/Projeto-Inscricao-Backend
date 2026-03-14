@@ -8,6 +8,7 @@ export type TypeInscriptionDto = {
   eventId: string;
   rule: Date | null;
   specialType: boolean;
+  active?: boolean;
 };
 
 export type TypeInscriptionWithDto = {
@@ -17,6 +18,7 @@ export type TypeInscriptionWithDto = {
   eventId: string;
   rule: Date | null;
   specialType: boolean;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -29,6 +31,7 @@ export class TypeInscription extends Entity {
     private rule: Date | null,
     private eventId: string,
     private specialType: boolean,
+    private active: boolean,
     createdAt: Date,
     updatedAt: Date,
   ) {
@@ -42,10 +45,12 @@ export class TypeInscription extends Entity {
     eventId,
     rule,
     specialType,
+    active,
   }: TypeInscriptionDto): TypeInscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
     const updatedAt = new Date();
+    const activedefault = active || true;
 
     // Ensure rule is a Date object or null
     if (typeof rule === 'string') {
@@ -60,6 +65,7 @@ export class TypeInscription extends Entity {
       rule,
       eventId,
       specialType,
+      activedefault,
       createdAt,
       updatedAt,
     );
@@ -72,6 +78,7 @@ export class TypeInscription extends Entity {
     eventId,
     rule,
     specialType,
+    active,
     createdAt,
     updatedAt,
   }: TypeInscriptionWithDto): TypeInscription {
@@ -82,6 +89,7 @@ export class TypeInscription extends Entity {
       rule,
       eventId,
       specialType,
+      active,
       createdAt,
       updatedAt,
     );
@@ -109,6 +117,10 @@ export class TypeInscription extends Entity {
 
   public getSpecialType(): boolean {
     return this.specialType;
+  }
+
+  public getActive(): boolean {
+    return this.active;
   }
 
   public getCreatedAt(): Date {
@@ -139,6 +151,12 @@ export class TypeInscription extends Entity {
 
   public setSpecialType(specialType: boolean): void {
     this.specialType = specialType;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public setActive(active: boolean): void {
+    this.active = active;
     this.updatedAt = new Date();
     this.validate();
   }
