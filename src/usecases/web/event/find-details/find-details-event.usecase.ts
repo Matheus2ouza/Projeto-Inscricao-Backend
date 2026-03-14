@@ -56,9 +56,14 @@ export class FindDetailsEventUsecase
       );
     }
 
+    const filters = {
+      active: true,
+    };
+
     //Busca os tipos de inscrição referente ao evento
     const typeInscription = await this.typeInscriptionGateway.findByEventId(
       event.getId(),
+      filters,
     );
 
     //Mapeia para retornar somente a descriçao e o valor

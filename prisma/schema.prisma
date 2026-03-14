@@ -136,6 +136,7 @@ model TypeInscriptions {
   eventId                   String                      @map("event_id")
   rule                      DateTime?                   @map("rule")
   specialType               Boolean                     @default(false) @map("special_type")
+  active                    Boolean                     @default(true)
   createdAt                 DateTime                    @default(now()) @map("created_at")
   updatedAt                 DateTime                    @updatedAt @map("updated_at")
   Participant               Participant[]
