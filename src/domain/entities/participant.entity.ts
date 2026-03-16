@@ -112,6 +112,11 @@ export class Participant extends Entity {
       cpf,
     );
   }
+
+  protected validate(): void {
+    ParticipantValidatorFactory.create().validate(this);
+  }
+
   // Getters
   public getInscriptionId(): string {
     return this.inscriptionId;
@@ -216,9 +221,5 @@ export class Participant extends Entity {
     }
     this.updatedAt = new Date();
     this.validate();
-  }
-
-  protected validate(): void {
-    ParticipantValidatorFactory.create().validate(this);
   }
 }

@@ -110,7 +110,9 @@ export abstract class InscriptionGateway {
   abstract findManyGuestInscriptionExpired(now: Date): Promise<Inscription[]>;
 
   // Busca das inscrições Guest que foram marcadas como expiradas
-  abstract findManyGuestInscriptionMarkedExpired(): Promise<Inscription[]>;
+  abstract findManyGuestInscriptionMarkedExpired(
+    now: Date,
+  ): Promise<Inscription[]>;
 
   // COM O NOVA TABELA DE INSCRIÇÃO
   // Busca inscrições pendentes de forma paginada

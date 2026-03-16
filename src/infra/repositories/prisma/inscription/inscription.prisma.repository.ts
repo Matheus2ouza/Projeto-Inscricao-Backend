@@ -397,8 +397,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       where: {
         isGuest: true,
         status: InscriptionStatus.PENDING,
-        cancelledAt: null,
-        createdAt: {
+        expiresAt: {
           lt: now,
         },
         payments: {
@@ -411,17 +410,22 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   // Busca das inscrições Guest que foram marcadas como expiradas
-  async findManyGuestInscriptionMarkedExpired(): Promise<Inscription[]> {
+  async findManyGuestInscriptionMarkedExpired(
+    now: Date,
+  ): Promise<Inscription[]> {
     const found = await this.prisma.inscription.findMany({
       where: {
         status: InscriptionStatus.EXPIRED,
         isGuest: true,
         cancelledAt: {
-          not: null,
+          lt: now,
         },
         NOT: {
           payments: {
             some: {},
+          },
+          expiresAt: {
+            not: null,
           },
         },
       },
