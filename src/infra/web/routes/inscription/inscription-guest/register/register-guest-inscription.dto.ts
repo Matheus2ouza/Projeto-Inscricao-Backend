@@ -5,23 +5,24 @@ import {
   ShirtType,
 } from 'generated/prisma';
 
-export type RegisterGuestInscriptionRequest = {
+export type RegisterGuestInscriptionBody = {
   eventId: string;
-  guestEmail: string;
-  guestName: string;
-  guestLocality: string;
-  phone: string;
-  participant: ParticipantGuest;
-};
 
-export type ParticipantGuest = {
+  // Dados do inscrito guest
+  email: string;
   name: string;
-  cpf: string;
   preferredName?: string;
+  cpf: string;
+  gender: genderType;
+  phone: string;
+  locality: string;
+  birthDate: Date;
+
+  // dados complementares
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
-  birthDate: Date;
-  gender: genderType;
+
+  // id da inscrição
   typeInscriptionId: string;
 };
 

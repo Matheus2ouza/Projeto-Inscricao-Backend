@@ -68,7 +68,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
     const found = await this.prisma.payment.findMany({
       skip,
       take: pageSize,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       where: {
         eventId,
         ...where,

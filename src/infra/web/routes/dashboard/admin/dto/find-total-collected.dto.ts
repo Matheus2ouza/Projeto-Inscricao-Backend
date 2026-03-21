@@ -1,4 +1,4 @@
-export type FindTotalCollectedAdminResponse = {
+export type FindTotalCollectedResponse = {
   totalCollected: number;
   totalNetValueCollected: number;
 };

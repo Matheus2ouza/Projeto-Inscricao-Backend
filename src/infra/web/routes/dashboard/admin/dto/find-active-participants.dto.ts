@@ -1,3 +1,3 @@
-export type FindActiveParticipantsAdminResponse = {
+export type FindActiveParticipantsResponse = {
   activeParticipants: number;
 };

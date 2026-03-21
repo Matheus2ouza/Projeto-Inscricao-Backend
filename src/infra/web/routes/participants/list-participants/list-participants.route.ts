@@ -12,7 +12,7 @@ import { ListParticipantsPresenter } from './list-participants.presenter';
 @Controller('participants')
 export class ListParticipantsRoute {
   public constructor(
-    private readonly listParticipantsUsecase: ListParticipantsUsecase,
+    private readonly listGuestParticipantsUsecase: ListParticipantsUsecase,
   ) {}
 
   @Get(':eventId')
@@ -26,7 +26,7 @@ export class ListParticipantsRoute {
       pageSize: query.pageSize,
     };
 
-    const response = await this.listParticipantsUsecase.execute(input);
+    const response = await this.listGuestParticipantsUsecase.execute(input);
     return ListParticipantsPresenter.toHttp(response);
   }
 }

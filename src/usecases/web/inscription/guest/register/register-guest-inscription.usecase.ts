@@ -25,21 +25,22 @@ import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/except
 
 export type RegisterGuestInscriptionInput = {
   eventId: string;
+
+  // Dados do inscrito guest
   guestEmail: string;
   guestName: string;
-  guestLocality: string;
-  phone: string;
-  participant: ParticipantGuest;
-};
-
-export type ParticipantGuest = {
-  name: string;
-  cpf: string;
-  birthDate: Date;
   preferredName?: string;
+  cpf: string;
+  gender: genderType;
+  phone: string;
+  guestLocality: string;
+  birthDate: Date;
+
+  // dados complementares
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
-  gender: genderType;
+
+  // id da inscrição
   typeInscriptionId: string;
 };
 
@@ -81,12 +82,12 @@ export class RegisterGuestInscriptionUsecase
     }
 
     const typeInscription = await this.typeInscriptionGateway.findById(
-      input.participant.typeInscriptionId,
+      input.typeInscriptionId,
     );
 
     if (!typeInscription) {
       throw new TypeInscriptionNotFoundUsecaseException(
-        `attempt to create guest inscription for event: ${input.eventId} with type inscription: ${input.participant.typeInscriptionId} but it was not found`,
+        `attempt to create guest inscription for event: ${input.eventId} with type inscription: ${input.typeInscriptionId} but it was not found`,
         'Tipo de inscrição não encontrado',
         RegisterGuestInscriptionUsecase.name,
       );
@@ -113,13 +114,13 @@ export class RegisterGuestInscriptionUsecase
     const participant = Participant.create({
       inscriptionId: inscription.getId(),
       typeInscriptionId: typeInscription.getId(),
-      name: input.participant.name,
-      cpf: input.participant.cpf,
-      preferredName: input.participant.preferredName ?? input.participant.name,
-      shirtSize: input.participant.shirtSize,
-      shirtType: input.participant.shirtType,
-      birthDate: new Date(input.participant.birthDate),
-      gender: input.participant.gender,
+      name: input.guestName,
+      cpf: input.cpf,
+      preferredName: input.preferredName ?? input.guestName,
+      shirtSize: input.shirtSize,
+      shirtType: input.shirtType,
+      birthDate: new Date(input.birthDate),
+      gender: input.gender,
     });
 
     await this.participantGateway.create(participant);

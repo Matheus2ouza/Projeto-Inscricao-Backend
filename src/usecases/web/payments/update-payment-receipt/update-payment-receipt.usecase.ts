@@ -78,7 +78,6 @@ export class UpdatePaymentReceiptUsecase
       }
     }
 
-    this.logger.log('o pagamento:', JSON.stringify(payment, null, 2));
     payment.updateImage(imagePath, payment.getStatus());
     await this.paymentGateway.update(payment);
 

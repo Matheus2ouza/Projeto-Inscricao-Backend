@@ -1,10 +1,10 @@
 import { FindTotalExpenseOutput } from 'src/usecases/web/dashboard/admin/find-total-expense.usecase';
-import { FindTotalExpenseAdminResponse } from '../dto/find-total-expense.dto';
+import { FindTotalExpenseResponse } from '../dto/find-total-expense.dto';
 
 export class FindTotalExpenseAdminPresenter {
   public static tohttp(
     output: FindTotalExpenseOutput,
-  ): FindTotalExpenseAdminResponse {
+  ): FindTotalExpenseResponse {
     return {
       totalExpense: output.totalExpense,
     };

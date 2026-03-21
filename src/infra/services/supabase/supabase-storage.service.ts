@@ -232,4 +232,38 @@ export class SupabaseStorageService {
       throw error;
     }
   }
+
+  /**
+   * Retorna o total de uso do storage
+   * @returns Lista de buckets com o uso do storage
+   */
+  async getStorageUsage(): Promise<
+    { bucket_id: string; total_size_mb: number }[]
+  > {
+    try {
+      const { data, error } = await this.supabase.rpc('get_storage_usage');
+
+      if (error) {
+        this.logger.error(`Erro ao buscar uso do storage: ${error.message}`);
+        throw new Error(`Falha ao buscar uso do storage: ${error.message}`);
+      }
+
+      const maxStorage = 50; // MB (seu limite atual)
+
+      data.forEach((bucket) => {
+        const usagePercent = (
+          (bucket.total_size_mb / maxStorage) *
+          100
+        ).toFixed(1);
+        this.logger.log(
+          `📦 Bucket "${bucket.bucket_id}": ${bucket.total_size_mb} MB de ${maxStorage} MB (${usagePercent}%)`,
+        );
+      });
+
+      return data;
+    } catch (error) {
+      this.logger.error(`Erro ao buscar uso do storage: ${error.message}`);
+      throw error;
+    }
+  }
 }

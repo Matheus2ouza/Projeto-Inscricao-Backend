@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { genderType } from 'generated/prisma';
-import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
-import { AccountGateway } from 'src/domain/repositories/account.geteway';
+import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
@@ -15,8 +14,7 @@ export type ListParticipantsInput = {
 };
 
 export type ListParticipantsOutput = {
-  accounts: Account[];
-  countAccounts: number;
+  participants: Participant[];
   countParticipants: number;
   countParticipantsMale: number;
   countParticipantsFemale: number;
@@ -25,19 +23,16 @@ export type ListParticipantsOutput = {
   pageCount: number;
 };
 
-export type Account = {
-  id: string;
-  username: string;
-  countParticipants: number;
-  participants: Participant[];
-};
-
 export type Participant = {
   id: string;
   name: string;
+  preferredName: string;
   birthDate: Date;
   typeInscription: string;
   gender: string;
+  shirtSize: string;
+  shirtType: string;
+  guest: boolean;
 };
 
 @Injectable()
@@ -46,15 +41,12 @@ export class ListParticipantsUsecase
 {
   constructor(
     private readonly eventGateway: EventGateway,
-    private readonly inscriptionGateway: InscriptionGateway,
-    private readonly userGateway: AccountGateway,
-    private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
+    private readonly participantGateway: ParticipantGateway,
+    private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
   ) {}
 
-  public async execute(
-    input: ListParticipantsInput,
-  ): Promise<ListParticipantsOutput> {
+  async execute(input: ListParticipantsInput): Promise<ListParticipantsOutput> {
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
@@ -62,7 +54,6 @@ export class ListParticipantsUsecase
     );
 
     const event = await this.eventGateway.findById(input.eventId);
-
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Event not found with id ${input.eventId}`,
@@ -71,127 +62,107 @@ export class ListParticipantsUsecase
       );
     }
 
+    // Busca TUDO sem paginação para poder ordenar e paginar corretamente
     const [
-      countParticipantsMale,
-      countParticipantsFemale,
-      countParticipantsTotal,
+      allGuestParticipants,
+      countGuestMale,
+      countGuestFemale,
+      allAccountParticipants,
+      countAccountMale,
+      countAccountFemale,
     ] = await Promise.all([
-      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+      this.participantGateway.findManyByEventId(
+        event.getId(),
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+      this.participantGateway.countParticipantsByEventIdAndGender(
         event.getId(),
         genderType.MASCULINO,
       ),
-      this.accountParticipantInEventGateway.countParticipantsByEventIdAndGender(
+      this.participantGateway.countParticipantsByEventIdAndGender(
         event.getId(),
         genderType.FEMININO,
       ),
-      this.accountParticipantInEventGateway.countParticipantsByEventId(
+      this.accountParticipantGateway.findManyByEventId(
         event.getId(),
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+      this.accountParticipantGateway.countParticipantsByEventIdAndGender(
+        event.getId(),
+        genderType.MASCULINO,
+      ),
+      this.accountParticipantGateway.countParticipantsByEventIdAndGender(
+        event.getId(),
+        genderType.FEMININO,
       ),
     ]);
 
-    const countAccounts =
-      await this.inscriptionGateway.countUniqueAccountIdsByEventId(
-        event.getId(),
-      );
-    const pageCount = Math.ceil(countAccounts / safePageSize);
-
-    if (countAccounts === 0) {
-      return {
-        accounts: [],
-        countAccounts: 0,
-        countParticipants: 0,
-        countParticipantsMale: 0,
-        countParticipantsFemale: 0,
-        total: 0,
-        page: safePage,
-        pageCount: 0,
-      };
-    }
-
-    /**
-     * 1. Buscar accountIds paginados
-     */
-    const accountIds =
-      await this.inscriptionGateway.findAccountIdsByEventIdPaginated(
-        input.eventId,
-        safePage,
-        safePageSize,
-      );
-
-    /**
-     * 2. Buscar contas
-     */
-    const accounts = await this.userGateway.findByIds(accountIds);
-
-    /**
-     * 3. Buscar participantes dessas contas no evento
-     */
-    const participantLinks =
-      await this.accountParticipantInEventGateway.findByEventIdAndAccountIds(
-        input.eventId,
-        accountIds,
-      );
-
-    /**
-     * 4. Buscar tipos de inscrição
-     */
-    const typeInscriptionIds = [
-      ...new Set(participantLinks.map((p) => p.typeInscriptionId)),
-    ];
-
-    const typeInscriptions =
-      await this.typeInscriptionGateway.findByIds(typeInscriptionIds);
-
-    const typeInscriptionMap = new Map(
-      typeInscriptions.map((t) => [t.getId(), t.getDescription()]),
+    // Mapeia guests
+    const mappedGuests = await Promise.all(
+      allGuestParticipants.map(async (g) => {
+        const typeInscription = await this.typeInscriptionGateway.findById(
+          g.getTypeInscriptionId(),
+        );
+        return {
+          id: g.getId(),
+          name: g.getName(),
+          birthDate: g.getBirthDate(),
+          typeInscription: typeInscription?.getDescription() || '',
+          gender:
+            g.getGender() === genderType.MASCULINO ? 'Masculino' : 'Feminino',
+          preferredName: g.getPreferredName() || 'Não Informado',
+          shirtSize: g.getShirtSize() || 'Não Informado',
+          shirtType: g.getShirtType() || 'Não Informado',
+          guest: true,
+        };
+      }),
     );
 
-    /**
-     * 5. Agrupar participantes por account
-     */
-    const participantsByAccount = new Map<string, Participant[]>();
+    // Mapeia account participants
+    const mappedAccountParticipants = await Promise.all(
+      allAccountParticipants.map(async (a) => {
+        const typeInscription =
+          await this.typeInscriptionGateway.findTypeInscriptionByAccountParticipantInEventId(
+            a.getId(),
+          );
 
-    for (const p of participantLinks) {
-      if (!p.accountId) {
-        continue;
-      }
+        return {
+          id: a.getId(),
+          name: a.getName(),
+          birthDate: a.getBirthDate(),
+          typeInscription: typeInscription?.getDescription() || '',
+          gender:
+            a.getGender() === genderType.MASCULINO ? 'Masculino' : 'Feminino',
+          preferredName: a.getPreferredName() || 'Não Informado',
+          shirtSize: a.getShirtSize() || 'Não Informado',
+          shirtType: a.getShirtType() || 'Não Informado',
+          guest: false,
+        };
+      }),
+    );
 
-      const list = participantsByAccount.get(p.accountId) ?? [];
+    // Une e ordena alfabeticamente por nome
+    const allParticipants = [
+      ...mappedGuests,
+      ...mappedAccountParticipants,
+    ].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
-      list.push({
-        id: p.participantId,
-        name: p.participantName,
-        birthDate: p.participantBirthDate,
-        gender: p.participantGender,
-        typeInscription: typeInscriptionMap.get(p.typeInscriptionId) ?? 'N/A',
-      });
+    const total = allParticipants.length;
 
-      participantsByAccount.set(p.accountId, list);
-    }
-
-    /**
-     * 6. Montar DTO final
-     */
-    const accountsOutput: Account[] = accounts.map((account) => {
-      const participants = participantsByAccount.get(account.getId()) ?? [];
-
-      return {
-        id: account.getId(),
-        username: account.getUsername(),
-        countParticipants: participants.length,
-        participants,
-      };
-    });
+    // Aplica paginação sobre a lista combinada
+    const offset = (safePage - 1) * safePageSize;
+    const paginated = allParticipants.slice(offset, offset + safePageSize);
 
     return {
-      accounts: accountsOutput,
-      countAccounts,
-      countParticipants: countParticipantsTotal,
-      countParticipantsMale,
-      countParticipantsFemale,
-      total: countAccounts,
+      participants: paginated,
+      countParticipants: total,
+      countParticipantsMale: countGuestMale + countAccountMale,
+      countParticipantsFemale: countGuestFemale + countAccountFemale,
+      total,
       page: safePage,
-      pageCount,
+      pageCount: Math.ceil(total / safePageSize),
     };
   }
 }
