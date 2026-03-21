@@ -136,6 +136,8 @@ export class MailService {
     'inscription/guest-expired': async () =>
       // @ts-ignore
       require('./templates/inscription/guest-expired/index'),
+    'inscription/guest-expired-cleanup': () =>
+      import('./templates/inscription/guest-expired-cleanup/index.js'),
     'tickets/pre-sale-approved': () =>
       import('./templates/tickets/pre-sale-approved/index.js'),
     'tickets/pre-sale-notification': () =>
