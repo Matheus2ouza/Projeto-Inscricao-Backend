@@ -42,7 +42,7 @@ export class FindAllToParticipantsUsecase
     const safePage = Math.max(1, Math.floor(input.page || 1));
     const safePageSize = Math.max(
       1,
-      Math.min(6, Math.floor(input.pageSize || 10)),
+      Math.min(15, Math.floor(input.pageSize || 20)),
     );
 
     // Buscar eventos paginados e total

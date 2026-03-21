@@ -10,6 +10,7 @@ import { ParticipantPrismaModelToParticipantEntityMapper as PrismaToEntity } fro
 export class ParticipantPrismaRepository implements ParticipantGateway {
   constructor(private readonly prisma: PrismaService) {}
 
+  // CRUD básico
   async create(participant: Participant): Promise<Participant> {
     const data = EntityToPrisma.map(participant);
     const created = await this.prisma.participant.create({
@@ -41,113 +42,32 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     await this.prisma.participant.delete({ where: { id } });
   }
 
+  // Buscas por identificador único
   async findById(id: string): Promise<Participant | null> {
-    const found = await this.prisma.participant.findUnique({ where: { id } });
+    const found = await this.prisma.participant.findUnique({
+      where: { id },
+      include: { typeInscription: { select: { description: true } } },
+    });
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  async findByInscriptionId(inscriptionId: string): Promise<Participant[]> {
+  // Buscas por relacionamento
+  async findByName(name: string): Promise<Participant[]> {
     const found = await this.prisma.participant.findMany({
-      where: { inscriptionId },
+      where: { name: { contains: name, mode: 'insensitive' } },
+      include: { typeInscription: { select: { description: true } } },
       orderBy: { name: 'asc' },
     });
     return found.map(PrismaToEntity.map);
   }
 
-  async findByName(name: string): Promise<Participant[]> {
+  async findByInscriptionId(inscriptionId: string): Promise<Participant[]> {
     const found = await this.prisma.participant.findMany({
-      where: { name: { contains: name, mode: 'insensitive' } },
-    });
-    return found.map(PrismaToEntity.map);
-  }
-
-  async findManyPaginated(
-    page: number,
-    pageSize: number,
-  ): Promise<Participant[]> {
-    const skip = (page - 1) * pageSize;
-    const found = await this.prisma.participant.findMany({
-      skip,
-      take: pageSize,
-      orderBy: { createdAt: 'desc' },
-    });
-    return found.map(PrismaToEntity.map);
-  }
-
-  async countAll(): Promise<number> {
-    return this.prisma.participant.count();
-  }
-
-  async countByInscriptionId(inscriptionId: string): Promise<number> {
-    return this.prisma.participant.count({ where: { inscriptionId } });
-  }
-
-  async countAllByEventId(eventId: string): Promise<number> {
-    return this.prisma.participant.count({
-      where: {
-        inscription: {
-          eventId,
-        },
-      },
-    });
-  }
-
-  async findManyByEventId(
-    eventId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<Participant[]> {
-    const skip = (page - 1) * pageSize;
-    const found = await this.prisma.participant.findMany({
-      skip,
-      take: pageSize,
-      where: {
-        inscription: {
-          eventId,
-          isGuest: true,
-        },
-      },
-      include: { typeInscription: { select: { description: true } } },
-    });
-    return found.map(PrismaToEntity.map);
-  }
-
-  async findManyPaginatedByInscriptionId(
-    inscriptionId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<Participant[]> {
-    const skip = (page - 1) * pageSize;
-
-    const modals = await this.prisma.participant.findMany({
-      skip,
-      take: pageSize,
-      orderBy: { createdAt: 'desc' },
       where: { inscriptionId },
+      include: { typeInscription: { select: { description: true } } },
+      orderBy: { name: 'asc' },
     });
-
-    return modals.map(PrismaToEntity.map);
-  }
-
-  async findByInscriptionsIds(
-    inscriptionIds: string[],
-  ): Promise<Participant[]> {
-    const found = await this.prisma.participant.findMany({
-      where: {
-        inscriptionId: { in: inscriptionIds },
-        inscription: { status: InscriptionStatus.PAID },
-      },
-    });
-
     return found.map(PrismaToEntity.map);
-  }
-
-  async countAllByInscriptionId(inscriptionId: string): Promise<number> {
-    const total = await this.prisma.participant.count({
-      where: { inscriptionId: inscriptionId },
-    });
-
-    return total;
   }
 
   async findManyByInscriptionIds(
@@ -187,6 +107,87 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  // Buscas paginadas
+  async findManyByEventId(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Participant[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.participant.findMany({
+      skip,
+      take: pageSize,
+      where: {
+        inscription: {
+          eventId,
+          isGuest: true,
+          status: InscriptionStatus.PAID,
+        },
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findManyPaginatedByInscriptionId(
+    inscriptionId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Participant[]> {
+    const skip = (page - 1) * pageSize;
+
+    const participants = await this.prisma.participant.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      where: { inscriptionId },
+      include: { typeInscription: { select: { description: true } } },
+    });
+
+    return participants.map(PrismaToEntity.map);
+  }
+
+  async findByInscriptionsIds(
+    inscriptionIds: string[],
+  ): Promise<Participant[]> {
+    const found = await this.prisma.participant.findMany({
+      where: {
+        inscriptionId: { in: inscriptionIds },
+        inscription: { status: InscriptionStatus.PAID, isGuest: true },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  // Agregações e contagens
+  async countAll(): Promise<number> {
+    return this.prisma.participant.count();
+  }
+
+  async countByInscriptionId(inscriptionId: string): Promise<number> {
+    return this.prisma.participant.count({
+      where: { inscriptionId },
+    });
+  }
+
+  async countAllByInscriptionId(inscriptionId: string): Promise<number> {
+    return this.prisma.participant.count({
+      where: { inscriptionId },
+    });
+  }
+
+  async countAllByEventId(eventId: string): Promise<number> {
+    return this.prisma.participant.count({
+      where: {
+        inscription: {
+          eventId,
+          isGuest: true,
+          status: InscriptionStatus.PAID,
+        },
+      },
+    });
+  }
+
   async countByAccountIdAndEventId(
     accountId: string,
     eventId: string,
@@ -210,6 +211,8 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       where: {
         inscription: {
           eventId,
+          isGuest: true,
+          status: InscriptionStatus.PAID,
         },
         gender,
       },

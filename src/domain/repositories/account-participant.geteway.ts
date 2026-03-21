@@ -1,3 +1,4 @@
+import { genderType } from 'generated/prisma';
 import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
 
 export abstract class AccountParticipantGateway {
@@ -29,7 +30,17 @@ export abstract class AccountParticipantGateway {
       accountId?: string;
     },
   ): Promise<AccountParticipant[]>;
+  abstract findManyByEventId(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<AccountParticipant[]>;
 
   // Agregações e contagens
+  abstract countAllByEventId(eventId: string): Promise<number>;
+  abstract countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number>;
   abstract countAllFiltered(filter: { accountId?: string }): Promise<number>;
 }

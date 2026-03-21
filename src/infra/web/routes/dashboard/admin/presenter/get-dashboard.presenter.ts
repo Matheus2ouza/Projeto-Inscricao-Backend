@@ -1,4 +1,4 @@
-import { GetDashboardAdminResponse } from '../dto/get-dashboard.dto';
+import { GetDashboardResponse } from '../dto/get-dashboard.dto';
 
 export class GetDashboardAdminPresenter {
   static tohttp(output: {
@@ -6,7 +6,7 @@ export class GetDashboardAdminPresenter {
     totalCollected: { totalCollected: number; totalNetValueCollected: number };
     totalDebt: { totalDebt: number };
     activeParticipants: { countParticipants: number };
-  }): GetDashboardAdminResponse {
+  }): GetDashboardResponse {
     return {
       totalExpense: output.totalExpense.totalExpense,
       totalCollected: output.totalCollected.totalCollected,

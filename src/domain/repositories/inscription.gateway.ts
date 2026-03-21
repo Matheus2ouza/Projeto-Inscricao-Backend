@@ -235,8 +235,10 @@ export abstract class InscriptionGateway {
   // somando o total de participantes (guest) e accountParticipantInEvent
   abstract countParticipantsByEventId(
     eventId: string,
-    guest?: boolean,
-    status?: InscriptionStatus[],
+    filters?: {
+      isGuest?: boolean;
+      status?: InscriptionStatus | InscriptionStatus[];
+    },
   ): Promise<number>;
 
   // Busca o total de participantes de um sexo específico referente ao evento,

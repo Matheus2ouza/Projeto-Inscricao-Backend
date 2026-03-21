@@ -31,6 +31,7 @@ import { FindDetailsMovimentRoute } from './routes/cash-register/find-details-mo
 import { FindFutureReleasesCashRegisterRoute } from './routes/cash-register/find-future-releases-cash-register/find-future-releases-cash-register.route';
 import { GenerateReportPdfRoute } from './routes/cash-register/pdf/generate-report/generate-report-pdf.route';
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
+import { DashboardSuperRoute } from './routes/dashboard/super/dashboard-super.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';
 import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
@@ -80,9 +81,9 @@ import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-i
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
-import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.route';
-import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
-import { GeneratePdfInscriptionRoute } from './routes/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
+import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/reports/generate-all-inscriptions/generate-all-inscriptions.route';
+import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/reports/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
+import { GeneratePdfInscriptionRoute } from './routes/inscription/reports/generate-pdf-inscription/generate-pdf-inscription.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
@@ -93,11 +94,11 @@ import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginate
 import { FindMemberByIdRoute } from './routes/members/find-member-by-id/find-member-by-id.route';
 import { UpdateMemberRoute } from './routes/members/update-member/update-member.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
-import { ListGuestParticipantsRoute } from './routes/participants/list-guest-participants/list-guest-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
-import { GeneratePdfEtiquetaRoute } from './routes/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
-import { GeneratePdfLocalityRoute } from './routes/participants/pdf/generate-pdf-locality/generate-pdf-locality.route';
-import { GeneratePdfSelectedParticipantRoute } from './routes/participants/pdf/generate-pdf-participant/generate-pdf-participant.route';
+import { GeneratePdfEtiquetaRoute } from './routes/participants/reports/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
+import { GeneratePdfLocalityRoute } from './routes/participants/reports/pdf/generate-pdf-locality/generate-pdf-locality.route';
+import { GeneratePdfSelectedParticipantRoute } from './routes/participants/reports/pdf/generate-pdf-participant/generate-pdf-participant.route';
+import { GenerateXlsxLocalityRoute } from './routes/participants/reports/xlsx/generate-pdf-locality/generate-pdf-locality.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
@@ -110,6 +111,7 @@ import { DeletePaymentRoute } from './routes/payments/delete/delete-payment.rout
 import { FindPaymentsDatesRoute } from './routes/payments/find-payments-dates/find-payments-dates.route';
 import { ListAllPaymentsPendingRoute } from './routes/payments/list-all-payments-pending/list-all-payments-pending.route';
 import { ListAllPaymentsRoute } from './routes/payments/list-all-payments/list-all-payments.route';
+import { ListAllReceiptRoute } from './routes/payments/list-all-receipt/list-all-receipt.route';
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
 import { PaymentsDetailsRoute } from './routes/payments/payments-details/payments-details.route';
 import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
@@ -172,7 +174,11 @@ import { WelcomeRoute } from './routes/welcome.route';
     GenerateReportPdfRoute,
 
     // Dashboard
+    // SUPER
+    DashboardSuperRoute,
+    // ADMIN
     DashboardAdminRoute,
+    // USER
     DashboardUserRoute,
 
     // Users
@@ -302,6 +308,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     RejectedPaymentRoute,
     ReversePaymentRoute,
 
+    ListAllReceiptRoute,
+
     // Payment - Update
     UpdatePaymentReceiptRoute,
 
@@ -311,14 +319,18 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentReprovedRoute,
     PaymentReceivedRoute,
 
-    // Participants
+    // Participant
     ListParticipantsRoute,
-    ListGuestParticipantsRoute,
     UpdateParticipantsRoute,
     DeleteParticipantsRoute,
+
+    // Participants reports - PDF
     GeneratePdfSelectedParticipantRoute,
     GeneratePdfEtiquetaRoute,
     GeneratePdfLocalityRoute,
+
+    // Participants reports - XLSX
+    GenerateXlsxLocalityRoute,
 
     // Tickets
     CreateTicketRoute,

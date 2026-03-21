@@ -16,6 +16,11 @@ import { FindActiveParticipantsAdminUsecase } from './web/dashboard/admin/find-a
 import { FindTotalCollectedAdminUsecase } from './web/dashboard/admin/find-total-collected.usecase';
 import { FindTotalDebtAdminUsecase } from './web/dashboard/admin/find-total-debt.usecase';
 import { FindTotalExpenseUsecase } from './web/dashboard/admin/find-total-expense.usecase';
+import { FindActiveParticipantsSuperUsecase } from './web/dashboard/super/find-active-participants.usecase';
+import { FindTotalCollectedSuperUsecase } from './web/dashboard/super/find-total-collected.usecase';
+import { FindTotalDebtSuperUsecase } from './web/dashboard/super/find-total-debt.usecase';
+import { FindTotalExpenseSuperUsecase } from './web/dashboard/super/find-total-expense.usecase';
+import { FindUsageStorageSupabaseSuperUsecase } from './web/dashboard/super/find-usage-storage-supabase.usecase';
 import { FindActiveEventsUserUsecase } from './web/dashboard/user/find-active-events.usecase';
 import { FindTotalDebtUserUsecase } from './web/dashboard/user/find-total-debt.usecase';
 import { FindTotalInscriptionsUserUsecase } from './web/dashboard/user/find-total-inscriptions.usecase';
@@ -68,9 +73,9 @@ import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-in
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
 import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
-import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
-import { GeneratePdfDetailsGuestInscriptionUsecase } from './web/inscription/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
-import { GeneratePdfInscriptionUsecase } from './web/inscription/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
+import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
+import { GeneratePdfDetailsGuestInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
+import { GeneratePdfInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
@@ -80,12 +85,12 @@ import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated
 import { FindMemberByIdUsecase } from './web/members/find-member-by-id/find-member-by-id.usecase';
 import { UpdateMemberUsecase } from './web/members/update-member/update-member.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
-import { ListGuestParticipantsUsecase } from './web/participants/list-guest-participants/list-guest-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
-import { GeneratePdfEtiquetaUseCase } from './web/participants/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
-import { GeneratePdfLocalityUseCase } from './web/participants/pdf/generate-pdf-locality/generate-pdf-locality.usecase';
-import { GeneratePdfParticipantsAllUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
-import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
+import { GeneratePdfEtiquetaUseCase } from './web/participants/reports/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
+import { GeneratePdfLocalityUsecase } from './web/participants/reports/pdf/generate-pdf-locality/generate-pdf-locality.usecase';
+import { GeneratePdfParticipantsAllUsecase } from './web/participants/reports/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
+import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/reports/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
+import { GenerateXlsxLocalityUsecase } from './web/participants/reports/xlsx/generate-xlsx-locality/generate-xlsx-locality.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
 import { ApprovePaymentUsecase } from './web/payments/approve-payment/approve-payment.usecase';
@@ -98,6 +103,7 @@ import { DeletePaymentUsecase } from './web/payments/delete/delete-payment.useca
 import { FindPaymentsDatesUsecase } from './web/payments/find-payments-dates/find-payments-dates.usecase';
 import { ListAllPaymentsPendingUsecase } from './web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import { ListAllPaymentsUseCase } from './web/payments/list-all-payments/list-all-payments.usecase';
+import { ListAllReceiptUsecase } from './web/payments/list-all-receipt/list-all-receipt.usecase';
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
 import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
@@ -165,6 +171,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GenerateReportPdfUsecase,
 
     // Dashboard
+    // SUPER
+    FindUsageStorageSupabaseSuperUsecase,
+    FindActiveParticipantsSuperUsecase,
+    FindTotalCollectedSuperUsecase,
+    FindTotalDebtSuperUsecase,
+    FindTotalExpenseSuperUsecase,
+
     FindActiveEventsAdminUsecase,
     FindActiveParticipantsAdminUsecase,
     FindTotalCollectedAdminUsecase,
@@ -281,6 +294,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
 
+    ListAllReceiptUsecase,
+
     UpdatePaymentReceiptUsecase,
 
     //ASAAS
@@ -291,13 +306,17 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
-    ListGuestParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
+
+    // Participants reports - PDF
     GeneratePdfParticipantsSelectedAccountsUsecase,
     GeneratePdfParticipantsAllUsecase,
     GeneratePdfEtiquetaUseCase,
-    GeneratePdfLocalityUseCase,
+    GeneratePdfLocalityUsecase,
+
+    // Participants reports - XLSX
+    GenerateXlsxLocalityUsecase,
 
     // Tickets
     CreateTicketUsecase,
@@ -347,10 +366,20 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GenerateReportPdfUsecase,
 
     // Dashboard
+    // SUPER
+    FindUsageStorageSupabaseSuperUsecase,
+    FindActiveParticipantsSuperUsecase,
+    FindTotalCollectedSuperUsecase,
+    FindTotalDebtSuperUsecase,
+    FindTotalExpenseSuperUsecase,
+
+    // ADMIN
     FindActiveEventsAdminUsecase,
     FindActiveParticipantsAdminUsecase,
     FindTotalCollectedAdminUsecase,
     FindTotalDebtAdminUsecase,
+
+    // USER
     FindTotalExpenseUsecase,
     FindActiveEventsUserUsecase,
     FindTotalDebtUserUsecase,
@@ -463,6 +492,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RejectedPaymentUsecase,
     ReversePaymentUsecase,
 
+    ListAllReceiptUsecase,
+
     // Payement - Updates
     UpdatePaymentReceiptUsecase,
 
@@ -474,13 +505,17 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
-    ListGuestParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
+
+    // Participants reports - PDF
     GeneratePdfParticipantsSelectedAccountsUsecase,
     GeneratePdfParticipantsAllUsecase,
     GeneratePdfEtiquetaUseCase,
-    GeneratePdfLocalityUseCase,
+    GeneratePdfLocalityUsecase,
+
+    // Participants reports - XLSX
+    GenerateXlsxLocalityUsecase,
 
     // Tickets
     CreateTicketUsecase,

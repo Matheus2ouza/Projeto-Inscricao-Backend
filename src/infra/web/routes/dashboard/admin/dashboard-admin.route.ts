@@ -18,11 +18,11 @@ import {
   FindTotalExpenseInput,
   FindTotalExpenseUsecase,
 } from 'src/usecases/web/dashboard/admin/find-total-expense.usecase';
-import { FindActiveParticipantsAdminResponse } from './dto/find-active-participants.dto';
-import { FindTotalCollectedAdminResponse } from './dto/find-total-collected.dto';
-import { FindTotalDebtAdminResponse } from './dto/find-total-debt.dto';
-import { FindTotalExpenseAdminResponse } from './dto/find-total-expense.dto';
-import { GetDashboardAdminResponse } from './dto/get-dashboard.dto';
+import { FindActiveParticipantsResponse } from './dto/find-active-participants.dto';
+import { FindTotalCollectedResponse } from './dto/find-total-collected.dto';
+import { FindTotalDebtResponse } from './dto/find-total-debt.dto';
+import { FindTotalExpenseResponse } from './dto/find-total-expense.dto';
+import { GetDashboardResponse } from './dto/get-dashboard.dto';
 import { FindActiveParticipantsAdminPresenter } from './presenter/find-active-participants.presenter';
 import { FindTotalCollectedAdminPresenter } from './presenter/find-total-collected.presenter';
 import { FindTotalDebtAdminPresenter } from './presenter/find-total-debt.presenter';
@@ -42,7 +42,7 @@ export class DashboardAdminRoute {
   public async getCompleteDashboard(
     @UserInfo() userInfo: { regionId: string },
     @Query('eventId') eventId?: string,
-  ): Promise<GetDashboardAdminResponse> {
+  ): Promise<GetDashboardResponse> {
     const input = {
       regionId: userInfo.regionId,
       eventId,
@@ -61,12 +61,13 @@ export class DashboardAdminRoute {
     });
   }
 
+  // Busca o total de gastos
   @Get('expenses')
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getExpenses(
     @UserInfo() userInfo: { regionId: string },
     @Query('eventId') eventId?: string,
-  ): Promise<FindTotalExpenseAdminResponse> {
+  ): Promise<FindTotalExpenseResponse> {
     const input: FindTotalExpenseInput = {
       regionId: userInfo.regionId,
       eventId,
@@ -75,12 +76,13 @@ export class DashboardAdminRoute {
     return FindTotalExpenseAdminPresenter.tohttp(totalExpense);
   }
 
+  // Busca o valor total coletado
   @Get('collected')
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getCollected(
     @UserInfo() userInfo: { regionId: string },
     @Query('eventId') eventId?: string,
-  ): Promise<FindTotalCollectedAdminResponse> {
+  ): Promise<FindTotalCollectedResponse> {
     const input: FindTotalCollectedAdminInput = {
       regionId: userInfo.regionId,
       eventId,
@@ -89,12 +91,13 @@ export class DashboardAdminRoute {
     return FindTotalCollectedAdminPresenter.tohttp(totalCollected);
   }
 
+  // Busca o valor total de dívidas
   @Get('debt')
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getDebt(
     @UserInfo() userInfo: { regionId: string },
     @Query('eventId') eventId?: string,
-  ): Promise<FindTotalDebtAdminResponse> {
+  ): Promise<FindTotalDebtResponse> {
     const input: FindTotalDebtAdminInput = {
       regionId: userInfo.regionId,
       eventId,
@@ -104,12 +107,13 @@ export class DashboardAdminRoute {
     return FindTotalDebtAdminPresenter.tohttp(totalDebt);
   }
 
+  // Busca o número total de participantes
   @Get('active-participants')
   @Roles(RoleTypeHierarchy.MANAGER)
   public async getActiveParticipants(
     @UserInfo() userInfo: { regionId: string },
     @Query('eventId') eventId?: string,
-  ): Promise<FindActiveParticipantsAdminResponse> {
+  ): Promise<FindActiveParticipantsResponse> {
     const input: FindActiveParticipantsAdminInput = {
       regionId: userInfo.regionId,
       eventId,

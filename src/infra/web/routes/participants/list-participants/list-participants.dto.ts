@@ -5,8 +5,7 @@ export type ListParticipantsRequest = {
 };
 
 export type ListParticipantsResponse = {
-  accounts: Account[];
-  countAccounts: number;
+  participants: Participant[];
   countParticipants: number;
   countParticipantsMale: number;
   countParticipantsFemale: number;
@@ -15,17 +14,14 @@ export type ListParticipantsResponse = {
   pageCount: number;
 };
 
-export type Account = {
-  id: string;
-  username: string;
-  countParticipants: number;
-  participants: Participant[];
-};
-
 export type Participant = {
   id: string;
   name: string;
+  preferredName: string;
   birthDate: Date;
   typeInscription: string;
   gender: string;
+  shirtSize: string;
+  shirtType: string;
+  guest: boolean;
 };

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionStatus } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountParticipantEntityToAccountParticipantPrismaModelMapper as EntityToPrismaModel } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-entity-to-account-participant-prisma-model.mapper';
@@ -79,6 +79,7 @@ export class AccountParticipantPrismaRepository
             inscription: {
               id: { in: inscriptionIds },
               status: InscriptionStatus.PAID,
+              isGuest: false,
             },
           },
         },
@@ -136,12 +137,76 @@ export class AccountParticipantPrismaRepository
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
   }
 
+  async findManyByEventId(
+    eventId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<AccountParticipant[]> {
+    const skip = (page - 1) * pageSize;
+    const found = await this.prisma.accountParticipant.findMany({
+      skip,
+      take: pageSize,
+      where: {
+        eventLinks: {
+          some: {
+            inscription: {
+              eventId,
+              isGuest: false,
+              status: InscriptionStatus.PAID,
+            },
+          },
+        },
+      },
+    });
+    return found.map(PrismaModelToEntity.map);
+  }
+
   //Agregações e contagens
   async countAllFiltered(filter: { accountId?: string }): Promise<number> {
     const where = this.buildWhereClause(filter);
     return await this.prisma.accountParticipant.count({
       where,
     });
+  }
+
+  async countAllByEventId(eventId: string): Promise<number> {
+    const count = await this.prisma.accountParticipant.count({
+      where: {
+        eventLinks: {
+          some: {
+            inscription: {
+              eventId,
+              isGuest: false,
+              status: InscriptionStatus.PAID,
+            },
+          },
+        },
+      },
+    });
+
+    return count;
+  }
+
+  async countParticipantsByEventIdAndGender(
+    eventId: string,
+    gender: genderType,
+  ): Promise<number> {
+    const count = await this.prisma.accountParticipant.count({
+      where: {
+        eventLinks: {
+          some: {
+            inscription: {
+              eventId,
+              isGuest: false,
+              status: InscriptionStatus.PAID,
+            },
+          },
+        },
+        gender,
+      },
+    });
+
+    return count;
   }
 
   private buildWhereClause(filter?: { accountId?: string }) {

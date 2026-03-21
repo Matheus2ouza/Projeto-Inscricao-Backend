@@ -5,7 +5,7 @@ import {
   RegisterGuestInscriptionUsecase,
 } from 'src/usecases/web/inscription/guest/register/register-guest-inscription.usecase';
 import type {
-  RegisterGuestInscriptionRequest,
+  RegisterGuestInscriptionBody,
   RegisterGuestInscriptionResponse,
 } from './register-guest-inscription.dto';
 import { RegisterGuestInscriptionPresenter } from './register-guest-inscription.presenter';
@@ -17,17 +17,23 @@ export class RegisterGuestInscriptionRoute {
   ) {}
 
   @IsPublic()
-  @Post('register')
+  @Post('registerrr')
   async handle(
-    @Body() body: RegisterGuestInscriptionRequest,
+    @Body() body: RegisterGuestInscriptionBody,
   ): Promise<RegisterGuestInscriptionResponse> {
     const input: RegisterGuestInscriptionInput = {
       eventId: body.eventId,
-      guestEmail: body.guestEmail,
-      guestName: body.guestName,
-      guestLocality: body.guestLocality,
+      guestEmail: body.email,
+      guestName: body.name,
+      preferredName: body.preferredName,
+      cpf: body.cpf,
+      gender: body.gender,
       phone: body.phone,
-      participant: body.participant,
+      guestLocality: body.locality,
+      birthDate: body.birthDate,
+      shirtSize: body.shirtSize,
+      shirtType: body.shirtType,
+      typeInscriptionId: body.typeInscriptionId,
     };
 
     const response = await this.registerGuestInscriptionUsecase.execute(input);

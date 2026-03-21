@@ -2,12 +2,9 @@ import { ListParticipantsOutput } from 'src/usecases/web/participants/list-parti
 import { ListParticipantsResponse } from './list-participants.dto';
 
 export class ListParticipantsPresenter {
-  public static toHttp(
-    output: ListParticipantsOutput,
-  ): ListParticipantsResponse {
+  static toHttp(output: ListParticipantsOutput): ListParticipantsResponse {
     return {
-      accounts: output.accounts,
-      countAccounts: output.countAccounts,
+      participants: output.participants,
       countParticipants: output.countParticipants,
       countParticipantsMale: output.countParticipantsMale,
       countParticipantsFemale: output.countParticipantsFemale,

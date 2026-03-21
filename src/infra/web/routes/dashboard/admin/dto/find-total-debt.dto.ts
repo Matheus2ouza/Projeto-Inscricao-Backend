@@ -1,3 +1,3 @@
-export type FindTotalDebtAdminResponse = {
+export type FindTotalDebtResponse = {
   totalDebt: number;
 };

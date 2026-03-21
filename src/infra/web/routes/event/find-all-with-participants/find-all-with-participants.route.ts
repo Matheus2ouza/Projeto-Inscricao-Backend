@@ -31,8 +31,8 @@ export class FindAllWithParticipantsRoute {
 
     const input: FindAllWithParticipantsInput = {
       regionId: userInfo.userRole === 'SUPER' ? undefined : userInfo.regionId,
+      role: userInfo.userRole,
       status,
-      guest: String(query.guest) === 'true',
       page: Number(query.page),
       pageSize: Number(query.pageSize),
     };

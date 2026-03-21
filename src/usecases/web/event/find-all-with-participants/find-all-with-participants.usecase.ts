@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionStatus, statusEvent } from 'generated/prisma';
+import { InscriptionStatus, roleType, statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -7,8 +7,8 @@ import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllWithParticipantsInput = {
   regionId?: string;
+  role: roleType;
   status?: statusEvent[];
-  guest: boolean;
   page: number;
   pageSize: number;
 };
@@ -27,8 +27,9 @@ export type Events = {
   status: string;
   startDate: string;
   endDate: string;
+  location?: string;
   countParticipants: number;
-  countParticipantsInAnalysis: number;
+  countParticipantsGuest?: number;
 };
 
 @Injectable()
@@ -51,7 +52,7 @@ export class FindAllWithParticipantsUsecase
       Math.min(8, Math.floor(input.pageSize || 8)),
     );
 
-    const [allevents, total] = await Promise.all([
+    const [eventsArray, total] = await Promise.all([
       this.eventGateway.findAllPaginated(safePage, safePageSize, {
         status: input.status,
         regionId: input.regionId,
@@ -63,22 +64,23 @@ export class FindAllWithParticipantsUsecase
     ]);
 
     const events = await Promise.all(
-      allevents.map(async (e) => {
+      eventsArray.map(async (e) => {
         const imagePath = await this.getPublicImageUrl(e.getImageUrl());
 
-        const [countParticipants, countParticipantsInAnalysis] =
-          await Promise.all([
-            this.inscriptionGateway.countParticipantsByEventId(
-              e.getId(),
-              input.guest,
-            ),
-            this.inscriptionGateway.countParticipantsByEventId(
-              e.getId(),
-              input.guest,
-              [InscriptionStatus.PENDING, InscriptionStatus.UNDER_REVIEW],
-            ),
-          ]);
+        const countParticipants =
+          await this.inscriptionGateway.countParticipantsByEventId(e.getId(), {
+            isGuest: false,
+            status: InscriptionStatus.PAID,
+          });
 
+        let countParticipantsGuest: number | undefined = undefined;
+        if (input.role !== 'USER') {
+          countParticipantsGuest =
+            await this.inscriptionGateway.countParticipantsByEventId(
+              e.getId(),
+              { isGuest: true, status: InscriptionStatus.PAID },
+            );
+        }
         return {
           id: e.getId(),
           name: e.getName(),
@@ -86,8 +88,9 @@ export class FindAllWithParticipantsUsecase
           status: e.getStatus(),
           startDate: e.getStartDate().toISOString(),
           endDate: e.getEndDate().toISOString(),
+          location: e.getLocation(),
           countParticipants,
-          countParticipantsInAnalysis,
+          countParticipantsGuest,
         };
       }),
     );

@@ -34,6 +34,18 @@ export class AccountParticipantInEventPrismaRepository
   }
 
   // Buscas e listagens
+  async findById(
+    accountParticipantId: string,
+  ): Promise<AccountParticipantInEvent | null> {
+    const found = await this.prisma.accountParticipantInEvent.findFirst({
+      where: {
+        accountParticipantId,
+      },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
   async findByIds(
     accountParticipantsIds: string[],
     eventId: string,

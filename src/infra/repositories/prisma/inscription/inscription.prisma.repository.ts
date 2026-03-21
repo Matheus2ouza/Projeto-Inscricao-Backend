@@ -349,6 +349,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId,
+        status: InscriptionStatus.PAID,
       },
     });
 
@@ -626,19 +627,20 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   // somando o total de participantes (guest) e accountParticipantInEvent
   async countParticipantsByEventId(
     eventId: string,
-    guest: boolean = false,
-    status?: InscriptionStatus[],
+    filters?: {
+      isGuest?: boolean;
+      status?: InscriptionStatus | InscriptionStatus[];
+    },
   ): Promise<number> {
+    const where = this.buildWhereClauseInscription(filters);
     const [guestCount, accountCount] = await Promise.all([
       // participantes (guest)
-      guest
+      where.isGuest
         ? this.prisma.participant.count({
             where: {
               inscription: {
                 eventId,
-                isGuest: true,
-                status:
-                  status && status.length > 0 ? { in: status } : undefined,
+                isGuest: where.isGuest, // passa o guest como forma
               },
             },
           })
@@ -649,8 +651,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         where: {
           inscription: {
             eventId,
-            isGuest: false,
-            status: status && status.length > 0 ? { in: status } : undefined,
+            isGuest: where.isGuest,
+            status: where.status,
           },
         },
       }),
