@@ -281,9 +281,11 @@ export class Inscription extends Entity {
     this.validate();
   }
 
-  public markAsExpired(): void {
+  public markAsExpired(expiresAt: Date): void {
+    const cancelledAt = new Date(+expiresAt + 1000 * 60 * 60 * 24); // 24 horas após a expiração;
+    // Seta a data em que vai ser deletada
+    this.cancelledAt = cancelledAt;
     this.status = InscriptionStatus.EXPIRED;
-    this.cancelledAt = new Date();
     this.updatedAt = new Date();
     this.validate();
   }

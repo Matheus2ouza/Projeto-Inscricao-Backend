@@ -78,8 +78,8 @@ export class CancelExpiredGuestInscriptionsUsecase
         // Continua para a próxima inscrição mesmo se houver erro no envio do e-mail
       }
 
-      // Cancela a inscrição com a função cancelInscription da entidade
-      inscription.markAsExpired();
+      // Marca a inscrição como expirada, já setando a data em que vai ser deletada
+      inscription.markAsExpired(inscription.getExpiresAt() ?? new Date());
       await this.inscriptionGateway.cancel(inscription);
     }
     const output: CancelExpiredInscriptionsOutput = {

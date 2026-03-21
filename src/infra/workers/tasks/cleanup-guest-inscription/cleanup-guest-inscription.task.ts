@@ -10,7 +10,8 @@ export class CleanupGuestInscriptionTask {
     private readonly cleanupGuestInscriptionUsecase: CleanupGuestInscriptionUsecase,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+  // Executa a cada dia à meia noite
+  @Cron(CronExpression.EVERY_HOUR, {
     timeZone: 'America/Sao_Paulo',
   })
   public async executeCleanup() {

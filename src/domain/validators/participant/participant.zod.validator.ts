@@ -50,9 +50,9 @@ export class ParticipantZodValidator implements Validator<Participant> {
         .max(11, 'CPF deve ter no máximo 11 caracteres')
         .min(11, 'CPF deve ter no mínimo 11 caracteres')
         .optional(),
-      birthDate: z
+      birthDate: z.coerce
         .date({
-          error: 'Data de nascimento é obrigatória',
+          message: 'Data de nascimento é obrigatória',
         })
         .refine(
           (date) => {
@@ -61,7 +61,7 @@ export class ParticipantZodValidator implements Validator<Participant> {
             return date <= today;
           },
           {
-            error: 'Data de nascimento não pode ser posterior à data de hoje',
+            message: 'Data de nascimento não pode ser posterior à data de hoje',
           },
         ),
       gender: z.enum([genderType.MASCULINO, genderType.FEMININO], {

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
+import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type CleanupCancelledTicketSalesInput = void;
