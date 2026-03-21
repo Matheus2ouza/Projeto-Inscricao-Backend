@@ -17,7 +17,7 @@ export class RegisterGuestInscriptionRoute {
   ) {}
 
   @IsPublic()
-  @Post('registerrr')
+  @Post('register')
   async handle(
     @Body() body: RegisterGuestInscriptionBody,
   ): Promise<RegisterGuestInscriptionResponse> {
