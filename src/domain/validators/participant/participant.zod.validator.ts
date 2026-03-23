@@ -45,34 +45,32 @@ export class ParticipantZodValidator implements Validator<Participant> {
         .string()
         .min(2, 'Nome preferido deve ter no mínimo 2 caracteres')
         .optional(),
-      cpf: z
-        .string()
-        .optional()
-        .refine(
-          (cpf) => {
-            if (!cpf) return true; // é opcional
+      cpf: z.string().optional(),
+      // .refine(
+      //   (cpf) => {
+      //     if (!cpf) return true; // é opcional
 
-            const cleaned = cpf.replace(/\D/g, '');
+      //     const cleaned = cpf.replace(/\D/g, '');
 
-            if (cleaned.length !== 11) return false;
-            if (/^(\d)\1+$/.test(cleaned)) return false; // ex: 111.111.111-11
+      //     if (cleaned.length !== 11) return false;
+      //     if (/^(\d)\1+$/.test(cleaned)) return false; // ex: 111.111.111-11
 
-            // 1º dígito verificador
-            let sum = 0;
-            for (let i = 0; i < 9; i++) sum += parseInt(cleaned[i]) * (10 - i);
-            let remainder = ((sum * 10) % 11) % 10;
-            if (remainder !== parseInt(cleaned[9])) return false;
+      //     // 1º dígito verificador
+      //     let sum = 0;
+      //     for (let i = 0; i < 9; i++) sum += parseInt(cleaned[i]) * (10 - i);
+      //     let remainder = ((sum * 10) % 11) % 10;
+      //     if (remainder !== parseInt(cleaned[9])) return false;
 
-            // 2º dígito verificador
-            sum = 0;
-            for (let i = 0; i < 10; i++) sum += parseInt(cleaned[i]) * (11 - i);
-            remainder = ((sum * 10) % 11) % 10;
-            if (remainder !== parseInt(cleaned[10])) return false;
+      //     // 2º dígito verificador
+      //     sum = 0;
+      //     for (let i = 0; i < 10; i++) sum += parseInt(cleaned[i]) * (11 - i);
+      //     remainder = ((sum * 10) % 11) % 10;
+      //     if (remainder !== parseInt(cleaned[10])) return false;
 
-            return true;
-          },
-          { message: 'CPF inválido' },
-        ),
+      //     return true;
+      //   },
+      //   { message: 'CPF inválido' },
+      // )
       birthDate: z.coerce
         .date({
           message: 'Data de nascimento é obrigatória',

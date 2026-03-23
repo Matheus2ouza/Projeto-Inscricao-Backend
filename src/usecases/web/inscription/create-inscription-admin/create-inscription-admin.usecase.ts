@@ -246,6 +246,8 @@ export class CreateInscriptionAdminUsecase
         `Quantidade de participantes GUEST: ${input.participants.length}`,
       );
 
+      this.logger.log(JSON.stringify(input.participants, null, 2));
+
       const participants = await Promise.all(
         input.participants.map(async (p, index) => {
           this.logger.log(
@@ -307,15 +309,21 @@ export class CreateInscriptionAdminUsecase
           `Imagem recebida: ${input.payment.image ? 'SIM' : 'NÃO'}`,
         );
 
-        imagePath = await this.processEventImage(
-          input.payment.image!,
-          event.getId(),
-          inscription.getTotalValue(),
-          inscription.getIsGuest(),
-          inscription.getAccountId(),
-          inscription.getGuestName(),
-        );
-        this.logger.log(`Imagem processada e salva em: ${imagePath}`);
+        if (input.payment.image) {
+          this.logger.debug('Enviando para o supabase');
+
+          imagePath = await this.processEventImage(
+            input.payment.image,
+            event.getId(),
+            inscription.getTotalValue(),
+            inscription.getIsGuest(),
+            inscription.getAccountId(),
+            inscription.getGuestName(),
+          );
+          this.logger.log(`Imagem processada e salva em: ${imagePath}`);
+        }
+
+        this.logger.debug('Imagem não veio, não enviou para o supabase');
       }
 
       this.logger.log('Criando entidade de pagamento');
