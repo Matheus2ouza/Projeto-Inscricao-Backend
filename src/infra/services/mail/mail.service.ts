@@ -10,38 +10,26 @@ export class MailService {
 
   constructor() {
     const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-    // Validar se as credenciais estão definidas
-    if (!smtpUser || !smtpPass) {
+    if (!smtpUser || !clientId || !clientSecret || !refreshToken) {
       this.logger.warn(
-        'Credenciais SMTP não configuradas. Variáveis SMTP_USER e SMTP_PASS devem estar definidas no arquivo .env',
+        'Credenciais OAuth2 não configuradas. Variáveis SMTP_USER, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET e GOOGLE_REFRESH_TOKEN devem estar definidas.',
       );
     }
 
-    const transporterConfig: {
-      host: string;
-      port: number;
-      secure: boolean;
-      auth?: {
-        user: string;
-        pass: string;
-      };
-    } = {
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true', // true para 465, false para outras portas
-    };
-
-    // Configurar autenticação apenas se as credenciais estiverem definidas
-    if (smtpUser && smtpPass) {
-      transporterConfig.auth = {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
         user: smtpUser,
-        pass: smtpPass,
-      };
-    }
-
-    this.transporter = nodemailer.createTransport(transporterConfig);
+        clientId,
+        clientSecret,
+        refreshToken,
+      },
+    });
   }
 
   async sendMail({
@@ -56,10 +44,14 @@ export class MailService {
     attachments?: nodemailer.SendMailOptions['attachments'];
   }) {
     try {
-      // Validar se as credenciais estão configuradas
-      if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      if (
+        !process.env.SMTP_USER ||
+        !process.env.GOOGLE_CLIENT_ID ||
+        !process.env.GOOGLE_CLIENT_SECRET ||
+        !process.env.GOOGLE_REFRESH_TOKEN
+      ) {
         const errorMessage =
-          'Credenciais SMTP não configuradas. Configure as variáveis SMTP_USER e SMTP_PASS no arquivo .env';
+          'Credenciais OAuth2 não configuradas. Configure as variáveis no Railway.';
         this.logger.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -87,10 +79,6 @@ export class MailService {
     }
   }
 
-  /**
-   * Envia e-mail a partir de um template React
-   * templateName: caminho relativo a src/infra/services/mail/templates (ex: 'payment/payment-approved')
-   */
   async sendTemplateMail({
     to,
     subject,
