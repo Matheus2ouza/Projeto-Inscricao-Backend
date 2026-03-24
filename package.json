@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build api && nest build worker",
     "heroku-postbuild": "npm run build",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch --trace-deprecation",
