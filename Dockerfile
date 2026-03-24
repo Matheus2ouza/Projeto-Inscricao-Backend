@@ -14,12 +14,14 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 3 - Production
-FROM gcr.io/distroless/nodejs18-debian12:nonroot
+FROM node:18-bullseye-slim
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
 COPY package*.json ./
 
-CMD ["dist/main.js"]
+CMD ["node", "dist/main.js"]
