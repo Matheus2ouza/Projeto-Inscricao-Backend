@@ -1,35 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { render } from '@react-email/render';
-import * as nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 import { createElement, type ComponentType } from 'react';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter;
 
-  constructor() {
-    const smtpUser = process.env.SMTP_USER;
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
-
-    if (!smtpUser || !clientId || !clientSecret || !refreshToken) {
-      this.logger.warn(
-        'Credenciais OAuth2 não configuradas. Variáveis SMTP_USER, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET e GOOGLE_REFRESH_TOKEN devem estar definidas.',
-      );
-    }
-
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: smtpUser,
-        clientId,
-        clientSecret,
-        refreshToken,
-      },
+  private getOAuth2Client() {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      'http://localhost',
+    );
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
     });
+    return oauth2Client;
   }
 
   async sendMail({
@@ -41,38 +28,38 @@ export class MailService {
     to: string;
     subject: string;
     html: string;
-    attachments?: nodemailer.SendMailOptions['attachments'];
+    attachments?: any[];
   }) {
     try {
-      if (
-        !process.env.SMTP_USER ||
-        !process.env.GOOGLE_CLIENT_ID ||
-        !process.env.GOOGLE_CLIENT_SECRET ||
-        !process.env.GOOGLE_REFRESH_TOKEN
-      ) {
-        const errorMessage =
-          'Credenciais OAuth2 não configuradas. Configure as variáveis no Railway.';
-        this.logger.error(errorMessage);
-        throw new Error(errorMessage);
-      }
+      const auth = this.getOAuth2Client();
+      const gmail = google.gmail({ version: 'v1', auth });
 
-      this.logger.debug(`Enviando e-mail...`);
-      this.logger.debug(
-        `From: ${process.env.SENDER_EMAIL || process.env.SMTP_USER}`,
-      );
-      this.logger.debug(`To: ${to}`);
-      this.logger.debug(`Subject: ${subject}`);
+      const from = `"Sistema Inscrição" <${process.env.SENDER_EMAIL || process.env.SMTP_USER}>`;
 
-      const info = await this.transporter.sendMail({
-        from: `"Sistema Inscrição" <${process.env.SENDER_EMAIL || process.env.SMTP_USER}>`,
-        to,
-        subject,
+      const messageParts = [
+        `From: ${from}`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        'MIME-Version: 1.0',
+        'Content-Type: text/html; charset=utf-8',
+        '',
         html,
-        attachments,
+      ];
+
+      const message = messageParts.join('\n');
+      const encodedMessage = Buffer.from(message)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      const res = await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: { raw: encodedMessage },
       });
 
-      this.logger.log(`E-mail enviado com sucesso: ${info.messageId}`);
-      return info;
+      this.logger.log(`E-mail enviado com sucesso: ${res.data.id}`);
+      return res.data;
     } catch (error) {
       this.logger.error(`Erro ao enviar e-mail: ${error.message}`, error.stack);
       throw error;
@@ -90,7 +77,7 @@ export class MailService {
     subject: string;
     templateName: string;
     context: Record<string, unknown>;
-    attachments?: nodemailer.SendMailOptions['attachments'];
+    attachments?: any[];
   }) {
     try {
       const html = await this.renderReactTemplate(templateName, context);
@@ -154,7 +141,6 @@ export class MailService {
     }
 
     const element = createElement(TemplateComponent, context);
-
     return await render(element);
   }
 
