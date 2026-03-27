@@ -1,9 +1,4 @@
-import {
-  genderType,
-  InscriptionStatus,
-  ShirtSize,
-  ShirtType,
-} from 'generated/prisma';
+import { genderType, InscriptionStatus, ShirtSize } from 'generated/prisma';
 
 export type RegisterGuestInscriptionBody = {
   eventId: string;
@@ -20,7 +15,6 @@ export type RegisterGuestInscriptionBody = {
 
   // dados complementares
   shirtSize?: ShirtSize;
-  shirtType?: ShirtType;
 
   // id da inscrição
   typeInscriptionId: string;
