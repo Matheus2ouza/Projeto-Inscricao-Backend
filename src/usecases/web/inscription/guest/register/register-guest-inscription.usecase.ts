@@ -38,7 +38,6 @@ export type RegisterGuestInscriptionInput = {
 
   // dados complementares
   shirtSize?: ShirtSize;
-  shirtType?: ShirtType;
 
   // id da inscrição
   typeInscriptionId: string;
@@ -118,7 +117,7 @@ export class RegisterGuestInscriptionUsecase
       cpf: input.cpf,
       preferredName: input.preferredName ?? input.guestName,
       shirtSize: input.shirtSize,
-      shirtType: input.shirtType,
+      shirtType: ShirtType.BABYLOOK,
       birthDate: new Date(input.birthDate),
       gender: input.gender,
     });

@@ -32,11 +32,8 @@ export class RegisterGuestInscriptionRoute {
       guestLocality: body.locality,
       birthDate: body.birthDate,
       shirtSize: body.shirtSize,
-      shirtType: body.shirtType,
       typeInscriptionId: body.typeInscriptionId,
     };
-
-    console.log(input);
 
     const response = await this.registerGuestInscriptionUsecase.execute(input);
     return RegisterGuestInscriptionPresenter.toHtpp(response);
