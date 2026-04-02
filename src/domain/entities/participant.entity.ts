@@ -168,6 +168,12 @@ export class Participant extends Entity {
     this.validate();
   }
 
+  public setCpf(cpf: string): void {
+    this.cpf = cpf;
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
   public setBirthDate(birthDate: Date): void {
     this.birthDate = birthDate;
     this.updatedAt = new Date();
@@ -188,6 +194,7 @@ export class Participant extends Entity {
 
   public update({
     name,
+    cpf,
     birthDate,
     gender,
     preferredName,
@@ -195,6 +202,7 @@ export class Participant extends Entity {
     shirtType,
   }: {
     name?: string;
+    cpf?: string;
     birthDate?: Date;
     gender?: genderType;
     preferredName?: string;
@@ -203,6 +211,9 @@ export class Participant extends Entity {
   }): void {
     if (name !== undefined) {
       this.setName(name);
+    }
+    if (cpf !== undefined) {
+      this.setCpf(cpf);
     }
     if (birthDate !== undefined) {
       this.setBirthDate(birthDate);

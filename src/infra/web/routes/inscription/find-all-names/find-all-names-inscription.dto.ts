@@ -4,5 +4,5 @@ export type FindAllNamesInscriptionRequest = {
 
 export type FindAllNamesInscriptionResponse = {
   id: string;
-  name: string;
+  name?: string;
 }[];

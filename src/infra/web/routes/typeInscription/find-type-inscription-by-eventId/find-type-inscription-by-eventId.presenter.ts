@@ -11,6 +11,7 @@ export class FindTypeInscriptionByEventIdPresenter {
       rule: typeInscription.rule,
       value: typeInscription.value,
       specialType: typeInscription.specialType,
+      active: typeInscription.active,
       createdAt: typeInscription.createdAt,
     }));
   }

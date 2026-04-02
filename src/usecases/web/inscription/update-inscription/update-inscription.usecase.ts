@@ -8,6 +8,7 @@ export type UpdateInscriptionInput = {
   responsible?: string;
   phone?: string;
   email?: string;
+  observation?: string;
 };
 
 export type UpdateInscriptionOutput = {
@@ -37,6 +38,7 @@ export class UpdateInscriptionUsecase
       responsible: input.responsible,
       phone: input.phone,
       email: input.email,
+      observation: input.observation,
     });
 
     await this.inscriptionGateway.update(inscription);

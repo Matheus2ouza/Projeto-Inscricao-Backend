@@ -81,9 +81,10 @@ import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-i
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
-import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/reports/generate-all-inscriptions/generate-all-inscriptions.route';
-import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/reports/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
-import { GeneratePdfInscriptionRoute } from './routes/inscription/reports/generate-pdf-inscription/generate-pdf-inscription.route';
+import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.route';
+import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
+import { GeneratePdfInscriptionRoute } from './routes/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
+import { GenerateXlsxAllInscriptionsRoute } from './routes/inscription/reports/xlsx/generate-xlsx-all-inscriptions/generate-xlsx-all-inscriptions.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
@@ -98,7 +99,7 @@ import { ListParticipantsRoute } from './routes/participants/list-participants/l
 import { GeneratePdfEtiquetaRoute } from './routes/participants/reports/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
 import { GeneratePdfLocalityRoute } from './routes/participants/reports/pdf/generate-pdf-locality/generate-pdf-locality.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/reports/pdf/generate-pdf-participant/generate-pdf-participant.route';
-import { GenerateXlsxLocalityRoute } from './routes/participants/reports/xlsx/generate-pdf-locality/generate-pdf-locality.route';
+import { GenerateXlsxLocalityRoute } from './routes/participants/reports/xlsx/generate-xlsx-locality/generate-xlsx-locality.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
 import { ApprovePaymentRoute } from './routes/payments/approve_payment/approve-payment.route';
@@ -138,10 +139,12 @@ import { PreSaleRoute } from './routes/tickets/pre-sale/pre-sale.route';
 import { RejectPreSaleRoute } from './routes/tickets/reject-pre-sale/reject-pre-sale.route';
 import { SaleGrupRoute } from './routes/tickets/sale-group/sale-group.route';
 import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
-import { CreateTypeInscriptionRoute } from './routes/typeInscription/create/create-type-inscription.route';
+import { CreateTypeInscriptionRoute } from './routes/typeInscription/create-type-inscription/create-type-inscription.route';
+import { DeletetypeInscriptionRoute } from './routes/typeInscription/delete/delete-type-inscription.route';
+import { UpdateTypeInscriptionActiveRoute } from './routes/typeInscription/disability-type-inscription/update-type-inscription-active.route';
 import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
-import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update/update-type-inscription.route';
+import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update-type-inscription/update-type-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
@@ -244,9 +247,17 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedRegionsRoute,
 
     // Type Inscriptions
+    // Create
     CreateTypeInscriptionRoute,
+    // Update active
+    UpdateTypeInscriptionActiveRoute,
+    // Delete
+    DeletetypeInscriptionRoute,
+    // Update
     UpdateTypeInscriptionRoute,
+    // Find All
     FindAllInscriptionRoute,
+    // Find by Event
     FindByEventId,
 
     // Inscriptions
@@ -268,11 +279,15 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions - Admin
     CreateInscriptionAdminRoute,
 
+    // Inscriptions reports - PDF
     GeneratePdfAllInscriptionsRoute,
     GeneratePdfInscriptionRoute,
     GeneratePdfDetailsGuestInscriptionRoute,
 
-    //Update - Inscription
+    // Inscriptions reports - XLSX
+    GenerateXlsxAllInscriptionsRoute,
+
+    // Update - Inscription
     UpdateInscriptionRoute,
 
     // Update - Guest Inscription

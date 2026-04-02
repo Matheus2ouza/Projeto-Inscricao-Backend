@@ -1,4 +1,4 @@
-import { UpdateTypeInscriptionOutput } from 'src/usecases/web/typeInscription/update/update-type-inscription.usecase';
+import { UpdateTypeInscriptionOutput } from 'src/usecases/web/typeInscription/update-type-inscription/update-type-inscription.usecase';
 import { UpdateTypeInscriptionResponse } from './update-type-inscription.dto';
 
 export class UpdateTypeInscriptionPresenter {

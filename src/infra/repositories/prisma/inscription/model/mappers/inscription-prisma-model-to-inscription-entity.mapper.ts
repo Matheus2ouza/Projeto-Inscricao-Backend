@@ -23,6 +23,7 @@ export class InscriptionPrismaModalToInscriptionEntityMapper {
       expiresAt: inscription.expiresAt || undefined,
       cancelledAt: inscription.cancelledAt || undefined,
       email: inscription.email || undefined,
+      observation: inscription.observation || undefined,
     });
   }
 }

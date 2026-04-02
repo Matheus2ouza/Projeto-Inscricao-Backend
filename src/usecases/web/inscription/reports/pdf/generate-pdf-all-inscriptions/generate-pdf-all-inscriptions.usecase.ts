@@ -75,8 +75,9 @@ type ParticipantDetails = {
 };
 
 export type GeneratePdfAllInscriptionsOutput = {
-  pdfBase64: string;
+  fileBase64: string;
   filename: string;
+  contentType: 'application/pdf' | 'application/zip';
 };
 
 @Injectable()
@@ -331,12 +332,13 @@ export class GeneratePdfAllInscriptionsUsecase
       );
 
     return {
-      pdfBase64: pdfBuffer.toString('base64'),
+      fileBase64: pdfBuffer.toString('base64'),
       filename: this.buildFilename(
         event.getName(),
         event.getId(),
         input.isGuest ?? false,
       ),
+      contentType: 'application/pdf',
     };
   }
 

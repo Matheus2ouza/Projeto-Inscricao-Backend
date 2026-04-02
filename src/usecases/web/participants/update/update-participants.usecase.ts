@@ -7,6 +7,7 @@ import { ParticipantNotFoundUsecaseException } from '../../exceptions/participan
 export type UpdateParticipantsInput = {
   id: string;
   name?: string;
+  cpf?: string;
   birthDate?: Date;
   gender?: genderType;
   preferredName?: string;
@@ -39,6 +40,7 @@ export class UpdateParticipantsUsecase
 
     participant.update({
       name: input.name,
+      cpf: input.cpf,
       birthDate: input.birthDate,
       gender: input.gender,
       preferredName: input.preferredName,

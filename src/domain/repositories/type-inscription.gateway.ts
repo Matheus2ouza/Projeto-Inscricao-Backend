@@ -3,6 +3,7 @@ import { TypeInscription } from '../entities/type-Inscription.entity';
 export abstract class TypeInscriptionGateway {
   abstract create(typeInscription: TypeInscription): Promise<TypeInscription>;
   abstract update(typeInscription: TypeInscription): Promise<TypeInscription>;
+  abstract delete(id: string): Promise<void>;
 
   abstract findById(id: string): Promise<TypeInscription | null>;
   abstract findByIds(ids: string[]): Promise<TypeInscription[]>;

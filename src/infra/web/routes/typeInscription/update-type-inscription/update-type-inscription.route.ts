@@ -2,7 +2,7 @@ import { Body, Controller, Param, Put } from '@nestjs/common';
 import {
   UpdateTypeInscriptionInput,
   UpdateTypeInscriptionUsecase,
-} from 'src/usecases/web/typeInscription/update/update-type-inscription.usecase';
+} from 'src/usecases/web/typeInscription/update-type-inscription/update-type-inscription.usecase';
 import type {
   UpdateTypeInscriptionRequest,
   UpdateTypeInscriptionResponse,

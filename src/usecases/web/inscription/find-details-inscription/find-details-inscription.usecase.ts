@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { genderType } from 'generated/prisma';
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -27,6 +27,7 @@ type Inscription = {
   email?: string;
   phone?: string;
   status: string;
+  observation?: string;
   totalValue: number;
   totalPaid: number;
   totalDebt: number;
@@ -36,10 +37,14 @@ type Inscription = {
 
 type ParticipantAllocation = {
   id: string;
+  name: string;
+  preferredName?: string;
+  cpf?: string;
   typeInscription?: string;
-  name?: string;
-  birthDate?: Date;
-  gender?: genderType;
+  birthDate: Date;
+  gender: genderType;
+  shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 };
 
 type Payment = {
@@ -131,25 +136,34 @@ export class FindDetailsInscriptionUsecase
           inscription.getId(),
         );
 
-      participantsData = await Promise.all(
-        accountParticipantInEvents.map(async (p) => {
-          const accountParticipant =
-            await this.accountParticipantsGateway.findById(
-              p.getAccountParticipantId(),
-            );
-          const typeInscription = await this.typeInscriptionGateway.findById(
-            p.getTypeInscriptionId(),
-          );
+      participantsData = (
+        await Promise.all(
+          accountParticipantInEvents.map(async (p) => {
+            const accountParticipant =
+              await this.accountParticipantsGateway.findById(
+                p.getAccountParticipantId(),
+              );
 
-          return {
-            id: p.getId(),
-            typeInscription: typeInscription?.getDescription(),
-            name: accountParticipant?.getName(),
-            birthDate: accountParticipant?.getBirthDate(),
-            gender: accountParticipant?.getGender(),
-          };
-        }),
-      );
+            if (!accountParticipant) return null;
+
+            const typeInscription = await this.typeInscriptionGateway.findById(
+              p.getTypeInscriptionId(),
+            );
+
+            return {
+              id: p.getId(),
+              name: accountParticipant.getName(),
+              preferredName: accountParticipant.getPreferredName(),
+              cpf: accountParticipant.getCpf(),
+              typeInscription: typeInscription?.getDescription(),
+              birthDate: accountParticipant.getBirthDate(),
+              gender: accountParticipant.getGender(),
+              shirtSize: accountParticipant.getShirtSize(),
+              shirtType: accountParticipant.getShirtType(),
+            };
+          }),
+        )
+      ).filter((p) => p !== null) as ParticipantAllocation[];
     }
 
     if (inscription.getIsGuest()) {
@@ -164,10 +178,14 @@ export class FindDetailsInscriptionUsecase
           );
           return {
             id: p.getId(),
-            typeInscription: typeInscription?.getDescription(),
             name: p.getName(),
+            preferredName: p?.getPreferredName(),
+            cpf: p?.getCpf(),
+            typeInscription: typeInscription?.getDescription(),
             birthDate: p.getBirthDate(),
             gender: p.getGender(),
+            shirtSize: p.getShirtSize(),
+            shirtType: p.getShirtType(),
           };
         }),
       );
@@ -180,6 +198,7 @@ export class FindDetailsInscriptionUsecase
         email: inscription.getEmail(),
         phone: inscription.getPhone(),
         status: inscription.getStatus(),
+        observation: inscription.getObservation(),
         totalValue: inscription.getTotalValue(),
         totalPaid: totalPaid,
         totalDebt: inscription.getTotalValue() - totalPaid,

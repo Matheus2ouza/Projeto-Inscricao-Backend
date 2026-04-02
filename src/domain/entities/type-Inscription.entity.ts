@@ -182,4 +182,10 @@ export class TypeInscription extends Entity {
       this.setSpecialType(specialType);
     }
   }
+
+  public updateActive(active: boolean) {
+    this.active = active;
+    this.updatedAt = new Date();
+    this.validate();
+  }
 }

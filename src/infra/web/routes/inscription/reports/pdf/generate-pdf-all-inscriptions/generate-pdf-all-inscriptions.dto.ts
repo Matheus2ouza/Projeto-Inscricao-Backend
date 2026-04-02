@@ -19,6 +19,7 @@ export type GenerateAllInscriptionsRequest = {
 };
 
 export type GenerateAllInscriptionsResponse = {
-  pdfBase64: string;
+  fileBase64: string;
   filename: string;
+  contentType: 'application/pdf' | 'application/zip';
 };

@@ -37,6 +37,7 @@ export type InscriptionWithDto = {
   status: InscriptionStatus;
   expiresAt?: Date;
   cancelledAt?: Date;
+  observation?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -44,7 +45,6 @@ export type InscriptionWithDto = {
 export class Inscription extends Entity {
   private constructor(
     id: string,
-
     private eventId: string,
     private responsible: string,
     private phone: string,
@@ -63,10 +63,13 @@ export class Inscription extends Entity {
     private isGuest?: boolean,
     private expiresAt?: Date,
     private cancelledAt?: Date,
+    private observation?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
   }
+
+  // ─── Factory Methods ──────────────────────────────────────────────────────────
 
   public static create({
     accountId,
@@ -83,20 +86,17 @@ export class Inscription extends Entity {
     email,
     expiresAt,
   }: InscriptionCreateDto): Inscription {
-    // Se for convidado, gerar token de acesso e código de confirmação
+    const id = Utils.generateUUID();
+    const createdAt = new Date();
+    const updatedAt = new Date();
+
     let accessToken: string | undefined = undefined;
     let confirmationCode: string | undefined = undefined;
+
     if (isGuest) {
       accessToken = Utils.generateUUID();
       confirmationCode = Utils.generateConfirmationCode();
-    } else {
-      accessToken = undefined;
-      confirmationCode = undefined;
     }
-    const id = Utils.generateUUID();
-    const totalPaidDefault = totalPaid || 0;
-    const createdAt = new Date();
-    const updatedAt = new Date();
 
     return new Inscription(
       id,
@@ -104,7 +104,7 @@ export class Inscription extends Entity {
       responsible,
       phone,
       totalValue,
-      totalPaidDefault,
+      totalPaid ?? 0,
       status,
       createdAt,
       updatedAt,
@@ -140,6 +140,7 @@ export class Inscription extends Entity {
     createdAt,
     updatedAt,
     email,
+    observation,
   }: InscriptionWithDto): Inscription {
     return new Inscription(
       id,
@@ -161,10 +162,12 @@ export class Inscription extends Entity {
       isGuest,
       expiresAt,
       cancelledAt,
+      observation,
     );
   }
 
-  // Getters
+  // ─── Getters ──────────────────────────────────────────────────────────────────
+
   public getId(): string {
     return this.id;
   }
@@ -183,22 +186,6 @@ export class Inscription extends Entity {
 
   public getConfirmationCode(): string | undefined {
     return this.confirmationCode;
-  }
-
-  public getGuestEmail(): string | undefined {
-    return this.guestEmail;
-  }
-
-  public getGuestName(): string | undefined {
-    return this.guestName;
-  }
-
-  public getGuestLocality(): string | undefined {
-    return this.guestLocality;
-  }
-
-  public getIsGuest(): boolean {
-    return this.isGuest || false;
   }
 
   public getResponsible(): string {
@@ -225,12 +212,20 @@ export class Inscription extends Entity {
     return this.status;
   }
 
-  public getCreatedAt(): Date {
-    return this.createdAt;
+  public getIsGuest(): boolean {
+    return this.isGuest ?? false;
   }
 
-  public getUpdatedAt(): Date {
-    return this.updatedAt;
+  public getGuestEmail(): string | undefined {
+    return this.guestEmail;
+  }
+
+  public getGuestName(): string | undefined {
+    return this.guestName;
+  }
+
+  public getGuestLocality(): string | undefined {
+    return this.guestLocality;
   }
 
   public getExpiresAt(): Date | undefined {
@@ -241,61 +236,46 @@ export class Inscription extends Entity {
     return this.cancelledAt;
   }
 
-  protected validate(): void {
-    InscriptionValidatorFactory.create().validate(this);
+  public getObservation(): string | undefined {
+    return this.observation;
   }
+
+  public getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  // ─── Setters ──────────────────────────────────────────────────────────────────
 
   public setResponsible(responsible: string): void {
     this.responsible = responsible;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
   public setPhone(phone: string): void {
     this.phone = phone;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
   public setEmail(email: string): void {
     this.email = email;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
   public setExpiresAt(expiresAt: Date): void {
     this.expiresAt = expiresAt;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
-  public inscriptionPaid(): void {
-    this.status = InscriptionStatus.PAID;
-    this.updatedAt = new Date();
-    this.validate();
+  public setObservation(observation: string | undefined): void {
+    this.observation = observation;
+    this.touch();
   }
 
-  public inscriptionUnpaid(): void {
-    this.status = InscriptionStatus.PENDING;
-    this.updatedAt = new Date();
-    this.validate();
-  }
-
-  public markAsExpired(expiresAt: Date): void {
-    const cancelledAt = new Date(+expiresAt + 1000 * 60 * 60 * 24); // 24 horas após a expiração;
-    // Seta a data em que vai ser deletada
-    this.cancelledAt = cancelledAt;
-    this.status = InscriptionStatus.EXPIRED;
-    this.updatedAt = new Date();
-    this.validate();
-  }
-
-  public removeExpires(): void {
-    this.cancelledAt = undefined;
-    this.status = InscriptionStatus.PENDING;
-    this.updatedAt = new Date();
-    this.validate();
-  }
+  // ─── Domain Actions ───────────────────────────────────────────────────────────
 
   public update({
     guestEmail,
@@ -304,6 +284,7 @@ export class Inscription extends Entity {
     responsible,
     phone,
     email,
+    observation,
   }: {
     guestEmail?: string;
     guestName?: string;
@@ -311,36 +292,57 @@ export class Inscription extends Entity {
     responsible?: string;
     phone?: string;
     email?: string;
+    observation?: string;
   }): void {
-    if (guestEmail !== undefined) {
-      this.guestEmail = guestEmail;
-    }
-    if (guestName !== undefined) {
-      this.guestName = guestName;
-    }
-    if (guestLocality !== undefined) {
-      this.guestLocality = guestLocality;
-    }
-    if (responsible !== undefined) {
-      this.setResponsible(responsible);
-    }
-    if (phone !== undefined) {
-      this.setPhone(phone);
-    }
-    if (email !== undefined) {
-      this.setEmail(email);
-    }
+    if (guestEmail !== undefined) this.guestEmail = guestEmail;
+    if (guestName !== undefined) this.guestName = guestName;
+    if (guestLocality !== undefined) this.guestLocality = guestLocality;
+    if (responsible !== undefined) this.setResponsible(responsible);
+    if (phone !== undefined) this.setPhone(phone);
+    if (email !== undefined) this.setEmail(email);
+    if (observation !== undefined) this.setObservation(observation);
+  }
+
+  public inscriptionPaid(): void {
+    this.status = InscriptionStatus.PAID;
+    this.touch();
+  }
+
+  public inscriptionUnpaid(): void {
+    this.status = InscriptionStatus.PENDING;
+    this.touch();
+  }
+
+  public markAsExpired(expiresAt: Date): void {
+    this.cancelledAt = new Date(+expiresAt + 1000 * 60 * 60 * 24);
+    this.status = InscriptionStatus.EXPIRED;
+    this.touch();
+  }
+
+  public removeExpires(): void {
+    this.cancelledAt = undefined;
+    this.status = InscriptionStatus.PENDING;
+    this.touch();
   }
 
   public incrementeTotalPaid(value: number): void {
     this.totalPaid += value;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
   public decrementTotalPaid(value: number): void {
     this.totalPaid -= value;
+    this.touch();
+  }
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+  private touch(): void {
     this.updatedAt = new Date();
     this.validate();
+  }
+
+  protected validate(): void {
+    InscriptionValidatorFactory.create().validate(this);
   }
 }

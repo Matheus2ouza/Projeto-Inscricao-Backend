@@ -4,7 +4,8 @@ import { Body, Controller, Param, Put } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import { UpdateParticipantsUsecase } from 'src/usecases/web/participants/update/update-participants.usecase';
 import type {
-  UpdateParticipantsRequest,
+  UpdateParticipantsBody,
+  UpdateParticipantsParam,
   UpdateParticipantsResponse,
 } from './update-participants.dto';
 import { UpdateParticipantsPresenter } from './update-participants.presenter';
@@ -16,19 +17,20 @@ export class UpdateParticipantsRoute {
   ) {}
 
   @IsPublic()
-  @Put(':id/update')
+  @Put(':id')
   public async handle(
-    @Param() param: UpdateParticipantsRequest,
-    @Body() request: UpdateParticipantsRequest,
+    @Param() param: UpdateParticipantsParam,
+    @Body() body: UpdateParticipantsBody,
   ): Promise<UpdateParticipantsResponse> {
     const input: UpdateParticipantsInput = {
       id: param.id,
-      name: request.name,
-      birthDate: request.birthDate,
-      gender: request.gender,
-      preferredName: request.preferredName,
-      shirtSize: request.shirtSize,
-      shirtType: request.shirtType,
+      name: body.name,
+      cpf: body.cpf,
+      birthDate: body.birthDate,
+      gender: body.gender,
+      preferredName: body.preferredName,
+      shirtSize: body.shirtSize,
+      shirtType: body.shirtType,
     };
 
     const response = await this.updateParticipantsUsecase.execute(input);
