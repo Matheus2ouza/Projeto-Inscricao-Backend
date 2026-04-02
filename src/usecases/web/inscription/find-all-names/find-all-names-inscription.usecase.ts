@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
@@ -10,7 +11,7 @@ export type FindAllNamesInscriptionInput = {
 
 export type FindAllNamesInscriptionOutput = {
   id: string;
-  name: string;
+  name?: string;
 }[];
 
 @Injectable()
@@ -36,14 +37,23 @@ export class FindAllNamesInscriptionUsecase
       );
     }
 
-    const inscriptions = await this.inscriptionGateway.findByEventId(
+    const inscriptions = await this.inscriptionGateway.findAllNamesByEventId(
       event.getId(),
     );
 
-    const output: FindAllNamesInscriptionOutput = inscriptions.map((i) => ({
-      id: i.getId(),
-      name: i.getGuestName() || i.getResponsible(),
-    }));
+    const getName = (i: Inscription) => i.getResponsible() || i.getGuestName();
+
+    const uniqueInscriptions = inscriptions.filter(
+      (item, index, self) =>
+        index === self.findIndex((i) => getName(i) === getName(item)),
+    );
+
+    const output: FindAllNamesInscriptionOutput = uniqueInscriptions.map(
+      (i) => ({
+        id: i.getId(),
+        name: getName(i),
+      }),
+    );
 
     return output;
   }

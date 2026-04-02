@@ -76,10 +76,10 @@ export class CreatePaymentLinkUsecase
       );
     }
 
-    if (inscription.getStatus() === InscriptionStatus.UNDER_REVIEW) {
+    if (inscription.getStatus() !== InscriptionStatus.PENDING) {
       throw new InscriptionNotReleasedForPaymentUsecaseException(
-        `Attempted payment before inscription release id: ${inscription.getId()}`,
-        'O pagamento ainda não está liberado para esta inscrição.',
+        `Attempted payment link, but registration status is invalid. STATUS: ${inscription.getStatus()}, ID: ${inscription.getId()}.`,
+        'O link de pagamento está indisponivel para esta inscrição.',
         CreatePaymentLinkUsecase.name,
       );
     }

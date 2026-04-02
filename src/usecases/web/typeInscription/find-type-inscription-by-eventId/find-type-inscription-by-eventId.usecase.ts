@@ -14,6 +14,7 @@ export type FindTypeInscriptionByEventIdOutput = {
   rule: Date | null;
   value: number;
   specialType: boolean;
+  active: boolean;
   createdAt: Date;
 }[];
 
@@ -54,6 +55,7 @@ export class FindTypeInscriptionByEventIdUsecase
         rule: typeInscription.getRule(),
         value: typeInscription.getValue(),
         specialType: typeInscription.getSpecialType(),
+        active: typeInscription.getActive(),
         createdAt: typeInscription.getCreatedAt(),
       }),
     );

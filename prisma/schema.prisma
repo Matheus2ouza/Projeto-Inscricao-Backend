@@ -160,6 +160,7 @@ model Inscription {
   guestLocality             String?
   cancelledAt               DateTime?                   @map("cancelled_at")
   expiresAt                 DateTime?                   @map("expires_at")
+  observation               String?                     @db.Text
   accountParticipantInEvent AccountParticipantInEvent[]
   financialMovements        FinancialMovement[]
   account                   Accounts?                   @relation(fields: [accountId], references: [id])

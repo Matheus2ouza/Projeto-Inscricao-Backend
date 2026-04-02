@@ -54,6 +54,9 @@ export abstract class InscriptionGateway {
     },
   ): Promise<Inscription[]>;
 
+  // Busca todas as inscrições pelo id do evento tambem mas foi criado outra porque temos que remover os nomes duplicados
+  abstract findAllNamesByEventId(eventId: string): Promise<Inscription[]>;
+
   // Busca inscrições pelo ID do evento e ID da conta
   abstract findByEventIdAndAccountId(
     eventId: string,

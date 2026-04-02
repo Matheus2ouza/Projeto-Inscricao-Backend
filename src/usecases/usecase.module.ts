@@ -76,6 +76,7 @@ import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/registe
 import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
 import { GeneratePdfDetailsGuestInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
+import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xlsx/generate-xlsx-all-inscriptions/generate-xlsx-all-inscriptions.usecase';
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
@@ -130,10 +131,12 @@ import { PreSaleUseCase } from './web/tickets/pre-sale/pre-sale.usecase';
 import { RejectPreSaleUseCase } from './web/tickets/reject-pre-sale/reject-pre-sale.usecase';
 import { SaleGrupUsecase } from './web/tickets/sale-group/sale-group.usecase';
 import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
-import { CreateTypeInscriptionUseCase } from './web/typeInscription/create/create-type-inscription.usecase';
+import { CreateTypeInscriptionUseCase } from './web/typeInscription/create-type-inscription/create-type-inscription.usecase';
+import { DeletetypeInscriptionUsecase } from './web/typeInscription/delete-type-inscription/delete-type-inscription.usecase';
+import { UpdateTypeInscriptionActiveUsecase } from './web/typeInscription/disability-type-inscription/update-type-inscription-active.usecase';
 import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
-import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update/update-type-inscription.usecase';
+import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update-type-inscription/update-type-inscription.usecase';
 import { CreateUserUsecase } from './web/user/create/create-user.usecase';
 import { FindAllPaginatedUsersUsecase } from './web/user/find-all-paginated/find-all-paginated.usecase';
 import { FindAllNamesUserUsecase } from './web/user/find-all-username/find-all-names-user.usecase';
@@ -243,9 +246,17 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedRegionsUsecase,
 
     // Type Inscriptions
+    // Create
     CreateTypeInscriptionUseCase,
+    // Disability
+    UpdateTypeInscriptionActiveUsecase,
+    // Delete
+    DeletetypeInscriptionUsecase,
+    // Update
     UpdateTypeInscriptionUsecase,
+    // Find By EventId
     FindTypeInscriptionByEventIdUsecase,
+    // FInd All
     FindAllInscriptionUsecase,
 
     // Inscriptions
@@ -270,11 +281,14 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateGuestInscriptionUsecase,
     UpdateValidateInscriptionUsecase,
 
-    // Inscription PDF
+    // Inscriptions reports - PDF
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     GeneratePdfAllInscriptionsUsecase,
     GeneratePdfDetailsGuestInscriptionUsecase,
+
+    // Inscriptions reports - XLSX
+    GenerateXlsxAllInscriptionsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,
@@ -441,9 +455,17 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedRegionsUsecase,
 
     // Type Inscriptions
+    // Create
     CreateTypeInscriptionUseCase,
+    // Disability
+    UpdateTypeInscriptionActiveUsecase,
+    // Delete
+    DeletetypeInscriptionUsecase,
+    // Update
     UpdateTypeInscriptionUsecase,
+    // Find By EventId
     FindTypeInscriptionByEventIdUsecase,
+    // FInd All
     FindAllInscriptionUsecase,
 
     // Inscriptions
@@ -468,11 +490,14 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateGuestInscriptionUsecase,
     UpdateValidateInscriptionUsecase,
 
-    // Inscription PDF
+    // Inscriptions reports - PDF
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     GeneratePdfAllInscriptionsUsecase,
     GeneratePdfDetailsGuestInscriptionUsecase,
+
+    // Inscriptions reports - XLSX
+    GenerateXlsxAllInscriptionsUsecase,
 
     // Payment
     ListAllPaymentsUseCase,

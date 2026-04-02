@@ -8,5 +8,6 @@ export type FindTypeInscriptionByEventIdResponse = {
   rule: Date | null;
   value: number;
   specialType: boolean;
+  active: boolean;
   createdAt: Date;
 }[];

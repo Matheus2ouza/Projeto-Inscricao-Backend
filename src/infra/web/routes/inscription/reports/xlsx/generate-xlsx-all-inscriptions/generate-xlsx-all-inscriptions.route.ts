@@ -4,27 +4,26 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import {
-  GeneratePdfAllInscriptionsInput,
-  GeneratePdfAllInscriptionsUsecase,
-} from 'src/usecases/web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
+import { GeneratePdfAllInscriptionsInput } from 'src/usecases/web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
+import { GenerateXlsxAllInscriptionsUsecase } from 'src/usecases/web/inscription/reports/xlsx/generate-xlsx-all-inscriptions/generate-xlsx-all-inscriptions.usecase';
 import type {
-  GenerateAllInscriptionsRequest,
-  GenerateAllInscriptionsResponse,
-} from './generate-all-inscriptions.dto';
-import { GenerateAllInscriptionsPresenter } from './generate-all-inscriptions.presenter';
+  GenerateXlsxAllInscriptionsParms,
+  GenerateXlsxAllInscriptionsQuery,
+  GenerateXlsxAllInscriptionsResponse,
+} from './generate-xlsx-all-inscriptions.dto';
+import { GenerateXlsxAllInscriptionsPresenter } from './generate-xlsx-all-inscriptions.presenter';
 
 @Controller('inscriptions')
-export class GeneratePdfAllInscriptionsRoute {
+export class GenerateXlsxAllInscriptionsRoute {
   constructor(
-    private readonly generatePdfAllInscriptionsUsecase: GeneratePdfAllInscriptionsUsecase,
+    private readonly generateXlsxAllInscriptionsUsecase: GenerateXlsxAllInscriptionsUsecase,
   ) {}
 
-  @Get(':eventId/all/pdf')
+  @Get(':eventId/all/xlsx')
   async handle(
-    @Param() param: GenerateAllInscriptionsRequest,
-    @Query() query: GenerateAllInscriptionsRequest,
-  ): Promise<GenerateAllInscriptionsResponse> {
+    @Param() param: GenerateXlsxAllInscriptionsParms,
+    @Query() query: GenerateXlsxAllInscriptionsQuery,
+  ): Promise<GenerateXlsxAllInscriptionsResponse> {
     const isGuest =
       query.isGuest === undefined ||
       query.isGuest === true ||
@@ -48,7 +47,7 @@ export class GeneratePdfAllInscriptionsRoute {
     };
 
     const response =
-      await this.generatePdfAllInscriptionsUsecase.execute(input);
-    return GenerateAllInscriptionsPresenter.toHttp(response);
+      await this.generateXlsxAllInscriptionsUsecase.execute(input);
+    return GenerateXlsxAllInscriptionsPresenter.toHttp(response);
   }
 }

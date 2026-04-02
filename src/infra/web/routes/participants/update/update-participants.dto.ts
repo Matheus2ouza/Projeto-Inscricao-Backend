@@ -1,8 +1,12 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 
-export type UpdateParticipantsRequest = {
+export type UpdateParticipantsParam = {
   id: string;
+};
+
+export type UpdateParticipantsBody = {
   name?: string;
+  cpf?: string;
   birthDate?: Date;
   gender?: genderType;
   preferredName?: string;

@@ -7,8 +7,8 @@ import {
   GenerateXlsxLocalityParam,
   GenerateXlsxLocalityQuery,
   GenerateXlsxLocalityResponse,
-} from './generate-pdf-locality.dto';
-import { GenerateXlsxLocalityPresenter } from './generate-pdf-locality.presenter';
+} from './generate-xlsx-locality.dto';
+import { GenerateXlsxLocalityPresenter } from './generate-xlsx-locality.presenter';
 
 @Controller('participants/xlsx')
 export class GenerateXlsxLocalityRoute {

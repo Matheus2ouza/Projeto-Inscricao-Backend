@@ -74,8 +74,11 @@ type ParticipantDetails = {
 };
 
 export type GenerateXlsxAllInscriptionsOutput = {
-  xlsxBase64: string;
+  fileBase64: string;
   filename: string;
+  contentType:
+    | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    | 'application/zip';
 };
 
 @Injectable()
@@ -328,12 +331,14 @@ export class GenerateXlsxAllInscriptionsUsecase
       );
 
     return {
-      xlsxBase64: xlsxBuffer.toString('base64'),
+      fileBase64: xlsxBuffer.toString('base64'),
       filename: this.buildFilename(
         event.getName(),
         event.getId(),
         input.isGuest ?? false,
       ),
+      contentType:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     };
   }
 

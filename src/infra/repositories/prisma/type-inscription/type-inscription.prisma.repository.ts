@@ -25,6 +25,14 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
     return PrismaToEntity.map(updated);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.typeInscriptions.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
   async findById(id: string): Promise<TypeInscription | null> {
     const found = await this.prisma.typeInscriptions.findUnique({
       where: { id },
