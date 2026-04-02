@@ -12,7 +12,7 @@ import { GeneratePdfDetailsGuestInscriptionPresenter } from './generate-pdf-deta
 @Controller('inscriptions')
 export class GeneratePdfDetailsGuestInscriptionRoute {
   public constructor(
-    private readonly GeneratePdfDetailsGuestInscriptionUsecase: GeneratePdfDetailsGuestInscriptionUsecase,
+    private readonly generatePdfDetailsGuestInscriptionUsecase: GeneratePdfDetailsGuestInscriptionUsecase,
   ) {}
 
   @Get(':id/details/pdf')
@@ -24,7 +24,7 @@ export class GeneratePdfDetailsGuestInscriptionRoute {
     };
 
     const response =
-      await this.GeneratePdfDetailsGuestInscriptionUsecase.execute(input);
+      await this.generatePdfDetailsGuestInscriptionUsecase.execute(input);
     return GeneratePdfDetailsGuestInscriptionPresenter.toHttp(response);
   }
 }

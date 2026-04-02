@@ -6,8 +6,9 @@ export class GeneratePdfDetailsGuestInscriptionPresenter {
     output: GeneratePdfDetailsGuestInscriptionOutput,
   ): GeneratePdfDetailsGuestInscriptionResponse {
     return {
-      pdfBase64: output.pdfBase64,
+      fileBase64: output.fileBase64,
       filename: output.filename,
+      contentType: output.contentType,
     };
   }
 }

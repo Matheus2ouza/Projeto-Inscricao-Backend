@@ -18,8 +18,9 @@ export type GeneratePdfDetailsGuestInscriptionInput = {
 };
 
 export type GeneratePdfDetailsGuestInscriptionOutput = {
-  pdfBase64: string;
+  fileBase64: string;
   filename: string;
+  contentType: 'application/pdf';
 };
 
 @Injectable()
@@ -185,8 +186,9 @@ export class GeneratePdfDetailsGuestInscriptionUsecase
     );
 
     return {
-      pdfBase64: pdfBuffer.toString('base64'),
+      fileBase64: pdfBuffer.toString('base64'),
       filename,
+      contentType: 'application/pdf',
     };
   }
 
