@@ -3,6 +3,7 @@ export type GeneratePdfDetailsGuestInscriptionRequest = {
 };
 
 export type GeneratePdfDetailsGuestInscriptionResponse = {
-  pdfBase64: string;
+  fileBase64: string;
   filename: string;
+  contentType: 'application/pdf';
 };
