@@ -218,4 +218,20 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       },
     });
   }
+
+  async countParticipantsByEventId(
+    eventId: string,
+    userId?: string,
+  ): Promise<number> {
+    const count = await this.prisma.participant.count({
+      where: {
+        inscription: {
+          eventId,
+          accountId: userId,
+          isGuest: true,
+        },
+      },
+    });
+    return count;
+  }
 }

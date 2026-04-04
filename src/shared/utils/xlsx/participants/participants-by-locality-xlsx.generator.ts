@@ -167,7 +167,7 @@ export class ParticipantsByLocalityXlsxGenerator {
       const row = ws.getRow(r);
       row.font = {
         bold: r === startRow,
-        size: r === startRow ? 16 : 11,
+        size: r === startRow ? 14 : 11,
         color: r === startRow ? { argb: 'FF1A365D' } : { argb: 'FF2D3748' },
       };
       row.alignment = { vertical: 'middle', horizontal: 'left' };

@@ -4,6 +4,9 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
+import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { Participant } from 'src/domain/entities/participant.entity';
+import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
@@ -13,35 +16,71 @@ import { InscriptionDetailsPdfGeneratorUtils } from 'src/shared/utils/pdfs/inscr
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
 
-export type GeneratePdfDetailsGuestInscriptionInput = {
+export type GeneratePdfDetailsInscriptionInput = {
   inscriptionId: string;
 };
 
-export type GeneratePdfDetailsGuestInscriptionOutput = {
+export type GeneratePdfDetailsInscriptionOutput = {
   fileBase64: string;
   filename: string;
   contentType: 'application/pdf';
 };
 
 @Injectable()
-export class GeneratePdfDetailsGuestInscriptionUsecase
+export class GeneratePdfDetailsInscriptionUsecase
   implements
     Usecase<
-      GeneratePdfDetailsGuestInscriptionInput,
-      GeneratePdfDetailsGuestInscriptionOutput
+      GeneratePdfDetailsInscriptionInput,
+      GeneratePdfDetailsInscriptionOutput
     >
 {
+  private readonly mapParticipantToPdfData = (
+    participant: Participant | AccountParticipant,
+    index: number,
+  ) => {
+    const complementary: { label: string; value: string }[] = [];
+    const shirtSize = participant.getShirtSize();
+    const shirtType = participant.getShirtType();
+
+    if (shirtSize) {
+      complementary.push({
+        label: 'Tamanho da camisa',
+        value: String(shirtSize),
+      });
+    }
+
+    if (shirtType) {
+      complementary.push({
+        label: 'Modelo da camisa',
+        value: String(shirtType),
+      });
+    }
+
+    const birthDate = participant.getBirthDate();
+
+    return {
+      title: `Participante ${index + 1}`,
+      name: participant.getName(),
+      cpf: participant.getCpf(),
+      birthDate,
+      age: this.calculateAge(birthDate),
+      gender: String(participant.getGender()),
+      complementary,
+    };
+  };
+
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
   ) {}
 
   async execute(
-    input: GeneratePdfDetailsGuestInscriptionInput,
-  ): Promise<GeneratePdfDetailsGuestInscriptionOutput> {
+    input: GeneratePdfDetailsInscriptionInput,
+  ): Promise<GeneratePdfDetailsInscriptionOutput> {
     const inscription = await this.inscriptionGateway.findById(
       input.inscriptionId,
     );
@@ -50,13 +89,20 @@ export class GeneratePdfDetailsGuestInscriptionUsecase
       throw new InscriptionNotFoundUsecaseException(
         `Inscription with id ${input.inscriptionId} not found.`,
         `Inscrição não encontrada.`,
-        GeneratePdfDetailsGuestInscriptionUsecase.name,
+        GeneratePdfDetailsInscriptionUsecase.name,
       );
     }
 
-    const participants = await this.participantGateway.findByInscriptionId(
-      inscription.getId(),
-    );
+    let participants: Array<Participant | AccountParticipant> = [];
+    if (inscription.getIsGuest()) {
+      participants = await this.participantGateway.findByInscriptionId(
+        inscription.getId(),
+      );
+    } else {
+      participants = await this.accountParticipantGateway.findByInscriptionId(
+        inscription.getId(),
+      );
+    }
 
     const event = await this.eventGateway.findById(inscription.getEventId());
 
@@ -81,30 +127,7 @@ export class GeneratePdfDetailsGuestInscriptionUsecase
       }
     }
 
-    const participantsData = participants.map((p, index) => {
-      const complementary: { label: string; value: string }[] = [];
-
-      if (p.getShirtSize)
-        complementary.push({
-          label: 'Tamanho da camisa',
-          value: String(p.getShirtSize()),
-        });
-      if (p.getShirtType)
-        complementary.push({
-          label: 'Modelo da camisa',
-          value: String(p.getShirtType()),
-        });
-
-      return {
-        title: `Participante ${index + 1}`,
-        name: p.getName ? String(p.getName()) : '-',
-        cpf: p.getCpf ? String(p.getCpf()) : undefined,
-        birthDate: p.getBirthDate ? p.getBirthDate() : undefined,
-        age: p.getBirthDate ? this.calculateAge(p.getBirthDate()) : undefined,
-        gender: p.getGender ? String(p.getGender()) : undefined,
-        complementary,
-      };
-    });
+    const participantsData = participants.map(this.mapParticipantToPdfData);
 
     const paymentsData = payments
       .sort((a, b) => b.getCreatedAt().getTime() - a.getCreatedAt().getTime())

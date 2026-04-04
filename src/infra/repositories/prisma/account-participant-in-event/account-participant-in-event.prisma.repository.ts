@@ -228,6 +228,7 @@ export class AccountParticipantInEventPrismaRepository
         inscription: {
           eventId,
           accountId: userId,
+          isGuest: false,
         },
       },
     });

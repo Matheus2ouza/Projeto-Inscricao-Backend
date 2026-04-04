@@ -52,4 +52,8 @@ export abstract class ParticipantGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
+  abstract countParticipantsByEventId(
+    eventId: string,
+    userId?: string,
+  ): Promise<number>;
 }

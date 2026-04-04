@@ -82,7 +82,7 @@ import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
 import { GeneratePdfAllInscriptionsRoute } from './routes/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.route';
-import { GeneratePdfDetailsGuestInscriptionRoute } from './routes/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.route';
+import { GeneratePdfDetailsInscriptionRoute } from './routes/inscription/reports/pdf/generate-pdf-details-inscription/generate-pdf-details-inscription.route';
 import { GeneratePdfInscriptionRoute } from './routes/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.route';
 import { GenerateXlsxAllInscriptionsRoute } from './routes/inscription/reports/xlsx/generate-xlsx-all-inscriptions/generate-xlsx-all-inscriptions.route';
 import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-inscription/update-guest-inscription.route';
@@ -282,7 +282,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Inscriptions reports - PDF
     GeneratePdfAllInscriptionsRoute,
     GeneratePdfInscriptionRoute,
-    GeneratePdfDetailsGuestInscriptionRoute,
+    GeneratePdfDetailsInscriptionRoute,
 
     // Inscriptions reports - XLSX
     GenerateXlsxAllInscriptionsRoute,
