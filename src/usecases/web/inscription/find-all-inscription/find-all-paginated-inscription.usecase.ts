@@ -35,7 +35,6 @@ export type Event = {
   startDate: string;
   endDate: string;
   totalInscription: number;
-  totalGuestInscription?: number;
   totalParticipants: number;
   totalPaid: number;
   totalDue: number;
@@ -96,28 +95,37 @@ export class FindAllPaginatedInscriptionsUsecase
       responsible: input.responsible,
     };
 
-    const [inscriptions, totalInscription, totalParticipants] =
-      await Promise.all([
-        this.inscriptionGateway.findManyPaginated(
-          event.getId(),
-          safePage,
-          safePageSize,
-          filters,
-        ),
-        this.inscriptionGateway.countAll(event.getId(), filters),
-        this.accountParticipantInEventGateway.countParticipantsByEventId(
-          event.getId(),
-          input.userId,
-        ),
-      ]);
-
-    let totalGuestInscription: number | undefined = undefined;
-    if (input.userId === undefined) {
-      totalGuestInscription = await this.participantGateway.countAllByEventId(
+    const [inscriptions, totalInscription] = await Promise.all([
+      this.inscriptionGateway.findManyPaginated(
         event.getId(),
-      );
-    }
+        safePage,
+        safePageSize,
+        filters,
+      ),
+      this.inscriptionGateway.countAll(event.getId(), filters),
+    ]);
 
+    // Contagem de participantes normais
+    const totalParticipantsNormal =
+      await this.accountParticipantInEventGateway.countParticipantsByEventId(
+        event.getId(),
+        input.userId,
+      );
+
+    // Contagem de participantes de convidados
+    const totalParticipantsGuest =
+      await this.participantGateway.countParticipantsByEventId(
+        event.getId(),
+        input.userId,
+      );
+
+    console.log('totalParticipantsGuest', totalParticipantsGuest);
+    console.log('totalParticipantsNormal', totalParticipantsNormal);
+
+    // Total de participantes para retornar na resposta
+    const totalParticipants = totalParticipantsNormal + totalParticipantsGuest;
+
+    console.log('totalParticipants', totalParticipants);
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
     let totalDue = 0;
@@ -160,7 +168,6 @@ export class FindAllPaginatedInscriptionsUsecase
       startDate: event.getStartDate().toISOString(),
       endDate: event.getEndDate().toISOString(),
       totalInscription,
-      totalGuestInscription,
       totalParticipants,
       totalPaid: input.userId ? totalPaid : event.getAmountCollected(),
       totalDue,

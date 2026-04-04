@@ -26,7 +26,6 @@ export type Event = {
   startDate: string;
   endDate: string;
   totalInscription: number;
-  totalGuestInscription?: number;
   totalParticipants: number;
   totalPaid: number;
   totalDue: number;

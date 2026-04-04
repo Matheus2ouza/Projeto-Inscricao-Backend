@@ -187,15 +187,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
       ),
     ];
 
-    if (data.inscription.totals.length > 0) {
-      content.push(...sectionHeader('Valores'));
-      const totals = data.inscription.totals.map((t) => ({
-        label: t.label,
-        value: t.value,
-      }));
-      content.push(...kvGrid(totals, Math.min(3, Math.max(1, totals.length))));
-    }
-
+    content.push({ text: '', pageBreak: 'after' });
     content.push(...sectionHeader('Participantes'));
 
     if (data.participants.length === 0) {
@@ -239,13 +231,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
             margin: [0, 0, 0, 4],
           });
 
-          const colsCount =
-            participant.complementary.length >= 6
-              ? 3
-              : participant.complementary.length >= 3
-                ? 2
-                : 1;
-          content.push(...kvGrid(participant.complementary, colsCount));
+          content.push(...kvGrid(participant.complementary, 2));
         }
 
         content.push({
@@ -278,19 +264,18 @@ export class InscriptionDetailsPdfGeneratorUtils {
           margin: [0, 6, 0, 8],
         });
 
-        content.push(...kvGrid([{ label: 'ID', value: payment.id }], 1));
+        content.push({
+          text: 'Dados complementares',
+          style: 'subtleTitle',
+          margin: [0, 0, 0, 4],
+        });
+
         content.push(
           ...kvGrid(
             [
+              { label: 'ID', value: payment.id },
               { label: 'Status', value: payment.status },
               { label: 'Método', value: payment.method },
-            ],
-            2,
-          ),
-        );
-        content.push(
-          ...kvGrid(
-            [
               {
                 label: 'Criado em',
                 value: payment.createdAt
@@ -298,7 +283,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
                   : undefined,
               },
             ],
-            1,
+            2,
           ),
         );
 
@@ -308,11 +293,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
             style: 'subtleTitle',
             margin: [0, 0, 0, 4],
           });
-          content.push({
-            columns: payment.totals.map((t) => kv(t.label, t.value)),
-            columnGap: 18,
-            margin: [0, 0, 0, 8],
-          });
+          content.push(...kvGrid(payment.totals, 2));
         }
 
         if (payment.installments.length > 0) {

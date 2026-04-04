@@ -74,7 +74,7 @@ import { RegisterGroupInscriptionUsecase } from './web/inscription/group/registe
 import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
 import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
-import { GeneratePdfDetailsGuestInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
+import { GeneratePdfDetailsInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
 import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xlsx/generate-xlsx-all-inscriptions/generate-xlsx-all-inscriptions.usecase';
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
@@ -285,7 +285,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     GeneratePdfAllInscriptionsUsecase,
-    GeneratePdfDetailsGuestInscriptionUsecase,
+    GeneratePdfDetailsInscriptionUsecase,
 
     // Inscriptions reports - XLSX
     GenerateXlsxAllInscriptionsUsecase,
@@ -494,7 +494,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfInscriptionUsecase,
     GeneratePdfSelectedInscriptionUsecase,
     GeneratePdfAllInscriptionsUsecase,
-    GeneratePdfDetailsGuestInscriptionUsecase,
+    GeneratePdfDetailsInscriptionUsecase,
 
     // Inscriptions reports - XLSX
     GenerateXlsxAllInscriptionsUsecase,
