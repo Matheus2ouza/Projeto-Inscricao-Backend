@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  db_inscricao_event:
+    image: postgres:15
+    container_name: db_inscricao_event
+    restart: always
+    env_file:
+      - .env.event
+    ports:
+      - '5433:5432'
+    volumes:
+      - db_inscricao_event_data:/var/lib/postgresql/data
+    networks:
+      - event_net
+
+volumes:
+  db_inscricao_event_data:
+
+networks:
+  event_net:
+    external: true

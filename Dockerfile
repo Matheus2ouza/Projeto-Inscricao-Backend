@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npx prisma generate
-RUN npm run build
+RUN node --max-old-space-size=4096 node_modules/.bin/nest build api && node --max-old-space-size=4096 node_modules/.bin/nest build worker
 
 # Stage 3 - Production
 FROM node:20-bullseye-slim

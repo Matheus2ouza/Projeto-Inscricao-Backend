@@ -58,6 +58,7 @@ async function bootstrap() {
     res.json({
       status: 'success',
       message: 'API Inscrição está funcionando corretamente ✅',
+      container: process.env.CONTAINER_NAME || 'unknown',
       version: '1.0',
       environment: process.env.NODE_ENV ?? 'development',
       timestamp: new Date().toISOString(),
