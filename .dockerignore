@@ -114,3 +114,10 @@ docker-compose*
 # Temporary folders
 tmp
 temp
+
+# Scripts locais com senhas
+start-event.bat
+stop-event.bat
+reset-completo.bat
+sincronizar.bat
+*.bat

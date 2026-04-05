@@ -46,6 +46,7 @@ lerna-debug.log*
 .env.production
 .env.staging
 .env.development
+.env.event
 
 # Arquivos de exemplo de variáveis (opcional - remover se quiser manter no repo)
 # env.example
@@ -327,3 +328,12 @@ postgres-data
 
 
 scripts/
+
+# Scripts locais com senhas
+start-event.bat
+stop-event.bat
+reset-completo.bat
+sincronizar.bat
+*.bat
+
+*.ps1

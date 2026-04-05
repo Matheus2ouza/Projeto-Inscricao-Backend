@@ -1,16 +1,16 @@
-version: "3.9"
+# Configuração do banco de dados usado para testes e desenvolvimento
+
+version: '3.9'
 
 services:
   db:
     image: postgres:15
     container_name: db_inscricao
     restart: always
-    environment:
-      POSTGRES_USER: cabeca
-      POSTGRES_PASSWORD: 1qwe2asd
-      POSTGRES_DB: dbInscricao
+    env_file:
+      - .env.dev
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:

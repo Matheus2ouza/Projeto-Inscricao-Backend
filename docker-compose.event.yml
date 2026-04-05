@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  redis_event:
+    image: redis:7
+    container_name: redis_event
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - event_net
+
+  backend1:
+    image: backend-sistema-inscricao:1.0
+    container_name: backend1_event
+    env_file:
+      - .env.event
+    environment:
+      - CONTAINER_NAME=backend1
+    depends_on:
+      - redis_event
+    mem_limit: 512m
+    cpus: 1.0
+    networks:
+      - event_net
+
+  backend2:
+    image: backend-sistema-inscricao:1.0
+    container_name: backend2_event
+    env_file:
+      - .env.event
+    environment:
+      - CONTAINER_NAME=backend2
+    depends_on:
+      - redis_event
+    mem_limit: 512m
+    cpus: 1.0
+    networks:
+      - event_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_event
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx-event.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - event_net
+
+networks:
+  event_net:
+    external: true
