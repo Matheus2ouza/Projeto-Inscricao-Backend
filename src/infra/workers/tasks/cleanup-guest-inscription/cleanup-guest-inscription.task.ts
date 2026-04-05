@@ -11,7 +11,7 @@ export class CleanupGuestInscriptionTask {
   ) {}
 
   // Executa a cada dia à meia noite
-  @Cron(CronExpression.EVERY_HOUR, {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
     timeZone: 'America/Sao_Paulo',
   })
   public async executeCleanup() {

@@ -34,12 +34,16 @@ export class MailService {
       const auth = this.getOAuth2Client();
       const gmail = google.gmail({ version: 'v1', auth });
 
-      const from = `"Sistema Inscrição" <${process.env.SENDER_EMAIL || process.env.SMTP_USER}>`;
+      const senderName = process.env.SENDER_NAME || 'Sistema Inscrição';
+      const encodedSenderName = `=?UTF-8?B?${Buffer.from(senderName, 'utf-8').toString('base64')}?=`;
+      const from = `"${encodedSenderName}" <${process.env.SENDER_EMAIL || process.env.SMTP_USER}>`;
+
+      const encodedSubject = `=?UTF-8?B?${Buffer.from(subject, 'utf-8').toString('base64')}?=`;
 
       const messageParts = [
         `From: ${from}`,
         `To: ${to}`,
-        `Subject: ${subject}`,
+        `Subject: ${encodedSubject}`,
         'MIME-Version: 1.0',
         'Content-Type: text/html; charset=utf-8',
         '',
@@ -47,7 +51,7 @@ export class MailService {
       ];
 
       const message = messageParts.join('\n');
-      const encodedMessage = Buffer.from(message)
+      const encodedMessage = Buffer.from(message, 'utf-8')
         .toString('base64')
         .replace(/\+/g, '-')
         .replace(/\//g, '_')

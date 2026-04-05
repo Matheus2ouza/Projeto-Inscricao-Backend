@@ -21,6 +21,7 @@ services:
       - redis_event
     mem_limit: 512m
     cpus: 1.0
+    restart: always
     networks:
       - event_net
 
@@ -33,6 +34,19 @@ services:
       - CONTAINER_NAME=backend2
     depends_on:
       - redis_event
+    mem_limit: 512m
+    cpus: 1.0
+    restart: always
+    networks:
+      - event_net
+
+  frontend:
+    image: frontend-sistema-inscricao:1.0
+    container_name: frontend_event
+    restart: always
+    depends_on:
+      - backend1
+      - backend2
     mem_limit: 512m
     cpus: 1.0
     networks:
@@ -48,6 +62,8 @@ services:
     depends_on:
       - backend1
       - backend2
+      - frontend
+    restart: always
     networks:
       - event_net
 
