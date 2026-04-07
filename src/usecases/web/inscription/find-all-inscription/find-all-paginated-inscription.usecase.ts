@@ -119,17 +119,16 @@ export class FindAllPaginatedInscriptionsUsecase
         input.userId,
       );
 
-    console.log('totalParticipantsGuest', totalParticipantsGuest);
-    console.log('totalParticipantsNormal', totalParticipantsNormal);
-
     // Total de participantes para retornar na resposta
     const totalParticipants = totalParticipantsNormal + totalParticipantsGuest;
 
-    console.log('totalParticipants', totalParticipants);
+    const [totalPaid, totalDue] = await Promise.all([
+      this.inscriptionGateway.countTotalPaid(event.getId(), input.userId),
+      this.inscriptionGateway.countTotalDue(event.getId(), input.userId),
+    ]);
+
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
 
-    let totalDue = 0;
-    let totalPaid = 0;
     const inscriptionData = await Promise.all(
       inscriptions.map(async (i) => {
         let totalParticipant: number | null = null;
@@ -146,11 +145,6 @@ export class FindAllPaginatedInscriptionsUsecase
             );
         }
 
-        if (input.userId) {
-          totalPaid += Number(i.getTotalPaid() ?? 0);
-        }
-        totalDue +=
-          Number(i.getTotalValue() ?? 0) - Number(i.getTotalPaid() ?? 0);
         return {
           id: i.getId(),
           responsible: i.getResponsible(),
@@ -169,7 +163,7 @@ export class FindAllPaginatedInscriptionsUsecase
       endDate: event.getEndDate().toISOString(),
       totalInscription,
       totalParticipants,
-      totalPaid: input.userId ? totalPaid : event.getAmountCollected(),
+      totalPaid,
       totalDue,
       inscriptions: inscriptionData,
     };

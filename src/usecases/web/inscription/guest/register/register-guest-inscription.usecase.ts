@@ -5,6 +5,7 @@ import {
   ShirtSize,
   ShirtType,
 } from 'generated/prisma';
+import { Event } from 'src/domain/entities/event.entity';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
@@ -137,7 +138,7 @@ export class RegisterGuestInscriptionUsecase
 
     if (inscription.getStatus() === InscriptionStatus.UNDER_REVIEW) {
       void this.sendUnderReviewNotification(
-        event.getId(),
+        event,
         inscription,
         typeInscription.getValue(),
       ).catch((error) => {
@@ -207,29 +208,21 @@ export class RegisterGuestInscriptionUsecase
   }
 
   private async sendUnderReviewNotification(
-    eventId: string,
+    event: Event,
     inscription: Inscription,
     totalValue: number,
   ): Promise<void> {
     try {
       this.logger.log(
-        `Iniciando envio de notificação de inscrição em análise ${inscription.getId()} para o evento ${eventId}`,
+        `Iniciando envio de notificação de inscrição em análise ID: ${inscription.getId()}, Responsável: ${inscription.getResponsible()}, Evento: ${event.getId()}`,
       );
 
-      const event = await this.eventGateway.findById(eventId);
-      if (!event) {
-        this.logger.warn(
-          `Evento ${eventId} não encontrado para envio de notificação de inscrição em análise`,
-        );
-        return;
-      }
-
       const eventResponsibles =
-        await this.eventResponsibleGateway.findByEventId(eventId);
+        await this.eventResponsibleGateway.findByEventId(event.getId());
 
       if (!eventResponsibles.length) {
         this.logger.warn(
-          `Evento ${eventId} não possui responsáveis para notificação`,
+          `Evento ${event.getId()} não possui responsáveis para notificação`,
         );
         return;
       }
@@ -265,7 +258,7 @@ export class RegisterGuestInscriptionUsecase
       );
     } catch (error) {
       this.logger.error(
-        `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
+        `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${error.message}`,
         error.stack,
       );
     }

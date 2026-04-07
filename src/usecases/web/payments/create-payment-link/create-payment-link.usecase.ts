@@ -15,7 +15,6 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentLinkGateway } from 'src/domain/repositories/payment-link.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Utils } from 'src/shared/utils/utils';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
@@ -54,7 +53,6 @@ export class CreatePaymentLinkUsecase
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentLinkGateway: PaymentLinkGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
-    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -224,7 +222,7 @@ export class CreatePaymentLinkUsecase
         headers: {
           accept: 'application/json',
           access_token: process.env.ASAAS_API_TOKEN!,
-          'Content-Type': 'application/json',
+          'content-type': 'application/json',
         },
       },
     );
@@ -239,33 +237,5 @@ export class CreatePaymentLinkUsecase
       active: data.active,
       endDate: data.endDate,
     };
-  }
-
-  private async loadEventImage(
-    imagePath?: string | null,
-  ): Promise<string | undefined> {
-    if (!imagePath) return undefined;
-
-    try {
-      const signedUrl =
-        await this.supabaseStorageService.getPublicUrl(imagePath);
-      const response = await fetch(signedUrl);
-
-      if (!response.ok) {
-        console.warn(
-          `Failed to load event image: ${response.status} ${response.statusText}`,
-        );
-        return undefined;
-      }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-      // Retorna apenas o base64, sem o prefixo "data:image/jpeg;base64,"
-      return base64;
-    } catch (error) {
-      console.warn('Error while loading event image:', error);
-      return undefined;
-    }
   }
 }
