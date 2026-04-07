@@ -29,7 +29,7 @@ export abstract class InscriptionGateway {
   // Remove inscrições de guest expiradas
   abstract deleteExpiredGuestInscription(
     ids: string[],
-    expiredDate: Date,
+    now: Date,
   ): Promise<number>;
 
   // Buscas por identificador único
@@ -264,6 +264,12 @@ export abstract class InscriptionGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
+
+  // Conta o total de inscrições pagas, usa o accountId como filtro opcional caso deseja somente de uma conta específica
+  abstract countTotalPaid(eventId: string, accountId?: string): Promise<number>;
+
+  // Conta o total de inscrições devedoras, usa o accountId como filtro opcional caso deseja somente de uma conta específica
+  abstract countTotalDue(eventId: string, accountId?: string): Promise<number>;
 
   // Atualizações de status e valor
   // Atualiza o status de uma inscrição

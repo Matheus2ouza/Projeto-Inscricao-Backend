@@ -70,6 +70,8 @@ export abstract class PaymentGateway {
   abstract countAllInAnalysis(eventId: string): Promise<number>;
   // Soma o valor total de todos os pagamentos em análise para o evento
   abstract countTotalAmountInAnalysis(eventId: string): Promise<number>;
+  // Conta o valor total ainda a ser recebido de um pagamentos
+  abstract countTotalToReceiveByEvent(eventId: string): Promise<number>;
 
   // Atualizações
   abstract update(payment: Payment): Promise<Payment>;

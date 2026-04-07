@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindTotalDebtAdminInput = {
@@ -19,6 +20,7 @@ export class FindTotalDebtAdminUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly paymentGateway: PaymentGateway,
   ) {}
 
   public async execute(
@@ -34,9 +36,15 @@ export class FindTotalDebtAdminUsecase
       };
     }
 
-    const totalDebt = await this.inscriptionGateway.contTotalDebtByEvent(
+    const inscriptionsDebt = await this.inscriptionGateway.contTotalDebtByEvent(
       event.getId(),
     );
+
+    const paymentsDebt = await this.paymentGateway.countTotalToReceiveByEvent(
+      event.getId(),
+    );
+
+    const totalDebt = inscriptionsDebt + paymentsDebt;
 
     const output: FindTotalDebtAdminOutput = {
       totalDebt,

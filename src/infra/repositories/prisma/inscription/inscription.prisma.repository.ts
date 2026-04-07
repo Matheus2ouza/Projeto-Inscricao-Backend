@@ -74,11 +74,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return deleted.count;
   }
 
-  async deleteExpiredGuestInscription(ids: string[]): Promise<number> {
+  async deleteExpiredGuestInscription(
+    ids: string[],
+    now: Date,
+  ): Promise<number> {
     const deleted = await this.prisma.inscription.deleteMany({
       where: {
         id: { in: ids },
-        status: InscriptionStatus.PENDING,
+        isGuest: true,
+        status: InscriptionStatus.EXPIRED,
+        cancelledAt: {
+          lte: now,
+        },
         payments: {
           none: {},
         },
@@ -429,15 +436,10 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         status: InscriptionStatus.EXPIRED,
         isGuest: true,
         cancelledAt: {
-          lt: now,
+          lte: now,
         },
-        NOT: {
-          payments: {
-            some: {},
-          },
-          expiresAt: {
-            not: null,
-          },
+        payments: {
+          none: {},
         },
       },
     });
@@ -635,6 +637,49 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       uniqueAccountIds.add(l.inscription.accountId ?? '');
     }
     return uniqueAccountIds.size;
+  }
+
+  async countTotalPaid(eventId: string, accountId?: string): Promise<number> {
+    const where = this.buildWhereClauseInscription({ accountId });
+
+    const result = await this.prisma.inscription.aggregate({
+      where: {
+        eventId,
+        ...where,
+      },
+      _sum: {
+        totalPaid: true,
+      },
+    });
+
+    return Number(result._sum.totalPaid || 0);
+  }
+
+  async countTotalDue(eventId: string, accountId?: string): Promise<number> {
+    const where = this.buildWhereClauseInscription({ accountId });
+
+    const result = await this.prisma.inscription.aggregate({
+      where: {
+        ...where,
+        eventId,
+        status: where.status ?? {
+          in: [
+            InscriptionStatus.PENDING,
+            InscriptionStatus.UNDER_REVIEW,
+            InscriptionStatus.EXPIRED,
+          ],
+        },
+      },
+      _sum: {
+        totalValue: true,
+        totalPaid: true,
+      },
+    });
+
+    const totalValue = Number(result._sum.totalValue ?? 0);
+    const totalPaid = Number(result._sum.totalPaid ?? 0);
+
+    return Math.max(totalValue - totalPaid, 0);
   }
 
   // Busca o total de participantes referente ao evento,

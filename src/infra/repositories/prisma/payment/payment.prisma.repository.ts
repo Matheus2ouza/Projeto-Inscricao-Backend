@@ -310,6 +310,23 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return Number(count._sum.totalValue ?? 0);
   }
 
+  async countTotalToReceiveByEvent(eventId: string): Promise<number> {
+    const count = await this.prisma.payment.aggregate({
+      where: {
+        eventId,
+        status: StatusPayment.APPROVED,
+      },
+      _sum: {
+        totalPaid: true,
+        totalReceived: true,
+      },
+    });
+
+    return (
+      Number(count._sum.totalPaid ?? 0) - Number(count._sum.totalReceived ?? 0)
+    );
+  }
+
   // Atualizações
   async update(payment: Payment): Promise<Payment> {
     const data = EntityToPrisma.map(payment);
