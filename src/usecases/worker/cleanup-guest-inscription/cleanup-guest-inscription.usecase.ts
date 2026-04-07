@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionStatus } from 'generated/prisma';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -53,21 +53,31 @@ export class CleanupGuestInscriptionUsecase
       `Inscrições guest expiradas encontradas: ${inscriptions.length}`,
     );
 
-    // Deleta as inscrições usando o método deleteMany do gateway
-    const cleanedCount = await this.inscriptionGateway.deleteMany(
-      inscriptions.map((inscription) => inscription.getId()),
-    );
+    if (inscriptions.length === 0) {
+      return {
+        cleanedCount: 0,
+        inscriptionsDeleted: [],
+      };
+    }
+
+    // Deleta com validação de segurança (status/payment/cancelledAt) no banco
+    const cleanedCount =
+      await this.inscriptionGateway.deleteExpiredGuestInscription(
+        inscriptions.map((inscription) => inscription.getId()),
+        now,
+      );
     this.logger.log(`Inscrições guest expiradas removidas: ${cleanedCount}`);
 
     // Mapeia as inscrições deletadas para o formato de saída enriquecido
-    const inscriptionsDeleted: DeletedGuestInscription[] =
-      inscriptions.map((i: Inscription) => ({
+    const inscriptionsDeleted: DeletedGuestInscription[] = inscriptions.map(
+      (i: Inscription) => ({
         id: i.getId(),
         eventId: i.getEventId(),
         responsible: i.getResponsible(),
         createdAt: i.getCreatedAt(),
         guestName: i.getGuestName(),
-      }));
+      }),
+    );
 
     if (cleanedCount > 0) {
       await this.notifyDeletedInscriptionsByEvent(inscriptionsDeleted);
@@ -107,7 +117,9 @@ export class CleanupGuestInscriptionUsecase
         }
 
         const accountIds = Array.from(
-          new Set(responsibles.map((responsible) => responsible.getAccountId())),
+          new Set(
+            responsibles.map((responsible) => responsible.getAccountId()),
+          ),
         );
 
         if (!accountIds.length) {
@@ -195,4 +207,3 @@ export class CleanupGuestInscriptionUsecase
     return formattedStart ?? formattedEnd ?? undefined;
   }
 }
-

@@ -79,7 +79,7 @@ export class CancelExpiredGuestInscriptionsUsecase
       }
 
       // Marca a inscrição como expirada, já setando a data em que vai ser deletada
-      inscription.markAsExpired(inscription.getExpiresAt() ?? new Date());
+      inscription.markAsExpired(inscription.getExpiresAt() ?? now);
       await this.inscriptionGateway.cancel(inscription);
     }
     const output: CancelExpiredInscriptionsOutput = {
