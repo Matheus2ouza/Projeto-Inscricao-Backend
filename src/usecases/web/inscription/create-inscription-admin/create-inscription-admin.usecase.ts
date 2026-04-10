@@ -134,23 +134,6 @@ export class CreateInscriptionAdminUsecase
   async execute(
     input: CreateInscriptionAdminInput,
   ): Promise<CreateInscriptionAdminOutput> {
-    this.logger.log(
-      `Iniciando criação de inscrição para evento: ${input.eventId}`,
-    );
-    this.logger.debug(
-      `Input recebido: ${JSON.stringify({
-        ...input,
-        payment: input.payment
-          ? {
-              ...input.payment,
-              image: input.payment.image ? '[IMAGEM BASE64]' : undefined,
-            }
-          : undefined,
-      })}`,
-    );
-
-    // Buscar evento
-    this.logger.log(`Buscando evento com ID: ${input.eventId}`);
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
@@ -161,9 +144,6 @@ export class CreateInscriptionAdminUsecase
         CreateInscriptionAdminUsecase.name,
       );
     }
-    this.logger.log(
-      `Evento encontrado: ${event.getName()} (ID: ${event.getId()})`,
-    );
 
     // Criar inscrição
     this.logger.log('Criando entidade de inscrição');

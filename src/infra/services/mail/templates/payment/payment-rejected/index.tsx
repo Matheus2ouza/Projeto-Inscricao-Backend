@@ -17,7 +17,6 @@ export const PaymentRejectedEmail = ({
   const summaryRows = [
     { label: 'Evento', value: formatField(paymentData.eventName) },
     { label: 'Responsável', value: formatField(paymentData.responsibleName) },
-    { label: 'Telefone', value: formatField(paymentData.responsiblePhone) },
     {
       label: 'Data do pagamento',
       value: formatDateTime(paymentData.paymentDate),
@@ -35,7 +34,7 @@ export const PaymentRejectedEmail = ({
           <Text style={headlineNegativeStyle}>Pagamento reprovado</Text>
           <Text style={bodyNegativeStyle}>
             Não foi possível concluir a confirmação do pagamento. Revise o
-            porque se deu pagamento ter sido reprovado
+            motivo pelo qual o pagamento foi reprovado.
           </Text>
           <div style={spacer18} />
           <Hr style={dividerNegativeStyle} />
@@ -95,7 +94,7 @@ export const PaymentRejectedEmail = ({
           <div style={valueSectionStyle}>
             <Text style={valueEyebrowStyle}>Valor não processado</Text>
             <Text style={amountNegativeStyle}>
-              R$: {formatCurrency(paymentData.paymentValue)}
+              {formatCurrency(paymentData.paymentValue)}
             </Text>
           </div>
         </div>
@@ -368,6 +367,7 @@ const formatCurrency = (value: number | undefined): string => {
   try {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
+      currency: 'BRL',
     }).format(value);
   } catch {
     return value.toString();

@@ -27,6 +27,7 @@ export class UpdateInscriptionRoute {
       phone: body.phone,
       email: body.email,
       observation: body.observation,
+      guestLocality: body.guestLocality,
     };
 
     const response = await this.updateInscriptionUsecase.execute(input);

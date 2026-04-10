@@ -4,7 +4,7 @@ import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentAllocationEntityToPaymentAllocationPrismaModel as EntityToPrisma } from 'src/infra/repositories/prisma/payment-allocation/model/mappers/payment-allocation-entity-to-payment-allocation-prisma-model.mapper';
 import { PaymentAllocationPrismaModelToPaymentAllocationEntity as PrismaToEntity } from 'src/infra/repositories/prisma/payment-allocation/model/mappers/payment-allocation-prisma-model-to-payment-allocation-entity.mapper';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 
 @Injectable()
 export class PaymentAllocationPrismaRepository
@@ -16,6 +16,15 @@ export class PaymentAllocationPrismaRepository
   async create(payment: PaymentAllocation): Promise<PaymentAllocation> {
     const data = EntityToPrisma.map(payment);
     const created = await this.prisma.paymentAllocation.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    allocation: PaymentAllocation,
+    tx: PrismaTransactionClient,
+  ): Promise<PaymentAllocation> {
+    const data = EntityToPrisma.map(allocation);
+    const created = await tx.paymentAllocation.create({ data });
     return PrismaToEntity.map(created);
   }
 

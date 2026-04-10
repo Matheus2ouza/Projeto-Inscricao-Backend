@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import FormData from 'form-data';
 import {
   InscriptionStatus,
   PaymentMethod,
@@ -15,8 +16,11 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentLinkGateway } from 'src/domain/repositories/payment-link.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Utils } from 'src/shared/utils/utils';
 import { Usecase } from 'src/usecases/usecase';
+import { EnvironmentVariableNotFoundException } from '../../exceptions/environment-variable-not-found.usecase.exception';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { InscriptionNotFoundUsecaseException } from '../../exceptions/inscription/find/inscription-not-found.usecase.exception';
 import { InscriptionNotReleasedForPaymentUsecaseException } from '../../exceptions/payment-Inscription/inscription-not-released-for-payment.usecase.exception';
@@ -53,6 +57,8 @@ export class CreatePaymentLinkUsecase
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentLinkGateway: PaymentLinkGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
+    private readonly prisma: PrismaService,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -102,28 +108,19 @@ export class CreatePaymentLinkUsecase
     }
 
     //Cria as url's para o callback do ASAAS
-    const successUrl = inscription.getIsGuest()
-      ? `${process.env.URL_CALLBACK_PAYMENT_LINK}/guest/${event.getId()}/payment/success?eventId=${event.getId()}&clientName=${encodeURIComponent(inscription.getGuestName()!)}&confirmationCode=${encodeURIComponent(inscription.getConfirmationCode()!)}`
-      : `${process.env.URL_CALLBACK_PAYMENT_LINK}/user/payment-success`;
-
-    const cancelUrl = inscription.getIsGuest()
-      ? `${process.env.URL_CALLBACK_PAYMENT_LINK}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(encodeURIComponent(inscription.getConfirmationCode()!))}`
-      : `${process.env.URL_CALLBACK_PAYMENT_LINK}/user/payment/canceled`;
-
-    const expiredUrl = inscription.getIsGuest()
-      ? `${process.env.URL_CALLBACK_PAYMENT_LINK}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(encodeURIComponent(inscription.getConfirmationCode()!))}`
-      : `${process.env.URL_CALLBACK_PAYMENT_LINK}/user/payment/expired`;
+    const { successUrl, cancelUrl, expiredUrl } = this.buildCallbackUrls(
+      event,
+      inscription,
+    );
 
     const now = new Date();
     now.setHours(now.getHours() + 24);
-    const endDate: string = now.toISOString().split('T')[0];
 
+    // presets para o link de pagamento
+    const endDate: string = now.toISOString().split('T')[0];
     const externalReference = Utils.generateUUID();
 
-    this.logger.log(
-      `Criando link de pagamento | inscrição: ${inscription.getId()} | evento: ${event.getId()} | dívida: ${totalDue.toFixed(2)} | cobrado: ${finalValue.toFixed(2)}`,
-    );
-
+    // cria o link de pagamento no asaas
     const asaasPaymentLink = await this.createPaymentLink(
       event,
       inscription,
@@ -135,6 +132,7 @@ export class CreatePaymentLinkUsecase
       externalReference,
     );
 
+    // cria o paymentLink em memoria, ainda não salvo no banco
     const paymenLink = PaymentLink.create({
       name: asaasPaymentLink.name,
       description: asaasPaymentLink.description,
@@ -145,11 +143,10 @@ export class CreatePaymentLinkUsecase
       endDateAt: new Date(asaasPaymentLink.endDate),
     });
 
-    await this.paymentLinkGateway.create(paymenLink);
-
+    // cria o pagamento em memoria, ainda não salvo no banco
     const payment = Payment.create({
       eventId: event.getId(),
-      status: StatusPayment.UNDER_REVIEW,
+      status: StatusPayment.PENDING, // Fica como pendente, será aprovada ao asaas confirmar o pagamento
       totalValue: totalDue,
       totalPaid: 0,
       totalReceived: 0,
@@ -166,17 +163,22 @@ export class CreatePaymentLinkUsecase
         : { accountId: inscription.getAccountId() }),
     });
 
-    await this.paymentGateway.create(payment);
-
     const allocation = PaymentAllocation.create({
       paymentId: payment.getId(),
       inscriptionId: inscription.getId(),
       value: payment.getTotalValue(),
     });
 
-    await this.paymentAllocationGateway.create(allocation);
-    inscription.incrementeTotalPaid(allocation.getValue());
-    await this.inscriptionGateway.update(inscription);
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.paymentLinkGateway.createTx(paymenLink, tx);
+      await this.paymentGateway.createTx(payment, tx);
+      await this.paymentAllocationGateway.createTx(allocation, tx);
+
+      inscription.incrementeValuePaid(allocation.getValue());
+      await this.inscriptionGateway.updateTx(inscription, tx);
+    });
+
+    void this.sendImageInPaymentLink(paymenLink, event);
 
     const output: CreatePaymentLinkOutput = {
       url: paymenLink.getUrl(),
@@ -215,27 +217,120 @@ export class CreatePaymentLinkUsecase
       isAddressRequired: true,
     };
 
-    const { data } = await axios.post<asaasPaymentLinkResponse>(
-      process.env.ASAAS_PAYMENT_LINK_URL!,
-      customerData,
-      {
-        headers: {
-          accept: 'application/json',
-          access_token: process.env.ASAAS_API_TOKEN!,
-          'content-type': 'application/json',
+    if (!process.env.ASAAS_API_TOKEN) {
+      throw new EnvironmentVariableNotFoundException(
+        'attempted to create a payment link, but the ASAAS_API_TOKEN environment variable was not found',
+        'Impossivel criar link de pagamento',
+        CreatePaymentLinkUsecase.name,
+      );
+    }
+    if (!process.env.ASAAS_PAYMENT_LINK_URL) {
+      throw new EnvironmentVariableNotFoundException(
+        'attempted to create a payment link, but the ASAAS_PAYMENT_LINK_URL environment variable was not found',
+        'Impossivel criar link de pagamento',
+        CreatePaymentLinkUsecase.name,
+      );
+    }
+
+    try {
+      const { data } = await axios.post<asaasPaymentLinkResponse>(
+        process.env.ASAAS_PAYMENT_LINK_URL,
+        customerData,
+        {
+          headers: {
+            accept: 'application/json',
+            access_token: process.env.ASAAS_API_TOKEN,
+            'content-type': 'application/json',
+          },
         },
-      },
-    );
+      );
+
+      return data;
+    } catch (error: any) {
+      this.logger.error('Erro ao criar link no Asaas', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+      });
+
+      throw new Error(
+        error?.response?.data?.errors?.[0]?.description ||
+          'Erro ao criar link no Asaas',
+      );
+    }
+  }
+
+  private buildCallbackUrls(event: Event, inscription: Inscription) {
+    const baseUrl = process.env.URL_CALLBACK_PAYMENT_LINK;
+    const isGuest = inscription.getIsGuest();
 
     return {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      value: data.value,
-      url: data.url,
-      externalReference: data.externalReference,
-      active: data.active,
-      endDate: data.endDate,
+      successUrl: isGuest
+        ? `${baseUrl}/guest/${event.getId()}/payment/success?eventId=${event.getId()}&clientName=${encodeURIComponent(inscription.getResponsible())}&confirmationCode=${encodeURIComponent(inscription.getConfirmationCode()!)}`
+        : `${baseUrl}/user/payment-success`,
+
+      cancelUrl: isGuest
+        ? `${baseUrl}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(encodeURIComponent(inscription.getConfirmationCode()!))}`
+        : `${baseUrl}/user/payment/canceled`,
+
+      expiredUrl: isGuest
+        ? `${baseUrl}/guest/${event.getId()}/inscription?confirmationCode=${encodeURIComponent(encodeURIComponent(inscription.getConfirmationCode()!))}`
+        : `${baseUrl}/user/payment/expired`,
     };
+  }
+
+  private async sendImageInPaymentLink(
+    paymentLink: PaymentLink,
+    event: Event,
+  ): Promise<void> {
+    const imageUrl = event.getImageUrl();
+    if (!imageUrl) {
+      this.logger.warn('No event image to send to Asaas');
+      return;
+    }
+
+    if (!process.env.ASAAS_API_TOKEN) {
+      this.logger.warn('ASAAS_API_TOKEN not found');
+      return;
+    }
+
+    if (!process.env.ASAAS_PAYMENT_LINK_URL) {
+      this.logger.warn('ASAAS_PAYMENT_LINK_URL not found');
+      return;
+    }
+
+    try {
+      const imagePublicUrl =
+        await this.supabaseStorageService.getPublicUrl(imageUrl);
+
+      const { data } = await axios.get<ArrayBuffer>(imagePublicUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const formData = new FormData();
+      formData.append('main', 'true');
+      formData.append('image', Buffer.from(data), {
+        filename: `${event.getName()}.png`,
+        contentType: 'image/png',
+      });
+
+      await axios.post(
+        `${process.env.ASAAS_PAYMENT_LINK_URL}/${paymentLink.getAsaasPaymentLinkId()}/images`,
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+            accept: 'application/json',
+            access_token: process.env.ASAAS_API_TOKEN,
+          },
+        },
+      );
+    } catch (error: any) {
+      this.logger.warn('Failed to send image to Asaas payment link', {
+        paymentLinkId: paymentLink.getId(),
+        asaasId: paymentLink.getAsaasPaymentLinkId(),
+        status: error?.response?.status,
+        data: error?.response?.data,
+      });
+    }
   }
 }

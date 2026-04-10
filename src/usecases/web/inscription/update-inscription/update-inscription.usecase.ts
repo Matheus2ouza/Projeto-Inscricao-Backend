@@ -9,6 +9,7 @@ export type UpdateInscriptionInput = {
   phone?: string;
   email?: string;
   observation?: string;
+  guestLocality?: string;
 };
 
 export type UpdateInscriptionOutput = {
@@ -39,6 +40,11 @@ export class UpdateInscriptionUsecase
       phone: input.phone,
       email: input.email,
       observation: input.observation,
+
+      // se a inscrição for guest então atualiza tambem os dados guest
+      guestLocality: inscription.getIsGuest() ? input.guestLocality : undefined,
+      guestEmail: inscription.getIsGuest() ? input.email : undefined,
+      guestName: inscription.getIsGuest() ? input.responsible : undefined,
     });
 
     await this.inscriptionGateway.update(inscription);

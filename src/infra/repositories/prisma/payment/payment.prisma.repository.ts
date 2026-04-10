@@ -5,7 +5,7 @@ import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { PaymentEntityToPaymentPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/payment/model/mappers/payment-entity-to-payment-prisma-model.mapper';
 import { PaymentPrismaModelToPaymentEntityMapper as PrismaToEntity } from 'src/infra/repositories/prisma/payment/model/mappers/payment-prisma-model-to-payment-entity.mapper';
 import { PaymentsSummary } from 'src/usecases/web/payments/list-all-payments/list-all-payments.usecase';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 
 @Injectable()
 export class PaymentPrismaRepository implements PaymentGateway {
@@ -14,6 +14,15 @@ export class PaymentPrismaRepository implements PaymentGateway {
   async create(payment: Payment): Promise<Payment> {
     const data = EntityToPrisma.map(payment);
     const created = await this.prisma.payment.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    payment: Payment,
+    tx: PrismaTransactionClient,
+  ): Promise<Payment> {
+    const data = EntityToPrisma.map(payment);
+    const created = await tx.payment.create({ data });
     return PrismaToEntity.map(created);
   }
 

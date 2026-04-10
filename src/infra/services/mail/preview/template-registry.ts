@@ -33,7 +33,6 @@ const mockPaymentData = (
   eventName: 'Congresso de Tecnologia 2025',
   responsibleName: 'Marina Costa',
   responsibleEmail: 'marina.costa@example.com',
-  responsiblePhone: '+55 (11) 91234-5678',
   paymentValue: 259.9,
   paymentDate: new Date('2025-03-18T10:30:00Z'),
   rejectionReason: 'Transação não autorizada pelo emissor.',

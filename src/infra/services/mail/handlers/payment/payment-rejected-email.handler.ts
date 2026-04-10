@@ -43,11 +43,7 @@ export class PaymentRejectedEmailHandler {
       }
 
       // Enriquecer dados faltantes (inscrição e evento)
-      if (
-        !paymentData.responsibleEmail ||
-        !paymentData.responsibleName ||
-        !paymentData.responsiblePhone
-      ) {
+      if (!paymentData.responsibleEmail || !paymentData.responsibleName) {
         const inscription = await this.inscriptionGateway.findById(
           paymentData.inscriptionId,
         );
@@ -56,8 +52,6 @@ export class PaymentRejectedEmailHandler {
             paymentData.responsibleName || inscription.getResponsible();
           paymentData.responsibleEmail =
             paymentData.responsibleEmail || inscription.getEmail();
-          paymentData.responsiblePhone =
-            paymentData.responsiblePhone || inscription.getPhone();
         }
       }
 

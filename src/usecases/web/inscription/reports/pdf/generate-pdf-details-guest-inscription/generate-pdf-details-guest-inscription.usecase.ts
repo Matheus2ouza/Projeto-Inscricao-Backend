@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 import {
   InscriptionStatus,
   PaymentMethod,
@@ -12,6 +13,7 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { InscriptionDetailsPdfGeneratorUtils } from 'src/shared/utils/pdfs/inscriptions/inscription-details-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/find/inscription-not-found.usecase.exception';
@@ -76,6 +78,7 @@ export class GeneratePdfDetailsInscriptionUsecase
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -184,10 +187,14 @@ export class GeneratePdfDetailsInscriptionUsecase
       ? (inscription.getGuestName() ?? inscription.getResponsible())
       : inscription.getResponsible();
 
+    const eventHeaderImagePath = event?.getLogoUrl() || event?.getImageUrl();
+    const eventHeaderImageBase64 =
+      await this.getImageBase64(eventHeaderImagePath);
+
     const pdfBuffer = await InscriptionDetailsPdfGeneratorUtils.generatePdf({
       eventName: event?.getName() ?? 'Evento',
+      headerImage: eventHeaderImageBase64 || undefined,
       inscription: {
-        id: inscription.getId(),
         isGuest: inscription.getIsGuest(),
         responsibleName,
         guestEmail: inscription.getGuestEmail(),
@@ -233,6 +240,37 @@ export class GeneratePdfDetailsInscriptionUsecase
       .toLowerCase();
 
     return `detalhes-inscricao-${sanitizedEventName || 'evento'}-${sanitizedResponsibleName}.pdf`;
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) {
+      return '';
+    }
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
+  }
+
+  private async getImageBase64(path?: string): Promise<string> {
+    const publicUrl = await this.getPublicUrl(path);
+
+    if (!publicUrl) {
+      return '';
+    }
+
+    try {
+      const response = await axios.get<ArrayBuffer>(publicUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const base64Image = Buffer.from(response.data).toString('base64');
+      return `data:image/jpeg;base64,${base64Image}`;
+    } catch {
+      return '';
+    }
   }
 
   private calculateAge(birthDate: Date): number {

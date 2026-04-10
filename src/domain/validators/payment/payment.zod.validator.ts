@@ -51,8 +51,9 @@ export class PaymentZodValidator implements Validator<Payment> {
       status: z.enum(
         [
           StatusPayment.APPROVED,
-          StatusPayment.REFUSED,
+          StatusPayment.PENDING,
           StatusPayment.UNDER_REVIEW,
+          StatusPayment.REFUSED,
         ],
         {
           message: 'Status inválido',
