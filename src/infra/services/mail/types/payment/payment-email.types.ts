@@ -5,7 +5,6 @@ export interface PaymentEmailData {
   eventName?: string;
   responsibleName?: string;
   responsibleEmail?: string;
-  responsiblePhone?: string;
   paymentValue: number;
   paymentDate: Date;
   rejectionReason?: string;

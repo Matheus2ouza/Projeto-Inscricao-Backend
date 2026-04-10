@@ -12,6 +12,7 @@ import { AccountParticipantNotFoundUsecaseExceptionFilterProvider } from './filt
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
+import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/usecases/environment-variable-not-found-usecase-exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
@@ -406,6 +407,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Type Inscription
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,
+
+    // Environment Variable
+    EnvironmentVariableNotFoundExceptionFilterProvider,
   ],
 })
 export class WebModule {}

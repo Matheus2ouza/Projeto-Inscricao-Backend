@@ -4,15 +4,26 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { Inscription } from '../entities/inscription.entity';
 
 export abstract class InscriptionGateway {
   // CRUD básico
   // Cria uma nova inscrição
   abstract create(inscription: Inscription): Promise<Inscription>;
+  // Cria uma nova inscrição com transaction
+  abstract createTx(
+    inscription: Inscription,
+    tx: PrismaTransactionClient,
+  ): Promise<Inscription>;
 
   // Atualiza uma inscrição existente
   abstract update(inscription: Inscription): Promise<Inscription>;
+  // atualiza uma inscrição com transcation
+  abstract updateTx(
+    inscription: Inscription,
+    tx: PrismaTransactionClient,
+  ): Promise<Inscription>;
 
   // Atualiza múltiplas inscrições
   abstract updateMany(inscriptions: Inscription[]): Promise<number>;

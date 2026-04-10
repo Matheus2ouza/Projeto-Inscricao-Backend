@@ -41,7 +41,6 @@ export type InscriptionDetailsPdfInstallment = {
 
 export type InscriptionDetailsPdfPayment = {
   title: string;
-  id: string;
   status: string;
   method: string;
   createdAt?: Date;
@@ -51,8 +50,8 @@ export type InscriptionDetailsPdfPayment = {
 
 export type InscriptionDetailsPdfData = {
   eventName: string;
+  headerImage?: string;
   inscription: {
-    id: string;
     isGuest: boolean;
     responsibleName: string;
     guestEmail?: string;
@@ -137,29 +136,46 @@ function sectionHeader(text: string) {
   ];
 }
 
+function sectionCard(stack: any[], margin: [number, number, number, number]) {
+  return {
+    table: {
+      widths: ['*'],
+      body: [
+        [
+          {
+            stack,
+            margin: [12, 10, 12, 8],
+          },
+        ],
+      ],
+    },
+    layout: {
+      hLineWidth: () => 1,
+      vLineWidth: () => 1,
+      hLineColor: () => '#e5e7eb',
+      vLineColor: () => '#e5e7eb',
+      paddingLeft: () => 0,
+      paddingRight: () => 0,
+      paddingTop: () => 0,
+      paddingBottom: () => 0,
+    },
+    margin,
+  };
+}
+
 export class InscriptionDetailsPdfGeneratorUtils {
   public static generatePdf(data: InscriptionDetailsPdfData): Promise<Buffer> {
     const headerContent = buildPdfHeaderSection({
       title: data.eventName || 'Evento',
       subtitle: 'Detalhes da Inscrição',
+      image: data.headerImage,
     });
 
-    const content: any[] = [
-      ...headerContent,
-      {
-        text: `Gerado em ${formatDate(new Date())}`,
-        style: 'muted',
-        margin: [0, 0, 0, 8],
-      },
-      ...sectionHeader('Inscrição'),
-      ...kvGrid([{ label: 'ID', value: data.inscription.id }], 1),
+    const inscriptionCardContent = [
       ...kvGrid(
         [
           { label: 'Responsável', value: data.inscription.responsibleName },
-          {
-            label: 'Status',
-            value: data.inscription.status,
-          },
+          { label: 'Status', value: data.inscription.status },
         ],
         2,
       ),
@@ -177,7 +193,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
         [
           { label: 'Localidade', value: data.inscription.guestLocality },
           {
-            label: 'Criada em',
+            label: 'Registrada em',
             value: data.inscription.createdAt
               ? formatDateTime(data.inscription.createdAt)
               : undefined,
@@ -187,19 +203,17 @@ export class InscriptionDetailsPdfGeneratorUtils {
       ),
     ];
 
-    content.push({ text: '', pageBreak: 'after' });
-    content.push(...sectionHeader('Participantes'));
+    const content: any[] = [
+      ...headerContent,
+      ...sectionHeader('Inscrição'),
+      sectionCard(inscriptionCardContent, [0, 0, 0, 6]),
+      ...sectionHeader('Participantes'),
+    ];
 
     if (data.participants.length === 0) {
-      content.push({ text: 'Nenhum participante encontrado.', style: 'muted' });
+      content.push(sectionCard([{ text: 'Nenhum participante encontrado.', style: 'muted' }], [0, 0, 0, 10]));
     } else {
       for (const participant of data.participants) {
-        content.push({
-          text: participant.title,
-          style: 'itemTitle',
-          margin: [0, 6, 0, 8],
-        });
-
         const participantRows: Array<{ label: string; value?: string }> = [
           { label: 'Nome', value: participant.name },
           { label: 'Gênero', value: participant.gender },
@@ -215,6 +229,7 @@ export class InscriptionDetailsPdfGeneratorUtils {
             value: formatDate(participant.birthDate),
           });
         }
+
         if (participant.age !== undefined) {
           participantRows.push({
             label: 'Idade',
@@ -222,155 +237,33 @@ export class InscriptionDetailsPdfGeneratorUtils {
           });
         }
 
-        content.push(...kvGrid(participantRows, 2));
+        const participantCardContent: any[] = [
+          { text: participant.title, style: 'itemTitle', margin: [0, 0, 0, 8] },
+          ...kvGrid(participantRows, 2),
+        ];
 
         if (participant.complementary.length > 0) {
-          content.push({
+          participantCardContent.push({
             text: 'Dados complementares',
             style: 'subtleTitle',
             margin: [0, 0, 0, 4],
           });
-
-          content.push(...kvGrid(participant.complementary, 2));
+          participantCardContent.push(...kvGrid(participant.complementary, 2));
         }
 
         content.push({
-          canvas: [
-            {
-              type: 'line',
-              x1: 0,
-              y1: 0,
-              x2: 531,
-              y2: 0,
-              lineWidth: 1,
-              lineColor: '#f3f4f6',
-            },
-          ],
-          margin: [0, 6, 0, 0],
+          unbreakable: true,
+          stack: [sectionCard(participantCardContent, [0, 0, 0, 10])],
         });
       }
     }
 
-    content.push({ text: '', pageBreak: 'after' });
-    content.push(...sectionHeader('Pagamentos'));
-
-    if (data.payments.length === 0) {
-      content.push({ text: 'Nenhum pagamento encontrado.', style: 'muted' });
-    } else {
-      for (const payment of data.payments) {
-        content.push({
-          text: payment.title,
-          style: 'itemTitle',
-          margin: [0, 6, 0, 8],
-        });
-
-        content.push({
-          text: 'Dados complementares',
-          style: 'subtleTitle',
-          margin: [0, 0, 0, 4],
-        });
-
-        content.push(
-          ...kvGrid(
-            [
-              { label: 'ID', value: payment.id },
-              { label: 'Status', value: payment.status },
-              { label: 'Método', value: payment.method },
-              {
-                label: 'Criado em',
-                value: payment.createdAt
-                  ? formatDateTime(payment.createdAt)
-                  : undefined,
-              },
-            ],
-            2,
-          ),
-        );
-
-        if (payment.totals.length > 0) {
-          content.push({
-            text: 'Valores do pagamento',
-            style: 'subtleTitle',
-            margin: [0, 0, 0, 4],
-          });
-          content.push(...kvGrid(payment.totals, 2));
-        }
-
-        if (payment.installments.length > 0) {
-          const tableHeaderRow = [
-            { text: 'Parcela', style: 'tableHeader', alignment: 'center' },
-            { text: 'Recebida', style: 'tableHeader', alignment: 'center' },
-            { text: 'Valor', style: 'tableHeader', alignment: 'right' },
-            { text: 'Líquido', style: 'tableHeader', alignment: 'right' },
-            { text: 'Pago em', style: 'tableHeader' },
-            { text: 'Prevista em', style: 'tableHeader' },
-          ];
-
-          const tableBody = [
-            tableHeaderRow,
-            ...payment.installments
-              .slice()
-              .sort((a, b) => a.installmentNumber - b.installmentNumber)
-              .map((i) => {
-                const paidAtText = i.paidAt ? formatDateTime(i.paidAt) : '-';
-                const estimatedAtText = i.estimatedAt
-                  ? formatDateTime(i.estimatedAt)
-                  : '-';
-
-                const row = [
-                  {
-                    text: String(i.installmentNumber),
-                    style: 'tableCell',
-                    alignment: 'center',
-                  },
-                  {
-                    text: i.received ? 'Sim' : 'Não',
-                    style: 'tableCell',
-                    alignment: 'center',
-                  },
-                  { text: i.value, style: 'tableCell', alignment: 'right' },
-                  { text: i.netValue, style: 'tableCell', alignment: 'right' },
-                  { text: paidAtText, style: 'tableCell' },
-                  { text: estimatedAtText, style: 'tableCell' },
-                ];
-
-                return row;
-              }),
-          ];
-
-          content.push({
-            text: 'Parcelas',
-            style: 'subtleTitle',
-            margin: [0, 0, 0, 6],
-          });
-
-          content.push({
-            table: {
-              headerRows: 1,
-              widths: [48, 60, 70, 70, '*', '*'],
-              body: tableBody,
-            },
-            layout: 'lightHorizontalLines',
-            margin: [0, 0, 0, 8],
-          });
-        }
-
-        content.push({
-          canvas: [
-            {
-              type: 'line',
-              x1: 0,
-              y1: 0,
-              x2: 531,
-              y2: 0,
-              lineWidth: 1,
-              lineColor: '#f3f4f6',
-            },
-          ],
-          margin: [0, 6, 0, 0],
-        });
-      }
-    }
+    content.push({
+      text: `Gerado em ${formatDate(new Date())}`,
+      style: 'footerGenerated',
+      alignment: 'center',
+      margin: [0, 12, 0, 0],
+    });
 
     const docDefinition: any = {
       pageMargins: [32, 32, 32, 32],
@@ -384,14 +277,15 @@ export class InscriptionDetailsPdfGeneratorUtils {
         headerTitle: { fontSize: 18, bold: true, color: '#111827' },
         headerTitleDetail: { fontSize: 11, color: '#6b7280' },
         headerSubtitle: { fontSize: 12, bold: true, color: '#111827' },
-        sectionTitle: { fontSize: 11, bold: true, color: '#111827' },
+        sectionTitle: { fontSize: 12, bold: true, color: '#111827' },
         kvLabel: { fontSize: 9, color: '#6b7280' },
-        kvValue: { fontSize: 10, bold: true, color: '#111827' },
+        kvValue: { fontSize: 10, bold: true, color: '#111827', margin: [0, 1, 0, 0] },
         itemTitle: { fontSize: 11, bold: true, color: '#111827' },
         subtleTitle: { fontSize: 10, bold: true, color: '#374151' },
         muted: { fontSize: 9, color: '#6b7280' },
         tableHeader: { bold: true, fillColor: '#f3f4f6', margin: [0, 4, 0, 4] },
         tableCell: { margin: [0, 3, 0, 3] },
+        footerGenerated: { fontSize: 9, color: '#6b7280' },
       },
     };
 

@@ -8,7 +8,7 @@ import {
 } from 'generated/prisma';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { InscriptionEntityToInscriptionPrismaModelMapper as EntityToPrisma } from './model/mappers/inscription-entity-to-inscription-prisma-model.mapper';
 import { InscriptionPrismaModalToInscriptionEntityMapper as PrismaToEntity } from './model/mappers/inscription-prisma-model-to-inscription-entity.mapper';
 
@@ -24,6 +24,16 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return PrismaToEntity.map(created);
   }
 
+  // Cria uma nova inscrição com transaction
+  async createTx(
+    inscription: Inscription,
+    tx: PrismaTransactionClient,
+  ): Promise<Inscription> {
+    const data = EntityToPrisma.map(inscription);
+    const created = await tx.inscription.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
   async update(inscription: Inscription): Promise<Inscription> {
     const data = EntityToPrisma.map(inscription);
     const updated = await this.prisma.inscription.update({
@@ -31,6 +41,19 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       data,
     });
 
+    return PrismaToEntity.map(updated);
+  }
+
+  // atualiza uma inscrição com transcation
+  async updateTx(
+    inscription: Inscription,
+    tx: PrismaTransactionClient,
+  ): Promise<Inscription> {
+    const data = EntityToPrisma.map(inscription);
+    const updated = await tx.inscription.update({
+      where: { id: inscription.getId() },
+      data,
+    });
     return PrismaToEntity.map(updated);
   }
 

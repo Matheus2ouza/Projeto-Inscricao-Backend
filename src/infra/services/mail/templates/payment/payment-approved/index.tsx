@@ -17,7 +17,6 @@ export const PaymentApprovedEmail = ({
   const summaryRows = [
     { label: 'Evento', value: formatField(paymentData.eventName) },
     { label: 'Responsável', value: formatField(paymentData.responsibleName) },
-    { label: 'Telefone', value: formatField(paymentData.responsiblePhone) },
     {
       label: 'Data do pagamento',
       value: formatDateTime(paymentData.paymentDate),

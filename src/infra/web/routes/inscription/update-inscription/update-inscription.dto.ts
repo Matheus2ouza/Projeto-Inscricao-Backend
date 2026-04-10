@@ -7,6 +7,9 @@ export type UpdateInscriptionBody = {
   phone?: string;
   email?: string;
   observation?: string;
+
+  //
+  guestLocality?: string;
 };
 
 export type UpdateInscriptionResponse = {

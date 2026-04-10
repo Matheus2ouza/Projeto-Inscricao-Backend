@@ -573,6 +573,7 @@ enum genderType {
 enum StatusPayment {
   APPROVED
   UNDER_REVIEW
+  PENDING
   REFUSED
 }
 
