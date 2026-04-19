@@ -4,7 +4,7 @@ import { PaymentInstallment } from 'src/domain/entities/payment-installment.enti
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentInstallmentEntityToPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/payment-installment/model/mappers/payment-installment-entity-to-payment-installment-prisma-model.mapper';
 import { PaymentInstallmentPrismaModelToEntityMapper as PrismaToEntity } from 'src/infra/repositories/prisma/payment-installment/model/mappers/payment-installment-prisma-model-to-payment-installment-entity.mapper';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 
 @Injectable()
 export class PaymentInstallmentPrismaRepository
@@ -17,6 +17,15 @@ export class PaymentInstallmentPrismaRepository
   ): Promise<PaymentInstallment> {
     const data = EntityToPrisma.map(paymentInstallment);
     const created = await this.prisma.paymentInstallment.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    paymentInstallment: PaymentInstallment,
+    tx: PrismaTransactionClient,
+  ): Promise<PaymentInstallment> {
+    const data = EntityToPrisma.map(paymentInstallment);
+    const created = await tx.paymentInstallment.create({ data });
     return PrismaToEntity.map(created);
   }
 

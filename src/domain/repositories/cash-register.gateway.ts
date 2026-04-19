@@ -1,10 +1,15 @@
 import { CashRegisterStatus } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { CashRegister } from '../entities/cash-register.entity';
 
 export abstract class CashRegisterGateway {
   // CRUD básico
   abstract create(cashRegister: CashRegister): Promise<CashRegister>;
   abstract update(cashRegister: CashRegister): Promise<CashRegister>;
+  abstract updateTx(
+    cashRegister: CashRegister,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegister>;
 
   // Buscas e listagens
   // Busca um unico caixa pelo id dele

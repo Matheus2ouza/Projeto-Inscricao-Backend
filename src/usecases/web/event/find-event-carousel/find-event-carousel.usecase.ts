@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import {
+  IMAGE_PRESETS,
+  SupabaseStorageService,
+} from 'src/infra/services/supabase/supabase-storage.service';
 
 export type FindEventCarouselOutput = {
   id: string;
@@ -41,7 +44,11 @@ export class FindEventCarouselUsecase {
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      return await this.supabaseStorageService.getPublicUrl(
+        path,
+        IMAGE_PRESETS.thumb,
+        100,
+      );
     } catch {
       return '';
     }

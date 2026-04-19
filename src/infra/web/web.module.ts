@@ -75,8 +75,9 @@ import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-
 import { AnalysisInscriptionRoute } from './routes/inscription/analysis-inscription/analysis-inscription.route';
 import { CreateInscriptionAdminRoute } from './routes/inscription/create-inscription-admin/create-inscription-admin.route';
 import { DeleteInscriptionRoute } from './routes/inscription/delete-inscription/delete-inscription.route';
+import { FindAllInscriptionRoute } from './routes/inscription/find-all-inscription/find-all-inscription.route';
 import { FindAllNamesInscriptionRoute } from './routes/inscription/find-all-names/find-all-names-inscription.route';
-import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated/find-all-paginated-inscription.route';
+import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated-inscription/find-all-paginated-inscription.route';
 import { FindDetailsGuestInscriptionRoute } from './routes/inscription/find-details-gues-inscription/find-details-gues-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
@@ -117,6 +118,7 @@ import { ListAllReceiptRoute } from './routes/payments/list-all-receipt/list-all
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
 import { PaymentsDetailsRoute } from './routes/payments/payments-details/payments-details.route';
 import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
+import { RegisterPaymentAdminRoute } from './routes/payments/register-payment-admin/register-payment-admin.route';
 import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
 import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
 import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
@@ -143,7 +145,7 @@ import { SaleTicketRoute } from './routes/tickets/sale/sale-ticket.route';
 import { CreateTypeInscriptionRoute } from './routes/typeInscription/create-type-inscription/create-type-inscription.route';
 import { DeletetypeInscriptionRoute } from './routes/typeInscription/delete/delete-type-inscription.route';
 import { UpdateTypeInscriptionActiveRoute } from './routes/typeInscription/disability-type-inscription/update-type-inscription-active.route';
-import { FindAllInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
+import { FindAllTypeInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
 import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update-type-inscription/update-type-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
@@ -257,11 +259,13 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Update
     UpdateTypeInscriptionRoute,
     // Find All
-    FindAllInscriptionRoute,
+    FindAllTypeInscriptionRoute,
     // Find by Event
     FindByEventId,
 
     // Inscriptions
+    // Find all - not paginated
+    FindAllInscriptionRoute,
     FindAllPaginatedInscriptionsRoute,
     DeleteInscriptionRoute,
     FindDetailsInscriptionRoute,
@@ -313,10 +317,19 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindPaymentsDatesRoute,
 
     // Payment Creates
+    // Payment - Register Admin
+    RegisterPaymentAdminRoute,
+
+    // Payment - Register Pix
     RegisterPaymentPixRoute,
+
+    // Payment - Register Cred
     RegisterPaymentCredRoute,
+
+    // Payment - Create Link
     CreatePaymentLinkRoute,
 
+    // Payment - Delete
     DeletePaymentRoute,
     AnalysisPaymentsPendingRoute,
     PaymentsDetailsRoute,

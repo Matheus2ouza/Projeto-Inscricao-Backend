@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CashEntryType, PaymentMethod } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { CashRegisterEntryEntityToCashRegisterEntryPrismaModelMapper as EntityToPrisma } from './model/mapper/cash-register-entry-entity-to-cash-register-entry-prisma-model.mapper';
 import { CashRegisterEntryPrismaModelToCashRegisterEntryEntityMapper as PrismaToEntity } from './model/mapper/cash-register-entry-prisma-model-to-cash-register-entry-entity.mapper';
 
@@ -21,6 +21,14 @@ export class CashRegisterEntryPrismaRepository
   async createMany(cashRegisterEntry: CashRegisterEntry[]): Promise<void> {
     const data = cashRegisterEntry.map(EntityToPrisma.map);
     await this.prisma.cashRegisterEntry.createMany({ data });
+  }
+
+  async createManyTx(
+    cashRegisterEntry: CashRegisterEntry[],
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    const data = cashRegisterEntry.map(EntityToPrisma.map);
+    await tx.cashRegisterEntry.createMany({ data });
   }
 
   async findById(id: string): Promise<CashRegisterEntry | null> {

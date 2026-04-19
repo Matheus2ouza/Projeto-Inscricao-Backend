@@ -6,7 +6,7 @@ import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decor
 import {
   FindAllPaginatedInscriptionInput,
   FindAllPaginatedInscriptionsUsecase,
-} from 'src/usecases/web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
+} from 'src/usecases/web/inscription/find-all-paginated-inscription/find-all-paginated-inscription.usecase';
 import {
   type FindAllPaginatedInscriptionRequest,
   FindAllPaginatedInscriptionResponse,

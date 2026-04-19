@@ -1,9 +1,14 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { PaymentInstallment } from '../entities/payment-installment.entity';
 
 export abstract class PaymentInstallmentGateway {
   // CRUD básico
   abstract create(
     paymentInstallment: PaymentInstallment,
+  ): Promise<PaymentInstallment>;
+  abstract createTx(
+    paymentInstallment: PaymentInstallment,
+    tx: PrismaTransactionClient,
   ): Promise<PaymentInstallment>;
   abstract createMany(paymentInstallment: PaymentInstallment[]): Promise<void>;
   abstract update(

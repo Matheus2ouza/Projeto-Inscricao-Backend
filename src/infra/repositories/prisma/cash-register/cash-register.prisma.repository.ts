@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CashRegisterStatus } from 'generated/prisma';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { CashRegisterEntityToCashRegisterPrismaModelMapper as EntityToPrisma } from './model/mapper/cash-register-entity-to-cash-register-prisma-model.mapper';
 import { CashRegisterPrismaModelToCashRegisterEntityMapper as PrismaToEntity } from './model/mapper/cash-register-prisma-model-to-cash-register-entity.mapper';
 
@@ -19,6 +19,18 @@ export class CashRegisterPrismaRepository implements CashRegisterGateway {
   async update(cashRegister: CashRegister): Promise<CashRegister> {
     const data = EntityToPrisma.map(cashRegister);
     const updated = await this.prisma.cashRegister.update({
+      where: { id: cashRegister.getId() },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async updateTx(
+    cashRegister: CashRegister,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegister> {
+    const data = EntityToPrisma.map(cashRegister);
+    const updated = await tx.cashRegister.update({
       where: { id: cashRegister.getId() },
       data,
     });

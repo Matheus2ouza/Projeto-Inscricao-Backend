@@ -1,4 +1,4 @@
-export type FindAllInscriptionResponse = {
+export type FindAllTypeInscriptionResponse = {
   id: string;
   description: string;
   value: number;
