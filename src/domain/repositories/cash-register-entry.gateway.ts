@@ -1,9 +1,14 @@
 import { CashEntryType, PaymentMethod } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { CashRegisterEntry } from '../entities/cash-register-entry.entity';
 
 export abstract class CashRegisterEntryGateway {
   abstract create(entry: CashRegisterEntry): Promise<CashRegisterEntry>;
   abstract createMany(cashRegisterEntry: CashRegisterEntry[]): Promise<void>;
+  abstract createManyTx(
+    cashRegisterEntry: CashRegisterEntry[],
+    tx: PrismaTransactionClient,
+  ): Promise<void>;
 
   abstract findById(id: string): Promise<CashRegisterEntry | null>;
   abstract findManyPaginated(

@@ -8,6 +8,12 @@ export interface UploadFileOptions {
   contentType: string;
 }
 
+export const IMAGE_PRESETS = {
+  thumb: { width: 400, height: 250 },
+  medium: { width: 800, height: 500 },
+  full: { width: 1920, height: 1080 },
+};
+
 @Injectable()
 export class SupabaseStorageService {
   private readonly logger = new Logger(SupabaseStorageService.name);
@@ -27,7 +33,7 @@ export class SupabaseStorageService {
     try {
       this.supabase = createClient(supabaseUrl, supabaseKey);
       this.logger.log('Cliente Supabase inicializado com sucesso');
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Erro ao inicializar cliente Supabase: ${error.message}`,
       );
@@ -45,11 +51,8 @@ export class SupabaseStorageService {
 
       this.logger.log('Supabase conectado');
       return true;
-    } catch (err) {
-      this.logger.error(
-        '[SupabaseStorageService] Falha ao conectar com Supabase: ' +
-          err.message,
-      );
+    } catch (error: any) {
+      this.logger.error(' Falha ao conectar com Supabase: ' + error.message);
       return false;
     }
   }
@@ -101,7 +104,7 @@ export class SupabaseStorageService {
 
       // Retorna apenas o caminho do arquivo para salvar no banco
       return filePath;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Erro no upload do arquivo: ${error.message}`);
       throw error;
     }
@@ -129,7 +132,7 @@ export class SupabaseStorageService {
       }
 
       this.logger.log(`Arquivo excluído com sucesso: ${filePath}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Erro na exclusão do arquivo: ${error.message}`);
       throw error;
     }
@@ -138,17 +141,27 @@ export class SupabaseStorageService {
   /**
    * Obtém a URL pública de um arquivo
    * @param fileName - Nome do arquivo
+   * @param options - Opções de transformação de imagem (width, height, quality)
+   *                  ou um preset pré-definido (ex: IMAGE_PRESETS.thumb, IMAGE_PRESETS.medium, IMAGE_PRESETS.full)
+   * @param quality - Qualidade da imagem (1-100)
    * @returns URL pública do arquivo
    */
-  async getPublicUrl(fileName: string): Promise<string> {
+  async getPublicUrl(
+    fileName: string,
+    options?: {
+      width?: number;
+      height?: number;
+    },
+    quality?: number,
+  ): Promise<string> {
     try {
       const { data } = await this.supabase.storage
         .from(this.bucketName)
         .createSignedUrl(fileName, 60 * 60 * 7, {
           transform: {
-            width: 1920,
-            height: 1080,
-            quality: 100,
+            width: options?.width || 1920,
+            height: options?.height || 1080,
+            quality: quality || 100,
           },
         });
 
@@ -157,7 +170,7 @@ export class SupabaseStorageService {
       }
 
       return data.signedUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       this.logger.error(`Erro ao obter URL pública: ${error.message}`);
       throw error;
@@ -181,7 +194,7 @@ export class SupabaseStorageService {
       }
 
       return data?.map((file) => file.name) || [];
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Erro ao listar arquivos: ${error.message}`);
       throw error;
     }
@@ -227,7 +240,7 @@ export class SupabaseStorageService {
       }
 
       return totalSize;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Erro ao calcular tamanho da pasta: ${error.message}`);
       throw error;
     }
@@ -261,7 +274,7 @@ export class SupabaseStorageService {
       });
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Erro ao buscar uso do storage: ${error.message}`);
       throw error;
     }

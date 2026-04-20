@@ -66,8 +66,9 @@ import { FindDetailsInscriptionAvulUsecase } from './web/inscription/avul/find-d
 import { FindAllPaginatedOnSiteRegistrationUsecase } from './web/inscription/avul/findAll/find-all-paginated-onsite-registration.usecase';
 import { CreateInscriptionAdminUsecase } from './web/inscription/create-inscription-admin/create-inscription-admin.usecase';
 import { DeleteInscriptionUsecase } from './web/inscription/delete-inscription/delete-inscription.usecase';
-import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-paginated-inscription.usecase';
+import { FindAllInscriptionsUsecase } from './web/inscription/find-all-inscription/find-all-inscription.usecase';
 import { FindAllNamesInscriptionUsecase } from './web/inscription/find-all-names/find-all-names-inscription.usecase';
+import { FindAllPaginatedInscriptionsUsecase } from './web/inscription/find-all-paginated-inscription/find-all-paginated-inscription.usecase';
 import { FindDetailsGuestInscriptionUsecase } from './web/inscription/find-details-gues-inscription/find-details-gues-inscription';
 import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-inscription/find-details-inscription.usecase';
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
@@ -108,6 +109,7 @@ import { ListAllReceiptUsecase } from './web/payments/list-all-receipt/list-all-
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
 import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
+import { RegisterPaymentAdminUsecase } from './web/payments/register-payment-admin/register-payment-admin.usecase';
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
@@ -134,7 +136,7 @@ import { SaleTicketUsecase } from './web/tickets/sale/sale-ticket.usecase';
 import { CreateTypeInscriptionUseCase } from './web/typeInscription/create-type-inscription/create-type-inscription.usecase';
 import { DeletetypeInscriptionUsecase } from './web/typeInscription/delete-type-inscription/delete-type-inscription.usecase';
 import { UpdateTypeInscriptionActiveUsecase } from './web/typeInscription/disability-type-inscription/update-type-inscription-active.usecase';
-import { FindAllInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { FindAllTypeInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
 import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
 import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update-type-inscription/update-type-inscription.usecase';
 import { CreateUserUsecase } from './web/user/create/create-user.usecase';
@@ -257,9 +259,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Find By EventId
     FindTypeInscriptionByEventIdUsecase,
     // FInd All
-    FindAllInscriptionUsecase,
+    FindAllTypeInscriptionUsecase,
 
     // Inscriptions
+    // Find All - not paginated
+    FindAllInscriptionsUsecase,
+
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
@@ -300,6 +305,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
     CreatePaymentLinkUsecase,
+
+    // Payment - register admin
+    RegisterPaymentAdminUsecase,
 
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,
@@ -466,9 +474,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Find By EventId
     FindTypeInscriptionByEventIdUsecase,
     // FInd All
-    FindAllInscriptionUsecase,
+    FindAllTypeInscriptionUsecase,
 
     // Inscriptions
+    // Find All - not paginated
+    FindAllInscriptionsUsecase,
+
     FindAllPaginatedInscriptionsUsecase,
     FindDetailsInscriptionUsecase,
     DeleteInscriptionUsecase,
@@ -509,6 +520,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
     CreatePaymentLinkUsecase,
+
+    // Payment - register admin
+    RegisterPaymentAdminUsecase,
 
     DeletePaymentUsecase,
     AnalysisPaymentsPendingUsecase,

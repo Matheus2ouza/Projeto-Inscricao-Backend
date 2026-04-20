@@ -297,7 +297,7 @@ export class RegisterPaymentPixUsecase
       this.logger.log(
         `E-mail de notificação de pagamento ${payment.getId()} enviado para ${responsibles.length} responsáveis do evento ${payment.getEventId()}`,
       );
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Erro ao notificar responsáveis sobre novo pagamento: ${error.message}`,
         error.stack,

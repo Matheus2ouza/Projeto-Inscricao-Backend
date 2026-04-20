@@ -1,10 +1,10 @@
-import { FindAllInscriptionOutput } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
-import { FindAllInscriptionResponse } from './find-all-type-inscription.dto';
+import { FindAllTypeInscriptionOutput } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { FindAllTypeInscriptionResponse } from './find-all-type-inscription.dto';
 
-export class FindAllInscriptionPresenter {
+export class FindAllTypeInscriptionPresenter {
   public static toHttp(
-    input: FindAllInscriptionOutput,
-  ): FindAllInscriptionResponse {
+    input: FindAllTypeInscriptionOutput,
+  ): FindAllTypeInscriptionResponse {
     return input.map((typeInscription) => ({
       id: typeInscription.id,
       description: typeInscription.description,

@@ -1,18 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
-import { FindAllInscriptionUsecase } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
-import { FindAllInscriptionResponse } from './find-all-type-inscription.dto';
-import { FindAllInscriptionPresenter } from './find-all-type-inscription.presenter';
+import { FindAllTypeInscriptionUsecase } from 'src/usecases/web/typeInscription/find-all-inscription/find-all-inscription.usecase';
+import { FindAllTypeInscriptionResponse } from './find-all-type-inscription.dto';
+import { FindAllTypeInscriptionPresenter } from './find-all-type-inscription.presenter';
 
 @Controller('type-inscription')
-export class FindAllInscriptionRoute {
+export class FindAllTypeInscriptionRoute {
   public constructor(
-    private readonly findAllInscriptionUsecase: FindAllInscriptionUsecase,
+    private readonly findAllTypeInscriptionUsecase: FindAllTypeInscriptionUsecase,
   ) {}
 
   @Get('all')
-  async handle(): Promise<FindAllInscriptionResponse> {
-    const result = await this.findAllInscriptionUsecase.execute();
-    const response = FindAllInscriptionPresenter.toHttp(result);
+  async handle(): Promise<FindAllTypeInscriptionResponse> {
+    const result = await this.findAllTypeInscriptionUsecase.execute();
+    const response = FindAllTypeInscriptionPresenter.toHttp(result);
 
     return response;
   }
