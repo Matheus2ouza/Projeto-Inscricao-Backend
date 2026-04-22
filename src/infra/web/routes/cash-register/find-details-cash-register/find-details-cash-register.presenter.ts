@@ -17,8 +17,10 @@ export class FindDetailsCashRegisterPresenter {
       totalPix: output.totalPix,
       totalCard: output.totalCard,
       totalCash: output.totalCash,
-      expectedValues: output.expectedValues,
-      expectedNetValues: output.expectedNetValues,
+      assasTotalValues: output.assasTotalValues,
+      assasTotalNetValues: output.assasTotalNetValues,
+      assasExpectedValues: output.assasExpectedValues,
+      assasExpectedNetValues: output.assasExpectedNetValues,
       openedAt: output.openedAt,
       closedAt: output.closedAt,
     };

@@ -37,4 +37,9 @@ export abstract class PaymentInstallmentGateway {
     value: number;
     netValue: number;
   }>;
+
+  abstract sumTotalAssasValues(eventId: string): Promise<{
+    value: number;
+    netValue: number;
+  }>;
 }

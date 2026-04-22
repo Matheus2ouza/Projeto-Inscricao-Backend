@@ -22,6 +22,8 @@ export type CashRegisterEntryCreateDto = {
   transferId?: string;
   responsible?: string;
   imageUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export type CashRegisterEntryWithDto = {
@@ -83,10 +85,12 @@ export class CashRegisterEntry extends Entity {
     transferId,
     responsible,
     imageUrl,
+    createdAt = new Date(),
+    updatedAt = new Date(),
   }: CashRegisterEntryCreateDto): CashRegisterEntry {
     const id = Utils.generateUUID();
-    const createdAt = new Date();
-    const updatedAt = new Date();
+    // const createdAt = new Date();
+    // const updatedAt = new Date();
 
     return new CashRegisterEntry(
       id,

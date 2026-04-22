@@ -23,8 +23,10 @@ export type FindDetailsCashRegisterOutput = {
   totalPix: number;
   totalCard: number;
   totalCash: number;
-  expectedValues: number;
-  expectedNetValues: number;
+  assasTotalValues: number;
+  assasTotalNetValues: number;
+  assasExpectedValues: number;
+  assasExpectedNetValues: number;
   openedAt: Date;
   closedAt?: Date;
 };
@@ -78,15 +80,28 @@ export class FindDetailsCashRegisterUsecase
         ),
       ]);
 
-    let expectedValues = 0;
-    let expectedNetValues = 0;
+    let assasExpectedValues = 0;
+    let assasExpectedNetValues = 0;
     await Promise.all(
       events.map(async (e) => {
         const value = await this.paymentInstallmentGateway.sumExpectedValues(
           e.getId(),
         );
-        expectedValues += value.value;
-        expectedNetValues += value.netValue;
+        assasExpectedValues += value.value;
+        assasExpectedNetValues += value.netValue;
+        return value;
+      }),
+    );
+
+    let assasTotalValues = 0;
+    let assasTotalNetValues = 0;
+    await Promise.all(
+      events.map(async (e) => {
+        const value = await this.paymentInstallmentGateway.sumTotalAssasValues(
+          e.getId(),
+        );
+        assasTotalValues += value.value;
+        assasTotalNetValues += value.netValue;
         return value;
       }),
     );
@@ -108,8 +123,10 @@ export class FindDetailsCashRegisterUsecase
       totalPix,
       totalCard,
       totalCash,
-      expectedValues,
-      expectedNetValues,
+      assasTotalValues,
+      assasTotalNetValues,
+      assasExpectedValues,
+      assasExpectedNetValues,
       openedAt: cashRegister.getOpenedAt(),
       closedAt: cashRegister.getClosedAt(),
     };
