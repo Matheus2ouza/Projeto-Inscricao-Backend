@@ -62,20 +62,31 @@ export class ListParticipantsUsecase
       );
     }
 
-    // Busca TUDO sem paginação para poder ordenar e paginar corretamente
-    const [
-      allGuestParticipants,
-      countGuestMale,
-      countGuestFemale,
-      allAccountParticipants,
-      countAccountMale,
-      countAccountFemale,
-    ] = await Promise.all([
+    // Busca participantes (guests e accounts)
+    const [allGuestParticipants, allAccountParticipants] = await Promise.all([
       this.participantGateway.findManyByEventId(
         event.getId(),
         1,
         Number.MAX_SAFE_INTEGER,
       ),
+      this.accountParticipantGateway.findManyByEventId(
+        event.getId(),
+        1,
+        Number.MAX_SAFE_INTEGER,
+      ),
+    ]);
+
+    console.log(
+      `Total guests: ${allGuestParticipants.length}, Total account participants: ${allAccountParticipants.length}`,
+    );
+
+    // Busca contagens por gênero
+    const [
+      countGuestMale,
+      countGuestFemale,
+      countAccountMale,
+      countAccountFemale,
+    ] = await Promise.all([
       this.participantGateway.countParticipantsByEventIdAndGender(
         event.getId(),
         genderType.MASCULINO,
@@ -83,11 +94,6 @@ export class ListParticipantsUsecase
       this.participantGateway.countParticipantsByEventIdAndGender(
         event.getId(),
         genderType.FEMININO,
-      ),
-      this.accountParticipantGateway.findManyByEventId(
-        event.getId(),
-        1,
-        Number.MAX_SAFE_INTEGER,
       ),
       this.accountParticipantGateway.countParticipantsByEventIdAndGender(
         event.getId(),

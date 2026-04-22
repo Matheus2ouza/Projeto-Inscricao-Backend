@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { roleType } from 'generated/prisma';
+import { roleType, statusEvent } from 'generated/prisma';
 import {
   UserInfo,
   type UserInfoType,
@@ -25,10 +25,16 @@ export class FindAllNamesEventRoute {
     @Query() query: FindAllNamesEventRequest,
     @UserInfo() user: UserInfoType,
   ): Promise<FindAllNamesEventResponse> {
+    const status = Array.isArray(query.status)
+      ? query.status.map((s) => s)
+      : query.status
+        ? [query.status as statusEvent]
+        : [];
     const input: FindAllNamesEventInput = {
       regionId: user.userRole !== roleType.SUPER ? user.regionId : undefined,
-      status: query.status,
+      status,
     };
+
     const result = await this.findAllnamesEventUsecase.execute(input);
     const response = FindAllNamesEventPresenter.toHttp(result);
     return response;
