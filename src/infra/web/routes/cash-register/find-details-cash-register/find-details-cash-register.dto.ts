@@ -16,8 +16,10 @@ export type FindDetailsCashRegisterResponse = {
   totalPix: number;
   totalCard: number;
   totalCash: number;
-  expectedValues: number;
-  expectedNetValues: number;
+  assasTotalValues: number;
+  assasTotalNetValues: number;
+  assasExpectedValues: number;
+  assasExpectedNetValues: number;
   openedAt: Date;
   closedAt?: Date;
 };

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentMethod } from 'generated/prisma';
+import { PaymentMethod, StatusPayment } from 'generated/prisma';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentInstallmentEntityToPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/payment-installment/model/mappers/payment-installment-entity-to-payment-installment-prisma-model.mapper';
@@ -123,6 +123,8 @@ export class PaymentInstallmentPrismaRepository
       where: {
         payment: {
           eventId,
+          methodPayment: PaymentMethod.CARTAO,
+          status: StatusPayment.APPROVED,
         },
         received: false,
       },
@@ -132,6 +134,28 @@ export class PaymentInstallmentPrismaRepository
       },
     });
 
+    return {
+      value: Number(sum._sum.value || 0),
+      netValue: Number(sum._sum.netValue || 0),
+    };
+  }
+
+  async sumTotalAssasValues(
+    eventId: string,
+  ): Promise<{ value: number; netValue: number }> {
+    const sum = await this.prisma.paymentInstallment.aggregate({
+      where: {
+        payment: {
+          eventId,
+          methodPayment: PaymentMethod.CARTAO,
+          status: StatusPayment.APPROVED,
+        },
+      },
+      _sum: {
+        value: true,
+        netValue: true,
+      },
+    });
     return {
       value: Number(sum._sum.value || 0),
       netValue: Number(sum._sum.netValue || 0),
