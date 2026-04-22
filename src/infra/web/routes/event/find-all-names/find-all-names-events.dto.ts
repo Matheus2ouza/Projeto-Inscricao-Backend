@@ -1,7 +1,7 @@
 import { statusEvent } from 'generated/prisma';
 
 export type FindAllNamesEventRequest = {
-  status?: statusEvent[];
+  status?: statusEvent | statusEvent[];
 };
 
 export type FindAllNamesEventResponse = {

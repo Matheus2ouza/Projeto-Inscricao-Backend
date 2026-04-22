@@ -43,9 +43,7 @@ export class CreateInscriptionAdminRoute {
       payment: body.payment,
     };
 
-    console.log(input);
     const response = await this.createInscriptionAdminUsecase.execute(input);
-    console.log(response);
     return CreateInscriptionAdminPresenter.toHttp(response);
   }
 }
