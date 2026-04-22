@@ -1,7 +1,15 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
-import { buildPdfHeaderSection } from '../common/pdf-header.util';
+import {
+  buildPdfHeaderSection,
+  PdfHeaderDefinition,
+} from '../common/pdf-header.util';
+import {
+  buildParticipantsByLocalitySummarySection,
+  participantsByLocalitySummaryStyles,
+  type ParticipantLocalityReportSummary,
+} from './common/participants-by-locality-summary-section.util';
 
 const fontsPath = path.join(process.cwd(), 'public', 'fonts');
 
@@ -21,20 +29,39 @@ const fonts = {
 
 const printer = new PdfPrinter(fonts);
 
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
+
+export type ReportSummary = {
+  totalParticipants: number;
+  genderCount: Record<string, number>;
+  shirtSizeCount: Record<string, number>;
+};
+
 export type ParticipantLocalityPdfRow = {
   index: number;
-  name: string;
+  name?: string;
   preferredName?: string;
   locality: string;
-  age: number;
+  age?: number;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender?: genderType;
 };
 
 export type ParticipantLocalityPdfData = {
-  eventName: string;
+  header: PdfHeaderDefinition;
   participants: ParticipantLocalityPdfRow[];
+  summary?: ReportSummary;
+  columns?: ReportColumn[];
+  isLandscape?: boolean;
 };
 
 function pad2(n: number) {
@@ -50,12 +77,19 @@ export class ParticipantsByLocalityPdfGenerator {
   public static generateReportPdf(
     data: ParticipantLocalityPdfData,
   ): Promise<Buffer> {
-    const headerContent = buildPdfHeaderSection({
-      title: data.eventName
-        ? `Lista de Participantes: ${data.eventName}`
-        : 'Lista de Participantes',
-      titleDetail: `${data.participants.length} participante(s)`,
-    });
+    const headerContent = buildPdfHeaderSection(data.header);
+
+    const content: any[] = [...headerContent];
+
+    // Adicionar resumo se fornecido
+    if (data.summary) {
+      const summaryContent = buildParticipantsByLocalitySummarySection({
+        summary: data.summary as ParticipantLocalityReportSummary,
+        formatGender: (g) => formatGender(g as genderType),
+      });
+      // Summary should be isolated on its own page.
+      content.push(...summaryContent, { text: '', pageBreak: 'after' });
+    }
 
     const groups = new Map<string, ParticipantLocalityPdfRow[]>();
     for (const participant of data.participants) {
@@ -71,8 +105,6 @@ export class ParticipantsByLocalityPdfGenerator {
       return a.localeCompare(b, 'pt-BR');
     });
 
-    const content: any[] = [...headerContent];
-
     for (
       let localityIndex = 0;
       localityIndex < sortedLocalities.length;
@@ -87,7 +119,7 @@ export class ParticipantsByLocalityPdfGenerator {
           style: 'sectionTitle',
           margin: [0, 10, 0, 8],
         },
-        ...buildParticipantBlocks(participants),
+        ...buildParticipantBlocks(participants, data.columns),
       );
 
       if (localityIndex < sortedLocalities.length - 1) {
@@ -97,6 +129,7 @@ export class ParticipantsByLocalityPdfGenerator {
 
     const docDefinition: any = {
       pageSize: 'A4',
+      pageOrientation: data.isLandscape ? 'landscape' : 'portrait',
       pageMargins: [40, 60, 40, 60],
       footer: (currentPage: number, pageCount: number) => ({
         text:
@@ -145,6 +178,13 @@ export class ParticipantsByLocalityPdfGenerator {
           bold: true,
           color: '#2d3748',
         },
+        summarySection: {
+          fontSize: 11,
+          bold: true,
+          color: '#2d3748',
+          margin: [0, 8, 0, 6],
+        },
+        ...participantsByLocalitySummaryStyles,
         footer: {
           fontSize: 9,
           color: '#4a5568',
@@ -163,14 +203,20 @@ export class ParticipantsByLocalityPdfGenerator {
   }
 }
 
-function buildParticipantBlocks(participants: ParticipantLocalityPdfRow[]) {
+function buildParticipantBlocks(
+  participants: ParticipantLocalityPdfRow[],
+  columns?: ReportColumn[],
+) {
   return participants.map((p, index) => {
     const localIndex = index + 1;
-    const nameLine = p.name;
+    const nameLine = p.name || '-';
     const preferredName =
       p.preferredName && p.preferredName.trim().length > 0
         ? p.preferredName
         : undefined;
+
+    const shouldShow = (col: ReportColumn) => !columns || columns.includes(col);
+    const shouldShowAge = shouldShow('birthDate');
 
     return {
       unbreakable: true,
@@ -178,14 +224,14 @@ function buildParticipantBlocks(participants: ParticipantLocalityPdfRow[]) {
         { text: `#${localIndex} - ${nameLine}`, style: 'participantTitle' },
         {
           columns: [
-            {
+            shouldShow('name') && {
               width: '25%',
               stack: [
                 { text: 'Nome', style: 'labelText' },
-                { text: nameLine || '-', style: 'valueText' },
+                { text: p.name || '-', style: 'valueText' },
               ],
             },
-            {
+            shouldShow('preferredName') && {
               width: '25%',
               stack: [
                 { text: 'Como ser chamado', style: 'labelText' },
@@ -199,40 +245,40 @@ function buildParticipantBlocks(participants: ParticipantLocalityPdfRow[]) {
                 { text: p.locality || '-', style: 'valueText' },
               ],
             },
-            {
+            shouldShowAge && {
               width: '25%',
               stack: [
                 { text: 'Idade', style: 'labelText' },
-                { text: String(p.age), style: 'valueText' },
+                { text: String(p.age ?? '-'), style: 'valueText' },
               ],
             },
-          ],
+          ].filter(Boolean),
           margin: [0, 6, 0, 0],
         },
         {
           columns: [
-            {
+            shouldShow('gender') && {
               width: '33%',
               stack: [
                 { text: 'Gênero', style: 'labelText' },
                 { text: formatGender(p.gender), style: 'valueText' },
               ],
             },
-            {
+            shouldShow('shirtSize') && {
               width: '33%',
               stack: [
                 { text: 'Tamanho', style: 'labelText' },
                 { text: formatShirtSize(p.shirtSize), style: 'valueText' },
               ],
             },
-            {
+            shouldShow('shirtType') && {
               width: '34%',
               stack: [
                 { text: 'Tipo', style: 'labelText' },
                 { text: formatShirtType(p.shirtType), style: 'valueText' },
               ],
             },
-          ],
+          ].filter(Boolean),
           margin: [0, 18, 0, 0],
         },
         {
@@ -255,7 +301,7 @@ function buildParticipantBlocks(participants: ParticipantLocalityPdfRow[]) {
   });
 }
 
-function formatGender(gender?: genderType | null): string {
+function formatGender(gender?: genderType | string | null): string {
   if (!gender) return '-';
   switch (gender) {
     case 'MASCULINO':

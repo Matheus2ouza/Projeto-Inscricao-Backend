@@ -14,7 +14,21 @@ import { Writable } from 'stream';
 export type GenerateXlsxLocalityInput = {
   eventId: string;
   separate: boolean;
+  summary: boolean;
+  // Query params can arrive as `string` (e.g. "name,preferredName") or `string[]`
+  // depending on how the client builds the URL.
+  columns?: ReportColumn[] | string | string[];
 };
+
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
 
 export type GenerateXlsxLocalityOutput = {
   fileBase64: string;
@@ -22,6 +36,12 @@ export type GenerateXlsxLocalityOutput = {
   contentType:
     | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     | 'application/zip';
+};
+
+export type ReportSummary = {
+  totalParticipants: number;
+  genderCount: Record<string, number>;
+  shirtSizeCount: Record<string, number>;
 };
 
 @Injectable()
@@ -118,12 +138,23 @@ export class GenerateXlsxLocalityUsecase
     const dateSlug = new Date().toISOString().split('T')[0];
     const eventSlug = this.slugify(event.getName());
 
+    // Converter columns de string para array se necessário
+    const columnsArray = this.parseColumns(input.columns);
+
+    // Aplicar filtro de colunas aos dados
+    const filteredRows = this.filterRowsByColumns(rows, columnsArray);
+
+    // Calcular resumo se solicitado
+    const summary = input.summary ? this.generateSummary(rows) : undefined;
+
     // Se não for para separar por localidade ou não houver participantes
-    if (!input.separate || rows.length === 0) {
+    if (!input.separate || filteredRows.length === 0) {
       const xlsxBuffer =
         await ParticipantsByLocalityXlsxGenerator.generateReportXlsx({
           eventName: event.getName(),
-          participants: rows,
+          participants: filteredRows,
+          summary,
+          columns: columnsArray,
         });
 
       const filename = `Lista-de-Participantes-${eventSlug}-${dateSlug}.xlsx`;
@@ -137,8 +168,8 @@ export class GenerateXlsxLocalityUsecase
     }
 
     // Separar por localidade
-    const byLocality = new Map<string, typeof rows>();
-    for (const row of rows) {
+    const byLocality = new Map<string, typeof filteredRows>();
+    for (const row of filteredRows) {
       const locality = row.locality || '-';
       const list = byLocality.get(locality) ?? [];
       list.push(row);
@@ -163,6 +194,8 @@ export class GenerateXlsxLocalityUsecase
           await ParticipantsByLocalityXlsxGenerator.generateReportXlsx({
             eventName: `${event.getName()} - ${locality === '-' ? 'Sem localidade' : locality}`,
             participants,
+            summary,
+            columns: columnsArray,
           });
 
         const localityLabel = locality === '-' ? 'sem-localidade' : locality;
@@ -243,5 +276,98 @@ export class GenerateXlsxLocalityUsecase
 
       void archive.finalize();
     });
+  }
+
+  private generateSummary(rows: Array<any>): ReportSummary {
+    const genderCount: Record<string, number> = {};
+    const shirtSizeCount: Record<string, number> = {};
+
+    for (const row of rows) {
+      if (row.gender) {
+        genderCount[row.gender] = (genderCount[row.gender] || 0) + 1;
+      }
+      if (row.shirtSize) {
+        shirtSizeCount[row.shirtSize] =
+          (shirtSizeCount[row.shirtSize] || 0) + 1;
+      }
+    }
+
+    return {
+      totalParticipants: rows.length,
+      genderCount,
+      shirtSizeCount,
+    };
+  }
+
+  private filterRowsByColumns(
+    rows: Array<any>,
+    columns?: ReportColumn[],
+  ): Array<any> {
+    if (!columns || columns.length === 0) {
+      return rows;
+    }
+
+    const shouldInclude = (key: string): boolean => {
+      return columns.includes(key as ReportColumn);
+    };
+
+    return rows.map((row) => {
+      const filtered: any = {
+        index: row.index,
+        locality: row.locality,
+      };
+
+      if (shouldInclude('name')) filtered.name = row.name;
+      if (shouldInclude('preferredName'))
+        filtered.preferredName = row.preferredName;
+      // We expose "Idade" when "birthDate" is requested.
+      if (shouldInclude('birthDate')) filtered.age = row.age;
+      if (shouldInclude('gender')) filtered.gender = row.gender;
+      if (shouldInclude('shirtSize')) filtered.shirtSize = row.shirtSize;
+      if (shouldInclude('shirtType')) filtered.shirtType = row.shirtType;
+
+      return filtered;
+    });
+  }
+
+  private parseColumns(
+    columns?: ReportColumn[] | string | string[],
+  ): ReportColumn[] | undefined {
+    if (!columns) return undefined;
+
+    const allowed: ReadonlySet<ReportColumn> = new Set<ReportColumn>([
+      'name',
+      'preferredName',
+      'cpf',
+      'birthDate',
+      'gender',
+      'shirtSize',
+      'shirtType',
+      'typeInscription',
+    ]);
+
+    const rawTokens: string[] = [];
+    const pushTokens = (value: string) => {
+      for (const token of value.split(',')) rawTokens.push(token);
+    };
+
+    if (Array.isArray(columns)) {
+      for (const item of columns) pushTokens(String(item ?? ''));
+    } else {
+      pushTokens(String(columns ?? ''));
+    }
+
+    const normalized: ReportColumn[] = [];
+    const seen = new Set<string>();
+    for (const token of rawTokens) {
+      const col = token.trim();
+      if (!col) continue;
+      if (seen.has(col)) continue;
+      if (!allowed.has(col as ReportColumn)) continue;
+      seen.add(col);
+      normalized.push(col as ReportColumn);
+    }
+
+    return normalized.length > 0 ? normalized : undefined;
   }
 }

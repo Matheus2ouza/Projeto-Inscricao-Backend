@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 import archiver from 'archiver';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { canonicalLocality } from 'src/shared/utils/locality';
 import { ParticipantsByLocalityPdfGenerator } from 'src/shared/utils/pdfs/participants/participants-by-locality-pdf.generator';
 import { ParticipantsByLocalitySummarizedPdfGenerator } from 'src/shared/utils/pdfs/participants/participants-by-locality-summarized-pdf.generator';
@@ -16,12 +18,32 @@ export type GeneratePdfLocalityInput = {
   eventId: string;
   separate: boolean;
   reduced: boolean;
+  summary: boolean;
+  // Query params can arrive as `string` (e.g. "name,preferredName") or `string[]`
+  // depending on how the client builds the URL.
+  columns?: ReportColumn[] | string | string[];
 };
+
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
 
 export type GeneratePdfLocalityOutput = {
   fileBase64: string;
   filename: string;
   contentType: 'application/pdf' | 'application/zip';
+};
+
+export type ReportSummary = {
+  totalParticipants: number;
+  genderCount: Record<string, number>;
+  shirtSizeCount: Record<string, number>;
 };
 
 @Injectable()
@@ -34,6 +56,7 @@ export class GeneratePdfLocalityUsecase
     private readonly accountGateway: AccountGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
   async execute(
@@ -121,10 +144,40 @@ export class GeneratePdfLocalityUsecase
       ? ParticipantsByLocalitySummarizedPdfGenerator
       : ParticipantsByLocalityPdfGenerator;
 
-    if (!input.separate || rows.length === 0) {
+    const eventHeaderImagePath = event.getLogoUrl() || event.getImageUrl();
+    const eventHeaderImageBase64 = await this.getImageBase64(
+      eventHeaderImagePath,
+    );
+
+    // Converter columns de string para array se necessário
+    const columnsArray = this.parseColumns(input.columns);
+
+    // Aplicar filtro de colunas aos dados
+    const filteredRows = this.filterRowsByColumns(rows, columnsArray);
+
+    // Calcular resumo se solicitado
+    const summary = input.summary ? this.generateSummary(rows) : undefined;
+
+    // Determinar se deve usar orientação horizontal (landscape)
+    // Landscape apenas se MAIS de 4 colunas forem solicitadas
+    const columnsCount = columnsArray ? columnsArray.length : 0;
+    const isLandscape = columnsCount > 4;
+
+    if (!input.separate || filteredRows.length === 0) {
+      const header = {
+        title: event.getName()
+          ? `Lista de Participantes: ${event.getName()}`
+          : 'Lista de Participantes',
+        titleDetail: `${filteredRows.length} participante(s)`,
+        image: eventHeaderImageBase64 || undefined,
+      };
+
       const pdfBuffer = await pdfGenerator.generateReportPdf({
-        eventName: event.getName(),
-        participants: rows,
+        header,
+        participants: filteredRows,
+        summary,
+        columns: columnsArray,
+        isLandscape,
       });
 
       const filename = `Lista-de-Participantes-${eventSlug}-${dateSlug}.pdf`;
@@ -136,8 +189,8 @@ export class GeneratePdfLocalityUsecase
       };
     }
 
-    const byLocality = new Map<string, typeof rows>();
-    for (const row of rows) {
+    const byLocality = new Map<string, typeof filteredRows>();
+    for (const row of filteredRows) {
       const locality = row.locality || '-';
       const list = byLocality.get(locality) ?? [];
       list.push(row);
@@ -158,9 +211,20 @@ export class GeneratePdfLocalityUsecase
           index: idx + 1,
         }));
 
+        const header = {
+          title: event.getName()
+            ? `Lista de Participantes: ${event.getName()}`
+            : 'Lista de Participantes',
+          titleDetail: `${participants.length} participante(s)`,
+          image: eventHeaderImageBase64 || undefined,
+        };
+
         const pdfBuffer = await pdfGenerator.generateReportPdf({
-          eventName: event.getName(),
+          header,
           participants,
+          summary,
+          columns: columnsArray,
+          isLandscape,
         });
 
         const localityLabel = locality === '-' ? 'sem-localidade' : locality;
@@ -196,6 +260,33 @@ export class GeneratePdfLocalityUsecase
     }
 
     return Math.max(0, age);
+  }
+
+  private async getPublicUrl(path?: string): Promise<string> {
+    if (!path) return '';
+
+    try {
+      return await this.supabaseStorageService.getPublicUrl(path);
+    } catch {
+      return '';
+    }
+  }
+
+  private async getImageBase64(path?: string): Promise<string> {
+    const publicUrl = await this.getPublicUrl(path);
+    if (!publicUrl) return '';
+
+    try {
+      const response = await axios.get<ArrayBuffer>(publicUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      const base64Image = Buffer.from(response.data).toString('base64');
+      // Keep the same data-uri approach used in other PDF usecases.
+      return `data:image/jpeg;base64,${base64Image}`;
+    } catch {
+      return '';
+    }
   }
 
   private slugify(value: string): string {
@@ -240,6 +331,99 @@ export class GeneratePdfLocalityUsecase
       }
 
       void archive.finalize();
+    });
+  }
+
+  private parseColumns(
+    columns?: ReportColumn[] | string | string[],
+  ): ReportColumn[] | undefined {
+    if (!columns) return undefined;
+
+    const allowed: ReadonlySet<ReportColumn> = new Set<ReportColumn>([
+      'name',
+      'preferredName',
+      'cpf',
+      'birthDate',
+      'gender',
+      'shirtSize',
+      'shirtType',
+      'typeInscription',
+    ]);
+
+    const rawTokens: string[] = [];
+    const pushTokens = (value: string) => {
+      for (const token of value.split(',')) rawTokens.push(token);
+    };
+
+    if (Array.isArray(columns)) {
+      for (const item of columns) pushTokens(String(item ?? ''));
+    } else {
+      pushTokens(String(columns ?? ''));
+    }
+
+    const normalized: ReportColumn[] = [];
+    const seen = new Set<string>();
+    for (const token of rawTokens) {
+      const col = token.trim();
+      if (!col) continue;
+      if (seen.has(col)) continue;
+      if (!allowed.has(col as ReportColumn)) continue;
+      seen.add(col);
+      normalized.push(col as ReportColumn);
+    }
+
+    return normalized.length > 0 ? normalized : undefined;
+  }
+
+  private generateSummary(rows: Array<any>): ReportSummary {
+    const genderCount: Record<string, number> = {};
+    const shirtSizeCount: Record<string, number> = {};
+
+    for (const row of rows) {
+      if (row.gender) {
+        genderCount[row.gender] = (genderCount[row.gender] || 0) + 1;
+      }
+      if (row.shirtSize) {
+        shirtSizeCount[row.shirtSize] =
+          (shirtSizeCount[row.shirtSize] || 0) + 1;
+      }
+    }
+
+    return {
+      totalParticipants: rows.length,
+      genderCount,
+      shirtSizeCount,
+    };
+  }
+
+  private filterRowsByColumns(
+    rows: Array<any>,
+    columns?: ReportColumn[],
+  ): Array<any> {
+    if (!columns || columns.length === 0) {
+      return rows;
+    }
+
+    const shouldInclude = (key: string): boolean => {
+      return columns.includes(key as ReportColumn);
+    };
+
+    return rows.map((row) => {
+      const filtered: any = {
+        index: row.index,
+        locality: row.locality,
+      };
+
+      if (shouldInclude('name')) filtered.name = row.name;
+      if (shouldInclude('preferredName'))
+        filtered.preferredName = row.preferredName;
+      // We expose "Idade" when "birthDate" is requested.
+      if (shouldInclude('birthDate')) filtered.age = row.age;
+      if (shouldInclude('gender')) filtered.gender = row.gender;
+      if (shouldInclude('shirtSize')) filtered.shirtSize = row.shirtSize;
+      if (shouldInclude('shirtType')) filtered.shirtType = row.shirtType;
+
+      return filtered;
     });
   }
 }

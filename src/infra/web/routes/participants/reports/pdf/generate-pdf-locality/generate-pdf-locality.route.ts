@@ -28,6 +28,8 @@ export class GeneratePdfLocalityRoute {
       eventId: param.eventId,
       separate: parseBooleanQuery(query.separate),
       reduced: parseBooleanQuery(query.reduced),
+      summary: parseBooleanQuery(query.summary),
+      columns: query.columns,
     };
 
     const response = await this.generatePdfLocalityUsecase.execute(input);

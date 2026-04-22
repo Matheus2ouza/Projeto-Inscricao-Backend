@@ -76,10 +76,6 @@ export class ListParticipantsUsecase
       ),
     ]);
 
-    console.log(
-      `Total guests: ${allGuestParticipants.length}, Total account participants: ${allAccountParticipants.length}`,
-    );
-
     // Busca contagens por gênero
     const [
       countGuestMale,

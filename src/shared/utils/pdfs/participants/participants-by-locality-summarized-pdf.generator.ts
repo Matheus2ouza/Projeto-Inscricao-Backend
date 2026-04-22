@@ -1,7 +1,15 @@
 import { ShirtSize, ShirtType } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
-import { buildPdfHeaderSection } from '../common/pdf-header.util';
+import {
+  buildPdfHeaderSection,
+  PdfHeaderDefinition,
+} from '../common/pdf-header.util';
+import {
+  buildParticipantsByLocalitySummarySection,
+  participantsByLocalitySummaryStyles,
+  type ParticipantLocalityReportSummary,
+} from './common/participants-by-locality-summary-section.util';
 
 const fontsPath = path.join(process.cwd(), 'public', 'fonts');
 
@@ -21,19 +29,39 @@ const fonts = {
 
 const printer = new PdfPrinter(fonts);
 
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
+
+export type ReportSummary = {
+  totalParticipants: number;
+  genderCount: Record<string, number>;
+  shirtSizeCount: Record<string, number>;
+};
+
 export type ParticipantLocalitySummarizedPdfRow = {
   index: number;
-  name: string;
+  name?: string;
   preferredName?: string;
   locality: string;
-  age: number;
+  age?: number;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
+  gender?: any;
 };
 
 export type ParticipantLocalitySummarizedPdfData = {
-  eventName: string;
+  header: PdfHeaderDefinition;
   participants: ParticipantLocalitySummarizedPdfRow[];
+  summary?: ReportSummary;
+  columns?: ReportColumn[];
+  isLandscape?: boolean;
 };
 
 function pad2(n: number) {
@@ -49,12 +77,19 @@ export class ParticipantsByLocalitySummarizedPdfGenerator {
   public static generateReportPdf(
     data: ParticipantLocalitySummarizedPdfData,
   ): Promise<Buffer> {
-    const headerContent = buildPdfHeaderSection({
-      title: data.eventName
-        ? `Lista de Participantes: ${data.eventName}`
-        : 'Lista de Participantes',
-      titleDetail: `${data.participants.length} participante(s)`,
-    });
+    const headerContent = buildPdfHeaderSection(data.header);
+
+    const content: any[] = [...headerContent];
+
+    // Adicionar resumo se fornecido
+    if (data.summary) {
+      const summaryContent = buildParticipantsByLocalitySummarySection({
+        summary: data.summary as ParticipantLocalityReportSummary,
+        formatGender: (g) => formatGender(g),
+      });
+      // Summary should be isolated on its own page.
+      content.push(...summaryContent, { text: '', pageBreak: 'after' });
+    }
 
     const groups = new Map<string, ParticipantLocalitySummarizedPdfRow[]>();
     for (const participant of data.participants) {
@@ -70,8 +105,6 @@ export class ParticipantsByLocalitySummarizedPdfGenerator {
       return a.localeCompare(b, 'pt-BR');
     });
 
-    const content: any[] = [...headerContent];
-
     for (
       let localityIndex = 0;
       localityIndex < sortedLocalities.length;
@@ -84,14 +117,15 @@ export class ParticipantsByLocalitySummarizedPdfGenerator {
         {
           text: String(locality).toUpperCase(),
           style: 'sectionTitle',
-          margin: [0, 10, 0, 8],
+          margin: [0, 15, 0, 8],
         },
-        buildParticipantsTable(participants),
+        buildParticipantsTable(participants, data.columns),
       );
     }
 
     const docDefinition: any = {
       pageSize: 'A4',
+      pageOrientation: data.isLandscape ? 'landscape' : 'portrait',
       pageMargins: [40, 60, 40, 60],
       footer: (currentPage: number, pageCount: number) => ({
         text:
@@ -149,6 +183,23 @@ export class ParticipantsByLocalitySummarizedPdfGenerator {
           bold: true,
           color: '#2d3748',
         },
+        summarySection: {
+          fontSize: 11,
+          bold: true,
+          color: '#2d3748',
+          margin: [0, 8, 0, 6],
+        },
+        summaryLabel: {
+          fontSize: 10,
+          bold: true,
+          color: '#4a5568',
+        },
+        summaryValue: {
+          fontSize: 11,
+          color: '#1a202c',
+          margin: [0, 0, 0, 4],
+        },
+        ...participantsByLocalitySummaryStyles,
         footer: {
           fontSize: 9,
           color: '#4a5568',
@@ -169,16 +220,55 @@ export class ParticipantsByLocalitySummarizedPdfGenerator {
 
 function buildParticipantsTable(
   participants: ParticipantLocalitySummarizedPdfRow[],
+  columns?: ReportColumn[],
 ) {
+  const shouldShow = (col: ReportColumn) => !columns || columns.includes(col);
+  const shouldShowAge = shouldShow('birthDate');
+
+  // Construir headers e definir ordem de colunas
+  const columnConfig: Array<{
+    key: string;
+    header: string;
+    width: number | string;
+  }> = [{ key: 'index', header: '#', width: 18 }];
+
+  if (shouldShow('name')) {
+    columnConfig.push({ key: 'name', header: 'Nome', width: '*' });
+  }
+
+  if (shouldShow('preferredName')) {
+    columnConfig.push({
+      key: 'preferredName',
+      header: 'Como ser chamado',
+      width: 100,
+    });
+  }
+
+  if (shouldShowAge) {
+    columnConfig.push({ key: 'age', header: 'Idade', width: 30 });
+  }
+
+  if (shouldShow('gender')) {
+    columnConfig.push({ key: 'gender', header: 'Gênero', width: 50 });
+  }
+
+  if (shouldShow('shirtSize')) {
+    columnConfig.push({ key: 'shirtSize', header: 'Tam.', width: 40 });
+  }
+
+  if (shouldShow('shirtType')) {
+    columnConfig.push({ key: 'shirtType', header: 'Tipo', width: 70 });
+  }
+
+  // Construir headers
+  const headerCells = columnConfig.map((col) => ({
+    text: col.header,
+    style: 'tableHeader',
+  }));
+
+  // Construir linhas de dados
   const body = [
-    [
-      { text: '#', style: 'tableHeader' },
-      { text: 'Nome', style: 'tableHeader' },
-      { text: 'Como ser chamado', style: 'tableHeader' },
-      { text: 'Idade', style: 'tableHeader' },
-      { text: 'Tam.', style: 'tableHeader' },
-      { text: 'Tipo', style: 'tableHeader' },
-    ],
+    headerCells,
     ...participants.map((p, index) => {
       const localIndex = index + 1;
       const preferredName =
@@ -186,21 +276,50 @@ function buildParticipantsTable(
           ? p.preferredName
           : '-';
 
-      return [
-        { text: String(localIndex), style: 'tableCell' },
-        { text: p.name || '-', style: 'tableCell' },
-        { text: preferredName, style: 'tableCell' },
-        { text: String(p.age ?? '-'), style: 'tableCell' },
-        { text: formatShirtSize(p.shirtSize), style: 'tableCell' },
-        { text: formatShirtType(p.shirtType), style: 'tableCell' },
-      ];
+      const cells: any[] = [];
+
+      for (const col of columnConfig) {
+        switch (col.key) {
+          case 'index':
+            cells.push({ text: String(localIndex), style: 'tableCell' });
+            break;
+          case 'name':
+            cells.push({ text: p.name || '-', style: 'tableCell' });
+            break;
+          case 'preferredName':
+            cells.push({ text: preferredName, style: 'tableCell' });
+            break;
+          case 'age':
+            cells.push({ text: String(p.age ?? '-'), style: 'tableCell' });
+            break;
+          case 'gender':
+            cells.push({ text: formatGender(p.gender), style: 'tableCell' });
+            break;
+          case 'shirtSize':
+            cells.push({
+              text: formatShirtSize(p.shirtSize),
+              style: 'tableCell',
+            });
+            break;
+          case 'shirtType':
+            cells.push({
+              text: formatShirtType(p.shirtType),
+              style: 'tableCell',
+            });
+            break;
+        }
+      }
+
+      return cells;
     }),
   ];
+
+  const widths = columnConfig.map((col) => col.width);
 
   return {
     table: {
       headerRows: 1,
-      widths: [18, '*', 110, 30, 40, 70],
+      widths,
       body,
     },
     layout: {
@@ -215,6 +334,18 @@ function buildParticipantsTable(
       paddingBottom: (rowIndex: number) => (rowIndex === 0 ? 3 : 2),
     },
   };
+}
+
+function formatGender(gender?: any): string {
+  if (!gender) return '-';
+  switch (gender) {
+    case 'MASCULINO':
+      return 'Masculino';
+    case 'FEMININO':
+      return 'Feminino';
+    default:
+      return String(gender);
+  }
 }
 
 function formatShirtSize(size?: ShirtSize | null): string {
