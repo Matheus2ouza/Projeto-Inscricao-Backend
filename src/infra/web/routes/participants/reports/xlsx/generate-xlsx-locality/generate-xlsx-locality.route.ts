@@ -21,9 +21,14 @@ export class GenerateXlsxLocalityRoute {
     @Param() param: GenerateXlsxLocalityParam,
     @Query() query: GenerateXlsxLocalityQuery,
   ): Promise<GenerateXlsxLocalityResponse> {
+    const parseBooleanQuery = (value: unknown): boolean =>
+      String(value).toLowerCase() === 'true';
+
     const input: GenerateXlsxLocalityInput = {
       eventId: param.eventId,
-      separate: query.separate === 'true',
+      separate: parseBooleanQuery(query.separate),
+      summary: parseBooleanQuery(query.summary),
+      columns: query.columns,
     };
 
     const response = await this.generateXlsxLocalityUsecase.execute(input);

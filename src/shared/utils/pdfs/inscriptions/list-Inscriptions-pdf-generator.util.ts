@@ -530,7 +530,10 @@ export class ListInscriptionsPdfGeneratorUtils {
                 ? [
                     {
                       stack: [
-                        { text: 'Diretório do comprovante', style: 'labelText' },
+                        {
+                          text: 'Diretório do comprovante',
+                          style: 'labelText',
+                        },
                         {
                           text: payment.receiptPath || '-',
                           style: 'valueText',

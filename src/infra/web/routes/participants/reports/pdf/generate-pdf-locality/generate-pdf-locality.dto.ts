@@ -5,7 +5,20 @@ export type GeneratePdfLocalityParam = {
 export type GeneratePdfLocalityQuery = {
   separate?: boolean | string;
   reduced?: boolean | string;
+  summary?: boolean | string;
+  // Can arrive as "name,preferredName" or as repeated query params.
+  columns?: ReportColumn[] | string | string[];
 };
+
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
 
 export type GeneratePdfLocalityResponse = {
   fileBase64: string;

@@ -4,7 +4,20 @@ export type GenerateXlsxLocalityParam = {
 
 export type GenerateXlsxLocalityQuery = {
   separate?: boolean | string;
+  summary?: boolean | string;
+  // Can arrive as "name,preferredName" or as repeated query params.
+  columns?: ReportColumn[] | string | string[];
 };
+
+export type ReportColumn =
+  | 'name'
+  | 'preferredName'
+  | 'cpf'
+  | 'birthDate'
+  | 'gender'
+  | 'shirtSize'
+  | 'shirtType'
+  | 'typeInscription';
 
 export type GenerateXlsxLocalityResponse = {
   fileBase64: string;
