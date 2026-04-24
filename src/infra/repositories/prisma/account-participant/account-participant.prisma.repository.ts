@@ -71,7 +71,11 @@ export class AccountParticipantPrismaRepository
 
   async findByInscriptionsIds(
     inscriptionIds: string[],
+    filter: {
+      typeInscriptionId?: string | string[];
+    },
   ): Promise<AccountParticipant[]> {
+    const where = this.buildWhereClause(filter);
     const found = await this.prisma.accountParticipant.findMany({
       where: {
         eventLinks: {
@@ -81,6 +85,9 @@ export class AccountParticipantPrismaRepository
               status: InscriptionStatus.PAID,
               isGuest: false,
             },
+            ...(where.typeInscriptionId && {
+              typeInscriptionId: where.typeInscriptionId,
+            }),
           },
         },
       },
@@ -209,10 +216,24 @@ export class AccountParticipantPrismaRepository
     return count;
   }
 
-  private buildWhereClause(filter?: { accountId?: string }) {
-    const { accountId } = filter || {};
+  private buildWhereClause(filter?: {
+    accountId?: string;
+    typeInscriptionId?: string | string[];
+  }) {
+    const { accountId, typeInscriptionId } = filter || {};
+
+    const typeInscriptionArray = typeInscriptionId
+      ? Array.isArray(typeInscriptionId)
+        ? typeInscriptionId
+        : [typeInscriptionId]
+      : [];
+
     return {
       accountId,
+      typeInscriptionId:
+        typeInscriptionArray.length > 0
+          ? { in: typeInscriptionArray }
+          : undefined,
     };
   }
 }

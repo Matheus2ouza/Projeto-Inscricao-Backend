@@ -29,6 +29,7 @@ export class GeneratePdfLocalityRoute {
       separate: parseBooleanQuery(query.separate),
       reduced: parseBooleanQuery(query.reduced),
       summary: parseBooleanQuery(query.summary),
+      typeInscriptions: query.typeInscriptions,
       columns: query.columns,
     };
 

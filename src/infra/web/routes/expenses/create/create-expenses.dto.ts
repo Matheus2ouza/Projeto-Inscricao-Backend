@@ -1,6 +1,6 @@
 import type { PaymentMethod } from 'generated/prisma';
 
-export type CreateEventExpensesRequest = {
+export type CreateExpensesRequest = {
   eventId: string;
   description: string;
   value: number;
@@ -8,6 +8,6 @@ export type CreateEventExpensesRequest = {
   responsible: string;
 };
 
-export type CreateEventExpensesResponse = {
+export type CreateExpensesResponse = {
   id: string;
 };

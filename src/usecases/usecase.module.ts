@@ -5,6 +5,7 @@ import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { CreateCashRegisterUsecase } from './web/cash-register/create-cash-register/create-cash-register.usecase';
+import { CreateNewRegisterUsecase } from './web/cash-register/create-new-register/create-new-register.usecase';
 import { FindAllCashRegisterUsecase } from './web/cash-register/find-all-cash-register/find-all-cash-register.usecase';
 import { FindAllMovimentsCashRegisterUsecase } from './web/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.usecase';
 import { FindDetailsCashRegisterUsecase } from './web/cash-register/find-details-cash-register/find-details-cash-register.usecase';
@@ -24,7 +25,7 @@ import { FindUsageStorageSupabaseSuperUsecase } from './web/dashboard/super/find
 import { FindActiveEventsUserUsecase } from './web/dashboard/user/find-active-events.usecase';
 import { FindTotalDebtUserUsecase } from './web/dashboard/user/find-total-debt.usecase';
 import { FindTotalInscriptionsUserUsecase } from './web/dashboard/user/find-total-inscriptions.usecase';
-import { CreateEventExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
+import { CreateExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
@@ -162,6 +163,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // CashRegister
     // create
     CreateCashRegisterUsecase,
+    // create new register
+    CreateNewRegisterUsecase,
     // FindDetails
     FindDetailsCashRegisterUsecase,
     //findAll
@@ -355,7 +358,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     SaleGrupUsecase,
 
     // Event Expenses
-    CreateEventExpensesUsecase,
+    CreateExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
 
     // Reports
@@ -374,6 +377,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // CashRegister
     // create
     CreateCashRegisterUsecase,
+    // create new register
+    CreateNewRegisterUsecase,
     // FindDetails
     FindDetailsCashRegisterUsecase,
     //findAll
@@ -571,7 +576,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     SaleGrupUsecase,
 
     // Event Expenses
-    CreateEventExpensesUsecase,
+    CreateExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
 
     // Reports

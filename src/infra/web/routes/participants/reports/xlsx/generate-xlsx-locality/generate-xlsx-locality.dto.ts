@@ -5,7 +5,7 @@ export type GenerateXlsxLocalityParam = {
 export type GenerateXlsxLocalityQuery = {
   separate?: boolean | string;
   summary?: boolean | string;
-  // Can arrive as "name,preferredName" or as repeated query params.
+  typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
 };
 

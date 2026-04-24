@@ -5,6 +5,10 @@ import { CashRegister } from '../entities/cash-register.entity';
 export abstract class CashRegisterGateway {
   // CRUD básico
   abstract create(cashRegister: CashRegister): Promise<CashRegister>;
+  abstract createTx(
+    cashRegister: CashRegister,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegister>;
   abstract update(cashRegister: CashRegister): Promise<CashRegister>;
   abstract updateTx(
     cashRegister: CashRegister,

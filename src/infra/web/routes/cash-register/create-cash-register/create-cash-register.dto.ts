@@ -2,7 +2,7 @@ import { CashRegisterStatus } from 'generated/prisma';
 
 export type CreateCashRegisterRequest = {
   name: string;
-  regionId: string;
+  regionId?: string;
   status: CashRegisterStatus;
   initialBalance: number;
   balance: number;

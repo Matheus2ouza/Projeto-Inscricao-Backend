@@ -28,6 +28,7 @@ export class GenerateXlsxLocalityRoute {
       eventId: param.eventId,
       separate: parseBooleanQuery(query.separate),
       summary: parseBooleanQuery(query.summary),
+      typeInscriptions: query.typeInscriptions,
       columns: query.columns,
     };
 

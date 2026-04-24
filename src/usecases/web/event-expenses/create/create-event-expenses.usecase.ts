@@ -17,7 +17,7 @@ import { FinancialMovementGateway } from 'src/domain/repositories/financial-move
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
-export type CreateEventExpensesInput = {
+export type CreateExpensesInput = {
   accountId: string;
   eventId: string;
   description: string;
@@ -26,13 +26,13 @@ export type CreateEventExpensesInput = {
   responsible: string;
 };
 
-export type CreateEventExpensesOutput = {
+export type CreateExpensesOutput = {
   id: string;
 };
 
 @Injectable()
-export class CreateEventExpensesUsecase
-  implements Usecase<CreateEventExpensesInput, CreateEventExpensesOutput>
+export class CreateExpensesUsecase
+  implements Usecase<CreateExpensesInput, CreateExpensesOutput>
 {
   public constructor(
     private readonly eventExpensesGateway: EventExpensesGateway,
@@ -43,16 +43,14 @@ export class CreateEventExpensesUsecase
     private readonly financialMovementGateway: FinancialMovementGateway,
   ) {}
 
-  async execute(
-    input: CreateEventExpensesInput,
-  ): Promise<CreateEventExpensesOutput> {
+  async execute(input: CreateExpensesInput): Promise<CreateExpensesOutput> {
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `Attempt to register event expense but Event was not found, eventId: ${input.eventId}`,
         `Evento não encontrado`,
-        CreateEventExpensesUsecase.name,
+        CreateExpensesUsecase.name,
       );
     }
 
