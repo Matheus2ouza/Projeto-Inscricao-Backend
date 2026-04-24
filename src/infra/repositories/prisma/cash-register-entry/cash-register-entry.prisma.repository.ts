@@ -18,6 +18,15 @@ export class CashRegisterEntryPrismaRepository
     return PrismaToEntity.map(created);
   }
 
+  async createTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegisterEntry> {
+    const data = EntityToPrisma.map(entry);
+    const created = await tx.cashRegisterEntry.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
   async createMany(cashRegisterEntry: CashRegisterEntry[]): Promise<void> {
     const data = cashRegisterEntry.map(EntityToPrisma.map);
     await this.prisma.cashRegisterEntry.createMany({ data });
