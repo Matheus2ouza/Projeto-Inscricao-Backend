@@ -4,6 +4,10 @@ import { CashRegisterEntry } from '../entities/cash-register-entry.entity';
 
 export abstract class CashRegisterEntryGateway {
   abstract create(entry: CashRegisterEntry): Promise<CashRegisterEntry>;
+  abstract createTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegisterEntry>;
   abstract createMany(cashRegisterEntry: CashRegisterEntry[]): Promise<void>;
   abstract createManyTx(
     cashRegisterEntry: CashRegisterEntry[],

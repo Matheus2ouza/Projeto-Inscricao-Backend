@@ -101,6 +101,7 @@ export class GenerateXlsxAllInscriptionsUsecase
   async execute(
     input: GenerateXlsxAllInscriptionsInput,
   ): Promise<GenerateXlsxAllInscriptionsOutput> {
+    const fs = require('fs');
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
@@ -148,7 +149,12 @@ export class GenerateXlsxAllInscriptionsUsecase
     let participantFemale = 0;
     const paymentMethodMap = new Map<
       PaymentMethod,
-      { totalValue: number; totalNetValue: number; totalReceived: number }
+      {
+        totalValue: number;
+        totalPaid: number;
+        totalNetValue: number;
+        totalReceived: number;
+      }
     >();
 
     const inscriptionDetails: InscriptionsDetails[] = await Promise.all(
@@ -242,13 +248,15 @@ export class GenerateXlsxAllInscriptionsUsecase
                   const existing = paymentMethodMap.get(method);
                   if (existing) {
                     existing.totalValue += payment.getTotalValue();
+                    existing.totalPaid += payment.getTotalPaid();
                     existing.totalNetValue += payment.getTotalNetValue();
                     existing.totalReceived += totalReceived;
                   } else {
                     paymentMethodMap.set(method, {
                       totalValue: payment.getTotalValue(),
+                      totalPaid: payment.getTotalPaid(),
                       totalNetValue: payment.getTotalNetValue(),
-                      totalReceived,
+                      totalReceived: payment.getTotalReceived(),
                     });
                   }
                 }
@@ -299,6 +307,7 @@ export class GenerateXlsxAllInscriptionsUsecase
             .map(([method, data]) => ({
               method,
               totalValue: data.totalValue,
+              totalPaid: data.totalPaid,
               totalNetValue: data.totalNetValue,
               totalReceived: data.totalReceived,
             }))
@@ -324,6 +333,9 @@ export class GenerateXlsxAllInscriptionsUsecase
       participantSummary,
       paymentSummary,
     };
+
+    fs.writeFileSync('debug-output.json', JSON.stringify(xlsxData, null, 2));
+    console.log('Arquivo salvo em:', process.cwd() + '/debug-output.json');
 
     const xlsxBuffer =
       await ListInscriptionsXlsxGeneratorUtils.generateListInscriptionsXlsx(

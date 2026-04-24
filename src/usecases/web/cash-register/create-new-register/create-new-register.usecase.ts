@@ -9,6 +9,7 @@ import { Event } from 'src/domain/entities/event.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
@@ -43,6 +44,7 @@ export class CreateNewRegisterUsecase
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(
@@ -94,11 +96,21 @@ export class CreateNewRegisterUsecase
       imageUrl: imagePath,
     });
 
-    const createdEntry =
-      await this.cashRegisterEntryGateway.create(cashRegisterEntry);
+    if (cashRegisterEntry.getType() === CashEntryType.INCOME) {
+      cashRegister.incrementBalance(cashRegisterEntry.getValue());
+    }
+
+    if (cashRegisterEntry.getType() === CashEntryType.EXPENSE) {
+      cashRegister.decrementBalance(cashRegisterEntry.getValue());
+    }
+
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.cashRegisterEntryGateway.createTx(cashRegisterEntry, tx);
+      await this.cashRegisterGateway.updateTx(cashRegister, tx);
+    });
 
     const output: CreateNewRegisterOutput = {
-      id: createdEntry.getId(),
+      id: cashRegisterEntry.getId(),
     };
 
     return output;
