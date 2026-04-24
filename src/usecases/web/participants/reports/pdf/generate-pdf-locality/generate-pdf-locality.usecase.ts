@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
 import archiver from 'archiver';
+import axios from 'axios';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -19,8 +19,7 @@ export type GeneratePdfLocalityInput = {
   separate: boolean;
   reduced: boolean;
   summary: boolean;
-  // Query params can arrive as `string` (e.g. "name,preferredName") or `string[]`
-  // depending on how the client builds the URL.
+  typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
 };
 
@@ -80,10 +79,15 @@ export class GeneratePdfLocalityUsecase
       inscription.getId(),
     );
 
+    const filters = {
+      typeInscriptionId: input.typeInscriptions,
+    };
+
     // Buscar participantes normais (accountParticipant)
     const participantsNormalArray =
       await this.accountParticipantGateway.findByInscriptionsIds(
         inscriptionIds,
+        filters,
       );
 
     const rowsNormal = await Promise.all(
@@ -103,7 +107,10 @@ export class GeneratePdfLocalityUsecase
 
     // Buscar participantes guest
     const participantsGuest =
-      await this.participantGateway.findByInscriptionsIds(inscriptionIds);
+      await this.participantGateway.findByInscriptionsIds(
+        inscriptionIds,
+        filters,
+      );
 
     const localityByInscriptionId = new Map(
       inscriptions.map((inscription) => {
@@ -145,9 +152,8 @@ export class GeneratePdfLocalityUsecase
       : ParticipantsByLocalityPdfGenerator;
 
     const eventHeaderImagePath = event.getLogoUrl() || event.getImageUrl();
-    const eventHeaderImageBase64 = await this.getImageBase64(
-      eventHeaderImagePath,
-    );
+    const eventHeaderImageBase64 =
+      await this.getImageBase64(eventHeaderImagePath);
 
     // Converter columns de string para array se necessário
     const columnsArray = this.parseColumns(input.columns);

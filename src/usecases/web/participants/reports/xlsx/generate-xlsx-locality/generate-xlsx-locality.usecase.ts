@@ -15,8 +15,7 @@ export type GenerateXlsxLocalityInput = {
   eventId: string;
   separate: boolean;
   summary: boolean;
-  // Query params can arrive as `string` (e.g. "name,preferredName") or `string[]`
-  // depending on how the client builds the URL.
+  typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
 };
 
@@ -77,10 +76,15 @@ export class GenerateXlsxLocalityUsecase
       inscription.getId(),
     );
 
+    const filters = {
+      typeInscriptionId: input.typeInscriptions,
+    };
+
     // Buscar participantes normais (accountParticipant)
     const participantsNormalArray =
       await this.accountParticipantGateway.findByInscriptionsIds(
         inscriptionIds,
+        filters,
       );
 
     const rowsNormal = await Promise.all(
@@ -100,7 +104,10 @@ export class GenerateXlsxLocalityUsecase
 
     // Buscar participantes guest
     const participantsGuest =
-      await this.participantGateway.findByInscriptionsIds(inscriptionIds);
+      await this.participantGateway.findByInscriptionsIds(
+        inscriptionIds,
+        filters,
+      );
 
     const localityByInscriptionId = new Map(
       inscriptions.map((inscription) => {

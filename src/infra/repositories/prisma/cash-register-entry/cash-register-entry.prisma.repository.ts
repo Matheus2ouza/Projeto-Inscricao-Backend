@@ -112,6 +112,7 @@ export class CashRegisterEntryPrismaRepository
       where: {
         cashRegisterId,
         method,
+        type: CashEntryType.INCOME,
       },
       _sum: {
         value: true,

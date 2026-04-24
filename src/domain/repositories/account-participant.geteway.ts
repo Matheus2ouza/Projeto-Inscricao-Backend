@@ -16,6 +16,9 @@ export abstract class AccountParticipantGateway {
   abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
   abstract findByInscriptionsIds(
     inscriptionIds: string[],
+    filter: {
+      typeInscriptionId?: string | string[];
+    },
   ): Promise<AccountParticipant[]>;
   abstract findAll(filter?: {
     regionId?: string;

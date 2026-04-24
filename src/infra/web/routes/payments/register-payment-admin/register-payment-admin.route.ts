@@ -36,11 +36,8 @@ export class RegisterPaymentAdminRoute {
       guestName: body.guestName,
       inscriptions: body.inscriptions,
     };
-    console.log('Input received in controller:', input);
 
     const response = await this.registerPaymentAdminUsecase.execute(input);
-
-    console.log('Response from use case:', response);
     return RegisterPaymentAdminPresenter.toHttp(response);
   }
 }

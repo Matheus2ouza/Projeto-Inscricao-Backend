@@ -16,6 +16,15 @@ export class CashRegisterPrismaRepository implements CashRegisterGateway {
     return PrismaToEntity.map(created);
   }
 
+  async createTx(
+    cashRegister: CashRegister,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegister> {
+    const data = EntityToPrisma.map(cashRegister);
+    const created = await tx.cashRegister.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
   async update(cashRegister: CashRegister): Promise<CashRegister> {
     const data = EntityToPrisma.map(cashRegister);
     const updated = await this.prisma.cashRegister.update({

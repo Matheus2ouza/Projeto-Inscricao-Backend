@@ -25,10 +25,12 @@ export class CreateCashRegisterRoute {
     @Body() body: CreateCashRegisterRequest,
     @UserInfo() user: UserInfoType,
   ): Promise<CreateCashRegisterResponse> {
+    const regionId =
+      user.userRole === roleType.SUPER ? body.regionId : user.regionId;
+
     const input: CreateCashRegisterInput = {
       name: body.name,
-      regionId:
-        user.userRole !== roleType.SUPER ? user.regionId! : body.regionId,
+      regionId,
       status: body.status,
       initialBalance: body.initialBalance,
       balance: body.balance,

@@ -25,6 +25,7 @@ import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-excep
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
 import { CreateCashRegisterRoute } from './routes/cash-register/create-cash-register/create-cash-register.route';
+import { CreateNewRegisterRoute } from './routes/cash-register/create-new-register/create-new-register.route';
 import { FindAllCashRegisterRoute } from './routes/cash-register/find-all-cash-register/find-all-cash-register.route';
 import { FindAllMovimentsCashRegisterRoute } from './routes/cash-register/find-all-moviments-cash-register/find-all-moviments-cash-register.route';
 import { FindDetailsCashRegisterRoute } from './routes/cash-register/find-details-cash-register/find-details-cash-register.route';
@@ -34,8 +35,6 @@ import { GenerateReportPdfRoute } from './routes/cash-register/pdf/generate-repo
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { DashboardSuperRoute } from './routes/dashboard/super/dashboard-super.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';
-import { CreateEventExpensesRoute } from './routes/event-expenses/create/create-event-expenses.route';
-import { FindAllPaginatedEventExpensesRoute } from './routes/event-expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { DeleteEventResponsibleRoute } from './routes/event-responsible/delete/delete-event-responsible.route';
 import { ListInscriptonToAnalysisRoute } from './routes/event/analysis/list-inscription-to-analysis/list-inscription-to-analysis.route';
 import { FindAccountsDetailsRoute } from './routes/event/check-in/find-accounts-details/find-accounts-details.route';
@@ -69,6 +68,8 @@ import { UpdateLocationEventRoute } from './routes/event/update-location/update-
 import { UpdateLogoEventRoute } from './routes/event/update-logo/update-logo.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/update-tickets-sale.route';
+import { CreateExpensesRoute } from './routes/expenses/create/create-expenses.route';
+import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
@@ -166,6 +167,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     // CashRegister
     // Create
     CreateCashRegisterRoute,
+    // Create new register
+    CreateNewRegisterRoute,
     // findId
     FindDetailsCashRegisterRoute,
     // findAll
@@ -376,7 +379,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     SaleGrupRoute,
 
     // Event Expenses
-    CreateEventExpensesRoute,
+    CreateExpensesRoute,
     FindAllPaginatedEventExpensesRoute,
 
     // Reports

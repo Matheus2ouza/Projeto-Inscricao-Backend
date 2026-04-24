@@ -148,11 +148,14 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
 
   async findByInscriptionsIds(
     inscriptionIds: string[],
+    filter: { typeInscriptionId?: string | string[] },
   ): Promise<Participant[]> {
+    const where = this.buildWhereClauseParticipant(filter);
     const found = await this.prisma.participant.findMany({
       where: {
         inscriptionId: { in: inscriptionIds },
         inscription: { status: InscriptionStatus.PAID, isGuest: true },
+        ...where,
       },
     });
 
@@ -233,5 +236,24 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       },
     });
     return count;
+  }
+
+  private buildWhereClauseParticipant(filter?: {
+    typeInscriptionId?: string | string[];
+  }) {
+    const { typeInscriptionId } = filter || {};
+
+    const typeInscriptionArray = typeInscriptionId
+      ? Array.isArray(typeInscriptionId)
+        ? typeInscriptionId
+        : [typeInscriptionId]
+      : [];
+
+    return {
+      typeInscriptionId:
+        typeInscriptionArray.length > 0
+          ? { in: typeInscriptionArray }
+          : undefined,
+    };
   }
 }
