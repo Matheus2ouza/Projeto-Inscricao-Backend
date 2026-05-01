@@ -583,7 +583,6 @@ export class CreateInscriptionAdminUsecase
       ),
     });
     this.logger.log(`Upload concluído! URL: ${imageUrl}`);
-    this.logger.log('=== PROCESSAMENTO DE IMAGEM FINALIZADO ===');
 
     return imageUrl;
   }
@@ -591,36 +590,79 @@ export class CreateInscriptionAdminUsecase
   private async updateCashRegisterBalances(
     entries: CashRegisterEntry[],
   ): Promise<void> {
+    this.logger.log(
+      `Atualizando saldo dos caixas para ${entries.length} entradas`,
+    );
+
     const deltaByCashRegisterId = new Map<string, number>();
 
     for (const entry of entries) {
       const cashRegisterId = entry.getCashRegisterId();
       const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+
       const delta =
         entry.getType() === CashEntryType.INCOME
           ? entry.getValue()
           : -entry.getValue();
 
+      this.logger.debug(
+        `Entry -> Caixa: ${cashRegisterId} | Tipo: ${entry.getType()} | Valor: ${entry.getValue()} | Delta calculado: ${delta}`,
+      );
+
       deltaByCashRegisterId.set(cashRegisterId, previous + delta);
     }
+
+    this.logger.debug(
+      `Delta consolidado por caixa: ${JSON.stringify([
+        ...deltaByCashRegisterId.entries(),
+      ])}`,
+    );
 
     await Promise.all(
       [...deltaByCashRegisterId.entries()].map(
         async ([cashRegisterId, delta]) => {
-          if (delta === 0) return;
+          this.logger.log(
+            `Processando atualização do caixa ${cashRegisterId} com delta ${delta}`,
+          );
+
+          if (delta === 0) {
+            this.logger.debug(
+              `Delta zero para o caixa ${cashRegisterId}, pulando atualização`,
+            );
+            return;
+          }
+
           const cashRegister =
             await this.cashRegisterGateway.findById(cashRegisterId);
-          if (!cashRegister) return;
+
+          if (!cashRegister) {
+            this.logger.error(
+              `Caixa não encontrado para ID: ${cashRegisterId}`,
+            );
+            return;
+          }
 
           if (delta > 0) {
+            this.logger.debug(
+              `Incrementando saldo do caixa ${cashRegisterId} em ${delta}`,
+            );
             cashRegister.incrementBalance(delta);
           } else {
+            this.logger.debug(
+              `Decrementando saldo do caixa ${cashRegisterId} em ${-delta}`,
+            );
             cashRegister.decrementBalance(-delta);
           }
 
           await this.cashRegisterGateway.update(cashRegister);
+
+          this.logger.log(
+            `Caixa ${cashRegisterId} atualizado com sucesso (delta: ${delta})`,
+          );
         },
       ),
     );
+
+    this.logger.log('Atualização de saldos dos caixas finalizada');
   }
 }
