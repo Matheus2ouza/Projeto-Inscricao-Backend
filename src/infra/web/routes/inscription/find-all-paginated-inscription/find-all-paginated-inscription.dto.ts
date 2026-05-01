@@ -1,12 +1,15 @@
 import { InscriptionStatus } from 'generated/prisma';
 
-export type FindAllPaginatedInscriptionRequest = {
+export type FindAllPaginatedInscriptionParams = {
   eventId: string;
+};
+
+export type FindAllPaginatedInscriptionQuery = {
   status: InscriptionStatus[];
   isGuest?: string | boolean;
   orderByCreatedAt?: 'asc' | 'desc';
   orderByResponsible?: 'asc' | 'desc';
-  endDate?: string;
+  period?: 'all' | '1h' | '24h' | '7d' | '30d';
   responsible?: string;
   page: number;
   pageSize: number;

@@ -8,7 +8,8 @@ import {
   FindAllPaginatedInscriptionsUsecase,
 } from 'src/usecases/web/inscription/find-all-paginated-inscription/find-all-paginated-inscription.usecase';
 import {
-  type FindAllPaginatedInscriptionRequest,
+  FindAllPaginatedInscriptionParams,
+  FindAllPaginatedInscriptionQuery,
   FindAllPaginatedInscriptionResponse,
 } from './find-all-paginated-inscription.dto';
 import { FindAllPaginatedInscriptionPresenter } from './find-all-paginated-inscription.presenter';
@@ -28,8 +29,8 @@ export class FindAllPaginatedInscriptionsRoute {
       'É possível filtrar os resultados opcionalmente por **período de tempo (`limitTime`)**. O `eventId` é obrigatório e vem como parâmetro da rota.',
   })
   public async handle(
-    @Param() param: FindAllPaginatedInscriptionRequest,
-    @Query() query: FindAllPaginatedInscriptionRequest,
+    @Param() param: FindAllPaginatedInscriptionParams,
+    @Query() query: FindAllPaginatedInscriptionQuery,
     @UserInfo() user: UserInfoType,
   ): Promise<FindAllPaginatedInscriptionResponse> {
     const isGuestFilter =
@@ -48,7 +49,7 @@ export class FindAllPaginatedInscriptionsRoute {
       isGuest: user.userRole !== roleType.USER ? isGuestFilter : false,
       orderByCreatedAt: query.orderByCreatedAt || 'desc',
       orderByResponsible: query.orderByResponsible || 'desc',
-      endDate: query.endDate,
+      period: query.period,
       responsible: query.responsible,
       page: query.page,
       pageSize: query.pageSize,

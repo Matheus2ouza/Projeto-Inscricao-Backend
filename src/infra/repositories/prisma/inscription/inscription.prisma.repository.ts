@@ -315,6 +315,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
+      startDate?: string;
       endDate?: string;
       responsible?: string;
     },
@@ -498,6 +499,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
+      startDate?: string;
       endDate?: string;
       accountId?: string;
       responsible?: string;
@@ -896,11 +898,22 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : [methodPayment]
       : [];
 
+    const parsedStartDate = startDate ? new Date(startDate) : undefined;
+    const parsedEndDate = endDate ? new Date(endDate) : undefined;
+    const validStartDate =
+      parsedStartDate && !Number.isNaN(parsedStartDate.getTime())
+        ? parsedStartDate
+        : undefined;
+    const validEndDate =
+      parsedEndDate && !Number.isNaN(parsedEndDate.getTime())
+        ? parsedEndDate
+        : undefined;
+
     const createdAt =
-      startDate || endDate
+      validStartDate || validEndDate
         ? {
-            gte: startDate ? new Date(startDate) : undefined,
-            lte: endDate ? new Date(endDate) : undefined,
+            ...(validStartDate ? { gte: validStartDate } : {}),
+            ...(validEndDate ? { lte: validEndDate } : {}),
           }
         : undefined;
 

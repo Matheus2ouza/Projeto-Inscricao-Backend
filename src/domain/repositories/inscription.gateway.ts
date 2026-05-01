@@ -152,6 +152,7 @@ export abstract class InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
+      startDate?: string;
       endDate?: string;
       responsible?: string;
     },
@@ -193,6 +194,7 @@ export abstract class InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
+      startDate?: string;
       endDate?: string;
       accountId?: string;
       responsible?: string;

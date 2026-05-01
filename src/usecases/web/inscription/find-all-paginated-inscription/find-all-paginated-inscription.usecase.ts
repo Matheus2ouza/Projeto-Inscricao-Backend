@@ -15,11 +15,13 @@ export type FindAllPaginatedInscriptionInput = {
   isGuest?: string | boolean;
   orderByCreatedAt?: 'asc' | 'desc';
   orderByResponsible?: 'asc' | 'desc';
-  endDate?: string;
+  period?: 'all' | '1h' | '24h' | '7d' | '30d';
   responsible?: string;
   page: number;
   pageSize: number;
 };
+
+type PeriodFilter = NonNullable<FindAllPaginatedInscriptionInput['period']>;
 
 export type FindAllPaginatedInscriptionOutput = {
   event: Event;
@@ -85,13 +87,16 @@ export class FindAllPaginatedInscriptionsUsecase
       isGuest = false;
     }
 
+    const { startDate, endDate } = this.getDateRangeFromPeriod(input.period);
+
     const filters = {
       status: input.status,
-      endDate: input.endDate,
       isGuest,
       accountId: input.userId,
       orderByCreatedAt: input.orderByCreatedAt,
       orderByResponsible: input.orderByResponsible,
+      startDate,
+      endDate,
       responsible: input.responsible,
     };
 
@@ -188,5 +193,29 @@ export class FindAllPaginatedInscriptionsUsecase
     } catch {
       return '';
     }
+  }
+
+  private getDateRangeFromPeriod(period?: PeriodFilter): {
+    startDate?: string;
+    endDate?: string;
+  } {
+    if (!period || period === 'all') {
+      return {};
+    }
+
+    const now = new Date();
+    const periodInMilliseconds: Record<Exclude<PeriodFilter, 'all'>, number> = {
+      '1h': 60 * 60 * 1000,
+      '24h': 24 * 60 * 60 * 1000,
+      '7d': 7 * 24 * 60 * 60 * 1000,
+      '30d': 30 * 24 * 60 * 60 * 1000,
+    };
+
+    const startDate = new Date(now.getTime() - periodInMilliseconds[period]);
+
+    return {
+      startDate: startDate.toISOString(),
+      endDate: now.toISOString(),
+    };
   }
 }
