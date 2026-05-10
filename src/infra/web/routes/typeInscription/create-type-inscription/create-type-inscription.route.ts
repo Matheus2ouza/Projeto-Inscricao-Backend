@@ -4,7 +4,8 @@ import {
   CreateTypeInscriptionUseCase,
 } from 'src/usecases/web/typeInscription/create-type-inscription/create-type-inscription.usecase';
 import type {
-  CreateTypeInscriptionRequest,
+  CreateTypeInscriptionBody,
+  CreateTypeInscriptionParam,
   CreateTypeInscriptionResponse,
 } from './create-type-inscription.dto';
 import { CreateTypeInscriptionPresenter } from './create-type-inscription.presenter';
@@ -17,8 +18,8 @@ export class CreateTypeInscriptionRoute {
 
   @Post(':eventId/create')
   public async handle(
-    @Param() param: CreateTypeInscriptionRequest,
-    @Body() request: CreateTypeInscriptionRequest,
+    @Param() param: CreateTypeInscriptionParam,
+    @Body() request: CreateTypeInscriptionBody,
   ): Promise<CreateTypeInscriptionResponse> {
     const input: CreateTypeInscriptionInput = {
       description: request.description,
@@ -26,6 +27,8 @@ export class CreateTypeInscriptionRoute {
       eventId: param.eventId,
       rule: request.rule,
       specialType: request.specialType,
+      participantLimit: request.participantLimit,
+      limitIsStrict: request.limitIsStrict,
     };
 
     const response = await this.createTypeInscriptionUseCase.execute(input);

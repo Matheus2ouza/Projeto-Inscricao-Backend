@@ -45,6 +45,17 @@ export class TypeInscriptionZodValidator implements Validator<TypeInscription> {
         .date({ message: 'A regra tem que ser uma data válida' })
         .nullable()
         .optional(),
+      participantLimit: z
+        .number({ error: 'O limite de participantes deve ser um número' })
+        .int({
+          error:
+            'O limite de participantes não pode ser um número com casa decimal',
+        })
+        .positive({
+          error: 'O limite de participantes deve ser um número positivo',
+        })
+        .optional(),
+      limitIsStrict: z.boolean().optional().default(false),
     });
 
     return typeInscriptionSchema;

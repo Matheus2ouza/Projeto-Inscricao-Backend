@@ -11,6 +11,8 @@ export class TypeInscriptionPrismaModelToTypeInscriptionEntityMapper {
       rule: typeInscription.rule || null,
       specialType: typeInscription.specialType,
       active: typeInscription.active,
+      participantLimit: typeInscription.participantLimit || undefined,
+      limitIsStrict: typeInscription.limitIsStrict || undefined,
       createdAt: typeInscription.createdAt,
       updatedAt: typeInscription.updatedAt,
     });

@@ -12,6 +12,8 @@ export type CreateTypeInscriptionInput = {
   rule: Date | null;
   eventId: string;
   specialType: boolean;
+  participantLimit?: number;
+  limitIsStrict?: boolean;
 };
 
 export type CreateTypeInscriptionOutput = {
@@ -58,6 +60,8 @@ export class CreateTypeInscriptionUseCase
       eventId: input.eventId,
       rule: input.rule,
       specialType: input.specialType,
+      participantLimit: input.participantLimit,
+      limitIsStrict: input.limitIsStrict,
     });
 
     await this.typeInscriptionGateway.create(newTypeInscription);

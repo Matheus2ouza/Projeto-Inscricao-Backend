@@ -10,6 +10,8 @@ export class TypeInscriptionEntityToTypeInscriptionPrismaModelMapper {
       rule: typeInscription.getRule(),
       specialType: typeInscription.getSpecialType(),
       active: typeInscription.getActive(),
+      participantLimit: typeInscription.getParticipantLimit(),
+      limitIsStrict: typeInscription.getLimitIsStrict(),
       createdAt: typeInscription.getCreatedAt(),
       updatedAt: typeInscription.getUpdatedAt(),
     };

@@ -133,6 +133,8 @@ model TypeInscriptions {
   updatedAt                 DateTime                    @updatedAt @map("updated_at")
   rule                      DateTime?                   @map("rule")
   active                    Boolean                     @default(true)
+  participantLimit          Int?                        @map("participant_limit")
+  limitIsStrict             Boolean                     @default(false) @map("limit_is_strict")
   accountParticipantInEvent AccountParticipantInEvent[]
   Participant               Participant[]
   event                     Events                      @relation(fields: [eventId], references: [id])
