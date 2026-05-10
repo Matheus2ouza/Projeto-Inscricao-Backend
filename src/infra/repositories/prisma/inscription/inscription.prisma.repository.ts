@@ -386,11 +386,21 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByLocality(eventId: string): Promise<Inscription[]> {
+  async findByLocality(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      startDate?: string;
+      endDate?: string;
+    },
+  ): Promise<Inscription[]> {
+    const where = this.buildWhereClauseInscription({
+      ...filters,
+    });
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId,
-        status: InscriptionStatus.PAID,
+        ...where,
       },
     });
 

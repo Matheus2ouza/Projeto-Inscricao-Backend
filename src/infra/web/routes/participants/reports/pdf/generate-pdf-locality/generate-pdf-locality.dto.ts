@@ -6,8 +6,12 @@ export type GeneratePdfLocalityQuery = {
   separate?: boolean | string;
   reduced?: boolean | string;
   summary?: boolean | string;
+
+  // filtros
   typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
+  startDate?: string;
+  endDate?: string;
 };
 
 export type ReportColumn =

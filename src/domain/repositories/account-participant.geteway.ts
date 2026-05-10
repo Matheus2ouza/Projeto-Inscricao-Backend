@@ -18,6 +18,8 @@ export abstract class AccountParticipantGateway {
     inscriptionIds: string[],
     filter: {
       typeInscriptionId?: string | string[];
+      startDate?: string;
+      endDate?: string;
     },
   ): Promise<AccountParticipant[]>;
   abstract findAll(filter?: {

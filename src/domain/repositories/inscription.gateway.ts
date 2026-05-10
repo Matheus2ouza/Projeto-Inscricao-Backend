@@ -175,7 +175,14 @@ export abstract class InscriptionGateway {
   abstract findInscriptionsWithPaid(eventId: string): Promise<Inscription[]>;
 
   // Busca pela localidade
-  abstract findByLocality(eventId: string): Promise<Inscription[]>;
+  abstract findByLocality(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      startDate?: string;
+      endDate?: string;
+    },
+  ): Promise<Inscription[]>;
 
   // Busca IDs de contas de um evento de forma paginada
   abstract findAccountIdsByEventIdPaginated(
