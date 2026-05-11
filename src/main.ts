@@ -53,19 +53,6 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '15mb' }));
   app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
-  // Health check
-  app.getHttpAdapter().get('/', (req, res) => {
-    res.json({
-      status: 'success',
-      message: 'API Inscrição está funcionando corretamente ✅',
-      container: process.env.CONTAINER_NAME || 'unknown',
-      version: '1.0',
-      environment: process.env.NODE_ENV ?? 'development',
-      timestamp: new Date().toISOString(),
-      uptime: `${process.uptime().toFixed(2)}s`,
-    });
-  });
-
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
