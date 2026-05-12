@@ -21,6 +21,7 @@ import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './f
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
 import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
+import { ParticipantLimitReachedUsecaseExceptionFilterProvider } from './filters/usecases/typeInscription/participant-limit-reached-usecase-exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
@@ -68,6 +69,7 @@ import { UpdateLocationEventRoute } from './routes/event/update-location/update-
 import { UpdateLogoEventRoute } from './routes/event/update-logo/update-logo.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/update-tickets-sale.route';
+import { CreateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.route';
 import { CreateExpensesRoute } from './routes/expenses/create/create-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
@@ -313,6 +315,10 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllPaginatedOnSiteRegistrationRoute,
     findDetailsInscriptionAvulRoute,
 
+    // EXCLUSIVE INSCRIPTIONS LINK
+    CreateExclusiveInscriptionLinkRoute,
+
+    // PAYMENTS
     // Payment Inscriptions
     ListAllPaymentsRoute,
     ListAllPaymentsPendingRoute,
@@ -409,9 +415,11 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Cash-Register
     CashRegisterNotFoundUsecaseExceptionFilterProvider,
 
-    // Inscription
+    // INSCRIPTIONS
     InscriptionNotFoundUsecaseExceptionFilterProvider,
     InscriptionExpiredUsecaseExceptionFilterProvider,
+
+    // EXCLUSIVE INSCRIPTION LINK
 
     // Payment
     PaymentNotFoundUsecaseExceptionFilterProvider,
@@ -421,8 +429,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Payment Installment
     PaymentInstallmentNotFoundUsecaseExceptionFilterProvider,
 
-    // Type Inscription
+    // TYPE INSCRIPTION
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,
+    ParticipantLimitReachedUsecaseExceptionFilterProvider,
 
     // Environment Variable
     EnvironmentVariableNotFoundExceptionFilterProvider,
