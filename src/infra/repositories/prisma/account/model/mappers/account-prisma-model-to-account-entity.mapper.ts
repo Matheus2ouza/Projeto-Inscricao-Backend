@@ -13,7 +13,6 @@ export class AccountPrismaModelToUserEntityMapper {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       regionId: user.regionId ?? undefined,
-      regionName: user.region?.name,
       email: user.email ?? undefined,
       imageUrl: user.imageUrl ?? undefined,
     });
