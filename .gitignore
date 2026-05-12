@@ -337,3 +337,5 @@ sincronizar.bat
 *.bat
 
 *.ps1
+prisma/migrations/migration_lock.toml
+prisma/migrations/migration_lock.toml
