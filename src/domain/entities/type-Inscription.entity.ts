@@ -9,8 +9,8 @@ export type TypeInscriptionDto = {
   rule: Date | null;
   specialType: boolean;
   active?: boolean;
-  participantLimit?: number;
-  limitIsStrict?: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
 };
 
 export type TypeInscriptionWithDto = {
@@ -23,8 +23,8 @@ export type TypeInscriptionWithDto = {
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
-  participantLimit?: number;
-  limitIsStrict?: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
 };
 
 export class TypeInscription extends Entity {
@@ -38,8 +38,8 @@ export class TypeInscription extends Entity {
     private active: boolean,
     createdAt: Date,
     updatedAt: Date,
-    private participantLimit?: number,
-    private limitIsStrict?: boolean,
+    private participantLimit: number,
+    private limitIsStrict: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -137,11 +137,11 @@ export class TypeInscription extends Entity {
     return this.active;
   }
 
-  public getParticipantLimit(): number | undefined {
+  public getParticipantLimit(): number {
     return this.participantLimit;
   }
 
-  public getLimitIsStrict(): boolean | undefined {
+  public getLimitIsStrict(): boolean {
     return this.limitIsStrict;
   }
 
