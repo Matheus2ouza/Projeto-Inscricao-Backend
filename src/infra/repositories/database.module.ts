@@ -10,6 +10,8 @@ import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/m
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
 import { EventPrismaRepositoryProvider } from './prisma/event/model/event.prisma.repository.provider';
+import { ExclusiveInscriptionLinkTypePrismaRepositoryProvider } from './prisma/exclusive-inscription-link-type/model/exclusive-inscription-link-type.prisma.repository.provider';
+import { ExclusiveInscriptionLinkPrismaRepositoryProvider } from './prisma/exclusive-inscription-link/model/exclusive-inscription-link.prisma.repository.provider';
 import { FinancialMovementPrismaRepositoryProvider } from './prisma/financial-movement/model/financial-movement.repository.provider';
 import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/model/inscription.prisma.repository.provider';
 import { OnSiteParticipantPaymentPrismaRepositoryProvider } from './prisma/on-site-participant-payment/model/on-site-participant-payment.repository.provider';
@@ -58,6 +60,8 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     EventExpensesPrismaRepositoryProvider,
     TicketSalePaymentPrismaRepositoryProvider,
     TicketUnitPrismaRepositoryProvider,
+    ExclusiveInscriptionLinkPrismaRepositoryProvider,
+    ExclusiveInscriptionLinkTypePrismaRepositoryProvider,
   ],
   exports: [
     AccountPrismaRepositoryProvider,
@@ -87,6 +91,8 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     EventExpensesPrismaRepositoryProvider,
     TicketSalePaymentPrismaRepositoryProvider,
     TicketUnitPrismaRepositoryProvider,
+    ExclusiveInscriptionLinkPrismaRepositoryProvider,
+    ExclusiveInscriptionLinkTypePrismaRepositoryProvider,
   ],
 })
 export class DataBaseModule {}
