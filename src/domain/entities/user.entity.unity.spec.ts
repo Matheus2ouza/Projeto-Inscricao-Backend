@@ -1,106 +1,124 @@
+import { roleType } from 'generated/prisma';
 import { ValidatorDomainException } from '../shared/exceptions/validator-domain.exception';
 import { Account } from './account.entity';
 
-describe('Domain > Entities > User', () => {
-  describe('create', () => {
-    it('should create a User when passing valid user and password', () => {
-      // Arrange
+describe('Domínio > Entidades > Usuário', () => {
+  describe('criar', () => {
+    it('deve criar um usuário quando receber usuário e senha válidos', () => {
+      // Preparação
       const aUsername = 'BELÉM';
       const aPassword = '123456';
+      const aRole = roleType.USER;
+      const anEmail = 'belem@example.com';
 
-      // Act
+      // Ação
       const anUser = Account.create({
         username: aUsername,
         password: aPassword,
+        role: aRole,
+        email: anEmail,
       });
 
-      // Assert
+      // Verificação
       expect(anUser).toBeInstanceOf(Account);
       expect(anUser.getUsername()).toBe(aUsername);
       expect(anUser.getPassword()).not.toBe(aPassword);
       expect(anUser.comparePassword(aPassword)).toBe(true);
-      expect(anUser.getRole()).toBe('user');
+      expect(anUser.getRole()).toBe(aRole);
+      expect(anUser.getEmail()).toBe(anEmail);
       expect(anUser.getId()).toBeDefined();
       expect(anUser.getId().length).toBe(36);
       expect(anUser.getCreatedAt()).toBeInstanceOf(Date);
       expect(anUser.getUpdatedAt()).toBeInstanceOf(Date);
     });
 
-    it('should throw an error when passing an invalid user', () => {
-      // Arrange
+    it('deve lançar erro quando receber um usuário inválido', () => {
+      // Preparação
       const anInvalidUser = '';
       const anInvalidPassword = '12345678';
 
-      // Act
+      // Ação
       const anError = () => {
         Account.create({
           username: anInvalidUser,
           password: anInvalidPassword,
+          role: roleType.USER,
+          email: 'belem@example.com',
         });
       };
 
-      // Assert
+      // Verificação
       expect(anError).toThrow(ValidatorDomainException);
     });
 
-    it('should throw an error when passing an invalid password', () => {
-      // Arrange
+    it('deve lançar erro quando receber uma senha inválida', () => {
+      // Preparação
       const anInvalidUsser = 'BELÉM';
       const anInvalidPassword = '1234';
 
-      // Act
+      // Ação
       const anError = () => {
         Account.create({
           username: anInvalidUsser,
           password: anInvalidPassword,
+          role: roleType.USER,
+          email: 'belem@example.com',
         });
       };
 
-      // Assert
+      // Verificação
       expect(anError).toThrow(ValidatorDomainException);
     });
   });
 
-  describe('comparePassword', () => {
-    it('should return true when the informed password matches with User password', () => {
-      // Arrange
+  describe('comparar senha', () => {
+    it('deve retornar true quando a senha informada corresponder à senha do usuário', () => {
+      // Preparação
       const aUser = 'BELÉM';
       const aPassword = '123456';
+      const aRole = roleType.USER;
+      const anEmail = 'belem@example.com';
 
-      // Act
+      // Ação
       const anUser = Account.create({
         username: aUser,
         password: aPassword,
+        role: aRole,
+        email: anEmail,
       });
 
-      // Assert
-      expect(anUser.getPassword()).not.toBe(aUser);
+      // Verificação
+      expect(anUser.getPassword()).not.toBe(aPassword);
 
-      // Compare password
-      const isPasswordCorrect = anUser.comparePassword(aUser);
+      // Compara a senha
+      const isPasswordCorrect = anUser.comparePassword(aPassword);
 
-      // Assert
+      // Verificação
       expect(isPasswordCorrect).toBe(true);
     });
 
-    it('should return false when the informed password does not match with User password', () => {
-      // Arrange
+    it('deve retornar false quando a senha informada não corresponder à senha do usuário', () => {
+      // Preparação
       const aUser = 'BELÉM';
       const aPassword = '123456';
+      const aRole = roleType.USER;
+      const anEmail = 'belem@example.com';
 
-      // Act
+      // Ação
       const anUser = Account.create({
         username: aUser,
         password: aPassword,
+        role: aRole,
+        email: anEmail,
       });
 
-      // Assert
+      // Verificação
       expect(anUser.getPassword()).not.toBe(aPassword);
 
-      // Compare password with wrong password
+      // Compara com uma senha incorreta
       const isPasswordCorrect = anUser.comparePassword('wrong-password');
 
-      // Assert
+      // Verificação
       expect(isPasswordCorrect).toBe(false);
     });
   });
