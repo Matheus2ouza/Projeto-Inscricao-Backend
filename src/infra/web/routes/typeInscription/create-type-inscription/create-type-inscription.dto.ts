@@ -8,8 +8,8 @@ export type CreateTypeInscriptionBody = {
   rule: Date | null;
   eventId: string;
   specialType: boolean;
-  participantLimit?: number;
-  limitIsStrict?: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
 };
 
 export type CreateTypeInscriptionResponse = {

@@ -69,7 +69,7 @@ export class Inscription extends Entity {
     this.validate();
   }
 
-  // ─── Factory Methods ──────────────────────────────────────────────────────────
+  // Factory Methods
 
   public static create({
     accountId,
