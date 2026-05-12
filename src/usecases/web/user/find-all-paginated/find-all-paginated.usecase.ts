@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
+import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedUsersInput = {
@@ -26,7 +27,10 @@ export type FindAllPaginatedUsersOutput = {
 export class FindAllPaginatedUsersUsecase
   implements Usecase<FindAllPaginatedUsersInput, FindAllPaginatedUsersOutput>
 {
-  public constructor(private readonly userGateway: AccountGateway) {}
+  public constructor(
+    private readonly userGateway: AccountGateway,
+    private readonly regionGateway: RegionGateway,
+  ) {}
 
   public async execute(
     input: FindAllPaginatedUsersInput,
@@ -39,19 +43,28 @@ export class FindAllPaginatedUsersUsecase
 
     const regionId = input.regionId;
 
-    const [models, total] = await Promise.all([
+    const [anUsers, total] = await Promise.all([
       this.userGateway.findManyPaginated(safePage, safePageSize, regionId),
       this.userGateway.countAll(regionId),
     ]);
 
-    const users = models.map((anUser) => ({
-      id: anUser.getId(),
-      username: anUser.getUsername(),
-      role: anUser.getRole(),
-      createdAt: anUser.getCreatedAt(),
-      updatedAt: anUser.getUpdatedAt(),
-      regionName: anUser.getRegionName(),
-    }));
+    const users = await Promise.all(
+      anUsers.map(async (user) => {
+        const regionId = user.getRegionId();
+        const region = regionId
+          ? await this.regionGateway.findById(regionId)
+          : undefined;
+
+        return {
+          id: user.getId(),
+          username: user.getUsername(),
+          role: user.getRole(),
+          createdAt: user.getCreatedAt(),
+          updatedAt: user.getUpdatedAt(),
+          regionName: region?.getName(),
+        };
+      }),
+    );
 
     const pageCount = Math.max(1, Math.ceil(total / safePageSize));
 
