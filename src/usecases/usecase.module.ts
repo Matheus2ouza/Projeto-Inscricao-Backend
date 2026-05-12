@@ -82,6 +82,7 @@ import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xl
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
+import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -283,6 +284,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsGuestInscriptionUsecase,
     FindAllWithParticipantsUsecase,
     FindAllNamesInscriptionUsecase,
+
+    // Exclusive Inscription Links
+    CreateExclusiveInscriptionLinkUsecase,
 
     // Updates
     UpdateInscriptionUsecase,
@@ -500,6 +504,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindDetailsGuestInscriptionUsecase,
     FindAllWithParticipantsUsecase,
     FindAllNamesInscriptionUsecase,
+
+    // Exclusive Inscription Links
+    CreateExclusiveInscriptionLinkUsecase,
 
     // Updates
     UpdateInscriptionUsecase,
