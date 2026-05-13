@@ -1,4 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   PreviewExclusiveInscriptionLinkInput,
   PreviewExclusiveInscriptionLinkUsecase,
@@ -15,6 +16,7 @@ export class PreviewExclusiveInscriptionLinkRoute {
     private readonly previewExclusiveInscriptionLinkUsecase: PreviewExclusiveInscriptionLinkUsecase,
   ) {}
 
+  @IsPublic()
   @Get('/:token/preview')
   async handle(
     @Param() params: PreviewExclusiveInscriptionLinkParams,
