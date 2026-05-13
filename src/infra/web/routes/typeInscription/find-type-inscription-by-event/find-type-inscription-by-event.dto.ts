@@ -1,13 +1,15 @@
-export type FindTypeInscriptionByEventIdRequest = {
+export type FindTypeInscriptionByEventRequest = {
   eventId: string;
 };
 
-export type FindTypeInscriptionByEventIdResponse = {
+export type FindTypeInscriptionByEventResponse = {
   id: string;
   description: string;
   rule: Date | null;
   value: number;
   specialType: boolean;
   active: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
   createdAt: Date;
 }[];

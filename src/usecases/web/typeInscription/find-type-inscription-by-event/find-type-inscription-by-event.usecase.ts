@@ -4,27 +4,26 @@ import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 
-export type FindTypeInscriptionByEventIdInput = {
+export type FindTypeInscriptionByEventInput = {
   eventId: string;
 };
 
-export type FindTypeInscriptionByEventIdOutput = {
+export type FindTypeInscriptionByEventOutput = {
   id: string;
   description: string;
   rule: Date | null;
   value: number;
   specialType: boolean;
   active: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
   createdAt: Date;
 }[];
 
 @Injectable()
-export class FindTypeInscriptionByEventIdUsecase
+export class FindTypeInscriptionByEventUsecase
   implements
-    Usecase<
-      FindTypeInscriptionByEventIdInput,
-      FindTypeInscriptionByEventIdOutput
-    >
+    Usecase<FindTypeInscriptionByEventInput, FindTypeInscriptionByEventOutput>
 {
   public constructor(
     private readonly eventGateway: EventGateway,
@@ -32,15 +31,15 @@ export class FindTypeInscriptionByEventIdUsecase
   ) {}
 
   async execute(
-    input: FindTypeInscriptionByEventIdInput,
-  ): Promise<FindTypeInscriptionByEventIdOutput> {
+    input: FindTypeInscriptionByEventInput,
+  ): Promise<FindTypeInscriptionByEventOutput> {
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `attempt to list type inscriptions for event ${input.eventId} that does not exist`,
         `Não foi possível encontrar o evento informado.`,
-        FindTypeInscriptionByEventIdUsecase.name,
+        FindTypeInscriptionByEventUsecase.name,
       );
     }
 
@@ -48,7 +47,7 @@ export class FindTypeInscriptionByEventIdUsecase
       event.getId(),
     );
 
-    const output: FindTypeInscriptionByEventIdOutput = typeInscriptions.map(
+    const output: FindTypeInscriptionByEventOutput = typeInscriptions.map(
       (typeInscription) => ({
         id: typeInscription.getId(),
         description: typeInscription.getDescription(),
@@ -56,6 +55,8 @@ export class FindTypeInscriptionByEventIdUsecase
         value: typeInscription.getValue(),
         specialType: typeInscription.getSpecialType(),
         active: typeInscription.getActive(),
+        participantLimit: typeInscription.getParticipantLimit(),
+        limitIsStrict: typeInscription.getLimitIsStrict(),
         createdAt: typeInscription.getCreatedAt(),
       }),
     );
