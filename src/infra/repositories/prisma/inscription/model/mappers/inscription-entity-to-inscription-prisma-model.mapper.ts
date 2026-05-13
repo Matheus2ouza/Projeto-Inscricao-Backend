@@ -25,6 +25,7 @@ export class InscriptionEntityToInscriptionPrismaModelMapper {
       expiresAt: inscription.getExpiresAt() ?? null,
       cancelledAt: inscription.getCancelledAt() ?? null,
       observation: inscription.getObservation() ?? null,
+      exclusiveLinkId: inscription.getExclusiveLinkId() ?? null,
     };
   }
 }

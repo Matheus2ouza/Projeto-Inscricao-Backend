@@ -63,6 +63,7 @@ export class InscriptionZodValidator implements Validator<Inscription> {
         ],
         'Informe um status válido',
       ),
+      exclusiveLinkId: z.uuid().optional(),
     });
 
     return zodSchema;
