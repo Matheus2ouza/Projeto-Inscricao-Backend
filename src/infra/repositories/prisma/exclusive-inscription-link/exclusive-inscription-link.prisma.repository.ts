@@ -27,4 +27,50 @@ export class ExclusiveInscriptionLinkPrismaRepository
     const created = await tx.exclusiveInscriptionLink.create({ data });
     return PrismaToEntity.map(created);
   }
+
+  async findById(id: string): Promise<ExclusiveInscriptionLink | null> {
+    const found = await this.prisma.exclusiveInscriptionLink.findUnique({
+      where: { id },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findByToken(token: string): Promise<ExclusiveInscriptionLink | null> {
+    const found = await this.prisma.exclusiveInscriptionLink.findUnique({
+      where: { token },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findPaginated(
+    filters: { eventId: string },
+    page: number,
+    pageSize: number,
+  ): Promise<ExclusiveInscriptionLink[]> {
+    const where = this.buildWhereClause(filters);
+
+    const exclusiveInscriptionLinks =
+      await this.prisma.exclusiveInscriptionLink.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      });
+    return exclusiveInscriptionLinks.map(PrismaToEntity.map);
+  }
+
+  async countAll(filters: { eventId: string }): Promise<number> {
+    const where = this.buildWhereClause(filters);
+    const count = await this.prisma.exclusiveInscriptionLink.count({ where });
+    return count;
+  }
+
+  private buildWhereClause(filters: { eventId: string }) {
+    const { eventId } = filters;
+
+    return {
+      eventId,
+    };
+  }
 }

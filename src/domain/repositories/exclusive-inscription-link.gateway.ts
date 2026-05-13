@@ -10,4 +10,15 @@ export abstract class ExclusiveInscriptionLinkGateway {
     exclusiveInscriptionLink: ExclusiveInscriptionLink,
     tx: PrismaTransactionClient,
   ): Promise<ExclusiveInscriptionLink>;
+
+  abstract findById(id: string): Promise<ExclusiveInscriptionLink | null>;
+  abstract findByToken(token: string): Promise<ExclusiveInscriptionLink | null>;
+
+  abstract findPaginated(
+    filters: { eventId: string },
+    page: number,
+    pageSize: number,
+  ): Promise<ExclusiveInscriptionLink[]>;
+
+  abstract countAll(filters: { eventId: string }): Promise<number>;
 }

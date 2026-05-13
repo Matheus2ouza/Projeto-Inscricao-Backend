@@ -717,6 +717,43 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return Math.max(totalValue - totalPaid, 0);
   }
 
+  async countByExclusiveLinkId(exclusiveLinkId: string): Promise<number> {
+    const result = await this.prisma.inscription.count({
+      where: {
+        exclusiveLinkId,
+        status: { notIn: ['CANCELLED', 'EXPIRED'] },
+      },
+    });
+
+    return result;
+  }
+
+  async countByExclusiveLinkIds(
+    linkIds: string[],
+  ): Promise<Record<string, number>> {
+    const counts = await this.prisma.inscription.groupBy({
+      by: ['exclusiveLinkId'],
+      where: {
+        exclusiveLinkId: { in: linkIds },
+        status: { notIn: ['CANCELLED', 'EXPIRED'] },
+      },
+      _count: { id: true },
+    });
+
+    const result: Record<string, number> = {};
+
+    // inicializa todos com 0 para links sem inscrições
+    for (const id of linkIds) result[id] = 0;
+
+    for (const c of counts) {
+      if (c.exclusiveLinkId) {
+        result[c.exclusiveLinkId] = c._count.id;
+      }
+    }
+
+    return result;
+  }
+
   // Busca o total de participantes referente ao evento,
   // somando o total de participantes (guest) e accountParticipantInEvent
   async countParticipantsByEventId(

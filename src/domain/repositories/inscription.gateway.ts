@@ -291,6 +291,14 @@ export abstract class InscriptionGateway {
   // Conta o total de inscrições devedoras, usa o accountId como filtro opcional caso deseja somente de uma conta específica
   abstract countTotalDue(eventId: string, accountId?: string): Promise<number>;
 
+  // contagem de inscrições referete a somente um exclusive link
+  abstract countByExclusiveLinkId(exclusiveLinkId: string): Promise<number>;
+
+  // contagem de inscrições referete a varios exclusives Links
+  abstract countByExclusiveLinkIds(
+    exclusiveLinkId: string[],
+  ): Promise<Record<string, number>>;
+
   // Atualizações de status e valor
   // Atualiza o status de uma inscrição
   abstract updateStatus(

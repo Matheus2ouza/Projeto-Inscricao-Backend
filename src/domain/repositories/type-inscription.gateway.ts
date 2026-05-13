@@ -25,9 +25,26 @@ export abstract class TypeInscriptionGateway {
     eventId: string,
   ): Promise<(TypeInscription & { currentCount: number })[]>;
 
+  abstract findByExclusiveLinkIdWithCount(
+    exclusiveLinkId: string,
+    eventId: string,
+  ): Promise<(TypeInscription & { currentCount: number })[]>;
+
+  abstract findByExclusiveLinkIdsWithCount(
+    linkIds: string[],
+    eventId: string,
+  ): Promise<Record<string, (TypeInscription & { currentCount: number })[]>>;
+
+  abstract findByExclusiveInscriptionLinkId(
+    exclusiveInscriptionLinkId: string,
+  ): Promise<TypeInscription[]>;
+
   abstract findTypeInscriptionByAccountParticipantInEventId(
     accountParticipantInEventId: string,
   ): Promise<TypeInscription | null>;
 
   abstract countAllByEvent(eventId: string): Promise<number>;
+  abstract countParticipantsUsingTypeInscription(
+    typeInscriptionId: string,
+  ): Promise<number>;
 }

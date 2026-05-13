@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { ParticipantEntityToParticipantPrismaModelMapper as EntityToPrisma } from './model/mapper/participant-entity-to-participant-prisma-model.mapper';
 import { ParticipantPrismaModelToParticipantEntityMapper as PrismaToEntity } from './model/mapper/participant-prisma-model-to-participant-entity.mapper';
 
@@ -17,6 +17,18 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       data,
       include: { typeInscription: { select: { description: true } } },
     });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    participant: Participant,
+    tx: PrismaTransactionClient,
+  ): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const created = await tx.participant.create({
+      data,
+    });
+
     return PrismaToEntity.map(created);
   }
 
