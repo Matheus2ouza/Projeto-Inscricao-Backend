@@ -60,6 +60,10 @@ import { UpdateLocationEventUsecase } from './web/event/update-location/update-l
 import { UpdateLogoEventUsecase } from './web/event/update-logo/update-logo.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
 import { UpdateTicketsSaleUsecase } from './web/event/update-tickets-sale/update-tickets-sale.usecase';
+import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.usecase';
+import { FindAllExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/find-all-exclusive-inscription-link/find-all-exclusive-inscription-link.usecase';
+import { PreviewExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/preview-exclusive-inscription-link/preview-exclusive-inscription-link.usecase';
+import { ValidateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
@@ -75,6 +79,7 @@ import { FindDetailsInscriptionUsecase } from './web/inscription/find-details-in
 import { RegisterGroupInscriptionUsecase } from './web/inscription/group/register/register-grup-inscription.usecase';
 import { RegisterGuestInscriptionUsecase } from './web/inscription/guest/register/register-guest-inscription.usecase';
 import { RegisterIndivInscriptionUsecase } from './web/inscription/indiv/register/register-indiv-inscription.usecase';
+import { InscriptionExclusiveLinkUsecase } from './web/inscription/inscription-exclusive-link/inscription-exclusive-link.usecase';
 import { GeneratePdfAllInscriptionsUsecase } from './web/inscription/reports/pdf/generate-pdf-all-inscriptions/generate-pdf-all-inscriptions.usecase';
 import { GeneratePdfDetailsInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-details-guest-inscription/generate-pdf-details-guest-inscription.usecase';
 import { GeneratePdfInscriptionUsecase } from './web/inscription/reports/pdf/generate-pdf-inscription/generate-pdf-inscription.usecase';
@@ -82,7 +87,6 @@ import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xl
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
-import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -112,6 +116,7 @@ import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pe
 import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
 import { RegisterPaymentAdminUsecase } from './web/payments/register-payment-admin/register-payment-admin.usecase';
+import { RegisterPaymentPixAssasUsescase } from './web/payments/register-pix-assas/register-payment-pix-assas.usecase';
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
@@ -139,7 +144,7 @@ import { CreateTypeInscriptionUseCase } from './web/typeInscription/create-type-
 import { DeletetypeInscriptionUsecase } from './web/typeInscription/delete-type-inscription/delete-type-inscription.usecase';
 import { UpdateTypeInscriptionActiveUsecase } from './web/typeInscription/disability-type-inscription/update-type-inscription-active.usecase';
 import { FindAllTypeInscriptionUsecase } from './web/typeInscription/find-all-inscription/find-all-inscription.usecase';
-import { FindTypeInscriptionByEventIdUsecase } from './web/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.usecase';
+import { FindTypeInscriptionByEventUsecase } from './web/typeInscription/find-type-inscription-by-event/find-type-inscription-by-event.usecase';
 import { UpdateTypeInscriptionUsecase } from './web/typeInscription/update-type-inscription/update-type-inscription.usecase';
 import { CreateUserUsecase } from './web/user/create/create-user.usecase';
 import { FindAllPaginatedUsersUsecase } from './web/user/find-all-paginated/find-all-paginated.usecase';
@@ -261,7 +266,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Update
     UpdateTypeInscriptionUsecase,
     // Find By EventId
-    FindTypeInscriptionByEventIdUsecase,
+    FindTypeInscriptionByEventUsecase,
     // FInd All
     FindAllTypeInscriptionUsecase,
 
@@ -285,8 +290,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllWithParticipantsUsecase,
     FindAllNamesInscriptionUsecase,
 
-    // Exclusive Inscription Links
-    CreateExclusiveInscriptionLinkUsecase,
+    // register exclusive
+    InscriptionExclusiveLinkUsecase,
 
     // Updates
     UpdateInscriptionUsecase,
@@ -302,6 +307,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Inscriptions reports - XLSX
     GenerateXlsxAllInscriptionsUsecase,
 
+    // Exclusive Inscription Links
+    CreateExclusiveInscriptionLinkUsecase,
+    FindAllExclusiveInscriptionLinkUsecase,
+    ValidateExclusiveInscriptionLinkUsecase,
+    PreviewExclusiveInscriptionLinkUsecase,
+
     // Payment
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
@@ -311,6 +322,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
+    RegisterPaymentPixAssasUsescase,
     CreatePaymentLinkUsecase,
 
     // Payment - register admin
@@ -481,7 +493,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Update
     UpdateTypeInscriptionUsecase,
     // Find By EventId
-    FindTypeInscriptionByEventIdUsecase,
+    FindTypeInscriptionByEventUsecase,
     // FInd All
     FindAllTypeInscriptionUsecase,
 
@@ -505,8 +517,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllWithParticipantsUsecase,
     FindAllNamesInscriptionUsecase,
 
-    // Exclusive Inscription Links
-    CreateExclusiveInscriptionLinkUsecase,
+    // register exclusive
+    InscriptionExclusiveLinkUsecase,
 
     // Updates
     UpdateInscriptionUsecase,
@@ -522,6 +534,12 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Inscriptions reports - XLSX
     GenerateXlsxAllInscriptionsUsecase,
 
+    // Exclusive Inscription Links
+    CreateExclusiveInscriptionLinkUsecase,
+    FindAllExclusiveInscriptionLinkUsecase,
+    ValidateExclusiveInscriptionLinkUsecase,
+    PreviewExclusiveInscriptionLinkUsecase,
+
     // Payment
     ListAllPaymentsUseCase,
     ListAllPaymentsPendingUsecase,
@@ -531,6 +549,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
+    RegisterPaymentPixAssasUsescase,
     CreatePaymentLinkUsecase,
 
     // Payment - register admin

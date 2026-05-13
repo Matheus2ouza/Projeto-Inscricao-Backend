@@ -13,6 +13,8 @@ import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecase
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/usecases/environment-variable-not-found-usecase-exception.filter';
+import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
+import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
@@ -70,6 +72,9 @@ import { UpdateLogoEventRoute } from './routes/event/update-logo/update-logo.rou
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/update-tickets-sale.route';
 import { CreateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.route';
+import { FindAllExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/find-all-exclusive-inscription-link/find-all-exclusive-inscription-link.route';
+import { PreviewExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/preview-exclusive-inscription-link/preview-exclusive-inscription-link.route';
+import { ValidateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.route';
 import { CreateExpensesRoute } from './routes/expenses/create/create-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
@@ -83,6 +88,7 @@ import { FindAllNamesInscriptionRoute } from './routes/inscription/find-all-name
 import { FindAllPaginatedInscriptionsRoute } from './routes/inscription/find-all-paginated-inscription/find-all-paginated-inscription.route';
 import { FindDetailsGuestInscriptionRoute } from './routes/inscription/find-details-gues-inscription/find-details-gues-inscription.route';
 import { FindDetailsInscriptionRoute } from './routes/inscription/find-details-inscription/find-details-inscription.route';
+import { InscriptionExclusiveLinkRoute } from './routes/inscription/inscription-exclusive-link/inscription-exclusive-link.route';
 import { RegisterGroupInscriptionRoute } from './routes/inscription/inscription-group/register/register-grup-inscription.route';
 import { RegisterGuestInscriptionRoute } from './routes/inscription/inscription-guest/register/register-guest-inscription.route';
 import { RegisterIndivInscriptionRoute } from './routes/inscription/inscription-indiv/register/register-indiv-inscription.route';
@@ -122,6 +128,7 @@ import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-p
 import { PaymentsDetailsRoute } from './routes/payments/payments-details/payments-details.route';
 import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
 import { RegisterPaymentAdminRoute } from './routes/payments/register-payment-admin/register-payment-admin.route';
+import { RegisterPaymentPixAssasRoute } from './routes/payments/register-pix-assas/register-pix-assas.route';
 import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
 import { RejectedPaymentRoute } from './routes/payments/rejected-payment/rejected-payment.route';
 import { ReversePaymentRoute } from './routes/payments/reverse-payment/reverse-payment.route';
@@ -149,7 +156,7 @@ import { CreateTypeInscriptionRoute } from './routes/typeInscription/create-type
 import { DeletetypeInscriptionRoute } from './routes/typeInscription/delete/delete-type-inscription.route';
 import { UpdateTypeInscriptionActiveRoute } from './routes/typeInscription/disability-type-inscription/update-type-inscription-active.route';
 import { FindAllTypeInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
-import { FindByEventId } from './routes/typeInscription/find-type-inscription-by-eventId/find-type-inscription-by-eventId.route';
+import { FindTypeInscriptionByEvent } from './routes/typeInscription/find-type-inscription-by-event/find-type-inscription-by-event.route';
 import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update-type-inscription/update-type-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
@@ -266,7 +273,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Find All
     FindAllTypeInscriptionRoute,
     // Find by Event
-    FindByEventId,
+    FindTypeInscriptionByEvent,
 
     // Inscriptions
     // Find all - not paginated
@@ -288,6 +295,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Inscriptions - Admin
     CreateInscriptionAdminRoute,
+
+    // Inscription - Exclusive
+    InscriptionExclusiveLinkRoute,
 
     // Inscriptions reports - PDF
     GeneratePdfAllInscriptionsRoute,
@@ -317,6 +327,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // EXCLUSIVE INSCRIPTIONS LINK
     CreateExclusiveInscriptionLinkRoute,
+    FindAllExclusiveInscriptionLinkRoute,
+    ValidateExclusiveInscriptionLinkRoute,
+    PreviewExclusiveInscriptionLinkRoute,
 
     // PAYMENTS
     // Payment Inscriptions
@@ -331,6 +344,8 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Payment - Register Pix
     RegisterPaymentPixRoute,
+    // Payment - Register Pix Assas
+    RegisterPaymentPixAssasRoute,
 
     // Payment - Register Cred
     RegisterPaymentCredRoute,
@@ -420,6 +435,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     InscriptionExpiredUsecaseExceptionFilterProvider,
 
     // EXCLUSIVE INSCRIPTION LINK
+    ExclusiveInscriptionLinkNotFoundExceptionFilterProvider,
+    ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider,
 
     // Payment
     PaymentNotFoundUsecaseExceptionFilterProvider,
