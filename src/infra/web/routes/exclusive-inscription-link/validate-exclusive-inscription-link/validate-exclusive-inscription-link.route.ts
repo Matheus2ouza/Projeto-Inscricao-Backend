@@ -1,4 +1,5 @@
 import { Controller, Get, HttpCode, Param } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   ValidateExclusiveInscriptionLinkInput,
   ValidateExclusiveInscriptionLinkUsecase,
@@ -11,6 +12,7 @@ export class ValidateExclusiveInscriptionLinkRoute {
     private readonly validateExclusiveInscriptionLinkUsecase: ValidateExclusiveInscriptionLinkUsecase,
   ) {}
 
+  @IsPublic()
   @Get('/:token/validate')
   @HttpCode(204)
   async handle(
