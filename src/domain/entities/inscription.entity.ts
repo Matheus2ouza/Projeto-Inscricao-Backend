@@ -17,6 +17,8 @@ export type InscriptionCreateDto = {
   totalPaid?: number;
   status: InscriptionStatus;
   expiresAt?: Date;
+  observation?: string;
+  exclusiveLinkId?: string;
 };
 
 export type InscriptionWithDto = {
@@ -38,6 +40,7 @@ export type InscriptionWithDto = {
   expiresAt?: Date;
   cancelledAt?: Date;
   observation?: string;
+  exclusiveLinkId?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -64,6 +67,7 @@ export class Inscription extends Entity {
     private expiresAt?: Date,
     private cancelledAt?: Date,
     private observation?: string,
+    private exclusiveLinkId?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -85,6 +89,8 @@ export class Inscription extends Entity {
     status,
     email,
     expiresAt,
+    observation,
+    exclusiveLinkId,
   }: InscriptionCreateDto): Inscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -117,6 +123,9 @@ export class Inscription extends Entity {
       guestLocality,
       isGuest,
       expiresAt,
+      undefined,
+      observation,
+      exclusiveLinkId,
     );
   }
 
@@ -141,6 +150,7 @@ export class Inscription extends Entity {
     updatedAt,
     email,
     observation,
+    exclusiveLinkId,
   }: InscriptionWithDto): Inscription {
     return new Inscription(
       id,
@@ -163,6 +173,7 @@ export class Inscription extends Entity {
       expiresAt,
       cancelledAt,
       observation,
+      exclusiveLinkId,
     );
   }
 
@@ -238,6 +249,10 @@ export class Inscription extends Entity {
 
   public getObservation(): string | undefined {
     return this.observation;
+  }
+
+  public getExclusiveLinkId(): string | undefined {
+    return this.exclusiveLinkId;
   }
 
   public getCreatedAt(): Date {
