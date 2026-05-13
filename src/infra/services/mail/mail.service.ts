@@ -65,7 +65,8 @@ export class MailService {
       this.logger.log(`E-mail enviado com sucesso: ${res.data.id}`);
       return res.data;
     } catch (error) {
-      this.logger.error(`Erro ao enviar e-mail: ${error.message}`, error.stack);
+      const err = error as Error;
+      this.logger.error(`Erro ao enviar e-mail: ${err}`, err.stack);
       throw error;
     }
   }
@@ -87,9 +88,10 @@ export class MailService {
       const html = await this.renderReactTemplate(templateName, context);
       return await this.sendMail({ to, subject, html, attachments });
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar e-mail por template '${templateName}': ${error.message}`,
-        error.stack,
+        `Erro ao enviar e-mail por template '${templateName}': ${err.message}`,
+        err.stack,
       );
       throw error;
     }
