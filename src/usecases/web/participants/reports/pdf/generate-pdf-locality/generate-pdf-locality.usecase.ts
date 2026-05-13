@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import archiver from 'archiver';
 import axios from 'axios';
+import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
+import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { canonicalLocality } from 'src/shared/utils/locality';
 import { ParticipantsByLocalityPdfGenerator } from 'src/shared/utils/pdfs/participants/participants-by-locality-pdf.generator';
@@ -19,8 +21,12 @@ export type GeneratePdfLocalityInput = {
   separate: boolean;
   reduced: boolean;
   summary: boolean;
+  // filtros
   typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
+  inscriptionsStatus?: InscriptionStatus | InscriptionStatus[];
+  startDate?: string;
+  endDate?: string;
 };
 
 export type ReportColumn =
@@ -55,6 +61,7 @@ export class GeneratePdfLocalityUsecase
     private readonly accountGateway: AccountGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly participantGateway: ParticipantGateway,
+    private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -71,67 +78,32 @@ export class GeneratePdfLocalityUsecase
       );
     }
 
+    const filters = {
+      status: input.inscriptionsStatus,
+      typeInscriptionId: input.typeInscriptions,
+      startDate: input.startDate,
+      endDate: input.endDate,
+    };
+
     const inscriptions = await this.inscriptionGateway.findByLocality(
       event.getId(),
+      filters,
     );
 
     const inscriptionIds = inscriptions.map((inscription) =>
       inscription.getId(),
     );
 
-    const filters = {
-      typeInscriptionId: input.typeInscriptions,
-    };
-
-    // Buscar participantes normais (accountParticipant)
-    const participantsNormalArray =
-      await this.accountParticipantGateway.findByInscriptionsIds(
-        inscriptionIds,
-        filters,
-      );
-
-    const rowsNormal = await Promise.all(
-      participantsNormalArray.map(async (pn) => {
-        const account = await this.accountGateway.findById(pn.getAccountId());
-        return {
-          name: pn.getName(),
-          preferredName: pn.getPreferredName(),
-          locality: account?.getUsername() ?? '-',
-          age: this.calculateAge(pn.getBirthDate()),
-          shirtSize: pn.getShirtSize(),
-          shirtType: pn.getShirtType(),
-          gender: pn.getGender(),
-        };
-      }),
+    const rowsNormal = await this.fetchNormalParticipants(
+      inscriptionIds,
+      filters,
     );
 
-    // Buscar participantes guest
-    const participantsGuest =
-      await this.participantGateway.findByInscriptionsIds(
-        inscriptionIds,
-        filters,
-      );
-
-    const localityByInscriptionId = new Map(
-      inscriptions.map((inscription) => {
-        const canonical = canonicalLocality(inscription.getGuestLocality());
-        return [inscription.getId(), canonical || '-'] as const;
-      }),
+    const rowsGuest = await this.fetchGuestParticipants(
+      inscriptionIds,
+      inscriptions,
+      filters,
     );
-
-    const rowsGuest = participantsGuest.map((participant) => {
-      const locality =
-        localityByInscriptionId.get(participant.getInscriptionId()) ?? '-';
-      return {
-        name: participant.getName(),
-        preferredName: participant.getPreferredName(),
-        locality,
-        age: this.calculateAge(participant.getBirthDate()),
-        shirtSize: participant.getShirtSize(),
-        shirtType: participant.getShirtType(),
-        gender: participant.getGender(),
-      };
-    });
 
     // Unir, ordenar por localidade e nome, e indexar
     const rows = [...rowsNormal, ...rowsGuest]
@@ -428,8 +400,87 @@ export class GeneratePdfLocalityUsecase
       if (shouldInclude('gender')) filtered.gender = row.gender;
       if (shouldInclude('shirtSize')) filtered.shirtSize = row.shirtSize;
       if (shouldInclude('shirtType')) filtered.shirtType = row.shirtType;
+      if (shouldInclude('typeInscription'))
+        filtered.typeInscription = row.typeInscription;
 
       return filtered;
     });
+  }
+
+  private async fetchNormalParticipants(
+    inscriptionIds: string[],
+    filters: any,
+  ): Promise<Array<any>> {
+    const participantsNormalArray =
+      await this.accountParticipantGateway.findByInscriptionsIds(
+        inscriptionIds,
+        filters,
+      );
+
+    const rowsNormal = await Promise.all(
+      participantsNormalArray.map(async (pn) => {
+        const account = await this.accountGateway.findById(pn.getAccountId());
+
+        const typeInscription =
+          await this.typeInscriptionGateway.findTypeInscriptionByAccountParticipantInEventId(
+            pn.getId(),
+          );
+
+        return {
+          name: pn.getName(),
+          preferredName: pn.getPreferredName(),
+          locality: account?.getUsername() ?? '-',
+          age: this.calculateAge(pn.getBirthDate()),
+          shirtSize: pn.getShirtSize(),
+          shirtType: pn.getShirtType(),
+          gender: pn.getGender(),
+          typeInscription: typeInscription?.getDescription() ?? 'Não informado',
+        };
+      }),
+    );
+
+    return rowsNormal;
+  }
+
+  private async fetchGuestParticipants(
+    inscriptionIds: string[],
+    inscriptions: any[],
+    filters: any,
+  ): Promise<Array<any>> {
+    const participantsGuest =
+      await this.participantGateway.findByInscriptionsIds(
+        inscriptionIds,
+        filters,
+      );
+
+    const localityByInscriptionId = new Map(
+      inscriptions.map((inscription) => {
+        const canonical = canonicalLocality(inscription.getGuestLocality());
+        return [inscription.getId(), canonical || '-'] as const;
+      }),
+    );
+
+    const rowsGuest = await Promise.all(
+      participantsGuest.map(async (pg) => {
+        const locality =
+          localityByInscriptionId.get(pg.getInscriptionId()) ?? '-';
+
+        const typeInscription = await this.typeInscriptionGateway.findById(
+          pg.getTypeInscriptionId(),
+        );
+        return {
+          name: pg.getName(),
+          preferredName: pg.getPreferredName(),
+          locality,
+          age: this.calculateAge(pg.getBirthDate()),
+          shirtSize: pg.getShirtSize(),
+          shirtType: pg.getShirtType(),
+          gender: pg.getGender(),
+          typeInscription: typeInscription?.getDescription() ?? 'Não informado',
+        };
+      }),
+    );
+
+    return rowsGuest;
   }
 }

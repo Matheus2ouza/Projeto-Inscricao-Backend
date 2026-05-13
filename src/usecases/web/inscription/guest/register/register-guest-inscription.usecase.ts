@@ -127,10 +127,11 @@ export class RegisterGuestInscriptionUsecase
 
     if (inscription.getStatus() === InscriptionStatus.PENDING) {
       void this.sendGuestInscriptionEmail(event.getId(), inscription).catch(
-        (error) => {
+        (error: unknown) => {
+          const err = error as Error;
           this.logger.error(
-            `Erro ao enviar e-mail de inscrição guest ${inscription.getId()} para o evento ${event.getId()}: ${error.message}`,
-            error.stack,
+            `Erro ao enviar e-mail de inscrição guest ${inscription.getId()} para o evento ${event.getId()}: ${err.message}`,
+            err.stack,
           );
         },
       );
@@ -141,10 +142,11 @@ export class RegisterGuestInscriptionUsecase
         event,
         inscription,
         typeInscription.getValue(),
-      ).catch((error) => {
+      ).catch((error: unknown) => {
+        const err = error as Error;
         this.logger.error(
-          `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${error.message}`,
-          error.stack,
+          `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${err.message}`,
+          err.stack,
         );
       });
     }
@@ -199,10 +201,11 @@ export class RegisterGuestInscriptionUsecase
         )}`,
         confirmationCode,
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar e-mail de inscrição guest ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
-        error.stack,
+        `Erro ao enviar e-mail de inscrição guest ${inscription.getId()} para o evento ${eventId}: ${err.message}`,
+        err.stack,
       );
     }
   }
@@ -256,10 +259,11 @@ export class RegisterGuestInscriptionUsecase
         inscriptionEmailData,
         responsiblesEmailData,
       );
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${error.message}`,
-        error.stack,
+        `Erro ao enviar notificação de inscrição em análise ${inscription.getId()} para o evento ${event.getId()}: ${err.message}`,
+        err.stack,
       );
     }
   }

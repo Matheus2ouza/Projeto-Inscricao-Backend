@@ -73,6 +73,8 @@ export class AccountParticipantPrismaRepository
     inscriptionIds: string[],
     filter: {
       typeInscriptionId?: string | string[];
+      startDate?: string;
+      endDate?: string;
     },
   ): Promise<AccountParticipant[]> {
     const where = this.buildWhereClause(filter);
@@ -219,6 +221,8 @@ export class AccountParticipantPrismaRepository
   private buildWhereClause(filter?: {
     accountId?: string;
     typeInscriptionId?: string | string[];
+    startDate?: string;
+    endDate?: string;
   }) {
     const { accountId, typeInscriptionId } = filter || {};
 

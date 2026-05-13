@@ -152,6 +152,7 @@ export abstract class InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
+      startDate?: string;
       endDate?: string;
       responsible?: string;
     },
@@ -174,7 +175,14 @@ export abstract class InscriptionGateway {
   abstract findInscriptionsWithPaid(eventId: string): Promise<Inscription[]>;
 
   // Busca pela localidade
-  abstract findByLocality(eventId: string): Promise<Inscription[]>;
+  abstract findByLocality(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      startDate?: string;
+      endDate?: string;
+    },
+  ): Promise<Inscription[]>;
 
   // Busca IDs de contas de um evento de forma paginada
   abstract findAccountIdsByEventIdPaginated(
@@ -193,6 +201,7 @@ export abstract class InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
+      startDate?: string;
       endDate?: string;
       accountId?: string;
       responsible?: string;
@@ -281,6 +290,14 @@ export abstract class InscriptionGateway {
 
   // Conta o total de inscrições devedoras, usa o accountId como filtro opcional caso deseja somente de uma conta específica
   abstract countTotalDue(eventId: string, accountId?: string): Promise<number>;
+
+  // contagem de inscrições referete a somente um exclusive link
+  abstract countByExclusiveLinkId(exclusiveLinkId: string): Promise<number>;
+
+  // contagem de inscrições referete a varios exclusives Links
+  abstract countByExclusiveLinkIds(
+    exclusiveLinkId: string[],
+  ): Promise<Record<string, number>>;
 
   // Atualizações de status e valor
   // Atualiza o status de uma inscrição

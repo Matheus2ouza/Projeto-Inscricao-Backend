@@ -44,6 +44,16 @@ export class PaymentReceivedRoute {
     if (body.event === 'PAYMENT_RECEIVED') {
       const input: PaymentReceivedInput = {
         asaasPaymentId: body.payment.id,
+        checkoutSession: body.payment.checkoutSession,
+        billingType: body.payment.billingType,
+        value: body.payment.value,
+        netValue: body.payment.netValue,
+        confirmedDate:
+          body.payment.confirmedDate ??
+          body.payment.estimatedCreditDate ??
+          new Date().toISOString(),
+        estimatedCreditDate:
+          body.payment.estimatedCreditDate ?? new Date().toISOString(),
       };
 
       const response = await this.paymentReceivedUsecase.execute(input);

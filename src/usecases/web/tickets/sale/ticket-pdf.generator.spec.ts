@@ -18,6 +18,8 @@ jest.mock('pdf-lib', () => {
     public drawText = jest.fn();
 
     public drawImage = jest.fn();
+
+    public drawLine = jest.fn();
   }
 
   class MockPDFDocument {
@@ -40,7 +42,7 @@ jest.mock('pdf-lib', () => {
       const fontToken = `font:${font}`;
       this.embeddedFonts.push(fontToken);
       return {
-        ...fontToken,
+        token: fontToken,
         widthOfTextAtSize: jest.fn(
           (text: string, size: number) => text.length * size * 0.6,
         ),
@@ -72,7 +74,7 @@ jest.mock('pdf-lib', () => {
   };
 });
 
-describe('TicketPdfGenerator', () => {
+describe('Gerador de PDF de ingresso', () => {
   const mmToPoints = 2.83465;
 
   beforeEach(() => {
@@ -82,7 +84,7 @@ describe('TicketPdfGenerator', () => {
     pdfLibMock.__mock.documentInstances.length = 0;
   });
 
-  it('should apply the expected styling when drawing the ticket pdf', async () => {
+  it('deve aplicar a estilização esperada ao desenhar o PDF do ingresso', async () => {
     (QRCode.toDataURL as jest.Mock).mockResolvedValue(
       'data:image/png;base64,ZmFrZQ==',
     );
@@ -117,26 +119,26 @@ describe('TicketPdfGenerator', () => {
 
     const [page] = document.pages;
 
-    // O novo gerador não usa drawRectangle, apenas drawText e drawImage
+    // O gerador não usa retângulos no layout atual.
     expect(page.drawRectangle).toHaveBeenCalledTimes(0);
 
     const titleCall = page.drawText.mock.calls.find(
       ([text]: [string]) => text === 'Ingresso VIP',
     );
     expect(titleCall).toBeDefined();
-    expect(titleCall?.[1].font).toBe('font:Helvetica-Bold');
+    expect(titleCall?.[1].font.token).toBe('font:Helvetica-Bold');
     expect(titleCall?.[1].size).toBe(9);
 
     const dateCall = page.drawText.mock.calls.find(([text]: [string]) =>
-      text.startsWith('Data:'),
+      text.includes('Data:'),
     );
-    expect(dateCall?.[1].font).toBe('font:Helvetica');
+    expect(dateCall?.[1].font.token).toBe('font:Helvetica');
     expect(dateCall?.[1].size).toBe(7);
 
     const timeCall = page.drawText.mock.calls.find(([text]: [string]) =>
-      text.startsWith('Hora:'),
+      text.includes('Hora:'),
     );
-    expect(timeCall?.[1].font).toBe('font:Helvetica');
+    expect(timeCall?.[1].font.token).toBe('font:Helvetica');
     expect(timeCall?.[1].size).toBe(7);
 
     expect(page.drawImage).toHaveBeenCalledTimes(1);

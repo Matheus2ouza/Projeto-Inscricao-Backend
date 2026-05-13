@@ -9,6 +9,8 @@ export type TypeInscriptionDto = {
   rule: Date | null;
   specialType: boolean;
   active?: boolean;
+  participantLimit: number;
+  limitIsStrict: boolean;
 };
 
 export type TypeInscriptionWithDto = {
@@ -21,6 +23,8 @@ export type TypeInscriptionWithDto = {
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
+  participantLimit: number;
+  limitIsStrict: boolean;
 };
 
 export class TypeInscription extends Entity {
@@ -34,6 +38,8 @@ export class TypeInscription extends Entity {
     private active: boolean,
     createdAt: Date,
     updatedAt: Date,
+    private participantLimit: number,
+    private limitIsStrict: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -46,6 +52,8 @@ export class TypeInscription extends Entity {
     rule,
     specialType,
     active,
+    participantLimit,
+    limitIsStrict,
   }: TypeInscriptionDto): TypeInscription {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -68,6 +76,8 @@ export class TypeInscription extends Entity {
       activedefault,
       createdAt,
       updatedAt,
+      participantLimit,
+      limitIsStrict,
     );
   }
 
@@ -81,6 +91,8 @@ export class TypeInscription extends Entity {
     active,
     createdAt,
     updatedAt,
+    participantLimit,
+    limitIsStrict,
   }: TypeInscriptionWithDto): TypeInscription {
     return new TypeInscription(
       id,
@@ -92,6 +104,8 @@ export class TypeInscription extends Entity {
       active,
       createdAt,
       updatedAt,
+      participantLimit,
+      limitIsStrict,
     );
   }
 
@@ -121,6 +135,14 @@ export class TypeInscription extends Entity {
 
   public getActive(): boolean {
     return this.active;
+  }
+
+  public getParticipantLimit(): number {
+    return this.participantLimit;
+  }
+
+  public getLimitIsStrict(): boolean {
+    return this.limitIsStrict;
   }
 
   public getCreatedAt(): Date {

@@ -1,9 +1,14 @@
 import { genderType } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { Participant } from '../entities/participant.entity';
 
 export abstract class ParticipantGateway {
   // CRUD básico
   abstract create(participant: Participant): Promise<Participant>;
+  abstract createTx(
+    participant: Participant,
+    tx: PrismaTransactionClient,
+  ): Promise<Participant>;
   abstract createMany(participants: Participant[]): Promise<Participant[]>;
   abstract update(participant: Participant): Promise<Participant>;
   abstract delete(id: string): Promise<void>;

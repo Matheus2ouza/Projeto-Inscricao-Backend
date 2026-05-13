@@ -315,6 +315,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
+      startDate?: string;
       endDate?: string;
       responsible?: string;
     },
@@ -385,11 +386,21 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return found.map(PrismaToEntity.map);
   }
 
-  async findByLocality(eventId: string): Promise<Inscription[]> {
+  async findByLocality(
+    eventId: string,
+    filters?: {
+      status?: InscriptionStatus | InscriptionStatus[];
+      startDate?: string;
+      endDate?: string;
+    },
+  ): Promise<Inscription[]> {
+    const where = this.buildWhereClauseInscription({
+      ...filters,
+    });
     const found = await this.prisma.inscription.findMany({
       where: {
         eventId,
-        status: InscriptionStatus.PAID,
+        ...where,
       },
     });
 
@@ -498,6 +509,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     filters: {
       status?: InscriptionStatus[];
       isGuest?: boolean;
+      startDate?: string;
       endDate?: string;
       accountId?: string;
       responsible?: string;
@@ -705,6 +717,43 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return Math.max(totalValue - totalPaid, 0);
   }
 
+  async countByExclusiveLinkId(exclusiveLinkId: string): Promise<number> {
+    const result = await this.prisma.inscription.count({
+      where: {
+        exclusiveLinkId,
+        status: { notIn: ['CANCELLED', 'EXPIRED'] },
+      },
+    });
+
+    return result;
+  }
+
+  async countByExclusiveLinkIds(
+    linkIds: string[],
+  ): Promise<Record<string, number>> {
+    const counts = await this.prisma.inscription.groupBy({
+      by: ['exclusiveLinkId'],
+      where: {
+        exclusiveLinkId: { in: linkIds },
+        status: { notIn: ['CANCELLED', 'EXPIRED'] },
+      },
+      _count: { id: true },
+    });
+
+    const result: Record<string, number> = {};
+
+    // inicializa todos com 0 para links sem inscrições
+    for (const id of linkIds) result[id] = 0;
+
+    for (const c of counts) {
+      if (c.exclusiveLinkId) {
+        result[c.exclusiveLinkId] = c._count.id;
+      }
+    }
+
+    return result;
+  }
+
   // Busca o total de participantes referente ao evento,
   // somando o total de participantes (guest) e accountParticipantInEvent
   async countParticipantsByEventId(
@@ -896,11 +945,22 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : [methodPayment]
       : [];
 
+    const parsedStartDate = startDate ? new Date(startDate) : undefined;
+    const parsedEndDate = endDate ? new Date(endDate) : undefined;
+    const validStartDate =
+      parsedStartDate && !Number.isNaN(parsedStartDate.getTime())
+        ? parsedStartDate
+        : undefined;
+    const validEndDate =
+      parsedEndDate && !Number.isNaN(parsedEndDate.getTime())
+        ? parsedEndDate
+        : undefined;
+
     const createdAt =
-      startDate || endDate
+      validStartDate || validEndDate
         ? {
-            gte: startDate ? new Date(startDate) : undefined,
-            lte: endDate ? new Date(endDate) : undefined,
+            ...(validStartDate ? { gte: validStartDate } : {}),
+            ...(validEndDate ? { lte: validEndDate } : {}),
           }
         : undefined;
 

@@ -9,7 +9,8 @@ export type AccountCreateDto = {
   password: string;
   role: roleType;
   regionId?: string;
-  email: string;
+  email?: string;
+  imageUrl?: string;
 };
 
 export type AccountWithDto = {
@@ -20,7 +21,6 @@ export type AccountWithDto = {
   createdAt: Date;
   updatedAt: Date;
   regionId?: string;
-  regionName?: string;
   email?: string;
   imageUrl?: string;
 };
@@ -34,7 +34,6 @@ export class Account extends Entity {
     createdAt: Date,
     updatedAt: Date,
     private regionId?: string,
-    private regionName?: string,
     private email?: string,
     private imageUrl?: string,
   ) {
@@ -48,6 +47,7 @@ export class Account extends Entity {
     role,
     regionId,
     email,
+    imageUrl,
   }: AccountCreateDto): Account {
     const id = Utils.generateUUID();
 
@@ -66,6 +66,7 @@ export class Account extends Entity {
       updatedAt,
       regionId,
       email,
+      imageUrl,
     );
   }
 
@@ -77,7 +78,6 @@ export class Account extends Entity {
     createdAt,
     updatedAt,
     regionId,
-    regionName,
     email,
     imageUrl,
   }: AccountWithDto): Account {
@@ -89,7 +89,6 @@ export class Account extends Entity {
       createdAt,
       updatedAt,
       regionId,
-      regionName,
       email,
       imageUrl,
     );
@@ -115,10 +114,6 @@ export class Account extends Entity {
     return this.regionId;
   }
 
-  public getRegionName(): string | undefined {
-    return this.regionName;
-  }
-
   public getEmail(): string | undefined {
     return this.email;
   }
@@ -129,6 +124,10 @@ export class Account extends Entity {
 
   public comparePassword(password: string): boolean {
     return Utils.comparePassword(password, this.password);
+  }
+
+  public getCreatedAt(): Date {
+    return this.createdAt;
   }
 
   public getUpdatedAt(): Date {

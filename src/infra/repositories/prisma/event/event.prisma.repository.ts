@@ -139,7 +139,6 @@ export class EventPrismaRepository implements EventGateway {
   async findById(id: string): Promise<Event | null> {
     const found = await this.prisma.events.findUnique({
       where: { id },
-      include: { region: { select: { name: true } } },
     });
     return found ? PrismaToEntity.map(found) : null;
   }

@@ -24,6 +24,7 @@ export class InscriptionPrismaModalToInscriptionEntityMapper {
       cancelledAt: inscription.cancelledAt || undefined,
       email: inscription.email || undefined,
       observation: inscription.observation || undefined,
+      exclusiveLinkId: inscription.exclusiveLinkId || undefined,
     });
   }
 }

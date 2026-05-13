@@ -86,11 +86,158 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
   }
 
   async findAllDescription(): Promise<TypeInscription[]> {
+    const found = await this.prisma.typeInscriptions.findMany();
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByIdsAndEventId(
+    ids: string[],
+    eventId: string,
+  ): Promise<(TypeInscription & { currentCount: number })[]> {
+    const types = await this.prisma.typeInscriptions.findMany({
+      where: {
+        id: { in: ids },
+        eventId,
+        active: true,
+      },
+      include: {
+        _count: {
+          select: {
+            Participant: {
+              where: {
+                inscription: {
+                  status: { notIn: ['CANCELLED', 'EXPIRED'] },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return types.map((t) => {
+      const { _count, ...rest } = t;
+      const entity = PrismaToEntity.map(rest);
+      return Object.assign(entity, { currentCount: _count.Participant });
+    });
+  }
+
+  async findByExclusiveInscriptionLinkId(
+    exclusiveInscriptionLinkId: string,
+  ): Promise<TypeInscription[]> {
     const found = await this.prisma.typeInscriptions.findMany({
-      select: { id: true, description: true, value: true },
+      where: {
+        ExclusiveInscriptionLinkType: {
+          some: {
+            exclusiveLinkId: exclusiveInscriptionLinkId,
+          },
+        },
+      },
     });
 
     return found.map(PrismaToEntity.map);
+  }
+
+  async findByExclusiveLinkIdWithCount(
+    exclusiveLinkId: string,
+    eventId: string,
+  ): Promise<(TypeInscription & { currentCount: number })[]> {
+    const types = await this.prisma.typeInscriptions.findMany({
+      where: {
+        ExclusiveInscriptionLinkType: {
+          some: {
+            exclusiveLinkId,
+          },
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            Participant: {
+              where: {
+                inscription: {
+                  eventId,
+                  status: { notIn: ['CANCELLED', 'EXPIRED'] },
+                },
+              },
+            },
+          },
+        },
+        ExclusiveInscriptionLinkType: {
+          where: {
+            exclusiveLinkId,
+          },
+          select: {
+            exclusiveLinkId: true,
+          },
+        },
+      },
+    });
+
+    return types.map((type) => {
+      const entity = PrismaToEntity.map(type) as TypeInscription;
+
+      return Object.assign(entity, {
+        currentCount: type._count.Participant,
+      });
+    });
+  }
+
+  async findByExclusiveLinkIdsWithCount(
+    linkIds: string[],
+    eventId: string,
+  ): Promise<Record<string, (TypeInscription & { currentCount: number })[]>> {
+    const types = await this.prisma.typeInscriptions.findMany({
+      where: {
+        ExclusiveInscriptionLinkType: {
+          some: {
+            exclusiveLinkId: { in: linkIds },
+          },
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            Participant: {
+              where: {
+                inscription: {
+                  eventId,
+                  status: { notIn: ['CANCELLED', 'EXPIRED'] },
+                },
+              },
+            },
+          },
+        },
+        ExclusiveInscriptionLinkType: {
+          where: {
+            exclusiveLinkId: { in: linkIds },
+          },
+          select: {
+            exclusiveLinkId: true,
+          },
+        },
+      },
+    });
+
+    // monta o Record agrupando por linkId
+    const result: Record<
+      string,
+      (TypeInscription & { currentCount: number })[]
+    > = {};
+
+    for (const t of types) {
+      const { _count, ExclusiveInscriptionLinkType: linkTypes, ...rest } = t;
+      const entity = Object.assign(PrismaToEntity.map(rest), {
+        currentCount: _count.Participant,
+      });
+
+      for (const { exclusiveLinkId } of linkTypes) {
+        if (!result[exclusiveLinkId]) result[exclusiveLinkId] = [];
+        result[exclusiveLinkId].push(entity);
+      }
+    }
+
+    return result;
   }
 
   async findTypeInscriptionByAccountParticipantInEventId(
@@ -112,6 +259,25 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
     return await this.prisma.typeInscriptions.count({
       where: { eventId },
     });
+  }
+
+  async countParticipantsUsingTypeInscription(
+    typeInscriptionId: string,
+  ): Promise<number> {
+    const [participantsCount, accountParticipantsCount] = await Promise.all([
+      this.prisma.participant.count({
+        where: {
+          typeInscriptionId,
+        },
+      }),
+      this.prisma.accountParticipantInEvent.count({
+        where: {
+          typeInscriptionId,
+        },
+      }),
+    ]);
+
+    return participantsCount + accountParticipantsCount;
   }
 
   private buildWhereClauseTypeInscription(filters?: { active?: boolean }) {

@@ -7,13 +7,14 @@ export type PaymentReceivedRequest = {
 
 export type PaymentData = {
   id: string;
-  checkoutSession: string;
+  checkoutSession: string | null;
+  billingType: string;
   description: string | null;
   installmentNumber: number | null;
   value: number;
   netValue: number;
-  confirmedDate: string;
-  estimatedCreditDate: string;
+  confirmedDate: string | null;
+  estimatedCreditDate: string | null;
 };
 
 export type PaymentReceivedResponse = {
