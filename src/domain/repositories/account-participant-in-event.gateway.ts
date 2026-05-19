@@ -1,5 +1,6 @@
 import { genderType } from 'generated/prisma';
 import { AccountParticipantInEvent } from 'src/domain/entities/account-participant-in-event.entity';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 
 export abstract class AccountParticipantInEventGateway {
   //CRUD básico
@@ -8,6 +9,10 @@ export abstract class AccountParticipantInEventGateway {
   ): Promise<AccountParticipantInEvent>;
   abstract createMany(
     accountParticipants: AccountParticipantInEvent[],
+  ): Promise<void>;
+  abstract createManyTx(
+    accountParticipants: AccountParticipantInEvent[],
+    tx: PrismaTransactionClient,
   ): Promise<void>;
 
   // Buscas e listagens
