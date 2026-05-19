@@ -3,7 +3,7 @@ import { statusEvent } from 'generated/prisma';
 import { Event } from 'src/domain/entities/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { RegionPrismaModelToRegionEntityMapper } from '../region/model/mappers/region-prisma-model-to-region-entity.mapper';
 import { EventEntityToEventPrismaModelMapper as EntityToPrisma } from './model/mappers/event-entity-to-event-prisma-model.mapper';
 import { EventPrismaModelToEventEntityMapper as PrismaToEntity } from './model/mappers/event-prisma-model-to-event-entity.mapper';
@@ -22,6 +22,15 @@ export class EventPrismaRepository implements EventGateway {
   async update(event: Event): Promise<Event> {
     const data = EntityToPrisma.map(event);
     const updated = await this.prisma.events.update({
+      where: { id: event.getId() },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async updateTx(event: Event, tx: PrismaTransactionClient): Promise<Event> {
+    const data = EntityToPrisma.map(event);
+    const updated = await tx.events.update({
       where: { id: event.getId() },
       data,
     });

@@ -18,6 +18,7 @@ import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filte
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
+import { DuplicateParticipantCpfUsecaseExceptionFilterProvider } from './filters/usecases/participant/duplicate-participant-cpf.usecase.exception.filter';
 import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment-installment/payment-installment-not-fund-usecase-exception.filter';
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
@@ -437,6 +438,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     // EXCLUSIVE INSCRIPTION LINK
     ExclusiveInscriptionLinkNotFoundExceptionFilterProvider,
     ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider,
+
+    // PARTICIPANTS
+    DuplicateParticipantCpfUsecaseExceptionFilterProvider,
 
     // Payment
     PaymentNotFoundUsecaseExceptionFilterProvider,

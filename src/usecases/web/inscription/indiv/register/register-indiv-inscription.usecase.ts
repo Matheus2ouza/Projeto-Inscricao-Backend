@@ -228,9 +228,10 @@ export class RegisterIndivInscriptionUsecase
         responsibleUsers,
       );
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}: ${error.message}`,
-        error.stack,
+        `Erro ao enviar e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}: ${err.message}`,
+        err.stack,
       );
       // Não lançar exceção para não interromper o fluxo principal
     }

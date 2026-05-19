@@ -1,17 +1,7 @@
-import {
-  genderType,
-  InscriptionStatus,
-  PaymentMethod,
-  ShirtSize,
-  ShirtType,
-  StatusPayment,
-} from 'generated/prisma';
+import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 
 export type CreateInscriptionAdminRequest = {
   eventId: string;
-
-  // O admin pode setar o status da inscrição
-  status: InscriptionStatus;
 
   // para ver se é inscrição Guest
   isGuest: boolean;
@@ -23,14 +13,9 @@ export type CreateInscriptionAdminRequest = {
   phone: string;
 
   // Dados Guest
-  guestLocality?: string;
-
-  totalValue: number;
-  totalPaid?: number;
+  locality?: string;
 
   participants: ParticipantInscription[];
-  // Pode já vir com o pagamento entao é opcional
-  payment?: PaymentInscription;
 };
 
 export type ParticipantInscription = {
@@ -48,26 +33,6 @@ export type ParticipantInscription = {
 
   // Unico dado que é obrigatório em ambas as situações
   typeInscriptionId: string;
-};
-
-export type PaymentInscription = {
-  // Se for pagamento de inscrição normal
-  accountId?: string;
-
-  // Se for pagamento Guest
-  guestName?: string;
-  guestEmail?: string;
-
-  status: StatusPayment;
-  methodPayment: PaymentMethod;
-
-  totalValue?: number;
-  totalPaid?: number;
-  installment?: number;
-
-  image?: string;
-
-  approvedBy?: string;
 };
 
 export type CreateInscriptionAdminResponse = {

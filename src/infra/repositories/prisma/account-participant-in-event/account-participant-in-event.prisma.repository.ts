@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { genderType } from 'generated/prisma';
 import { AccountParticipantInEvent } from 'src/domain/entities/account-participant-in-event.entity';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { AccountParticipantInEventEntityToAccountParticipantInEventPrismaModelMapper as EntityToPrisma } from './model/mappers/account-participant-in-event-entity-to-account-participant-in-event-prisma-model.mapper';
 import { AccountParticipantInEventPrismaModelToAccountParticipantInEventEntityMapper as PrismaToEntity } from './model/mappers/account-participant-in-event-prisma-model-to-account-participant-in-event-entity.mapper';
 
@@ -29,6 +29,16 @@ export class AccountParticipantInEventPrismaRepository
   ): Promise<void> {
     const data = accountParticipants.map(EntityToPrisma.map);
     await this.prisma.accountParticipantInEvent.createMany({
+      data,
+    });
+  }
+
+  async createManyTx(
+    accountParticipants: AccountParticipantInEvent[],
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    const data = accountParticipants.map(EntityToPrisma.map);
+    await tx.accountParticipantInEvent.createMany({
       data,
     });
   }

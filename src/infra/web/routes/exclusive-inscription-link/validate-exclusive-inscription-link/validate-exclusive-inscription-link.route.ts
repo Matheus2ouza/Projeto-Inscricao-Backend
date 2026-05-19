@@ -12,7 +12,7 @@ export class ValidateExclusiveInscriptionLinkRoute {
     private readonly validateExclusiveInscriptionLinkUsecase: ValidateExclusiveInscriptionLinkUsecase,
   ) {}
 
-  @IsPublic()
+  @IsPublic ()
   @Get('/:token/validate')
   @HttpCode(204)
   async handle(

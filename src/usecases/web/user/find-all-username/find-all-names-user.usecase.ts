@@ -6,6 +6,7 @@ import { Usecase } from 'src/usecases/usecase';
 export type FindAllNamesUserInput = {
   regionId?: string;
   role: roleType;
+  findRoles?: roleType[];
 };
 
 export type FindAllNamesUserOutput = {
@@ -30,7 +31,7 @@ export class FindAllNamesUserUsecase
   public async execute(
     input: FindAllNamesUserInput,
   ): Promise<FindAllNamesUserOutput> {
-    const allowedRoles = this.getAllowedRoles(input.role);
+    const allowedRoles = this.getAllowedRoles(input.role, input.findRoles);
 
     const allUsers = await this.userGateway.findAllNames(
       allowedRoles,
@@ -44,11 +45,20 @@ export class FindAllNamesUserUsecase
     }));
   }
 
-  private getAllowedRoles(callerRole: roleType): roleType[] {
+  private getAllowedRoles(
+    callerRole: roleType,
+    findRoles?: roleType[],
+  ): roleType[] {
     const callerLevel = ROLE_HIERARCHY[callerRole];
 
-    return (Object.keys(ROLE_HIERARCHY) as roleType[]).filter(
+    const visibleRoles = (Object.keys(ROLE_HIERARCHY) as roleType[]).filter(
       (role) => ROLE_HIERARCHY[role] <= callerLevel,
     );
+
+    if (!findRoles || findRoles.length === 0) {
+      return visibleRoles;
+    }
+
+    return findRoles.filter((role) => visibleRoles.includes(role));
   }
 }

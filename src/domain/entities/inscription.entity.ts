@@ -13,9 +13,9 @@ export type InscriptionCreateDto = {
   isGuest?: boolean;
   email?: string;
   phone: string;
-  totalValue: number;
+  totalValue?: number;
   totalPaid?: number;
-  status: InscriptionStatus;
+  status?: InscriptionStatus;
   expiresAt?: Date;
   observation?: string;
   exclusiveLinkId?: string;
@@ -104,14 +104,17 @@ export class Inscription extends Entity {
       confirmationCode = Utils.generateConfirmationCode();
     }
 
+    const totalValueDefault = totalValue || 0;
+    const statusDefault = status || InscriptionStatus.PENDING;
+
     return new Inscription(
       id,
       eventId,
       responsible,
       phone,
-      totalValue,
+      totalValueDefault,
       totalPaid ?? 0,
-      status,
+      statusDefault,
       createdAt,
       updatedAt,
       accountId,
@@ -265,6 +268,11 @@ export class Inscription extends Entity {
 
   // ─── Setters ──────────────────────────────────────────────────────────────────
 
+  public setStatus(status: InscriptionStatus): void {
+    this.status = status;
+    this.touch();
+  }
+
   public setResponsible(responsible: string): void {
     this.responsible = responsible;
     this.touch();
@@ -287,6 +295,11 @@ export class Inscription extends Entity {
 
   public setObservation(observation: string | undefined): void {
     this.observation = observation;
+    this.touch();
+  }
+
+  public setTotalValue(totalValue: number): void {
+    this.totalValue = totalValue;
     this.touch();
   }
 

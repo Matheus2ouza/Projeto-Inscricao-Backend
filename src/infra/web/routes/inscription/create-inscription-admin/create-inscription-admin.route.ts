@@ -30,17 +30,13 @@ export class CreateInscriptionAdminRoute {
     const input: CreateInscriptionAdminInput = {
       userId: user.userId,
       eventId: body.eventId,
-      status: body.status,
       isGuest: body.isGuest,
       accountId: body.accountId,
       responsible: body.responsible,
       email: body.email,
       phone: body.phone,
-      guestLocality: body.guestLocality,
-      totalValue: body.totalValue,
-      totalPaid: body.totalPaid,
+      locality: body.locality,
       participants: body.participants,
-      payment: body.payment,
     };
 
     const response = await this.createInscriptionAdminUsecase.execute(input);
