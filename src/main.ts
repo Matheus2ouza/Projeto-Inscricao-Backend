@@ -5,9 +5,11 @@ import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { SupabaseStorageService } from './infra/services/supabase/supabase-storage.service';
+import { TrimPipe } from './shared/pipes/trim.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableShutdownHooks();
   app.use(cookieParser());
 
   app.enableCors({
@@ -54,7 +56,9 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
   app.useGlobalPipes(
+    new TrimPipe(),
     new ValidationPipe({
+      whitelist: true,
       transform: true,
     }),
   );
