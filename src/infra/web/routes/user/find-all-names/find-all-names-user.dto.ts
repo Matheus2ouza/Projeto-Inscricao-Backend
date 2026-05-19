@@ -1,6 +1,6 @@
 import { roleType } from 'generated/prisma';
 
-export type FindAllNamesUserRequest = {
+export type FindAllNamesUserQuery = {
   roles?: roleType[];
 };
 
