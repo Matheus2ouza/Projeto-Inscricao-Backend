@@ -228,15 +228,17 @@ export class CreateEventUseCase
       try {
         await this.supabaseStorageService.calculateFolderSize('events');
       } catch (error) {
+        const err = error as Error;
         this.logger.warn(
-          `Não foi possível verificar o espaço usado: ${error.message}`,
+          `Não foi possível verificar o espaço usado: ${err.message}`,
         );
       }
 
       this.logger.log(`Imagem do evento processada com sucesso: ${imageUrl}`);
       return imageUrl;
     } catch (error) {
-      this.logger.error(`Erro ao processar imagem do evento: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Erro ao processar imagem do evento: ${err.message}`);
 
       if (error instanceof InvalidImageFormatUsecaseException) {
         throw error;
