@@ -9,7 +9,10 @@ import {
 } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
+import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -28,8 +31,10 @@ import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
+import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { InvalidInscriptionIdUsecaseException } from '../../exceptions/payment-Inscription/invalid-inscription-id.usecase.exception ';
 import { OverpaymentNotAllowedUsecaseException } from '../../exceptions/payment-Inscription/overpayment-not-allowed.usecase.exception';
+import { PaymentAllocationExceededUsecaseException } from '../../exceptions/payment-Inscription/payment-allocation-exceeded.usecase.exception';
 import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 import { RegisterPaymentPixUsecase } from '../register-pix/register-payment-pix.usecase';
 
@@ -40,10 +45,10 @@ export type RegisterPaymentAdminInput = {
   isGuest: boolean;
   guestName?: string;
   accountId?: string;
-  inscriptions: Inscription[];
+  inscriptions: InscriptionList[];
 };
 
-export type Inscription = {
+export type InscriptionList = {
   id: string;
   index?: number;
   amount?: number;
@@ -62,6 +67,7 @@ export class RegisterPaymentAdminUsecase
   implements Usecase<RegisterPaymentAdminInput, RegisterPaymentAdminOutput>
 {
   private readonly logger = new Logger(RegisterPaymentAdminUsecase.name);
+
   constructor(
     private readonly paymentGateway: PaymentGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -81,56 +87,80 @@ export class RegisterPaymentAdminUsecase
   async execute(
     input: RegisterPaymentAdminInput,
   ): Promise<RegisterPaymentAdminOutput> {
-    this.logger.log(
-      `Iniciando registro de pagamento administrativo para ${input.inscriptions.length} inscrições`,
+    // valida se todos os id passados sao referentes a inscrições que existem.
+    const inscriptions = await this.inscriptionGateway.findManyByIds(
+      input.inscriptions.map((i) => i.id),
     );
-
-    // Validação: verificar se as inscrições existem
-    const inscriptionsIds = input.inscriptions.map((i) => i.id);
-    const inscriptions =
-      await this.inscriptionGateway.findManyByIds(inscriptionsIds);
-
     if (inscriptions.length !== input.inscriptions.length) {
       throw new InvalidInscriptionIdUsecaseException(
-        'One or more inscription IDs are invalid',
+        'Failed to register payment because one or more provided inscription IDs were not found',
         'Um ou mais IDs de inscrição são inválidos',
         RegisterPaymentAdminUsecase.name,
       );
     }
 
-    // Validação: confirmar que as inscrições são todas guest ou todas não-guest
+    // valida se as inscrições passadas são de eventos diferentes
+    const eventId = inscriptions[0].getEventId();
+    if (!inscriptions.every((i) => i.getEventId() === eventId)) {
+      throw new InvalidInscriptionIdUsecaseException(
+        'Failed to register payment because inscriptions from different events were provided in the same payment request',
+        'Inscrições de eventos diferentes não podem ser pagas juntas',
+        RegisterPaymentAdminUsecase.name,
+      );
+    }
+
+    // valida o evento, como já verificamos se tem mais de um evento
+    // podemos pegar o primeiro porque os demais são do mesmo evento
+    const event = await this.eventGateway.findById(eventId);
+    if (!event) {
+      throw new EventNotFoundUsecaseException(
+        `Failed to register payment because it was not possible to find the event corresponding to registrations`,
+        'Evento não encontrado',
+        RegisterPaymentAdminUsecase.name,
+      );
+    }
+
+    // valida se todas as inscrições são guest ou não são
+    // é necesario pra não fazer pagamento de inscrições misturadas
     const allGuests = inscriptions.every((i) => i.getIsGuest());
     const noneGuests = inscriptions.every((i) => !i.getIsGuest());
-
     if (!allGuests && !noneGuests) {
       throw new InvalidInscriptionIdUsecaseException(
-        'Mixing guest and non-guest inscriptions is not allowed',
+        'Failed to register payment because guest and non-guest inscriptions were mixed in the same payment request',
         'Não é permitido misturar inscrições guest com não guest',
         RegisterPaymentAdminUsecase.name,
       );
     }
 
-    // Validação: validar valores alocados por inscrição
+    // Validação de valores alocados
+    const amountTotal = input.inscriptions.reduce(
+      (sum, i) => sum + (i.amount ?? 0),
+      0,
+    );
+    if (amountTotal > input.amount) {
+      throw new PaymentAllocationExceededUsecaseException(
+        `Allocated amount (${amountTotal}) exceeds paid amount (${input.amount})`,
+        'O valor distribuído ultrapassa o valor pago.',
+        'RegisterPaymentAdminUsecase',
+      );
+    }
     this.validateAllocationAmounts(input, inscriptions);
 
-    // Processar e fazer upload da imagem de comprovante
+    // upload da imagem para o supabase
     const imagePath = await this.processEventImage(
       input.image,
-      inscriptions[0].getEventId(),
+      eventId,
       input.amount,
       input.isGuest,
       input.accountId,
       input.guestName,
     );
 
-    this.logger.log(`Imagem processada e salva em: ${imagePath}`);
-
-    // Criar as entidades do pagamento
+    // cria o pagamento em memoria
     const payment = Payment.create({
-      eventId: inscriptions[0].getEventId(),
+      eventId,
       accountId: input.isGuest ? undefined : input.accountId,
       guestName: input.isGuest ? input.guestName : undefined,
-      guestEmail: input.isGuest ? undefined : undefined,
       isGuest: input.isGuest,
       status: StatusPayment.APPROVED,
       totalValue: input.amount,
@@ -144,40 +174,167 @@ export class RegisterPaymentAdminUsecase
       approvedBy: input.userId,
     });
 
-    // Criar alocações com base no índice
-    const allocations: PaymentAllocation[] = [];
-    const allocationsByIndex = input.inscriptions
-      .filter((inv) => inv.index !== undefined)
-      .sort((a, b) => (a.index || 0) - (b.index || 0));
+    const { financialMovement, paymentInstallment } =
+      this.buildApprovalFinancialData(payment);
 
-    // Usar índice se fornecido, caso contrário usar ordem padrão
-    const sortedInscriptions =
-      allocationsByIndex.length > 0
-        ? allocationsByIndex.map((inv) =>
-            inscriptions.find((i) => i.getId() === inv.id),
-          )
-        : inscriptions;
+    // cria as alocações e atualização das inscrições em memória
+    const allocations = this.buildAllocations(input, inscriptions, payment);
+    const updatedInscriptions = this.applyPaymentsToInscriptions(
+      allocations,
+      inscriptions,
+    );
 
-    let remainingValue = input.amount;
+    // preparar dados de caixa
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(eventId);
+    const cashRegisterEntries = this.buildCashRegisterEntries(
+      cashRegisterEvents,
+      payment,
+      paymentInstallment,
+      input.userId,
+    );
+    const updatedCashRegisters = cashRegisterEntries.length
+      ? await this.buildUpdatedCashRegisters(cashRegisterEntries)
+      : [];
 
-    for (const inscription of sortedInscriptions) {
+    // atualizar o evento em memória (valores e participantes)
+    event.incrementAmountCollected(payment.getTotalPaid());
+    event.incrementAmountNetValueCollected(payment.getTotalNetValue());
+
+    // somar participantes das inscrições que foram pagas
+    const paidInscriptionIds = updatedInscriptions
+      .filter((ins) => ins.getStatus() === InscriptionStatus.PAID)
+      .map((ins) => ins.getId());
+    const totalParticipantsToAdd =
+      await this.sumParticipantsForInscriptions(paidInscriptionIds);
+    for (let i = 0; i < totalParticipantsToAdd; i++) {
+      event.incrementParticipantsCount();
+    }
+
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.paymentGateway.createTx(payment, tx);
+      await this.financialMovementGateway.createTx(financialMovement, tx);
+      await this.paymentInstallmentGateway.createTx(paymentInstallment, tx);
+
+      // Alocações e inscrições (lote)
+      for (const allocation of allocations) {
+        await this.paymentAllocationGateway.createTx(allocation, tx);
+      }
+      if (updatedInscriptions.length) {
+        await this.inscriptionGateway.updateManyTx(updatedInscriptions, tx);
+      }
+
+      // Caixa
+      if (cashRegisterEntries.length) {
+        await this.cashRegisterEntryGateway.createManyTx(
+          cashRegisterEntries,
+          tx,
+        );
+        await this.cashRegisterGateway.updateManyTx(updatedCashRegisters, tx);
+      } else {
+        this.logger.warn(`Nenhum caixa encontrado para o evento ${eventId}`);
+      }
+
+      await this.eventGateway.updateTx(event, tx);
+    });
+
+    this.logger.log(`Pagamento registrado: R$ ${payment.getTotalValue()}`);
+
+    return {
+      inscriptions: inscriptions.map((i) => ({
+        id: i.getId(),
+        status: i.getStatus(),
+      })),
+    };
+  }
+
+  private validateAllocationAmounts(
+    input: RegisterPaymentAdminInput,
+    inscriptions: Inscription[],
+  ): void {
+    let totalAllocated = 0;
+    for (const inv of input.inscriptions) {
+      if (inv.amount == null) continue;
+      const inscription = inscriptions.find((i) => i.getId() === inv.id);
       if (!inscription) continue;
-
-      const remainingInscriptionDebt = Math.max(
+      const remainingDebt = Math.max(
         0,
         inscription.getTotalValue() - inscription.getTotalPaid(),
       );
+      if (inv.amount > remainingDebt) {
+        throw new OverpaymentNotAllowedUsecaseException(
+          `Amount ${inv.amount} exceeds debt ${remainingDebt}`,
+          'Valor alocado ultrapassa o débito da inscrição',
+          RegisterPaymentAdminUsecase.name,
+        );
+      }
+      totalAllocated += inv.amount;
+    }
+    if (totalAllocated > input.amount) {
+      throw new OverpaymentNotAllowedUsecaseException(
+        `Total allocated ${totalAllocated} > payment ${input.amount}`,
+        'Soma dos valores alocados ultrapassa o valor do pagamento',
+        RegisterPaymentAdminUsecase.name,
+      );
+    }
+  }
 
-      // Se houver um valor específico de alocação, usar ele; caso contrário, usar o que resta
-      const allocationValue = input.inscriptions.find(
-        (inv) => inv.id === inscription.getId(),
-      )?.amount
-        ? Math.min(
-            input.inscriptions.find((inv) => inv.id === inscription.getId())
-              ?.amount || 0,
-            remainingValue,
-          )
-        : Math.min(remainingInscriptionDebt, remainingValue);
+  private buildApprovalFinancialData(payment: Payment): {
+    financialMovement: FinancialMovement;
+    paymentInstallment: PaymentInstallment;
+  } {
+    const financialMovement = FinancialMovement.create({
+      eventId: payment.getEventId(),
+      accountId: payment.getAccountId(),
+      type: TransactionType.INCOME,
+      value: new Decimal(payment.getTotalValue()),
+    });
+    const paymentInstallment = PaymentInstallment.create({
+      paymentId: payment.getId(),
+      installmentNumber: 1,
+      received: true,
+      value: payment.getTotalValue(),
+      netValue: payment.getTotalValue(),
+      financialMovementId: financialMovement.getId(),
+      paidAt: new Date(),
+      estimatedAt: new Date(),
+    });
+    payment.addPaidInstallment(
+      paymentInstallment.getValue(),
+      paymentInstallment.getNetValue(),
+    );
+    payment.setTotalReceived(paymentInstallment.getNetValue());
+    return { financialMovement, paymentInstallment };
+  }
+
+  private buildAllocations(
+    input: RegisterPaymentAdminInput,
+    inscriptions: Inscription[],
+    payment: Payment,
+  ): PaymentAllocation[] {
+    const allocations: PaymentAllocation[] = [];
+    const inscriptionMap = new Map(inscriptions.map((i) => [i.getId(), i]));
+
+    // Ordena pelo índice se fornecido, senão mantém ordem do input
+    const sortedInscriptions = [...input.inscriptions].sort(
+      (a, b) => (a.index ?? 0) - (b.index ?? 0),
+    );
+
+    let remainingValue = input.amount;
+    for (const inv of sortedInscriptions) {
+      const inscription = inscriptionMap.get(inv.id);
+      if (!inscription) continue;
+
+      const remainingDebt = Math.max(
+        0,
+        inscription.getTotalValue() - inscription.getTotalPaid(),
+      );
+      let allocationValue = 0;
+      if (inv.amount != null) {
+        allocationValue = Math.min(inv.amount, remainingValue);
+      } else {
+        allocationValue = Math.min(remainingDebt, remainingValue);
+      }
 
       if (allocationValue > 0) {
         allocations.push(
@@ -187,230 +344,89 @@ export class RegisterPaymentAdminUsecase
             value: allocationValue,
           }),
         );
-
         remainingValue -= allocationValue;
         if (remainingValue <= 0) break;
       }
     }
-
-    // Criar movimento financeiro
-    const financialMovement = FinancialMovement.create({
-      eventId: payment.getEventId(),
-      accountId: payment.getAccountId(),
-      type: TransactionType.INCOME,
-      value: new Decimal(payment.getTotalValue()),
-    });
-
-    // Criar parcela do pagamento
-    const paymentInstallment = PaymentInstallment.create({
-      paymentId: payment.getId(),
-      installmentNumber: 1,
-      received: true,
-      value: payment.getTotalValue(),
-      netValue: payment.getTotalNetValue(),
-      financialMovementId: financialMovement.getId(),
-      paidAt: new Date(),
-      estimatedAt: new Date(),
-    });
-
-    // Executar tudo dentro de uma transação
-    await this.prisma.runInTransaction(async (tx) => {
-      // Criar pagamento
-      await this.paymentGateway.createTx(payment, tx);
-      this.logger.log(`Pagamento criado: ${payment.getId()}`);
-
-      // Criar movimento financeiro
-      await this.financialMovementGateway.createTx(financialMovement, tx);
-      this.logger.log(
-        `Movimento financeiro criado: R$ ${payment.getTotalValue().toFixed(2)}`,
-      );
-
-      // Criar parcela do pagamento
-      await this.paymentInstallmentGateway.createTx(paymentInstallment, tx);
-      this.logger.log(`Parcela criada para pagamento ${payment.getId()}`);
-
-      // Criar alocações e atualizar inscrições
-      for (const allocation of allocations) {
-        await this.paymentAllocationGateway.createTx(allocation, tx);
-        const inscription = inscriptions.find(
-          (i) => i.getId() === allocation.getInscriptionId(),
-        );
-
-        if (inscription) {
-          inscription.incrementeValuePaid(allocation.getValue());
-          await this.inscriptionGateway.updateTx(inscription, tx);
-          this.logger.log(
-            `Alocação criada e inscrição ${inscription.getId()} atualizada com R$ ${allocation.getValue().toFixed(2)}`,
-          );
-
-          // Verificar se a inscrição foi paga completamente
-          if (
-            inscription.getTotalPaid() >= inscription.getTotalValue() &&
-            inscription.getStatus() !== InscriptionStatus.PAID
-          ) {
-            inscription.inscriptionPaid();
-            await this.inscriptionGateway.updateTx(inscription, tx);
-            this.logger.log(
-              `Inscrição ${inscription.getId()} marcada como PAGA`,
-            );
-          }
-        }
-      }
-
-      // Criar entradas no caixa
-      await this.createCashRegisterEntriesTx(
-        payment,
-        paymentInstallment,
-        input.userId,
-        tx,
-      );
-    });
-
-    // Atualizar evento com o valor recebido
-    const event = await this.eventGateway.findById(payment.getEventId());
-    if (event) {
-      event.incrementAmountCollected(payment.getTotalPaid());
-      event.incrementAmountNetValueCollected(payment.getTotalNetValue());
-      await this.eventGateway.update(event);
-      this.logger.log(`Evento ${event.getId()} atualizado com valor recebido`);
-    }
-
-    this.logger.log(
-      `Pagamento aprovado! Valor: R$ ${payment.getTotalValue().toFixed(2)} | Valor líquido: R$ ${payment.getTotalNetValue().toFixed(2)}`,
-    );
-
-    const output: RegisterPaymentAdminOutput = {
-      inscriptions: inscriptions.map((inscription) => ({
-        id: inscription.getId(),
-        status: inscription.getStatus(),
-      })),
-    };
-
-    return output;
+    return allocations;
   }
 
-  private async createCashRegisterEntriesTx(
+  private applyPaymentsToInscriptions(
+    allocations: PaymentAllocation[],
+    inscriptions: Inscription[],
+  ): Inscription[] {
+    const updated: Inscription[] = [];
+    const inscriptionMap = new Map(inscriptions.map((i) => [i.getId(), i]));
+
+    for (const allocation of allocations) {
+      const inscription = inscriptionMap.get(allocation.getInscriptionId());
+      if (!inscription) continue;
+      inscription.incrementeValuePaid(allocation.getValue());
+      if (
+        inscription.getTotalPaid() >= inscription.getTotalValue() &&
+        inscription.getStatus() !== InscriptionStatus.PAID
+      ) {
+        inscription.inscriptionPaid();
+        this.logger.log(
+          `Inscrição: ID: ${inscription.getId()} foi marcada como PAID`,
+        );
+      }
+      if (!updated.includes(inscription)) updated.push(inscription);
+    }
+    return updated;
+  }
+
+  private buildCashRegisterEntries(
+    cashRegisterEvents: CashRegisterEvent[],
     payment: Payment,
     paymentInstallment: PaymentInstallment,
     accountId: string,
-    tx: any,
-  ): Promise<void> {
-    const cashRegisterEvents =
-      await this.cashRegisterEventGateway.findByEventId(payment.getEventId());
-
-    if (cashRegisterEvents.length === 0) {
-      this.logger.warn(
-        `Nenhum caixa registrador encontrado para o evento ${payment.getEventId()}`,
-      );
-      return;
-    }
-
-    const entries = cashRegisterEvents.map((cashRegisterEvent) =>
+  ): CashRegisterEntry[] {
+    return cashRegisterEvents.map((cashRegisterEvent) =>
       CashRegisterEntry.create({
         cashRegisterId: cashRegisterEvent.getCashRegisterId(),
         type: CashEntryType.INCOME,
         origin: CashEntryOrigin.INTERNAL,
         method: PaymentMethod.PIX,
         value: paymentInstallment.getNetValue(),
-        description: `Pagamento PIX referente a parcela ${paymentInstallment.getInstallmentNumber()} de ${payment.getInstallments()} do pagamento ${payment.getId()}`,
+        description: `Pagamento PIX parcela ${paymentInstallment.getInstallmentNumber()} de ${payment.getInstallments()} - ${payment.getId()}`,
         eventId: payment.getEventId(),
         paymentInstallmentId: paymentInstallment.getId(),
         responsible: accountId,
         imageUrl: payment.getImageUrl(),
       }),
     );
-
-    await this.cashRegisterEntryGateway.createManyTx(entries, tx);
-    await this.updateCashRegisterBalancesTx(entries, tx);
-    this.logger.log(`${entries.length} entradas de caixa criadas`);
   }
 
-  private async updateCashRegisterBalancesTx(
+  private async buildUpdatedCashRegisters(
     entries: CashRegisterEntry[],
-    tx: any,
-  ): Promise<void> {
-    const deltaByCashRegisterId = new Map<string, number>();
-
+  ): Promise<CashRegister[]> {
+    const deltaMap = new Map<string, number>();
     for (const entry of entries) {
-      const cashRegisterId = entry.getCashRegisterId();
-      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
-      const delta =
-        entry.getType() === CashEntryType.INCOME
-          ? entry.getValue()
-          : -entry.getValue();
-
-      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+      const id = entry.getCashRegisterId();
+      deltaMap.set(id, (deltaMap.get(id) ?? 0) + entry.getValue());
     }
 
-    for (const [cashRegisterId, delta] of deltaByCashRegisterId.entries()) {
+    const updated: CashRegister[] = [];
+    for (const [cashRegisterId, delta] of deltaMap.entries()) {
       if (delta === 0) continue;
       const cashRegister =
         await this.cashRegisterGateway.findById(cashRegisterId);
       if (!cashRegister) continue;
-
-      if (delta > 0) {
-        cashRegister.incrementBalance(delta);
-      } else {
-        cashRegister.decrementBalance(-delta);
-      }
-
-      await this.cashRegisterGateway.updateTx(cashRegister, tx);
+      cashRegister.incrementBalance(delta);
+      updated.push(cashRegister);
     }
+    return updated;
   }
 
-  private validateAllocationAmounts(
-    input: RegisterPaymentAdminInput,
-    inscriptions: any[],
-  ): void {
-    let totalAllocated = 0;
-
-    // Validar cada inscrição que tem um amount específico
-    for (const inputInscription of input.inscriptions) {
-      if (
-        inputInscription.amount === undefined ||
-        inputInscription.amount === null
-      ) {
-        continue;
-      }
-
-      const inscription = inscriptions.find(
-        (i) => i.getId() === inputInscription.id,
-      );
-
-      if (!inscription) {
-        continue;
-      }
-
-      // Calcular quanto ainda falta pagar da inscrição
-      const remainingDebt = Math.max(
-        0,
-        inscription.getTotalValue() - inscription.getTotalPaid(),
-      );
-
-      // Validar se o amount não ultrapassa o débito restante
-      if (inputInscription.amount > remainingDebt) {
-        throw new OverpaymentNotAllowedUsecaseException(
-          `Attempted to allocate R$ ${inputInscription.amount.toFixed(2)} to inscription ${inputInscription.id}, but only R$ ${remainingDebt.toFixed(2)} is owed. Total value: R$ ${inscription.getTotalValue().toFixed(2)}, Already paid: R$ ${inscription.getTotalPaid().toFixed(2)}`,
-          `O valor de R$ ${inputInscription.amount.toFixed(2)} ultrapassa o débito da inscrição (R$ ${remainingDebt.toFixed(2)})`,
-          RegisterPaymentAdminUsecase.name,
-        );
-      }
-
-      totalAllocated += inputInscription.amount;
+  private async sumParticipantsForInscriptions(
+    inscriptionIds: string[],
+  ): Promise<number> {
+    let total = 0;
+    for (const id of inscriptionIds) {
+      total += await this.inscriptionGateway.countParticipants(id);
     }
-
-    // Validar se a soma dos amounts não ultrapassa o pagamento principal
-    if (totalAllocated > input.amount) {
-      throw new OverpaymentNotAllowedUsecaseException(
-        `Total allocated (R$ ${totalAllocated.toFixed(2)}) exceeds the main payment amount (R$ ${input.amount.toFixed(2)})`,
-        `A soma dos valores alocados (R$ ${totalAllocated.toFixed(2)}) ultrapassa o valor principal do pagamento (R$ ${input.amount.toFixed(2)})`,
-        RegisterPaymentAdminUsecase.name,
-      );
-    }
-
-    this.logger.log(
-      `Validação de alocação concluída: R$ ${totalAllocated.toFixed(2)} de R$ ${input.amount.toFixed(2)}`,
-    );
+    return total;
   }
 
   private async processEventImage(
