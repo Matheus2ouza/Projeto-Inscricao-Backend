@@ -26,6 +26,36 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return PrismaToEntity.map(created);
   }
 
+  // Atualizações
+  async update(payment: Payment): Promise<Payment> {
+    const data = EntityToPrisma.map(payment);
+    const updated = await this.prisma.payment.update({
+      where: { id: payment.getId() },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async updateTx(
+    payment: Payment,
+    tx: PrismaTransactionClient,
+  ): Promise<Payment> {
+    const data = EntityToPrisma.map(payment);
+    const updated = await tx.payment.update({
+      where: { id: payment.getId() },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
+  // Deletes
+  async delete(id: string): Promise<void> {
+    await this.prisma.payment.delete({
+      where: { id },
+    });
+  }
+
   // Buscas e listagens
   async findById(id: string): Promise<Payment | null> {
     const found = await this.prisma.payment.findUnique({
@@ -334,23 +364,6 @@ export class PaymentPrismaRepository implements PaymentGateway {
     return (
       Number(count._sum.totalPaid ?? 0) - Number(count._sum.totalReceived ?? 0)
     );
-  }
-
-  // Atualizações
-  async update(payment: Payment): Promise<Payment> {
-    const data = EntityToPrisma.map(payment);
-    const updated = await this.prisma.payment.update({
-      where: { id: payment.getId() },
-      data,
-    });
-    return PrismaToEntity.map(updated);
-  }
-
-  // Deletes
-  async delete(id: string): Promise<void> {
-    await this.prisma.payment.delete({
-      where: { id },
-    });
   }
 
   // Métodos privados
