@@ -9,7 +9,10 @@ import {
 } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
+import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
+import { Inscription } from 'src/domain/entities/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -23,8 +26,10 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/payment/payment-approved-email.handler';
 import { Usecase } from 'src/usecases/usecase';
+import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
 
 type ResponsibleContact = {
@@ -60,70 +65,106 @@ export class ApprovePaymentUsecase
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly cashRegisterGateway: CashRegisterGateway,
     private readonly paymentApprovedEmailHandler: PaymentApprovedEmailHandler,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(input: ApprovePaymentInput): Promise<ApprovePaymentOutput> {
-    this.logger.log(`Aprovando pagamento ${input.paymentId}`);
+    const payment = await this.paymentGateway.findById(input.paymentId);
 
-    const payment = await this.getPaymentOrThrow(input.paymentId);
-    const event = await this.eventGateway.findById(payment.getEventId());
-    const allocations = await this.paymentAllocationGateway.findByPaymentId(
-      payment.getId(),
-    );
-
-    this.logger.log(`Total de alocações encontradas: ${allocations.length}`);
-
-    const { financialMovement, paymentInstallment } =
-      await this.registerApprovalFinancialData(payment, input.accountId);
-
-    if (event) {
-      event.incrementAmountCollected(paymentInstallment.getValue());
-      event.incrementAmountNetValueCollected(paymentInstallment.getNetValue());
+    if (!payment) {
+      throw new PaymentNotFoundUsecaseException(
+        `An attempt was made to approve a payment using the ID ${input.paymentId}, but no payment was found.`,
+        'Pagamento não encontrado',
+        ApprovePaymentUsecase.name,
+      );
     }
 
-    this.logger.log(
-      `Movimento financeiro associado à parcela: ${financialMovement.getId()}`,
-    );
+    const event = await this.eventGateway.findById(payment.getEventId());
 
-    this.logger.log(
-      `Pagamento aprovado! Valor bruto: R$ ${payment
-        .getTotalPaid()
-        .toFixed(2)} | Valor líquido: R$ ${payment
-        .getTotalNetValue()
-        .toFixed(2)}`,
-    );
+    if (!event) {
+      throw new EventNotFoundUsecaseException(
+        `An attempt was made to approve the payment, but no related events were found for the payment with ID: ${payment.getId()}.`,
+        `Não foi encontrado nenhum evento relacionado a esse pagamento então não foi possivel aprovar`,
+        ApprovePaymentUsecase.name,
+      );
+    }
 
-    const shouldReleaseInscription = payment.isFullyPaid();
-    this.logInscriptionReleaseState(payment.getId(), shouldReleaseInscription);
+    const [allocations, cashRegisterEvents] = await Promise.all([
+      this.paymentAllocationGateway.findByPaymentId(payment.getId()),
+      this.cashRegisterEventGateway.findByEventId(payment.getEventId()),
+    ]);
+
+    const { financialMovement, paymentInstallment } =
+      this.buildApprovalFinancialData(payment);
+
+    event.incrementAmountCollected(paymentInstallment.getValue());
+    event.incrementAmountNetValueCollected(paymentInstallment.getNetValue());
 
     if (
       payment.getStatus() !== StatusPayment.APPROVED &&
-      shouldReleaseInscription
+      payment.isFullyPaid()
     ) {
       payment.approve(input.accountId);
     }
 
-    if (shouldReleaseInscription && event) {
-      const totalParticipantsToAdd = await this.releasePaidInscriptions(
-        allocations,
-        payment.getEventId(),
-      );
+    // prepara inscrições (leituras + mutações de domínio, sem escrita)
+    const inscriptionsToRelease = payment.isFullyPaid()
+      ? await this.prepareInscriptionsToRelease(allocations)
+      : [];
 
-      for (let i = 0; i < totalParticipantsToAdd; i += 1) {
-        event.incrementParticipantsCount();
+    const totalParticipantsToAdd = inscriptionsToRelease.reduce(
+      (sum, { participantCount }) => sum + participantCount,
+      0,
+    );
+
+    for (let i = 0; i < totalParticipantsToAdd; i += 1) {
+      event.incrementParticipantsCount();
+    }
+
+    // prepara entradas do caixa (leituras + montagem, sem escrita)
+    const cashRegisterEntries =
+      cashRegisterEvents.length > 0
+        ? this.buildCashRegisterEntries(
+            cashRegisterEvents,
+            payment,
+            paymentInstallment,
+            input.accountId,
+          )
+        : [];
+
+    const updatedCashRegisters =
+      cashRegisterEntries.length > 0
+        ? await this.buildUpdatedCashRegisters(cashRegisterEntries)
+        : [];
+
+    // todas as escritas dentro da transaction
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.financialMovementGateway.createTx(financialMovement, tx);
+      await this.paymentInstallmentGateway.createTx(paymentInstallment, tx);
+
+      if (inscriptionsToRelease.length > 0) {
+        const inscriptions = inscriptionsToRelease.map(
+          ({ inscription }) => inscription,
+        );
+        await this.inscriptionGateway.updateManyTx(inscriptions, tx);
       }
 
-      this.logger.log(
-        `Payment ${payment.getId()} APROVADO! ` +
-          `Total recebido: R$ ${payment.getTotalNetValue().toFixed(2)}`,
-      );
-    }
+      if (cashRegisterEntries.length > 0) {
+        await this.cashRegisterEntryGateway.createManyTx(
+          cashRegisterEntries,
+          tx,
+        );
+        await this.cashRegisterGateway.updateManyTx(updatedCashRegisters, tx);
+      } else {
+        this.logger.warn(
+          `Nenhum caixa encontrado para o evento ${payment.getEventId()}`,
+        );
+      }
 
-    if (event) {
-      await this.eventGateway.update(event);
-    }
+      await this.eventGateway.updateTx(event, tx);
+      await this.paymentGateway.updateTx(payment, tx);
+    });
 
-    await this.paymentGateway.update(payment);
     await this.sendApprovedEmailForAllocations(payment, allocations);
 
     return {
@@ -132,40 +173,16 @@ export class ApprovePaymentUsecase
     };
   }
 
-  private async getPaymentOrThrow(paymentId: string): Promise<Payment> {
-    const payment = await this.paymentGateway.findById(paymentId);
-
-    if (!payment) {
-      throw new PaymentNotFoundUsecaseException(
-        `Payment with id ${paymentId} not found`,
-        'Pagamento não encontrado',
-        ApprovePaymentUsecase.name,
-      );
-    }
-
-    this.logger.log(`Payment encontrado: ${payment.getId()}`);
-    return payment;
-  }
-
-  private async registerApprovalFinancialData(
-    payment: Payment,
-    accountId: string,
-  ): Promise<{
+  private buildApprovalFinancialData(payment: Payment): {
     financialMovement: FinancialMovement;
     paymentInstallment: PaymentInstallment;
-  }> {
+  } {
     const financialMovement = FinancialMovement.create({
       eventId: payment.getEventId(),
       accountId: payment.getAccountId(),
       type: TransactionType.INCOME,
       value: new Decimal(payment.getTotalValue()),
     });
-
-    await this.financialMovementGateway.create(financialMovement);
-
-    this.logger.log(
-      `Movimento financeiro criado: R$ ${payment.getTotalValue().toFixed(2)}`,
-    );
 
     const paymentInstallment = PaymentInstallment.create({
       paymentId: payment.getId(),
@@ -178,42 +195,22 @@ export class ApprovePaymentUsecase
       estimatedAt: new Date(),
     });
 
-    await this.paymentInstallmentGateway.create(paymentInstallment);
-
-    this.logger.log(`Parcela registrada para pagamento ${payment.getId()}`);
-
     payment.addPaidInstallment(
       paymentInstallment.getValue(),
       paymentInstallment.getNetValue(),
     );
     payment.setTotalReceived(paymentInstallment.getNetValue());
 
-    this.logger.log(
-      `Pagamento ${payment.getId()} adicionado à parcela ${paymentInstallment.getInstallmentNumber()}`,
-    );
-
-    await this.createCashRegisterEntries(
-      payment,
-      paymentInstallment,
-      accountId,
-    );
-
     return { financialMovement, paymentInstallment };
   }
 
-  private async createCashRegisterEntries(
+  private buildCashRegisterEntries(
+    cashRegisterEvents: CashRegisterEvent[],
     payment: Payment,
     paymentInstallment: PaymentInstallment,
     accountId: string,
-  ): Promise<void> {
-    const cashRegisterEvents =
-      await this.cashRegisterEventGateway.findByEventId(payment.getEventId());
-
-    if (cashRegisterEvents.length === 0) {
-      return;
-    }
-
-    const entries = cashRegisterEvents.map((cashRegisterEvent) =>
+  ): CashRegisterEntry[] {
+    return cashRegisterEvents.map((cashRegisterEvent) =>
       CashRegisterEntry.create({
         cashRegisterId: cashRegisterEvent.getCashRegisterId(),
         type: CashEntryType.INCOME,
@@ -227,36 +224,48 @@ export class ApprovePaymentUsecase
         imageUrl: payment.getImageUrl(),
       }),
     );
-
-    await this.cashRegisterEntryGateway.createMany(entries);
-    await this.updateCashRegisterBalances(entries);
   }
 
-  private logInscriptionReleaseState(
-    paymentId: string,
-    shouldReleaseInscription: boolean,
-  ): void {
-    if (shouldReleaseInscription) {
-      this.logger.log('Pagamento PIX confirmado. Liberando inscrições...');
-      return;
+  private async buildUpdatedCashRegisters(
+    entries: CashRegisterEntry[],
+  ): Promise<CashRegister[]> {
+    const deltaByCashRegisterId = new Map<string, number>();
+
+    for (const entry of entries) {
+      const id = entry.getCashRegisterId();
+      deltaByCashRegisterId.set(
+        id,
+        (deltaByCashRegisterId.get(id) ?? 0) + entry.getValue(),
+      );
     }
 
-    this.logger.log(`Aguardando confirmação do pagamento ${paymentId}`);
+    const results = await Promise.all(
+      [...deltaByCashRegisterId.entries()].map(
+        async ([cashRegisterId, delta]) => {
+          if (delta === 0) return null;
+          const cashRegister =
+            await this.cashRegisterGateway.findById(cashRegisterId);
+          if (!cashRegister) return null;
+          cashRegister.incrementBalance(delta);
+          return cashRegister;
+        },
+      ),
+    );
+
+    return results.filter((cr): cr is CashRegister => cr !== null);
   }
 
-  private async releasePaidInscriptions(
+  private async prepareInscriptionsToRelease(
     allocations: PaymentAllocation[],
-    eventId: string,
-  ): Promise<number> {
-    let totalParticipantsToAdd = 0;
+  ): Promise<{ inscription: Inscription; participantCount: number }[]> {
     const inscriptionIds = this.getUniqueInscriptionIds(allocations);
+    const results: { inscription: Inscription; participantCount: number }[] =
+      [];
 
     for (const inscriptionId of inscriptionIds) {
       const inscription = await this.inscriptionGateway.findById(inscriptionId);
 
-      if (!inscription) {
-        continue;
-      }
+      if (!inscription) continue;
 
       if (
         inscription.getTotalPaid() < inscription.getTotalValue() ||
@@ -266,21 +275,17 @@ export class ApprovePaymentUsecase
       }
 
       inscription.inscriptionPaid();
-      await this.inscriptionGateway.update(inscription);
+
+      const participantCount = await this.inscriptionGateway.countParticipants(
+        inscription.getId(),
+      );
 
       this.logger.log(`Inscrição ${inscription.getId()} marcada como PAGA`);
 
-      const quantityParticipants =
-        await this.inscriptionGateway.countParticipants(inscription.getId());
-
-      totalParticipantsToAdd += quantityParticipants;
-
-      this.logger.log(
-        `Participantes incrementados no evento ${eventId}: ${quantityParticipants}`,
-      );
+      results.push({ inscription, participantCount });
     }
 
-    return totalParticipantsToAdd;
+    return results;
   }
 
   private async sendApprovedEmailForAllocations(
@@ -367,41 +372,5 @@ export class ApprovePaymentUsecase
         allocations.map((allocation) => allocation.getInscriptionId()),
       ),
     ];
-  }
-
-  private async updateCashRegisterBalances(
-    entries: CashRegisterEntry[],
-  ): Promise<void> {
-    const deltaByCashRegisterId = new Map<string, number>();
-
-    for (const entry of entries) {
-      const cashRegisterId = entry.getCashRegisterId();
-      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
-      const delta =
-        entry.getType() === CashEntryType.INCOME
-          ? entry.getValue()
-          : -entry.getValue();
-
-      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
-    }
-
-    await Promise.all(
-      [...deltaByCashRegisterId.entries()].map(
-        async ([cashRegisterId, delta]) => {
-          if (delta === 0) return;
-          const cashRegister =
-            await this.cashRegisterGateway.findById(cashRegisterId);
-          if (!cashRegister) return;
-
-          if (delta > 0) {
-            cashRegister.incrementBalance(delta);
-          } else {
-            cashRegister.decrementBalance(-delta);
-          }
-
-          await this.cashRegisterGateway.update(cashRegister);
-        },
-      ),
-    );
   }
 }
