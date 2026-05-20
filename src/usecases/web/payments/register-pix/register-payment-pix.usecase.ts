@@ -4,6 +4,7 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
+import { Account } from 'src/domain/entities/account.entity';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -346,7 +347,7 @@ export class RegisterPaymentPixUsecase
     // Busca o nome do evento para incluir no nome do arquivo
     const eventName = await this.eventGateway.findById(eventId);
 
-    let accountName;
+    let accountName: Account | null = null;
     if (!isGuest && accountId) {
       //Busca o nome da conta para incluir no nome do arquivo
       accountName = await this.userGateway.findById(accountId);
