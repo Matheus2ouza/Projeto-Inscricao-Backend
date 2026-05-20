@@ -46,6 +46,23 @@ export class CashRegisterPrismaRepository implements CashRegisterGateway {
     return PrismaToEntity.map(updated);
   }
 
+  async updateManyTx(
+    cashRegister: CashRegister[],
+    tx: PrismaTransactionClient,
+  ): Promise<number> {
+    const data = cashRegister.map(EntityToPrisma.map);
+    const updated = await tx.cashRegister.updateMany({
+      where: {
+        id: {
+          in: cashRegister.map((cr) => cr.getId()),
+        },
+      },
+      data,
+    });
+
+    return updated.count;
+  }
+
   async findById(id: string): Promise<CashRegister | null> {
     const found = await this.prisma.cashRegister.findUnique({
       where: { id },
