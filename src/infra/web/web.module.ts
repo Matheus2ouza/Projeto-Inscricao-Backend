@@ -19,6 +19,7 @@ import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usec
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
 import { DuplicateParticipantCpfUsecaseExceptionFilterProvider } from './filters/usecases/participant/duplicate-participant-cpf.usecase.exception.filter';
+import { PaymentAllocationExceededUsecaseExceptionFilterProvider } from './filters/usecases/payment-Inscription/payment-allocation-exceeded.usecase.exception.filter';
 import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment-installment/payment-installment-not-fund-usecase-exception.filter';
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
@@ -446,6 +447,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentNotFoundUsecaseExceptionFilterProvider,
     InvalidImageFormatUsecaseExceptionFilterProvider,
     CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider,
+
+    // PAYMENT INSCRIPTION
+    PaymentAllocationExceededUsecaseExceptionFilterProvider,
 
     // Payment Installment
     PaymentInstallmentNotFoundUsecaseExceptionFilterProvider,
