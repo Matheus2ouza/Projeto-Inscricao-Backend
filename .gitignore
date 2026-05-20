@@ -117,7 +117,6 @@ secrets.txt
 *.bak
 
 # Arquivos de monitoramento e métricas
-metrics/
 monitoring/
 *.metrics
 
@@ -339,3 +338,5 @@ sincronizar.bat
 *.ps1
 prisma/migrations/migration_lock.toml
 prisma/migrations/migration_lock.toml
+
+grafana-data/
