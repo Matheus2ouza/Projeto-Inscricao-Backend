@@ -10,6 +10,17 @@ export abstract class PaymentGateway {
     payment: Payment,
     tx: PrismaTransactionClient,
   ): Promise<Payment>;
+
+  // Atualizações
+  abstract update(payment: Payment): Promise<Payment>;
+  abstract updateTx(
+    payment: Payment,
+    tx: PrismaTransactionClient,
+  ): Promise<Payment>;
+
+  //Deletes
+  abstract delete(id: string): Promise<void>;
+
   // Buscas e listagens
   abstract findById(id: string): Promise<Payment | null>;
   abstract findByAsaasCheckout(
@@ -76,10 +87,4 @@ export abstract class PaymentGateway {
   abstract countTotalAmountInAnalysis(eventId: string): Promise<number>;
   // Conta o valor total ainda a ser recebido de um pagamentos
   abstract countTotalToReceiveByEvent(eventId: string): Promise<number>;
-
-  // Atualizações
-  abstract update(payment: Payment): Promise<Payment>;
-
-  //Deletes
-  abstract delete(id: string): Promise<void>;
 }

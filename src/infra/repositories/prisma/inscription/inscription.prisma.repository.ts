@@ -72,6 +72,24 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return updated.count;
   }
 
+  async updateManyTx(
+    inscriptions: Inscription[],
+    tx: PrismaTransactionClient,
+  ): Promise<number> {
+    const data = inscriptions.map((inscription) =>
+      EntityToPrisma.map(inscription),
+    );
+    const updated = await tx.inscription.updateMany({
+      where: {
+        id: {
+          in: inscriptions.map((inscription) => inscription.getId()),
+        },
+      },
+      data,
+    });
+    return updated.count;
+  }
+
   async cancel(inscription: Inscription): Promise<Inscription> {
     const data = EntityToPrisma.map(inscription);
     const canceled = await this.prisma.inscription.update({

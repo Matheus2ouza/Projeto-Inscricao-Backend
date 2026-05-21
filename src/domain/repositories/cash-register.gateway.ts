@@ -14,6 +14,10 @@ export abstract class CashRegisterGateway {
     cashRegister: CashRegister,
     tx: PrismaTransactionClient,
   ): Promise<CashRegister>;
+  abstract updateManyTx(
+    cashRegister: CashRegister[],
+    tx: PrismaTransactionClient,
+  ): Promise<number>;
 
   // Buscas e listagens
   // Busca um unico caixa pelo id dele

@@ -3,5 +3,8 @@
   "trailingComma": "all",
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "none"
   }
 }

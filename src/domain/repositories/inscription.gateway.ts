@@ -27,6 +27,10 @@ export abstract class InscriptionGateway {
 
   // Atualiza múltiplas inscrições
   abstract updateMany(inscriptions: Inscription[]): Promise<number>;
+  abstract updateManyTx(
+    inscriptions: Inscription[],
+    tx: PrismaTransactionClient,
+  ): Promise<number>;
 
   // Remove uma inscrição pelo ID
   abstract delete(id: string): Promise<void>;

@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { SupabaseStorageService } from './infra/services/supabase/supabase-storage.service';
+import { MetricsInterceptor } from './infra/web/metrics/metrics.interceptor';
 import { TrimPipe } from './shared/pipes/trim.pipe';
 
 async function bootstrap() {
@@ -23,6 +24,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
+  app.useGlobalInterceptors(app.get(MetricsInterceptor));
 
   //Teste de conexão com supabase
   const supabase = app.get(SupabaseStorageService);
