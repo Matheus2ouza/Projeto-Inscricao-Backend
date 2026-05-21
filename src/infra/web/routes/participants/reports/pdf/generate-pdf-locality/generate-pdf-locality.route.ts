@@ -48,8 +48,6 @@ export class GeneratePdfLocalityRoute {
       endDate: query.endDate,
     };
 
-    console.log(input);
-
     const response = await this.generatePdfLocalityUsecase.execute(input);
     return GeneratePdfLocalityPresenter.toHttp(response);
   }
