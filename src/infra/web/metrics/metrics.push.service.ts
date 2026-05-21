@@ -22,7 +22,7 @@ export class MetricsPushService implements OnApplicationBootstrap {
     setInterval(async () => {
       try {
         const metrics = await register.metrics();
-        await fetch(url, {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain',
@@ -30,6 +30,8 @@ export class MetricsPushService implements OnApplicationBootstrap {
           },
           body: metrics,
         });
+
+        this.logger.log(`Métricas enviadas: ${response.status}`); // adiciona isso
       } catch (err) {
         this.logger.error('Erro ao enviar métricas pro Grafana Cloud', err);
       }
