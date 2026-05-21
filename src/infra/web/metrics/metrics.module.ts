@@ -5,6 +5,7 @@ import {
   makeHistogramProvider,
 } from '@willsoto/nestjs-prometheus';
 import { MetricsInterceptor } from './metrics.interceptor';
+import { MetricsPushService } from './metrics.push.service';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MetricsInterceptor } from './metrics.interceptor';
   ],
   providers: [
     MetricsInterceptor,
+    MetricsPushService,
     makeHistogramProvider({
       name: 'http_request_duration_ms',
       help: 'Duração das requisições HTTP em milissegundos',
@@ -27,6 +29,6 @@ import { MetricsInterceptor } from './metrics.interceptor';
       labelNames: ['method', 'route', 'status_code'],
     }),
   ],
-  exports: [MetricsInterceptor],
+  exports: [MetricsInterceptor, MetricsPushService],
 })
 export class MetricsModule {}
