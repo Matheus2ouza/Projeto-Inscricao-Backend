@@ -33,11 +33,18 @@ export class MetricsPushService implements OnApplicationBootstrap {
           }
         }
 
-        await remoteWrite.pushMetrics(payload, {
+        this.logger.log(
+          `Payload size: ${Object.keys(payload).length} métricas`,
+        );
+        this.logger.log(
+          `Sample: ${JSON.stringify(Object.entries(payload).slice(0, 2))}`,
+        );
+
+        const response = await remoteWrite.pushMetrics(payload, {
           url,
           auth: { username, password },
         });
-        this.logger.log('Métricas enviadas com sucesso');
+        this.logger.log('Métricas enviadas com sucesso', response);
       } catch (err) {
         this.logger.error('Erro ao enviar métricas', err);
       }
