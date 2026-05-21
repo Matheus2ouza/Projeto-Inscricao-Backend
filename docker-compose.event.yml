@@ -5,7 +5,9 @@ services:
     image: redis:7
     container_name: redis_event
     restart: unless-stopped
-    command: redis-server --requirepass 31NAOH7PC582FN1A89GI --appendonly yes
+    env_file:
+      - .env.event
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
     ports:
       - '6379:6379'
     volumes:
