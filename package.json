@@ -69,7 +69,6 @@
     "pdfmake": "^0.2.20",
     "prisma": "^6.19.2",
     "prom-client": "^15.1.3",
-    "prometheus-remote-write": "^0.5.1",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
