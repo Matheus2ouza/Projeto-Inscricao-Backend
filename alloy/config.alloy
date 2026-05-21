@@ -9,6 +9,11 @@ prometheus.scrape "nestjs" {
   metrics_path = "/metrics"
   scrape_interval = "15s"
 
+  authorization {
+    type = "Bearer"
+    credentials = sys.env("METRICS_SECRET_TOKEN")
+  }
+
   forward_to = [prometheus.remote_write.grafana_cloud.receiver]
 }
 
