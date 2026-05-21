@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { register } from 'prom-client';
+import * as remoteWrite from 'prometheus-remote-write';
 
 @Injectable()
 export class MetricsPushService implements OnApplicationBootstrap {
@@ -13,27 +14,32 @@ export class MetricsPushService implements OnApplicationBootstrap {
     const password = process.env.GRAFANA_PROMETHEUS_PASSWORD;
 
     if (!url || !username || !password) {
-      this.logger.warn(
-        'Grafana Cloud não configurado, métricas não serão enviadas',
-      );
+      this.logger.warn('Grafana Cloud não configurado');
       return;
     }
 
     setInterval(async () => {
       try {
-        const metrics = await register.metrics();
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-            Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
-          },
-          body: metrics,
-        });
+        const metrics = await register.getMetricsAsJSON();
 
-        this.logger.log(`Métricas enviadas: ${response.status}`); // adiciona isso
+        const payload: Record<string, number> = {};
+        for (const metric of metrics) {
+          for (const value of metric.values) {
+            const labelStr = Object.entries(value.labels)
+              .map(([k, v]) => `${k}="${v}"`)
+              .join(',');
+            const key = labelStr ? `${metric.name}{${labelStr}}` : metric.name;
+            payload[key] = value.value as number;
+          }
+        }
+
+        await remoteWrite.pushMetrics(payload, {
+          url,
+          auth: { username, password },
+        });
+        this.logger.log('Métricas enviadas com sucesso');
       } catch (err) {
-        this.logger.error('Erro ao enviar métricas pro Grafana Cloud', err);
+        this.logger.error('Erro ao enviar métricas', err);
       }
     }, 15000);
   }
