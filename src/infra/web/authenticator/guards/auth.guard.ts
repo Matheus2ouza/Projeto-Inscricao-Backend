@@ -32,6 +32,13 @@ export class AuthGuard implements CanActivate {
       if (process.env.NODE_ENV !== 'production') {
         return true;
       }
+
+      const authHeader = request.headers['authorization'] ?? '';
+      const token = authHeader.replace('Bearer ', '');
+      if (token && token === process.env.METRICS_SECRET_TOKEN) {
+        return true;
+      }
+
       throw new UnauthorizedException();
     }
 
