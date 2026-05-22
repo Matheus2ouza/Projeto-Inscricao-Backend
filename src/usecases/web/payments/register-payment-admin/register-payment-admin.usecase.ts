@@ -216,22 +216,26 @@ export class RegisterPaymentAdminUsecase
       await this.financialMovementGateway.createTx(financialMovement, tx);
       await this.paymentInstallmentGateway.createTx(paymentInstallment, tx);
 
-      // Alocações e inscrições (lote)
+      // cria as alocações em lote
       for (const allocation of allocations) {
         await this.paymentAllocationGateway.createTx(allocation, tx);
       }
 
+      // Atualiza as inscrições em lote
       for (const inscription of updatedInscriptions) {
         await this.inscriptionGateway.updateTx(inscription, tx);
       }
 
-      // Caixa
+      // se encontrar caixa referente ao evento, então cria as entradas e atualiza o caixa
       if (cashRegisterEntries.length) {
         await this.cashRegisterEntryGateway.createManyTx(
           cashRegisterEntries,
           tx,
         );
-        await this.cashRegisterGateway.updateManyTx(updatedCashRegisters, tx);
+
+        for (const cashRegister of updatedCashRegisters) {
+          await this.cashRegisterGateway.updateTx(cashRegister, tx);
+        }
       } else {
         this.logger.warn(`Nenhum caixa encontrado para o evento ${eventId}`);
       }
