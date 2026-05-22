@@ -23,7 +23,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
   let paymentGateway: jest.Mocked<{ createTx: jest.Mock }>;
   let inscriptionGateway: jest.Mocked<{
     findManyByIds: jest.Mock;
-    updateManyTx: jest.Mock;
+    updateTx: jest.Mock;
     countParticipants: jest.Mock;
   }>;
   let paymentAllocationGateway: jest.Mocked<{ createTx: jest.Mock }>;
@@ -166,7 +166,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     paymentGateway = { createTx: jest.fn() };
     inscriptionGateway = {
       findManyByIds: jest.fn(),
-      updateManyTx: jest.fn(),
+      updateTx: jest.fn(),
       countParticipants: jest.fn(),
     };
     paymentAllocationGateway = { createTx: jest.fn() };
@@ -348,7 +348,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     expect(allocations[1][0].getValue()).toBe(100);
 
     // Verificar atualizações das inscrições
-    expect(inscriptionGateway.updateManyTx).toHaveBeenCalledTimes(1);
+    expect(inscriptionGateway.updateTx).toHaveBeenCalledTimes(2);
     expect(inscription1.incrementeValuePaid).toHaveBeenCalledWith(100);
     expect(inscription2.incrementeValuePaid).toHaveBeenCalledWith(100);
     expect(inscription1.inscriptionPaid).toHaveBeenCalled();

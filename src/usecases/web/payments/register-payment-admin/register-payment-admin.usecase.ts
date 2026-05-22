@@ -220,8 +220,9 @@ export class RegisterPaymentAdminUsecase
       for (const allocation of allocations) {
         await this.paymentAllocationGateway.createTx(allocation, tx);
       }
-      if (updatedInscriptions.length) {
-        await this.inscriptionGateway.updateManyTx(updatedInscriptions, tx);
+
+      for (const inscription of updatedInscriptions) {
+        await this.inscriptionGateway.updateTx(inscription, tx);
       }
 
       // Caixa
