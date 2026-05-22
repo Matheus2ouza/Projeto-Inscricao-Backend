@@ -76,9 +76,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     inscriptions: Inscription[],
     tx: PrismaTransactionClient,
   ): Promise<number> {
-    const data = inscriptions.map((inscription) =>
-      EntityToPrisma.map(inscription),
-    );
+    const data = inscriptions.map(EntityToPrisma.map);
     const updated = await tx.inscription.updateMany({
       where: {
         id: {
