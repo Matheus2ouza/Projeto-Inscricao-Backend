@@ -30,13 +30,12 @@ async function bootstrap() {
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       credentials: true,
     });
-    console.log('CORS habilitado (modo normal)');
   } else {
     // Modo evento: desabilita CORS completamente (nginx vai lidar com isso)
     app.enableCors({
       origin: false, // Desabilita CORS
     });
-    console.log('CORS desabilitado (modo evento - nginx assume controle)');
+    console.log('CORS desabilitado (modo evento - nginx)');
   }
 
   app.enableShutdownHooks();
@@ -92,7 +91,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`Servidor rodando em: ${host}`);
-  console.log(`Modo: ${isEventMode ? 'EVENT (com nginx)' : 'NORMAL'}`);
+  console.log(`Modo: ${isEventMode ? 'EVENT (com nginx)' : ''}`);
   if (process.env.NODE_ENV !== 'production') {
     console.log(`Documentação Swagger: ${host}/api/docs`);
   }
