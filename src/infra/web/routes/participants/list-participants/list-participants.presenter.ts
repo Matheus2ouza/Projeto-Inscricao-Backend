@@ -8,6 +8,7 @@ export class ListParticipantsPresenter {
       countParticipants: output.countParticipants,
       countParticipantsMale: output.countParticipantsMale,
       countParticipantsFemale: output.countParticipantsFemale,
+      typesInscriptionsInUse: output.typesInscriptionsInUse,
       total: output.total,
       page: output.page,
       pageCount: output.pageCount,

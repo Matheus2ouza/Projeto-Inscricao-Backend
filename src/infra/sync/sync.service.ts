@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class SyncService implements OnModuleInit {
   private readonly logger = new Logger(SyncService.name);
-  private isOnline = false;
+  public isOnline = false;
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -14,7 +14,7 @@ export class SyncService implements OnModuleInit {
     this.logger.log('🌐 Monitor de internet iniciado');
   }
 
-  private async checkInternet(): Promise<boolean> {
+  private async checkInternet(): Promise<void> {
     try {
       await firstValueFrom(
         this.httpService.get('https://1.1.1.1', { timeout: 3000 }),
@@ -32,8 +32,6 @@ export class SyncService implements OnModuleInit {
 
       this.isOnline = false;
     }
-
-    return this.isOnline;
   }
 
   getStatus() {

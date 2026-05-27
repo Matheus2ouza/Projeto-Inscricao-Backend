@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { genderType } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
@@ -11,6 +11,11 @@ export type ListParticipantsInput = {
   eventId: string;
   page: number;
   pageSize: number;
+
+  // filters
+  inscriptionStatus: InscriptionStatus[];
+  typeInscriptions: string[];
+  orderByName: 'asc' | 'desc';
 };
 
 export type ListParticipantsOutput = {
@@ -18,6 +23,7 @@ export type ListParticipantsOutput = {
   countParticipants: number;
   countParticipantsMale: number;
   countParticipantsFemale: number;
+  typesInscriptionsInUse: TypeInscription[];
   total: number;
   page: number;
   pageCount: number;
@@ -33,6 +39,11 @@ export type Participant = {
   shirtSize: string;
   shirtType: string;
   guest: boolean;
+};
+
+type TypeInscription = {
+  id: string;
+  description: string;
 };
 
 @Injectable()
@@ -62,44 +73,53 @@ export class ListParticipantsUsecase
       );
     }
 
+    const filters = {
+      inscriptionStatus: input.inscriptionStatus,
+      typeInscriptionId: input.typeInscriptions,
+      orderByName: input.orderByName,
+    };
+
     // Busca participantes (guests e accounts)
     const [allGuestParticipants, allAccountParticipants] = await Promise.all([
       this.participantGateway.findManyByEventId(
         event.getId(),
-        1,
-        Number.MAX_SAFE_INTEGER,
+        safePage,
+        safePageSize,
+        filters,
       ),
       this.accountParticipantGateway.findManyByEventId(
         event.getId(),
-        1,
-        Number.MAX_SAFE_INTEGER,
+        safePage,
+        safePageSize,
+        filters,
       ),
     ]);
 
+    const typeInscriptions =
+      await this.typeInscriptionGateway.findTypesInUseByEventId(event.getId());
+
+    const typeInscriptionInUse = typeInscriptions.map((t) => ({
+      id: t.getId(),
+      description: t.getDescription(),
+    }));
+
     // Busca contagens por gênero
-    const [
-      countGuestMale,
-      countGuestFemale,
-      countAccountMale,
-      countAccountFemale,
-    ] = await Promise.all([
-      this.participantGateway.countParticipantsByEventIdAndGender(
-        event.getId(),
-        genderType.MASCULINO,
-      ),
-      this.participantGateway.countParticipantsByEventIdAndGender(
-        event.getId(),
-        genderType.FEMININO,
-      ),
-      this.accountParticipantGateway.countParticipantsByEventIdAndGender(
-        event.getId(),
-        genderType.MASCULINO,
-      ),
-      this.accountParticipantGateway.countParticipantsByEventIdAndGender(
-        event.getId(),
-        genderType.FEMININO,
-      ),
-    ]);
+    const [guestParticipantsGenderCount, accountParticipantsGenderCount] =
+      await Promise.all([
+        this.participantGateway.countParticipantsByEventIdGroupedByGender(
+          event.getId(),
+          filters,
+        ),
+        this.accountParticipantGateway.countParticipantsByEventIdGroupedByGender(
+          event.getId(),
+          filters,
+        ),
+      ]);
+
+    const countGuestMale = guestParticipantsGenderCount.male;
+    const countGuestFemale = guestParticipantsGenderCount.female;
+    const countAccountMale = accountParticipantsGenderCount.male;
+    const countAccountFemale = accountParticipantsGenderCount.female;
 
     // Mapeia guests
     const mappedGuests = await Promise.all(
@@ -151,17 +171,17 @@ export class ListParticipantsUsecase
       ...mappedAccountParticipants,
     ].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
-    const total = allParticipants.length;
+    const totalGuests = countGuestMale + countGuestFemale;
+    const totalAccounts = countAccountMale + countAccountFemale;
 
-    // Aplica paginação sobre a lista combinada
-    const offset = (safePage - 1) * safePageSize;
-    const paginated = allParticipants.slice(offset, offset + safePageSize);
+    const total = totalGuests + totalAccounts;
 
     return {
-      participants: paginated,
+      participants: allParticipants,
       countParticipants: total,
       countParticipantsMale: countGuestMale + countAccountMale,
       countParticipantsFemale: countGuestFemale + countAccountFemale,
+      typesInscriptionsInUse: typeInscriptionInUse,
       total,
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),

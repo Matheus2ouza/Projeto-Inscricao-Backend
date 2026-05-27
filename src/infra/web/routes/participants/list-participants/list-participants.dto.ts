@@ -1,7 +1,17 @@
-export type ListParticipantsRequest = {
+import { InscriptionStatus } from 'generated/prisma';
+
+export type ListParticipantsParams = {
   eventId: string;
+};
+
+export type ListParticipantsQuery = {
   page: number;
   pageSize: number;
+
+  // filters
+  inscriptionStatus: InscriptionStatus[];
+  typeInscriptions: string[];
+  orderByName: 'asc' | 'desc';
 };
 
 export type ListParticipantsResponse = {
@@ -9,6 +19,7 @@ export type ListParticipantsResponse = {
   countParticipants: number;
   countParticipantsMale: number;
   countParticipantsFemale: number;
+  typesInscriptionsInUse: TypeInscription[];
   total: number;
   page: number;
   pageCount: number;
@@ -24,4 +35,9 @@ export type Participant = {
   shirtSize: string;
   shirtType: string;
   guest: boolean;
+};
+
+type TypeInscription = {
+  id: string;
+  description: string;
 };

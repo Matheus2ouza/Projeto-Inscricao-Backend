@@ -94,6 +94,21 @@ export class RedisService implements OnModuleDestroy {
     return await this.client.smembers(key);
   }
 
+  async lpush(key: string, value: string): Promise<void> {
+    if (!this.client) return;
+    await this.client.lpush(key, value);
+  }
+
+  async rpop(key: string): Promise<string | null> {
+    if (!this.client) return null;
+    return await this.client.rpop(key);
+  }
+
+  async llen(key: string): Promise<number> {
+    if (!this.client) return 0;
+    return await this.client.llen(key);
+  }
+
   async onModuleDestroy() {
     if (!this.client) return;
     await this.client.quit();

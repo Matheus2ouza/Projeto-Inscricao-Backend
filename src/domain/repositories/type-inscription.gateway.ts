@@ -43,6 +43,9 @@ export abstract class TypeInscriptionGateway {
     accountParticipantInEventId: string,
   ): Promise<TypeInscription | null>;
 
+  // busca todas os typeInscriptions que estão sendo usados pelos participantes de um evento
+  abstract findTypesInUseByEventId(eventId: string): Promise<TypeInscription[]>;
+
   abstract countAllByEvent(eventId: string): Promise<number>;
   abstract countParticipantsUsingTypeInscription(
     typeInscriptionId: string,

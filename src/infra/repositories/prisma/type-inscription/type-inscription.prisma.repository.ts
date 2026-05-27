@@ -255,6 +255,35 @@ export class TypeInscriptionPrismaRepository implements TypeInscriptionGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
+  async findTypesInUseByEventId(eventId: string): Promise<TypeInscription[]> {
+    const found = await this.prisma.typeInscriptions.findMany({
+      where: {
+        OR: [
+          {
+            Participant: {
+              some: {
+                inscription: {
+                  eventId,
+                },
+              },
+            },
+          },
+          {
+            accountParticipantInEvent: {
+              some: {
+                inscription: {
+                  eventId,
+                },
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async countAllByEvent(eventId: string): Promise<number> {
     return await this.prisma.typeInscriptions.count({
       where: { eventId },

@@ -5,26 +5,43 @@ import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { SupabaseStorageService } from './infra/services/supabase/supabase-storage.service';
-import { MetricsInterceptor } from './infra/web/metrics/metrics.interceptor';
 import { TrimPipe } from './shared/pipes/trim.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Verifica se está no modo evento (com nginx)
+  const isEventMode = process.env.EVENT_MODE === 'true';
+
+  if (!isEventMode) {
+    // Modo normal: habilita CORS
+    app.enableCors({
+      origin: [
+        'http://localhost:3000',
+        'http://192.168.0.15:3000',
+        'http://192.168.0.15',
+        'http://192.168.0.15:80',
+        'https://sistema-inscricao-five.vercel.app',
+        'http://localhost:3333',
+        'http://localhost:8081',
+        'https://localhost:3333',
+        'http://172.18.208.1:3333',
+      ],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      credentials: true,
+    });
+    console.log('CORS habilitado (modo normal)');
+  } else {
+    // Modo evento: desabilita CORS completamente (nginx vai lidar com isso)
+    app.enableCors({
+      origin: false, // Desabilita CORS
+    });
+    console.log('CORS desabilitado (modo evento - nginx assume controle)');
+  }
+
   app.enableShutdownHooks();
   app.use(cookieParser());
-
-  app.enableCors({
-    origin: [
-      'https://sistema-inscricao-five.vercel.app',
-      'http://localhost:3333',
-      'http://localhost:8081',
-      'https://localhost:3333',
-      'http://172.18.208.1:3333',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
-  app.useGlobalInterceptors(app.get(MetricsInterceptor));
+  // app.useGlobalInterceptors(app.get(MetricsInterceptor));
 
   //Teste de conexão com supabase
   const supabase = app.get(SupabaseStorageService);
@@ -75,6 +92,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`Servidor rodando em: ${host}`);
+  console.log(`Modo: ${isEventMode ? 'EVENT (com nginx)' : 'NORMAL'}`);
   if (process.env.NODE_ENV !== 'production') {
     console.log(`Documentação Swagger: ${host}/api/docs`);
   }

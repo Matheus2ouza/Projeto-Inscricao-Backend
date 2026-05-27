@@ -1,4 +1,4 @@
-import { genderType } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { Participant } from '../entities/participant.entity';
 
@@ -10,6 +10,10 @@ export abstract class ParticipantGateway {
     tx: PrismaTransactionClient,
   ): Promise<Participant>;
   abstract createMany(participants: Participant[]): Promise<Participant[]>;
+  abstract createManyTx(
+    participants: Participant[],
+    tx: PrismaTransactionClient,
+  ): Promise<number>;
   abstract update(participant: Participant): Promise<Participant>;
   abstract delete(id: string): Promise<void>;
 
@@ -33,6 +37,11 @@ export abstract class ParticipantGateway {
     eventId: string,
     page: number,
     pageSize: number,
+    filters?: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+      orderByName: 'asc' | 'desc';
+    },
   ): Promise<Participant[]>;
   abstract findManyPaginatedByInscriptionId(
     inscriptionId: string,
@@ -56,6 +65,18 @@ export abstract class ParticipantGateway {
     accountId: string,
     eventId: string,
   ): Promise<number>;
+  // contagem de participantes em um evento agrupando por gênero
+  abstract countParticipantsByEventIdGroupedByGender(
+    eventId: string,
+    filters: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+    },
+  ): Promise<{
+    male: number;
+    female: number;
+  }>;
+  // contagem de participantes em um evento, filtrando por genero
   abstract countParticipantsByEventIdAndGender(
     eventId: string,
     gender: genderType,
