@@ -1,9 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
-import {
-  UserInfo,
-  type UserInfoType,
-} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   CreateInscriptionAdminInput,
@@ -24,11 +20,9 @@ export class CreateInscriptionAdminRoute {
   @Roles(RoleTypeHierarchy.MANAGER)
   @Post('admin')
   async handle(
-    @UserInfo() user: UserInfoType,
     @Body() body: CreateInscriptionAdminRequest,
   ): Promise<CreateInscriptionAdminResponse> {
     const input: CreateInscriptionAdminInput = {
-      userId: user.userId,
       eventId: body.eventId,
       isGuest: body.isGuest,
       accountId: body.accountId,

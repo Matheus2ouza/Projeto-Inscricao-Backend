@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import {
   genderType,
   InscriptionStatus,
@@ -14,25 +14,34 @@ import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway'
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import { SyncQueue } from 'src/infra/sync/sync.queue';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from '../../exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
 import { DuplicateParticipantCpfUsecaseException } from '../../exceptions/participants/duplicate-participant-cpf.usecase.exception';
 
 export type CreateInscriptionAdminInput = {
-  userId: string;
   eventId: string;
-  isGuest: boolean;
+
+  // caso guest false entao envia o accountId
   accountId?: string;
+  isGuest: boolean;
+
+  // dados de registro são enviados independente do guest
   responsible: string;
   email: string;
   phone: string;
+
+  // caso guest true então envia o locality
   locality?: string;
   participants: ParticipantInscription[];
 };
 
 export type ParticipantInscription = {
+  // para inscrições guest false envia somene o accountParticipantId
   accountParticipantId?: string;
+
+  // para inscrições guest true envia todos os demais dados
   name?: string;
   preferredName?: string;
   shirtSize?: ShirtSize;
@@ -40,6 +49,8 @@ export type ParticipantInscription = {
   birthDate?: string;
   cpf?: string;
   gender?: genderType;
+
+  // independe do guest, o typeInscription é enviado
   typeInscriptionId: string;
 };
 
@@ -59,6 +70,7 @@ export class CreateInscriptionAdminUsecase
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly prisma: PrismaService,
+    @Optional() private readonly syncQueue: SyncQueue,
   ) {}
 
   async execute(
@@ -195,14 +207,18 @@ export class CreateInscriptionAdminUsecase
         );
       }
 
-      for (const participant of guestParticipants) {
-        await this.participantGateway.createTx(participant, tx);
+      if (guestParticipants.length > 0) {
+        await this.participantGateway.createManyTx(guestParticipants, tx);
       }
 
       await this.eventGateway.updateTx(event, tx);
     });
 
     this.logger.log(`Inscrição criada com sucesso! ID: ${inscription.getId()}`);
+
+    if (process.env.EVENT_MODE === 'true') {
+      await this.syncQueue.enqueue('inscriptions', inscription.getId());
+    }
 
     const output: CreateInscriptionAdminOutput = {
       id: inscription.getId(),
