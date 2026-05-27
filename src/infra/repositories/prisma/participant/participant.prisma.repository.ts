@@ -36,8 +36,22 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     const data = participants.map(EntityToPrisma.map);
     const created = await this.prisma.participant.createMany({
       data,
+      skipDuplicates: true,
     });
     return created.count === participants.length ? participants : [];
+  }
+
+  async createManyTx(
+    participants: Participant[],
+    tx: PrismaTransactionClient,
+  ): Promise<number> {
+    const data = participants.map(EntityToPrisma.map);
+    const created = await tx.participant.createMany({
+      data,
+      skipDuplicates: true,
+    });
+
+    return created.count;
   }
 
   async update(participant: Participant): Promise<Participant> {
@@ -124,17 +138,28 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     eventId: string,
     page: number,
     pageSize: number,
+    filters?: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+      orderByName: 'asc' | 'desc';
+    },
   ): Promise<Participant[]> {
     const skip = (page - 1) * pageSize;
+    const where = this.buildWhereClauseParticipant(filters);
+
+    const sortOrderName = filters?.orderByName === 'asc' ? 'asc' : 'desc';
     const found = await this.prisma.participant.findMany({
       skip,
       take: pageSize,
       where: {
+        ...where,
         inscription: {
           eventId,
           isGuest: true,
-          status: InscriptionStatus.PAID,
         },
+      },
+      orderBy: {
+        name: sortOrderName,
       },
     });
     return found.map(PrismaToEntity.map);
@@ -166,8 +191,8 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     const found = await this.prisma.participant.findMany({
       where: {
         inscriptionId: { in: inscriptionIds },
-        inscription: { status: InscriptionStatus.PAID, isGuest: true },
         ...where,
+        inscription: { isGuest: true },
       },
     });
 
@@ -218,6 +243,47 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     });
   }
 
+  async countParticipantsByEventIdGroupedByGender(
+    eventId: string,
+    filters: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+    },
+  ): Promise<{ male: number; female: number }> {
+    const where = this.buildWhereClauseParticipant(filters);
+    const result = await this.prisma.participant.groupBy({
+      by: 'gender',
+      where: {
+        ...where,
+        inscription: {
+          eventId,
+          isGuest: true,
+        },
+      },
+      _count: {
+        gender: true,
+      },
+    });
+
+    const response = {
+      male: 0,
+      female: 0,
+    };
+
+    for (const item of result) {
+      if (item.gender === genderType.MASCULINO) {
+        response.male = item._count.gender;
+      }
+
+      if (item.gender === genderType.FEMININO) {
+        response.female = item._count.gender;
+      }
+    }
+
+    return response;
+  }
+
+  // contagem de participantes filtrando por genero
   async countParticipantsByEventIdAndGender(
     eventId: string,
     gender: genderType,
@@ -251,9 +317,16 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
   }
 
   private buildWhereClauseParticipant(filter?: {
+    inscriptionStatus?: string | InscriptionStatus[];
     typeInscriptionId?: string | string[];
   }) {
-    const { typeInscriptionId } = filter || {};
+    const { inscriptionStatus, typeInscriptionId } = filter || {};
+
+    const inscriptionStatusArray = inscriptionStatus
+      ? Array.isArray(inscriptionStatus)
+        ? inscriptionStatus
+        : [inscriptionStatus]
+      : [];
 
     const typeInscriptionArray = typeInscriptionId
       ? Array.isArray(typeInscriptionId)
@@ -262,6 +335,13 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       : [];
 
     return {
+      inscription: {
+        status:
+          inscriptionStatusArray.length > 0
+            ? { in: inscriptionStatusArray }
+            : undefined,
+      },
+
       typeInscriptionId:
         typeInscriptionArray.length > 0
           ? { in: typeInscriptionArray }

@@ -80,16 +80,13 @@ export class AccountParticipantPrismaRepository
     const where = this.buildWhereClause(filter);
     const found = await this.prisma.accountParticipant.findMany({
       where: {
+        ...where,
         eventLinks: {
           some: {
             inscription: {
               id: { in: inscriptionIds },
-              status: InscriptionStatus.PAID,
               isGuest: false,
             },
-            ...(where.typeInscriptionId && {
-              typeInscriptionId: where.typeInscriptionId,
-            }),
           },
         },
       },
@@ -150,21 +147,31 @@ export class AccountParticipantPrismaRepository
     eventId: string,
     page: number,
     pageSize: number,
+    filters?: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+      orderByName: 'asc' | 'desc';
+    },
   ): Promise<AccountParticipant[]> {
+    const sortOrderName = filters?.orderByName === 'asc' ? 'asc' : 'desc';
+    const where = this.buildWhereClause(filters);
     const skip = (page - 1) * pageSize;
     const found = await this.prisma.accountParticipant.findMany({
       skip,
       take: pageSize,
       where: {
+        ...where,
         eventLinks: {
           some: {
             inscription: {
               eventId,
               isGuest: false,
-              status: InscriptionStatus.PAID,
             },
           },
         },
+      },
+      orderBy: {
+        name: sortOrderName,
       },
     });
     return found.map(PrismaModelToEntity.map);
@@ -196,6 +203,50 @@ export class AccountParticipantPrismaRepository
     return count;
   }
 
+  async countParticipantsByEventIdGroupedByGender(
+    eventId: string,
+    filters: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+    },
+  ): Promise<{ male: number; female: number }> {
+    const where = this.buildWhereClause(filters);
+    const result = await this.prisma.accountParticipant.groupBy({
+      by: 'gender',
+      where: {
+        ...where,
+        eventLinks: {
+          some: {
+            inscription: {
+              eventId,
+              isGuest: false,
+            },
+          },
+        },
+      },
+      _count: {
+        gender: true,
+      },
+    });
+
+    const response = {
+      male: 0,
+      female: 0,
+    };
+
+    for (const item of result) {
+      if (item.gender === genderType.MASCULINO) {
+        response.male = item._count.gender;
+      }
+
+      if (item.gender === genderType.FEMININO) {
+        response.female = item._count.gender;
+      }
+    }
+
+    return response;
+  }
+
   async countParticipantsByEventIdAndGender(
     eventId: string,
     gender: genderType,
@@ -221,10 +272,9 @@ export class AccountParticipantPrismaRepository
   private buildWhereClause(filter?: {
     accountId?: string;
     typeInscriptionId?: string | string[];
-    startDate?: string;
-    endDate?: string;
+    inscriptionStatus?: InscriptionStatus[];
   }) {
-    const { accountId, typeInscriptionId } = filter || {};
+    const { accountId, typeInscriptionId, inscriptionStatus } = filter || {};
 
     const typeInscriptionArray = typeInscriptionId
       ? Array.isArray(typeInscriptionId)
@@ -232,12 +282,32 @@ export class AccountParticipantPrismaRepository
         : [typeInscriptionId]
       : [];
 
+    const inscriptionStatusArray = inscriptionStatus
+      ? Array.isArray(inscriptionStatus)
+        ? inscriptionStatus
+        : [inscriptionStatus]
+      : [];
+
     return {
       accountId,
-      typeInscriptionId:
-        typeInscriptionArray.length > 0
-          ? { in: typeInscriptionArray }
-          : undefined,
+
+      eventLinks: {
+        some: {
+          ...(typeInscriptionArray.length > 0 && {
+            typeInscriptionId: {
+              in: typeInscriptionArray,
+            },
+          }),
+
+          ...(inscriptionStatusArray.length > 0 && {
+            inscription: {
+              status: {
+                in: inscriptionStatusArray,
+              },
+            },
+          }),
+        },
+      },
     };
   }
 }

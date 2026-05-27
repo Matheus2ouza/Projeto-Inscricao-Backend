@@ -1,4 +1,4 @@
-import { genderType } from 'generated/prisma';
+import { genderType, InscriptionStatus } from 'generated/prisma';
 import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
 
 export abstract class AccountParticipantGateway {
@@ -39,10 +39,27 @@ export abstract class AccountParticipantGateway {
     eventId: string,
     page: number,
     pageSize: number,
+    filters?: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+      orderByName: 'asc' | 'desc';
+    },
   ): Promise<AccountParticipant[]>;
 
   // Agregações e contagens
   abstract countAllByEventId(eventId: string): Promise<number>;
+  // contagem de participantes em um evento agrupando por gênero
+  abstract countParticipantsByEventIdGroupedByGender(
+    eventId: string,
+    filters: {
+      inscriptionStatus?: InscriptionStatus[];
+      typeInscriptionId: string | string[];
+    },
+  ): Promise<{
+    male: number;
+    female: number;
+  }>;
+  // contagem de participantes em um evento, filtrando por genero
   abstract countParticipantsByEventIdAndGender(
     eventId: string,
     gender: genderType,
