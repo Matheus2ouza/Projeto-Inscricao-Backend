@@ -4,6 +4,7 @@ import { ImageOptimizerModule } from 'src/infra/services/image-optimizer/image-o
 import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
+import { SyncModule } from 'src/infra/sync/sync.module';
 import { CreateCashRegisterUsecase } from './web/cash-register/create-cash-register/create-cash-register.usecase';
 import { CreateNewRegisterUsecase } from './web/cash-register/create-new-register/create-new-register.usecase';
 import { FindAllCashRegisterUsecase } from './web/cash-register/find-all-cash-register/find-all-cash-register.usecase';
@@ -128,6 +129,7 @@ import { ReportFinancialUsecase } from './web/report/report-general/financial/re
 import { ReportGeneralUsecase } from './web/report/report-general/general/report-general.usecase';
 import { GeneratePdfFinancialReportUsecase } from './web/report/report-general/pdf-financial/generate-pdf-financial-report.usecase';
 import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf-geral/generate-pdf-general-report.usecase';
+import { ReceiveSyncInscriptionUsecase } from './web/sync/receive-sync-inscription/receive-sync-inscription.usecase';
 import { AnalysisPreSaleUseCase } from './web/tickets/analysis-pre-sale/analysis-pre-sale.usecase';
 import { ApprovePreSaleUseCase } from './web/tickets/approve-pre-sale/approve-pre-sale.usecase';
 import { CreateTicketUsecase } from './web/tickets/create/create-ticket.usecase';
@@ -164,6 +166,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     SupabaseModule,
     ImageOptimizerModule,
     MailModule,
+    ...(process.env.EVENT_MODE === 'true' ? [SyncModule] : []),
   ],
   providers: [
     // CashRegister
@@ -382,6 +385,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfGeneralReportUsecase,
     ReportFinancialUsecase,
     GeneratePdfFinancialReportUsecase,
+
+    // Sync
+    ReceiveSyncInscriptionUsecase,
 
     // Background tasks
     CancelExpiredGuestInscriptionsUsecase,
@@ -610,6 +616,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfGeneralReportUsecase,
     ReportFinancialUsecase,
     GeneratePdfFinancialReportUsecase,
+
+    // Sync
+    ReceiveSyncInscriptionUsecase,
 
     // Background tasks
     CancelExpiredGuestInscriptionsUsecase,
