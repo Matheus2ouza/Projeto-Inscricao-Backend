@@ -3,6 +3,7 @@ import { UsecaseModule } from 'src/usecases/usecase.module';
 import { ServiceModule } from '../services/service.module';
 import { AuthGuardProvider } from './authenticator/guards/auth.guard';
 import { RoleGuardProvider } from './authenticator/guards/role.guard';
+import { SyncTokenGuard } from './authenticator/guards/sync-token.guard';
 import { DomainExceptionFilterProvider } from './filters/domain/domain-exception.filter';
 import { ValidatorDomainExceptionFilterProvider } from './filters/domain/validator-domain-exception.filter';
 import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/auth-token-not-valid-service-exception.filter';
@@ -160,6 +161,7 @@ import { UpdateTypeInscriptionActiveRoute } from './routes/typeInscription/disab
 import { FindAllTypeInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindTypeInscriptionByEvent } from './routes/typeInscription/find-type-inscription-by-event/find-type-inscription-by-event.route';
 import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update-type-inscription/update-type-inscription.route';
+import { ReceiveSyncInscriptionRoute } from './routes/sync/receive-sync-inscription/receive-sync-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
@@ -410,8 +412,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     ReportFinancialRoute,
     GeneratePdfGeneralReportRoute,
     GeneratePdfFinancialReportRoute,
+
+    // Sync
+    ReceiveSyncInscriptionRoute,
   ],
   providers: [
+    SyncTokenGuard,
     AuthGuardProvider,
     RoleGuardProvider,
     MemberAlreadyInscribedUsecaseExceptionFilterProvider,
