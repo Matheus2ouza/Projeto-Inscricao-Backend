@@ -4,6 +4,8 @@ import { Participant } from '../entities/participant.entity';
 
 export abstract class ParticipantGateway {
   // CRUD básico
+
+  // creates
   abstract create(participant: Participant): Promise<Participant>;
   abstract createTx(
     participant: Participant,
@@ -14,7 +16,14 @@ export abstract class ParticipantGateway {
     participants: Participant[],
     tx: PrismaTransactionClient,
   ): Promise<number>;
+
+  // updates
   abstract update(participant: Participant): Promise<Participant>;
+
+  // upserts
+  abstract upsert(participant: Participant): Promise<Participant>;
+
+  // delete
   abstract delete(id: string): Promise<void>;
 
   // Buscas por identificador único
