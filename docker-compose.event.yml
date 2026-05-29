@@ -7,7 +7,12 @@ services:
     restart: unless-stopped
     env_file:
       - .env.event
-    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --appendonly
+      - 'yes'
     ports:
       - '6379:6379'
     volumes:
@@ -45,18 +50,6 @@ services:
     networks:
       - event_net
 
-  frontend:
-    image: frontend-sistema-inscricao:1.0
-    container_name: frontend_event
-    restart: unless-stopped
-    depends_on:
-      - backend1
-      - backend2
-    mem_limit: 512m
-    cpus: 1.0
-    networks:
-      - event_net
-
   nginx:
     image: nginx:alpine
     container_name: nginx_event
@@ -67,7 +60,6 @@ services:
     depends_on:
       - backend1
       - backend2
-      - frontend
     restart: unless-stopped
     networks:
       - event_net

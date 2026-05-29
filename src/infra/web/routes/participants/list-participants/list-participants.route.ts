@@ -32,8 +32,6 @@ export class ListParticipantsRoute {
       orderByName: query.orderByName,
     };
 
-    console.log(input);
-
     const response = await this.listGuestParticipantsUsecase.execute(input);
     return ListParticipantsPresenter.toHttp(response);
   }

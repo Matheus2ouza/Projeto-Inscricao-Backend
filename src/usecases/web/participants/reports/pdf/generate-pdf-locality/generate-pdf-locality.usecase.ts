@@ -68,6 +68,7 @@ export class GeneratePdfLocalityUsecase
   async execute(
     input: GeneratePdfLocalityInput,
   ): Promise<GeneratePdfLocalityOutput> {
+    console.log(input);
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
