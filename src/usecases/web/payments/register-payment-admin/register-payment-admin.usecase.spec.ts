@@ -33,7 +33,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
   let cashRegisterEventGateway: jest.Mocked<{ findByEventId: jest.Mock }>;
   let cashRegisterGateway: jest.Mocked<{
     findById: jest.Mock;
-    updateManyTx: jest.Mock;
+    updateTx: jest.Mock;
   }>;
   let eventGateway: jest.Mocked<{ findById: jest.Mock; updateTx: jest.Mock }>;
   let userGateway: jest.Mocked<{ findById: jest.Mock }>;
@@ -174,7 +174,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     financialMovementGateway = { createTx: jest.fn() };
     cashRegisterEntryGateway = { createManyTx: jest.fn() };
     cashRegisterEventGateway = { findByEventId: jest.fn() };
-    cashRegisterGateway = { findById: jest.fn(), updateManyTx: jest.fn() };
+    cashRegisterGateway = { findById: jest.fn(), updateTx: jest.fn() };
     eventGateway = { findById: jest.fn(), updateTx: jest.fn() };
     userGateway = { findById: jest.fn() };
     supabaseStorageService = { uploadFile: jest.fn() };
@@ -361,7 +361,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     expect(createdEntries).toHaveLength(2); // 2 caixas
 
     // Verificar atualização dos saldos dos caixas
-    expect(cashRegisterGateway.updateManyTx).toHaveBeenCalledTimes(1);
+    expect(cashRegisterGateway.updateTx).toHaveBeenCalledTimes(2);
     expect(cashRegister1.incrementBalance).toHaveBeenCalledWith(200);
     expect(cashRegister2.incrementBalance).toHaveBeenCalledWith(200);
 
@@ -634,7 +634,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     // assert
     expect(output.inscriptions).toHaveLength(1);
     expect(cashRegisterEntryGateway.createManyTx).toHaveBeenCalledTimes(1);
-    expect(cashRegisterGateway.updateManyTx).toHaveBeenCalledTimes(1);
+    expect(cashRegisterGateway.updateTx).toHaveBeenCalledTimes(1);
     expect(cashRegister.incrementBalance).toHaveBeenCalledWith(200);
   });
 

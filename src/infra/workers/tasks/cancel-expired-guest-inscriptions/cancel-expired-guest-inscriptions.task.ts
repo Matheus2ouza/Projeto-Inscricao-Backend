@@ -26,9 +26,10 @@ export class CancelExpiredGuestInscriptionsTask {
         this.logger.log('Nenhuma inscrição Guest expirada para cancelar');
       }
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao executar cancelamento de inscrições Guest expiradas: ${error.message}`,
-        error.stack,
+        `Erro ao executar cancelamento de inscrições Guest expiradas: ${err.message}`,
+        err.stack,
       );
     }
   }

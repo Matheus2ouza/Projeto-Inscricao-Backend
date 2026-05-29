@@ -25,6 +25,7 @@ import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filt
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
 import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
+import { SyncRecordAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/sync/sync-record-already-exists.usecase.exception.filter';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
 import { ParticipantLimitReachedUsecaseExceptionFilterProvider } from './filters/usecases/typeInscription/participant-limit-reached-usecase-exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
@@ -143,6 +144,8 @@ import { ReportFinancialRoute } from './routes/report/report-general/financial/r
 import { ReportGeneralRoute } from './routes/report/report-general/general/report-general.route';
 import { GeneratePdfFinancialReportRoute } from './routes/report/report-general/pdf-financial/generate-pdf-financial-report.route';
 import { GeneratePdfGeneralReportRoute } from './routes/report/report-general/pdf-geral/generate-pdf-general-report.route';
+import { ReceiveSyncInscriptionRoute } from './routes/sync/receive-sync-inscription/receive-sync-inscription.route';
+import { ReceiveSyncParticipantRoute } from './routes/sync/receive-sync-participant/receive-sync-participant.route';
 import { AnalysisPreSaleRoute } from './routes/tickets/analysis-pre-sale/analysis-pre-sale.route';
 import { ApprovePreSaleRoute } from './routes/tickets/approve-pre-sale/approve-pre-sale.route';
 import { CreateTicketRoute } from './routes/tickets/create/create-ticket.route';
@@ -161,7 +164,6 @@ import { UpdateTypeInscriptionActiveRoute } from './routes/typeInscription/disab
 import { FindAllTypeInscriptionRoute } from './routes/typeInscription/find-all-inscriptionDescriptions/find-all-type-inscription.route';
 import { FindTypeInscriptionByEvent } from './routes/typeInscription/find-type-inscription-by-event/find-type-inscription-by-event.route';
 import { UpdateTypeInscriptionRoute } from './routes/typeInscription/update-type-inscription/update-type-inscription.route';
-import { ReceiveSyncInscriptionRoute } from './routes/sync/receive-sync-inscription/receive-sync-inscription.route';
 import { CreateUserRoute } from './routes/user/create/create-user.route';
 import { FindAllNamesUserRoute } from './routes/user/find-all-names/find-all-names-user.route';
 import { FindAllPaginatedUsersRoute } from './routes/user/find-all-paginated/find-all-paginated-users.route';
@@ -415,6 +417,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Sync
     ReceiveSyncInscriptionRoute,
+    ReceiveSyncParticipantRoute,
   ],
   providers: [
     SyncTokenGuard,
@@ -424,6 +427,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     ValidatorDomainExceptionFilterProvider,
     DomainExceptionFilterProvider,
     UsecaseExceptionFilterProvider,
+    SyncRecordAlreadyExistsUsecaseExceptionFilterProvider,
     CredentialsNotValidUsecaseExcepitonFilterProvider,
     UserAlreadyExistsUsecaseExceptionFilterProvider,
     AccountNotFoundUsecaseExceptionFilterProvider,
