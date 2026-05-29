@@ -24,19 +24,6 @@ export class GeneratePdfLocalityRoute {
     const parseBooleanQuery = (value: unknown): boolean =>
       String(value).toLowerCase() === 'true';
 
-    // const now = new Date();
-
-    // const input: GeneratePdfLocalityInput = {
-    //   eventId: param.eventId,
-    //   separate: parseBooleanQuery(query.separate),
-    //   reduced: parseBooleanQuery(query.reduced),
-    //   summary: parseBooleanQuery(query.summary),
-    //   typeInscriptions: query.typeInscriptions,
-    //   columns: query.columns,
-    //   startDate: `${now.getFullYear()}-04-21T12:00:00.000Z`,
-    //   endDate: `${now.toISOString()}`,
-    // };
-
     const input: GeneratePdfLocalityInput = {
       eventId: param.eventId,
       separate: parseBooleanQuery(query.separate),
@@ -44,6 +31,7 @@ export class GeneratePdfLocalityRoute {
       summary: parseBooleanQuery(query.summary),
       typeInscriptions: query.typeInscriptions,
       columns: query.columns,
+      inscriptionsStatus: query.inscriptionsStatus,
       startDate: query.startDate,
       endDate: query.endDate,
     };

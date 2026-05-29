@@ -91,7 +91,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`Servidor rodando em: ${host}`);
-  console.log(`Modo: ${isEventMode ? 'EVENT (com nginx)' : ''}`);
+  isEventMode && console.log(`Modo: EVENT (com nginx)`);
   if (process.env.NODE_ENV !== 'production') {
     console.log(`Documentação Swagger: ${host}/api/docs`);
   }

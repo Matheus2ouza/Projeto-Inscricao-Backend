@@ -130,6 +130,7 @@ import { ReportGeneralUsecase } from './web/report/report-general/general/report
 import { GeneratePdfFinancialReportUsecase } from './web/report/report-general/pdf-financial/generate-pdf-financial-report.usecase';
 import { GeneratePdfGeneralReportUsecase } from './web/report/report-general/pdf-geral/generate-pdf-general-report.usecase';
 import { ReceiveSyncInscriptionUsecase } from './web/sync/receive-sync-inscription/receive-sync-inscription.usecase';
+import { ReceiveSyncParticipantUsecase } from './web/sync/receive-sync-participant/receive-sync-participant.usecase';
 import { AnalysisPreSaleUseCase } from './web/tickets/analysis-pre-sale/analysis-pre-sale.usecase';
 import { ApprovePreSaleUseCase } from './web/tickets/approve-pre-sale/approve-pre-sale.usecase';
 import { CreateTicketUsecase } from './web/tickets/create/create-ticket.usecase';
@@ -388,6 +389,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Sync
     ReceiveSyncInscriptionUsecase,
+    ReceiveSyncParticipantUsecase,
 
     // Background tasks
     CancelExpiredGuestInscriptionsUsecase,
@@ -619,6 +621,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Sync
     ReceiveSyncInscriptionUsecase,
+    ReceiveSyncParticipantUsecase,
 
     // Background tasks
     CancelExpiredGuestInscriptionsUsecase,

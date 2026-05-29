@@ -64,6 +64,17 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return PrismaToEntity.map(updated);
   }
 
+  async upsert(participant: Participant): Promise<Participant> {
+    const data = EntityToPrisma.map(participant);
+    const upserted = await this.prisma.participant.upsert({
+      where: { id: participant.getId() },
+      create: data,
+      update: data,
+    });
+
+    return PrismaToEntity.map(upserted);
+  }
+
   async delete(id: string): Promise<void> {
     await this.prisma.participant.delete({ where: { id } });
   }

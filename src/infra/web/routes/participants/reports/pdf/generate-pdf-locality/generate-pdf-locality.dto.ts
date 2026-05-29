@@ -1,3 +1,5 @@
+import { InscriptionStatus } from 'generated/prisma';
+
 export type GeneratePdfLocalityParam = {
   eventId: string;
 };
@@ -10,6 +12,7 @@ export type GeneratePdfLocalityQuery = {
   // filtros
   typeInscriptions?: string | string[];
   columns?: ReportColumn[] | string | string[];
+  inscriptionsStatus?: InscriptionStatus | InscriptionStatus[];
   startDate?: string;
   endDate?: string;
 };
