@@ -216,8 +216,36 @@ export class CreateInscriptionAdminUsecase
 
     this.logger.log(`Inscrição criada com sucesso! ID: ${inscription.getId()}`);
 
+    // Somente para sincronização durante evento
+    // não vai rodar sempre
     if (process.env.EVENT_MODE === 'true') {
-      await this.syncQueue.enqueue('inscriptions', inscription.getId());
+      await this.syncQueue.enqueueJob({
+        table: 'inscriptions',
+        recordId: inscription.getId(),
+      });
+
+      // Enqueue dos participantes normais (accountParticipantInEvent)
+      for (const participant of normalParticipants) {
+        // Primeiro enqueue o accountParticipantInEvent
+        await this.syncQueue.enqueueJob({
+          table: 'accountParticipantInEvent',
+          recordId: participant.getId(),
+        });
+
+        // Depois enqueue o accountParticipant relacionado
+        await this.syncQueue.enqueueJob({
+          table: 'accountParticipant',
+          recordId: participant.getAccountParticipantId(),
+        });
+      }
+
+      // Enqueue dos participantes guest
+      for (const guest of guestParticipants) {
+        await this.syncQueue.enqueueJob({
+          table: 'participants',
+          recordId: guest.getId(),
+        });
+      }
     }
 
     const output: CreateInscriptionAdminOutput = {

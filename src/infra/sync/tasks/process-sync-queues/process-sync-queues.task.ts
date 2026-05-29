@@ -21,9 +21,15 @@ export class ProcessSyncQueuesTask {
     try {
       const result = await this.processSyncQueuesUsecase.execute();
 
-      if (result.synced > 0 || result.failed > 0) {
+      if (
+        result.synced > 0 ||
+        result.failed > 0 ||
+        result.retried > 0 ||
+        result.waitingDependencies > 0 ||
+        result.recovered > 0
+      ) {
         this.logger.log(
-          `Sync concluído — sincronizados: ${result.synced} | falhas: ${result.failed}`,
+          `Sync jobs — synced: ${result.synced} | failed: ${result.failed} | retried: ${result.retried} | waitingDependencies: ${result.waitingDependencies} | recovered: ${result.recovered}`,
         );
       }
     } catch (error) {

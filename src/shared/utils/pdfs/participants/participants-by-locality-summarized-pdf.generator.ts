@@ -49,11 +49,13 @@ export type ParticipantLocalitySummarizedPdfRow = {
   index: number;
   name?: string;
   preferredName?: string;
+  cpf: string;
   locality: string;
   age?: number;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender?: any;
+  typeInscription: string;
 };
 
 export type ParticipantLocalitySummarizedPdfData = {
@@ -244,6 +246,10 @@ function buildParticipantsTable(
     });
   }
 
+  if (shouldShow('cpf')) {
+    columnConfig.push({ key: 'cpf', header: 'CPF', width: 80 });
+  }
+
   if (shouldShowAge) {
     columnConfig.push({ key: 'age', header: 'Idade', width: 30 });
   }
@@ -258,6 +264,10 @@ function buildParticipantsTable(
 
   if (shouldShow('shirtType')) {
     columnConfig.push({ key: 'shirtType', header: 'Tipo', width: 70 });
+  }
+
+  if (shouldShow('typeInscription')) {
+    columnConfig.push({ key: 'typeInscription', header: 'Tipo', width: 70 });
   }
 
   // Construir headers
@@ -289,6 +299,9 @@ function buildParticipantsTable(
           case 'preferredName':
             cells.push({ text: preferredName, style: 'tableCell' });
             break;
+          case 'cpf':
+            cells.push({ text: p.cpf || '-', style: 'tableCell' });
+            break;
           case 'age':
             cells.push({ text: String(p.age ?? '-'), style: 'tableCell' });
             break;
@@ -304,6 +317,12 @@ function buildParticipantsTable(
           case 'shirtType':
             cells.push({
               text: formatShirtType(p.shirtType),
+              style: 'tableCell',
+            });
+            break;
+          case 'typeInscription':
+            cells.push({
+              text: p.typeInscription,
               style: 'tableCell',
             });
             break;

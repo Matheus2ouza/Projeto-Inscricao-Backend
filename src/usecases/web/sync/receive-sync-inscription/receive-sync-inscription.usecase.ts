@@ -1,42 +1,52 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { Inscription } from 'src/domain/entities/inscription.entity';
+import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
+import { SyncRecordAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/sync/sync-record-already-exists.usecase.exception';
 
 export type ReceiveSyncInscriptionInput = {
-  record: Record<string, unknown>;
+  inscription: Inscription;
 };
 
 export type ReceiveSyncInscriptionOutput = {
   id: string;
-  operation: 'upserted';
+  operation: 'created';
 };
 
 @Injectable()
 export class ReceiveSyncInscriptionUsecase
-  implements
-    Usecase<ReceiveSyncInscriptionInput, ReceiveSyncInscriptionOutput>
+  implements Usecase<ReceiveSyncInscriptionInput, ReceiveSyncInscriptionOutput>
 {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(ReceiveSyncInscriptionUsecase.name);
+  constructor(private readonly inscriptionGateway: InscriptionGateway) {}
 
   async execute(
     input: ReceiveSyncInscriptionInput,
   ): Promise<ReceiveSyncInscriptionOutput> {
-    const id = input.record.id;
+    const inscription = input.inscription;
 
-    if (typeof id !== 'string' || id.length === 0) {
-      throw new Error('Invalid sync payload: record.id is required');
+    this.logger.log('Validando se a inscrição já existe');
+    const existingInscription = await this.inscriptionGateway.findById(
+      inscription.getId(),
+    );
+
+    if (existingInscription) {
+      throw new SyncRecordAlreadyExistsUsecaseException(
+        `Sync attempted for a record that already exists: ${inscription.getId()}`,
+        'Registro ja sincronizado.',
+        ReceiveSyncInscriptionUsecase.name,
+      );
     }
 
-    await this.prisma.inscription.upsert({
-      where: { id },
-      create: input.record as any,
-      update: input.record as any,
-    });
+    this.logger.log('Criando inscrição no banco');
+    await this.inscriptionGateway.create(inscription);
 
-    return {
-      id,
-      operation: 'upserted',
+    this.logger.log('inscrição criada com sucesso');
+    const output: ReceiveSyncInscriptionOutput = {
+      id: inscription.getId(),
+      operation: 'created',
     };
+
+    return output;
   }
 }
-
