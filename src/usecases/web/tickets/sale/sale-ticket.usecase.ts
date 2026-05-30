@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import {
   CashEntryOrigin,
   CashEntryType,
@@ -7,6 +7,7 @@ import {
 } from 'generated/prisma';
 import { Buffer } from 'node:buffer';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
@@ -18,6 +19,8 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
 import { TicketSalePaymentGateway } from 'src/domain/repositories/ticket-sale-payment.geteway';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import { SyncQueue } from 'src/infra/sync/sync.queue';
 import { MiniTicketPdfGenerator } from 'src/shared/utils/pdfs/tickets/mini-ticket-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
@@ -60,6 +63,8 @@ export class SaleTicketUsecase
     private readonly cashRegisterEventGateway: CashRegisterEventGateway,
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly cashRegisterGateway: CashRegisterGateway,
+    private readonly prisma: PrismaService,
+    @Optional() private readonly syncQueue: SyncQueue,
   ) {}
 
   async execute(input: SaleTicketInput): Promise<SaleTicketOutput> {
@@ -174,6 +179,7 @@ export class SaleTicketUsecase
       0,
     );
 
+    // Criar a venda em memória
     const sale = TicketSale.create({
       eventId: event.getId(),
       name: input.name,
@@ -181,61 +187,60 @@ export class SaleTicketUsecase
       totalValue: saleTotalValue,
     });
 
-    await this.ticketSaleGateway.create(sale);
-
-    for (const payment of normalizedPayments) {
-      const paymentEntity = TicketSalePayment.create({
+    // Criar pagamentos em memória
+    const payments = normalizedPayments.map((payment) =>
+      TicketSalePayment.create({
         ticketSaleId: sale.getId(),
         paymentMethod: payment.paymentMethod,
         value: payment.value,
-      });
+      }),
+    );
 
-      await this.ticketSalePaymentGateway.create(paymentEntity);
-    }
-
-    const cashRegisterEvents =
-      await this.cashRegisterEventGateway.findByEventId(input.eventId);
-
-    if (cashRegisterEvents.length > 0) {
-      const cashEntries = normalizedPayments.flatMap((payment) =>
-        cashRegisterEvents.map((c) =>
-          CashRegisterEntry.create({
-            cashRegisterId: c.getCashRegisterId(),
-            type: CashEntryType.INCOME,
-            origin: CashEntryOrigin.TICKET,
-            method: payment.paymentMethod,
-            value: payment.value,
-            description: `Venda de ticket ${sale.getId()} - ${input.name}`,
-            eventId: event.getId(),
-            ticketSaleId: sale.getId(),
-            responsible: input.userId,
-          }),
-        ),
-      );
-
-      if (cashEntries.length > 0) {
-        await this.cashRegisterEntryGateway.createMany(cashEntries);
-        await this.updateCashRegisterBalances(cashEntries);
-      }
-    }
-
-    for (const item of normalizedItems) {
-      const saleItem = TicketSaleItem.create({
+    // Criar itens da venda em memória
+    const saleItems = normalizedItems.map((item) =>
+      TicketSaleItem.create({
         ticketSaleId: sale.getId(),
         ticketId: item.ticketId,
         quantity: item.quantity,
         pricePerTicket: item.unitPrice,
         totalValue: item.totalValue,
-      });
+      }),
+    );
 
-      await this.ticketSaleItemGateway.create(saleItem);
+    // Buscar caixas do evento
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(input.eventId);
 
-      await this.eventTicketsGateway.decrementAvailable(
-        item.ticketId,
-        item.quantity,
-      );
-    }
+    // Criar entradas de caixa em memória
+    const cashEntries =
+      cashRegisterEvents.length > 0
+        ? normalizedPayments.flatMap((payment) =>
+            cashRegisterEvents.map((c) =>
+              CashRegisterEntry.create({
+                cashRegisterId: c.getCashRegisterId(),
+                type: CashEntryType.INCOME,
+                origin: CashEntryOrigin.TICKET,
+                method: payment.paymentMethod,
+                value: payment.value,
+                description: `Venda de ticket ${sale.getId()} - ${input.name}`,
+                eventId: event.getId(),
+                ticketSaleId: sale.getId(),
+                responsible: input.userId,
+              }),
+            ),
+          )
+        : [];
 
+    // Atualizar caixas em memória
+    const updatedCashRegisters = cashEntries.length
+      ? await this.buildUpdatedCashRegisters(cashEntries)
+      : [];
+
+    // Atualizar o evento em memória
+    event.incrementAmountCollected(saleTotalValue);
+    event.incrementAmountNetValueCollected(saleTotalValue);
+
+    // Gerar o PDF antes da transação
     const ticketEntries = normalizedItems.flatMap((item) =>
       Array.from({ length: item.quantity }, () => ({
         ticketId: item.ticketId,
@@ -253,10 +258,91 @@ export class SaleTicketUsecase
 
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
 
-    // Incrementa o valor coletado do evento
-    event.incrementAmountCollected(saleTotalValue);
-    event.incrementAmountNetValueCollected(saleTotalValue);
-    await this.eventGateway.update(event);
+    // Executar tudo em transação
+    await this.prisma.runInTransaction(async (tx) => {
+      // Salvar venda
+      await this.ticketSaleGateway.createTx(sale, tx);
+
+      // Salvar pagamentos
+      for (const payment of payments) {
+        await this.ticketSalePaymentGateway.createTx(payment, tx);
+      }
+
+      // Salvar itens da venda
+      for (const saleItem of saleItems) {
+        await this.ticketSaleItemGateway.createTx(saleItem, tx);
+      }
+
+      // Decrementar estoque dos tickets
+      for (const item of normalizedItems) {
+        await this.eventTicketsGateway.decrementAvailableTx(
+          item.ticketId,
+          item.quantity,
+          tx,
+        );
+      }
+
+      // Salvar entradas de caixa se existirem
+      if (cashEntries.length) {
+        await this.cashRegisterEntryGateway.createManyTx(cashEntries, tx);
+
+        // Atualizar caixas
+        for (const cashRegister of updatedCashRegisters) {
+          await this.cashRegisterGateway.updateTx(cashRegister, tx);
+        }
+      }
+
+      // Atualizar evento
+      await this.eventGateway.updateTx(event, tx);
+    });
+
+    // Somente para sincronização durante evento
+    // não vai rodar sempre
+    if (process.env.EVENT_MODE === 'true') {
+      // Enqueue da venda principal
+      await this.syncQueue.enqueueJob({
+        table: 'ticketSale',
+        recordId: sale.getId(),
+      });
+
+      // Enqueue dos pagamentos da venda
+      for (const payment of payments) {
+        await this.syncQueue.enqueueJob({
+          table: 'ticketSalePayment',
+          recordId: payment.getId(),
+        });
+      }
+
+      // Enqueue dos itens da venda
+      for (const saleItem of saleItems) {
+        await this.syncQueue.enqueueJob({
+          table: 'ticketSaleItem',
+          recordId: saleItem.getId(),
+        });
+      }
+
+      // Enqueue das entradas de caixa
+      for (const cashEntry of cashEntries) {
+        await this.syncQueue.enqueueJob({
+          table: 'cashRegisterEntry',
+          recordId: cashEntry.getId(),
+        });
+      }
+
+      // Enqueue dos caixas atualizados
+      for (const cashRegister of updatedCashRegisters) {
+        await this.syncQueue.enqueueJob({
+          table: 'cashRegister',
+          recordId: cashRegister.getId(),
+        });
+      }
+
+      // Enqueue do evento atualizado
+      await this.syncQueue.enqueueJob({
+        table: 'events',
+        recordId: event.getId(),
+      });
+    }
 
     return {
       saleId: sale.getId(),
@@ -273,39 +359,34 @@ export class SaleTicketUsecase
     return Number((cents / 100).toFixed(2));
   }
 
-  private async updateCashRegisterBalances(
+  private async buildUpdatedCashRegisters(
     entries: CashRegisterEntry[],
-  ): Promise<void> {
-    const deltaByCashRegisterId = new Map<string, number>();
-
+  ): Promise<CashRegister[]> {
+    const deltaMap = new Map<string, number>();
     for (const entry of entries) {
-      const cashRegisterId = entry.getCashRegisterId();
-      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const id = entry.getCashRegisterId();
       const delta =
         entry.getType() === CashEntryType.INCOME
           ? entry.getValue()
           : -entry.getValue();
-
-      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+      deltaMap.set(id, (deltaMap.get(id) ?? 0) + delta);
     }
 
-    await Promise.all(
-      [...deltaByCashRegisterId.entries()].map(
-        async ([cashRegisterId, delta]) => {
-          if (delta === 0) return;
-          const cashRegister =
-            await this.cashRegisterGateway.findById(cashRegisterId);
-          if (!cashRegister) return;
+    const updated: CashRegister[] = [];
+    for (const [cashRegisterId, delta] of deltaMap.entries()) {
+      if (delta === 0) continue;
+      const cashRegister =
+        await this.cashRegisterGateway.findById(cashRegisterId);
+      if (!cashRegister) continue;
 
-          if (delta > 0) {
-            cashRegister.incrementBalance(delta);
-          } else {
-            cashRegister.decrementBalance(-delta);
-          }
+      if (delta > 0) {
+        cashRegister.incrementBalance(delta);
+      } else {
+        cashRegister.decrementBalance(-delta);
+      }
 
-          await this.cashRegisterGateway.update(cashRegister);
-        },
-      ),
-    );
+      updated.push(cashRegister);
+    }
+    return updated;
   }
 }
