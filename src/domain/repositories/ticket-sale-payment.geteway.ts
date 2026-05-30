@@ -1,4 +1,5 @@
 import { PaymentMethod } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { TicketSalePayment } from '../entities/ticket-sale-payment.entity';
 
 export type TicketSalePaymentSummary = {
@@ -11,6 +12,11 @@ export abstract class TicketSalePaymentGateway {
   // CRUD básico
   abstract create(
     ticketSalePayment: TicketSalePayment,
+  ): Promise<TicketSalePayment>;
+
+  abstract createTx(
+    ticketSalePayment: TicketSalePayment,
+    tx: PrismaTransactionClient,
   ): Promise<TicketSalePayment>;
 
   // Atualizações

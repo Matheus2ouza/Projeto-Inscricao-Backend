@@ -88,6 +88,16 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
+  async findByIds(ids: string[]): Promise<Participant[]> {
+    const found = await this.prisma.participant.findMany({
+      where: {
+        id: { in: ids },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   // Buscas por relacionamento
   async findByName(name: string): Promise<Participant[]> {
     const found = await this.prisma.participant.findMany({
@@ -139,6 +149,18 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
       include: { typeInscription: { select: { description: true } } },
       take: limit,
       orderBy: { createdAt: 'desc' },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  async findByEventId(eventId: string): Promise<Participant[]> {
+    const found = await this.prisma.participant.findMany({
+      where: {
+        inscription: {
+          eventId,
+        },
+      },
     });
 
     return found.map(PrismaToEntity.map);

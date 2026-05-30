@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TicketSaleStatus } from 'generated/prisma';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSaleItemGateway } from 'src/domain/repositories/ticket-sale-item.gatewat';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { TicketSaleItemToEntityToTicketSaleItemPrismaModelMapper as EntityToPrisma } from './model/mappers/ticket-sale-item-to-entity-to-ticket-sale-item-prisma-model.mapper';
 import { TicketSaleItemToPrismaModelToTicketSaleItemEntityMapper as PrismaToEntity } from './model/mappers/ticket-sale-item-to-prisma-model-to-ticket-sale-item-entity.mapper';
 
@@ -14,6 +14,15 @@ export class TicketSaleItemPrismaRepository implements TicketSaleItemGateway {
   async create(ticketSaleItem: TicketSaleItem): Promise<TicketSaleItem> {
     const data = EntityToPrisma.map(ticketSaleItem);
     const created = await this.prisma.ticketSaleItem.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    ticketSaleItem: TicketSaleItem,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSaleItem> {
+    const data = EntityToPrisma.map(ticketSaleItem);
+    const created = await tx.ticketSaleItem.create({ data });
     return PrismaToEntity.map(created);
   }
 

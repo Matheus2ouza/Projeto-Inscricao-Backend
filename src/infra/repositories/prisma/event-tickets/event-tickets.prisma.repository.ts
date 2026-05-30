@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventTicket } from 'src/domain/entities/event-tickets.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { EventTicketToEntityToEventTicketPrismaModelMapper } from './model/mappers/event-tickets-to-entity-to-event-tickets-prisma-model.mapper';
 import { EventTicketToPrismaModelToEnvetTicketEntityMapper } from './model/mappers/event-tickets-to-prisma-model-to-event-tickets-entity.mapper';
 
@@ -21,6 +21,23 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
   // Atualizações
   async decrementAvailable(id: string, quantity: number): Promise<EventTicket> {
     const data = await this.prisma.eventTickets.update({
+      where: { id },
+      data: {
+        available: {
+          decrement: quantity,
+        },
+      },
+    });
+
+    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+  }
+
+  async decrementAvailableTx(
+    id: string,
+    quantity: number,
+    tx: PrismaTransactionClient,
+  ): Promise<EventTicket> {
+    const data = await tx.eventTickets.update({
       where: { id },
       data: {
         available: {

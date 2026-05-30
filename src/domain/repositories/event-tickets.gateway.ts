@@ -1,3 +1,4 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { EventTicket } from '../entities/event-tickets.entity';
 
 export abstract class EventTicketsGateway {
@@ -8,6 +9,11 @@ export abstract class EventTicketsGateway {
   abstract decrementAvailable(
     id: string,
     quantity: number,
+  ): Promise<EventTicket>;
+  abstract decrementAvailableTx(
+    id: string,
+    quantity: number,
+    tx: PrismaTransactionClient,
   ): Promise<EventTicket>;
   abstract incrementAvailable(
     id: string,

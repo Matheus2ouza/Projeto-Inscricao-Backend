@@ -1,8 +1,14 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { TicketSaleItem } from '../entities/ticket-sale-item.entity';
 
 export abstract class TicketSaleItemGateway {
   // CRUD básico
   abstract create(ticketSaleItem: TicketSaleItem): Promise<TicketSaleItem>;
+
+  abstract createTx(
+    ticketSaleItem: TicketSaleItem,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSaleItem>;
 
   // Busca e listagens
   abstract findByTicketSaleId(ticketSaleId: string): Promise<TicketSaleItem[]>;

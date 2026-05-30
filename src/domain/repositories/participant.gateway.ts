@@ -28,6 +28,7 @@ export abstract class ParticipantGateway {
 
   // Buscas por identificador único
   abstract findById(id: string): Promise<Participant | null>;
+  abstract findByIds(ids: string[]): Promise<Participant[]>;
 
   // Buscas por relacionamento
   abstract findByName(name: string): Promise<Participant[]>;
@@ -41,6 +42,8 @@ export abstract class ParticipantGateway {
     limit: number,
   ): Promise<Participant[]>;
 
+  // busca pelo evento sem paginação
+  abstract findByEventId(eventId: string): Promise<Participant[]>;
   // Buscas paginadas
   abstract findManyByEventId(
     eventId: string,

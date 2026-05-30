@@ -5,7 +5,7 @@ import {
   TicketSalePaymentGateway,
   TicketSalePaymentSummary,
 } from 'src/domain/repositories/ticket-sale-payment.geteway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { TicketSalePaymentToEntityToTicketSalePaymentPrismaModelMapper as EntityToPrisma } from './model/mapper/ticket-sale-payment-to-entity-to-ticket-sale-payment-prisma-model.mapper';
 import { TicketSalePaymentToPrismaModelToTicketSalePaymentEntityMapper as PrismaToEntity } from './model/mapper/ticket-sale-payment-to-prisma-model-to-ticket-sale-payment-entity.mapper';
 
@@ -22,6 +22,19 @@ export class TicketSalePaymentPrismaRepository
     const data = EntityToPrisma.map(ticketSalePayment);
 
     const created = await this.prisma.ticketSalePayment.create({
+      data,
+    });
+
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    ticketSalePayment: TicketSalePayment,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSalePayment> {
+    const data = EntityToPrisma.map(ticketSalePayment);
+
+    const created = await tx.ticketSalePayment.create({
       data,
     });
 
