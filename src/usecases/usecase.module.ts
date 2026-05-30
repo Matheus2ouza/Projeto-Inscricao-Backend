@@ -94,11 +94,13 @@ import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated
 import { FindMemberByIdUsecase } from './web/members/find-member-by-id/find-member-by-id.usecase';
 import { UpdateMemberUsecase } from './web/members/update-member/update-member.usecase';
 import { DeleteParticipantsUsecase } from './web/participants/delete/delete-participants.usecase';
+import { ListNamesParticipantsUsecase } from './web/participants/list-names-participants/list-names-participants.usecase';
 import { ListParticipantsUsecase } from './web/participants/list-participants/list-participants.usecase';
 import { GeneratePdfEtiquetaUseCase } from './web/participants/reports/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.usecase';
 import { GeneratePdfLocalityUsecase } from './web/participants/reports/pdf/generate-pdf-locality/generate-pdf-locality.usecase';
 import { GeneratePdfParticipantsAllUsecase } from './web/participants/reports/pdf/generate-pdf-participant/generate-pdf-participants-all.usecase';
 import { GeneratePdfParticipantsSelectedAccountsUsecase } from './web/participants/reports/pdf/generate-pdf-participant/generate-pdf-participants-selected-accounts.usecase';
+import { GeneratePdfRoomUsecase } from './web/participants/reports/pdf/generate-pdf-room/generate-pdf-room.usecase';
 import { GenerateXlsxLocalityUsecase } from './web/participants/reports/xlsx/generate-xlsx-locality/generate-xlsx-locality.usecase';
 import { UpdateParticipantsUsecase } from './web/participants/update/update-participants.usecase';
 import { AnalysisPaymentsPendingUsecase } from './web/payments/analysis-payments-pending/analysis-payments-pending.usecase';
@@ -351,6 +353,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Participants
     ListParticipantsUsecase,
+    ListNamesParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
 
@@ -359,6 +362,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfParticipantsAllUsecase,
     GeneratePdfEtiquetaUseCase,
     GeneratePdfLocalityUsecase,
+    GeneratePdfRoomUsecase,
 
     // Participants reports - XLSX
     GenerateXlsxLocalityUsecase,
@@ -582,6 +586,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     PaymentReprovedUsecase,
 
     // Participants
+    ListNamesParticipantsUsecase,
     ListParticipantsUsecase,
     UpdateParticipantsUsecase,
     DeleteParticipantsUsecase,
@@ -591,6 +596,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     GeneratePdfParticipantsAllUsecase,
     GeneratePdfEtiquetaUseCase,
     GeneratePdfLocalityUsecase,
+    GeneratePdfRoomUsecase,
 
     // Participants reports - XLSX
     GenerateXlsxLocalityUsecase,
