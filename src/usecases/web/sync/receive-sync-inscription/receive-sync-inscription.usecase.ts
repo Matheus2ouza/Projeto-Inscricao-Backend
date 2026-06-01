@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Inscription } from 'src/domain/entities/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
-import { SyncRecordAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/sync/sync-record-already-exists.usecase.exception';
 
 export type ReceiveSyncInscriptionInput = {
   inscription: Inscription;
@@ -10,7 +9,7 @@ export type ReceiveSyncInscriptionInput = {
 
 export type ReceiveSyncInscriptionOutput = {
   id: string;
-  operation: 'created';
+  operation: 'created' | 'updated';
 };
 
 @Injectable()
@@ -25,26 +24,21 @@ export class ReceiveSyncInscriptionUsecase
   ): Promise<ReceiveSyncInscriptionOutput> {
     const inscription = input.inscription;
 
-    this.logger.log('Validando se a inscrição já existe');
+    this.logger.log('Validando se a inscrição já existe no banco');
     const existingInscription = await this.inscriptionGateway.findById(
       inscription.getId(),
     );
 
-    if (existingInscription) {
-      throw new SyncRecordAlreadyExistsUsecaseException(
-        `Sync attempted for a record that already exists: ${inscription.getId()}`,
-        'Registro ja sincronizado.',
-        ReceiveSyncInscriptionUsecase.name,
-      );
-    }
+    this.logger.log(
+      `Inscrição ${inscription.getId()} ${existingInscription ? 'já existe — atualizando' : 'não encontrado — criando'}`,
+    );
 
-    this.logger.log('Criando inscrição no banco');
-    await this.inscriptionGateway.create(inscription);
+    await this.inscriptionGateway.upsert(inscription);
 
-    this.logger.log('inscrição criada com sucesso');
+    this.logger.log(`Inscrição sincronizada: ${inscription.getId()}`);
     const output: ReceiveSyncInscriptionOutput = {
       id: inscription.getId(),
-      operation: 'created',
+      operation: existingInscription ? 'updated' : 'created',
     };
 
     return output;

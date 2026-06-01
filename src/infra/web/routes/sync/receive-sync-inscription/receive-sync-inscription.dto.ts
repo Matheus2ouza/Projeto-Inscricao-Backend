@@ -6,5 +6,5 @@ export type ReceiveSyncInscriptionBody = {
 
 export type ReceiveSyncInscriptionResponse = {
   id: string;
-  operation: 'created';
+  operation: 'created' | 'updated';
 };

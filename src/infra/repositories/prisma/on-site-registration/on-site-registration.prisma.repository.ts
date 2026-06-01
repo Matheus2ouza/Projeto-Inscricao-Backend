@@ -10,9 +10,9 @@ import {
 } from 'src/domain/repositories/on-site-registration.gateway';
 import { OnSiteParticipantPaymentEntityToOnSiteParticipantPaymentPrismaModelMapper } from '../on-site-participant-payment/model/mappers/on-site-participant-payment-entity-to-on-site-participant-payment-prisma-model.mapper';
 import { OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper } from '../on-site-participant/model/mappers/on-site-participant-entity-to-on-site-participant-prisma-model.mapper';
-import { PrismaService } from '../prisma.service';
-import { OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper } from './model/mappers/on-site-registration-entity-to-on-site-registration-prisma-model.mapper';
-import { OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper } from './model/mappers/on-site-registration-prisma-model-to-on-site-registration-entity.mapper';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
+import { OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper as EntityToPrisma } from './model/mappers/on-site-registration-entity-to-on-site-registration-prisma-model.mapper';
+import { OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper as PrismaToEntity } from './model/mappers/on-site-registration-prisma-model-to-on-site-registration-entity.mapper';
 
 @Injectable()
 export class OnSiteRegistrationPrismaRepository
@@ -23,14 +23,31 @@ export class OnSiteRegistrationPrismaRepository
   async create(
     onSiteRegistration: OnSiteRegistration,
   ): Promise<OnSiteRegistration> {
-    const data =
-      OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper.map(
-        onSiteRegistration,
-      );
+    const data = EntityToPrisma.map(onSiteRegistration);
     const created = await this.prisma.onSiteRegistration.create({ data });
-    return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
-      created,
-    );
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    onSiteRegistration: OnSiteRegistration,
+    tx: PrismaTransactionClient,
+  ): Promise<OnSiteRegistration> {
+    const data = EntityToPrisma.map(onSiteRegistration);
+    const created = await tx.onSiteRegistration.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async upsert(
+    onSiteRegistration: OnSiteRegistration,
+  ): Promise<OnSiteRegistration> {
+    const data = EntityToPrisma.map(onSiteRegistration);
+    const created = await this.prisma.onSiteRegistration.upsert({
+      where: { id: onSiteRegistration.getId() },
+      update: data,
+      create: data,
+    });
+
+    return PrismaToEntity.map(created);
   }
 
   async createWithParticipantsAndPayments(
@@ -38,10 +55,7 @@ export class OnSiteRegistrationPrismaRepository
     participants: OnSiteParticipant[],
     payments: OnSiteParticipantPayment[],
   ): Promise<OnSiteRegistration> {
-    const registrationData =
-      OnSiteRegistrationEntityToOnSiteRegistrationPrismaModelMapper.map(
-        onSiteRegistration,
-      );
+    const registrationData = EntityToPrisma.map(onSiteRegistration);
     const participantsData = participants.map((participant) =>
       OnSiteParticipantEntityToOnSiteParticipantPrismaModelMapper.map(
         participant,
@@ -73,9 +87,7 @@ export class OnSiteRegistrationPrismaRepository
       return createdRegistration;
     });
 
-    return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
-      created,
-    );
+    return PrismaToEntity.map(created);
   }
 
   async findById(id: string): Promise<OnSiteRegistration | null> {
@@ -87,9 +99,7 @@ export class OnSiteRegistrationPrismaRepository
       return null;
     }
 
-    return OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(
-      model,
-    );
+    return PrismaToEntity.map(model);
   }
 
   async findMany(eventId: string): Promise<OnSiteRegistration[]> {
@@ -97,9 +107,7 @@ export class OnSiteRegistrationPrismaRepository
       where: { eventId },
     });
 
-    return aModel.map(
-      OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map,
-    );
+    return aModel.map(PrismaToEntity.map);
   }
 
   async findManyByEventId(eventId: string): Promise<OnSiteRegistration[]> {
@@ -107,9 +115,7 @@ export class OnSiteRegistrationPrismaRepository
       where: { eventId },
     });
 
-    return found.map(
-      OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map,
-    );
+    return found.map(PrismaToEntity.map);
   }
 
   async findManyPaginated(
@@ -129,9 +135,7 @@ export class OnSiteRegistrationPrismaRepository
       take: safePageSize,
     });
 
-    return rows.map((row) =>
-      OnSiteRegistrationPrismaModelToOnSiteRegistrationEntityMapper.map(row),
-    );
+    return rows.map((row) => PrismaToEntity.map(row));
   }
 
   async countAll(eventId: string): Promise<number> {

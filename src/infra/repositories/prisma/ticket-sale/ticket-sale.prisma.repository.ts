@@ -3,7 +3,7 @@ import { TicketSaleStatus } from 'generated/prisma';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';
 import { TicketSaleGateway } from 'src/domain/repositories/ticket-sale.gateway';
 import { Utils } from 'src/shared/utils/utils';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { TicketSaleToEntityToTicketSalePrismaModelMapper as EntityToPrisma } from './model/mappers/ticket-sale-to-entity-to-ticket-sale-prisma-model.mapper';
 import { TicketSaleToPrismaModelToTicketSaleEntityMapper as PrismaToEntity } from './model/mappers/ticket-sale-to-prisma-model-to-ticket-sale-entity.mapper';
 
@@ -15,6 +15,27 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
   async create(ticketSale: TicketSale): Promise<TicketSale> {
     const data = EntityToPrisma.map(ticketSale);
     const created = await this.prisma.ticketSale.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    ticketSale: TicketSale,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSale> {
+    const data = EntityToPrisma.map(ticketSale);
+    const created = await tx.ticketSale.create({ data });
+    return PrismaToEntity.map(created);
+  }
+
+  async upsert(ticketSale: TicketSale): Promise<TicketSale> {
+    const data = EntityToPrisma.map(ticketSale);
+    const created = await this.prisma.ticketSale.upsert({
+      where: {
+        id: ticketSale.getId(),
+      },
+      update: data,
+      create: data,
+    });
     return PrismaToEntity.map(created);
   }
 

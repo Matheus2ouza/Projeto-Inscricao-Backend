@@ -23,6 +23,7 @@ export class FindAllTicketRoute {
       eventId: param.eventId,
     };
 
+    console.log('recebeu no docker!!!');
     const response = await this.findAllTicketsUsecase.execute(input);
     return FindAllTicketsPresenter.toHttp(response);
   }

@@ -7,22 +7,26 @@ import {
   SaleTicketInput,
   SaleTicketUsecase,
 } from 'src/usecases/web/tickets/sale/sale-ticket.usecase';
-import type { SaleTicketRequest, SaleTicketResponse } from './sale-ticket.dto';
+import type {
+  SaleTicketBody,
+  SaleTicketParams,
+  SaleTicketResponse,
+} from './sale-ticket.dto';
 import { SaleTicketPresenter } from './sale-ticket.presenter';
 
 @Controller('tickets')
 export class SaleTicketRoute {
   public constructor(private readonly saleTicketUsecase: SaleTicketUsecase) {}
 
-  @Post(':id/sale')
+  @Post(':eventId/sale')
   async handle(
-    @Param('id') id: string,
-    @Body() request: SaleTicketRequest,
+    @Param() params: SaleTicketParams,
+    @Body() request: SaleTicketBody,
     @UserInfo() user: UserInfoType,
   ): Promise<SaleTicketResponse> {
     const input: SaleTicketInput = {
       userId: user.userId,
-      eventId: id,
+      eventId: params.eventId,
       name: request.name,
       items: request.items,
       payments: request.payments,

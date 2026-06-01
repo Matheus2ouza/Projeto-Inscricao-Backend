@@ -1,9 +1,16 @@
 import { TicketSaleStatus } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { TicketSale } from '../entities/ticket-sale.entity';
 
 export abstract class TicketSaleGateway {
   // CRUD básico
   abstract create(ticketSale: TicketSale): Promise<TicketSale>;
+  abstract createTx(
+    ticketSale: TicketSale,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSale>;
+
+  abstract upsert(ticketSale: TicketSale): Promise<TicketSale>;
 
   // Buscas e listagens
   abstract findById(ticketSaleId: string): Promise<TicketSale | null>;

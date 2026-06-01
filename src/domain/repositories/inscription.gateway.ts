@@ -17,6 +17,8 @@ export abstract class InscriptionGateway {
     tx: PrismaTransactionClient,
   ): Promise<Inscription>;
 
+  abstract upsert(inscription: Inscription): Promise<Inscription>;
+
   // Atualiza uma inscrição existente
   abstract update(inscription: Inscription): Promise<Inscription>;
   // atualiza uma inscrição com transcation

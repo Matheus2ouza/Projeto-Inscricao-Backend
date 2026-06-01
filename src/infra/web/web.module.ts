@@ -110,10 +110,12 @@ import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginate
 import { FindMemberByIdRoute } from './routes/members/find-member-by-id/find-member-by-id.route';
 import { UpdateMemberRoute } from './routes/members/update-member/update-member.route';
 import { DeleteParticipantsRoute } from './routes/participants/delete/delete-participants.route';
+import { ListNamesParticipantsRoute } from './routes/participants/list-names-participants/list-names-participants.route';
 import { ListParticipantsRoute } from './routes/participants/list-participants/list-participants.route';
 import { GeneratePdfEtiquetaRoute } from './routes/participants/reports/pdf/generate-pdf-etiqueta/generate-pdf-etiqueta.route';
 import { GeneratePdfLocalityRoute } from './routes/participants/reports/pdf/generate-pdf-locality/generate-pdf-locality.route';
 import { GeneratePdfSelectedParticipantRoute } from './routes/participants/reports/pdf/generate-pdf-participant/generate-pdf-participant.route';
+import { GeneratePdfRoomRoute } from './routes/participants/reports/pdf/generate-pdf-room/generate-pdf-room.route';
 import { GenerateXlsxLocalityRoute } from './routes/participants/reports/xlsx/generate-xlsx-locality/generate-xlsx-locality.route';
 import { UpdateParticipantsRoute } from './routes/participants/update/update-participants.route';
 import { AnalysisPaymentsPendingRoute } from './routes/payments/analysis-payments-pending/analysis-payments-pending.route';
@@ -379,6 +381,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentReceivedRoute,
 
     // Participant
+    ListNamesParticipantsRoute,
     ListParticipantsRoute,
     UpdateParticipantsRoute,
     DeleteParticipantsRoute,
@@ -390,6 +393,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Participants reports - XLSX
     GenerateXlsxLocalityRoute,
+    GeneratePdfRoomRoute,
 
     // Tickets
     CreateTicketRoute,

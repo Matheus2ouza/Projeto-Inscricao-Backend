@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { Decimal } from 'decimal.js';
 import {
   CashEntryOrigin,
@@ -8,6 +8,7 @@ import {
   PaymentMethod,
 } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { OnSiteParticipantPayment } from 'src/domain/entities/on-site-participant-payment.entity';
 import { OnSiteParticipant } from 'src/domain/entities/on-site-participant.entity';
@@ -17,7 +18,11 @@ import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { OnSiteParticipantPaymentGateway } from 'src/domain/repositories/on-site-participant-payment.gateway';
+import { OnSiteParticipantGateway } from 'src/domain/repositories/on-site-participant.gateway';
 import { OnSiteRegistrationGateway } from 'src/domain/repositories/on-site-registration.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import { SyncQueue } from 'src/infra/sync/sync.queue';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
@@ -51,17 +56,21 @@ export class CreateInscriptionAvulUsecase
     private readonly eventGateway: EventGateway,
     private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly onSiteRegistrationGateway: OnSiteRegistrationGateway,
+    private readonly onSiteParticipantGateway: OnSiteParticipantGateway,
+    private readonly onSiteParticipantPaymentGateway: OnSiteParticipantPaymentGateway,
     private readonly cashRegisterEventGateway: CashRegisterEventGateway,
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly cashRegisterGateway: CashRegisterGateway,
+    private readonly prisma: PrismaService,
+    @Optional() private readonly syncQueue: SyncQueue,
   ) {}
 
   async execute(
     input: CreateInscriptionAvulInput,
   ): Promise<CreateInscriptionAvulOutput> {
-    const eventExists = await this.eventGateway.findById(input.eventId);
+    const event = await this.eventGateway.findById(input.eventId);
 
-    if (!eventExists) {
+    if (!event) {
       throw new EventNotFoundUsecaseException(
         `attempt to create on-site registration for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
@@ -69,6 +78,7 @@ export class CreateInscriptionAvulUsecase
       );
     }
 
+    // Criar entities em memória
     const registration = OnSiteRegistration.create({
       eventId: input.eventId,
       responsible: input.responsible,
@@ -105,108 +115,170 @@ export class CreateInscriptionAvulUsecase
       ({ participant }) => participant,
     );
 
-    const createdRegistration =
-      await this.onSiteRegistrationGateway.createWithParticipantsAndPayments(
-        registration,
-        participants,
-        payments,
-      );
-
     const totalPaymentsValue = payments.reduce(
       (acc, payment) => acc.plus(payment.getValue()),
       new Decimal(0),
     );
 
+    // Criar movimentações financeiras em memória
     const financialMovements = payments.map((payment) =>
       FinancialMovement.create({
-        eventId: eventExists.getId(),
+        eventId: event.getId(),
         accountId: input.accountId,
         type: 'INCOME',
         value: payment.getValue(),
       }),
     );
 
-    // Incrementar as movimentações financeiras
-    await Promise.all(
-      financialMovements.map((financialMovement) =>
-        this.financialMovementGateway.create(financialMovement),
-      ),
+    // Buscar caixas do evento
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(event.getId());
+
+    // Criar entradas de caixa em memória
+    const participantNameById = new Map(
+      participants.map((p) => [p.getId(), p.getName()] as const),
     );
 
-    const cashRegisterEvents =
-      await this.cashRegisterEventGateway.findByEventId(eventExists.getId());
+    const cashEntries =
+      cashRegisterEvents.length > 0 && payments.length > 0
+        ? payments.flatMap((payment) => {
+            const participantName =
+              participantNameById.get(payment.getParticipantId()) ?? '';
 
-    if (cashRegisterEvents.length > 0 && payments.length > 0) {
-      const participantNameById = new Map(
-        participants.map((p) => [p.getId(), p.getName()] as const),
-      );
+            return cashRegisterEvents.map((c) =>
+              CashRegisterEntry.create({
+                cashRegisterId: c.getCashRegisterId(),
+                type: CashEntryType.INCOME,
+                origin: CashEntryOrigin.ONSITE,
+                method: payment.getPaymentMethod(),
+                value: payment.getValue().toNumber(),
+                description: participantName
+                  ? `Pagamento ${payment.getPaymentMethod()} - ${participantName}`
+                  : `Pagamento ${payment.getPaymentMethod()}`,
+                eventId: event.getId(),
+                onSiteRegistrationId: registration.getId(),
+                responsible: input.responsible,
+              }),
+            );
+          })
+        : [];
 
-      const cashEntries = payments.flatMap((payment, idx) => {
-        const participantName =
-          participantNameById.get(payment.getParticipantId()) ?? '';
+    // Atualizar caixas em memória
+    const updatedCashRegisters = cashEntries.length
+      ? await this.buildUpdatedCashRegisters(cashEntries)
+      : [];
 
-        return cashRegisterEvents.map((c) =>
-          CashRegisterEntry.create({
-            cashRegisterId: c.getCashRegisterId(),
-            type: CashEntryType.INCOME,
-            origin: CashEntryOrigin.ONSITE,
-            method: payment.getPaymentMethod(),
-            value: payment.getValue().toNumber(),
-            description: participantName
-              ? `Pagamento ${payment.getPaymentMethod()} - ${participantName}`
-              : `Pagamento ${payment.getPaymentMethod()}`,
-            eventId: eventExists.getId(),
-            onSiteRegistrationId: createdRegistration.getId(),
-            responsible: input.responsible,
-          }),
-        );
+    // Atualizar o evento em memória
+    event.incrementAmountCollected(totalPaymentsValue.toNumber());
+    event.incrementAmountNetValueCollected(totalPaymentsValue.toNumber());
+    event.incrementQuantityParticipants(participants.length);
+
+    // Executar tudo em transação
+    await this.prisma.runInTransaction(async (tx) => {
+      // Salvar inscrição com participantes e pagamentos
+
+      await this.onSiteRegistrationGateway.createTx(registration, tx);
+      await this.onSiteParticipantGateway.createManyTx(participants, tx);
+      await this.onSiteParticipantPaymentGateway.createManyTx(payments, tx);
+
+      // Salvar movimentações financeiras
+      for (const financialMovement of financialMovements) {
+        await this.financialMovementGateway.createTx(financialMovement, tx);
+      }
+
+      // Salvar entradas de caixa se existirem
+      if (cashEntries.length) {
+        await this.cashRegisterEntryGateway.createManyTx(cashEntries, tx);
+
+        // Atualizar caixas
+        for (const cashRegister of updatedCashRegisters) {
+          await this.cashRegisterGateway.updateTx(cashRegister, tx);
+        }
+      }
+
+      // Atualizar evento
+      await this.eventGateway.updateTx(event, tx);
+    });
+
+    // Somente para sincronização durante evento
+    if (process.env.EVENT_MODE === 'true') {
+      await this.syncQueue.enqueueJob({
+        table: 'onSiteRegistration',
+        recordId: registration.getId(),
       });
 
-      await this.cashRegisterEntryGateway.createMany(cashEntries);
-      await this.updateCashRegisterBalances(cashEntries);
+      for (const participant of participants) {
+        await this.syncQueue.enqueueJob({
+          table: 'onSiteParticipant',
+          recordId: participant.getId(),
+        });
+      }
+
+      for (const payment of payments) {
+        await this.syncQueue.enqueueJob({
+          table: 'onSiteParticipantPayment',
+          recordId: payment.getId(),
+        });
+      }
+
+      for (const financialMovement of financialMovements) {
+        await this.syncQueue.enqueueJob({
+          table: 'financialMovement',
+          recordId: financialMovement.getId(),
+        });
+      }
+
+      for (const cashEntry of cashEntries) {
+        await this.syncQueue.enqueueJob({
+          table: 'cashRegisterEntry',
+          recordId: cashEntry.getId(),
+        });
+      }
+
+      for (const cashRegister of updatedCashRegisters) {
+        await this.syncQueue.enqueueJob({
+          table: 'cashRegister',
+          recordId: cashRegister.getId(),
+        });
+      }
+
+      await this.syncQueue.enqueueJob({
+        table: 'events',
+        recordId: event.getId(),
+      });
     }
 
-    eventExists.incrementAmountCollected(totalPaymentsValue.toNumber());
-    eventExists.incrementAmountNetValueCollected(totalPaymentsValue.toNumber());
-    eventExists.incrementQuantityParticipants(participants.length);
-    await this.eventGateway.update(eventExists);
-
-    return { id: createdRegistration.getId() };
+    return { id: registration.getId() };
   }
 
-  private async updateCashRegisterBalances(
+  private async buildUpdatedCashRegisters(
     entries: CashRegisterEntry[],
-  ): Promise<void> {
-    const deltaByCashRegisterId = new Map<string, number>();
-
+  ): Promise<CashRegister[]> {
+    const deltaMap = new Map<string, number>();
     for (const entry of entries) {
-      const cashRegisterId = entry.getCashRegisterId();
-      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
+      const id = entry.getCashRegisterId();
       const delta =
         entry.getType() === CashEntryType.INCOME
           ? entry.getValue()
           : -entry.getValue();
-
-      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+      deltaMap.set(id, (deltaMap.get(id) ?? 0) + delta);
     }
 
-    await Promise.all(
-      [...deltaByCashRegisterId.entries()].map(
-        async ([cashRegisterId, delta]) => {
-          if (delta === 0) return;
-          const cashRegister =
-            await this.cashRegisterGateway.findById(cashRegisterId);
-          if (!cashRegister) return;
+    const updated: CashRegister[] = [];
+    for (const [cashRegisterId, delta] of deltaMap.entries()) {
+      if (delta === 0) continue;
+      const cashRegister =
+        await this.cashRegisterGateway.findById(cashRegisterId);
+      if (!cashRegister) continue;
 
-          if (delta > 0) {
-            cashRegister.incrementBalance(delta);
-          } else {
-            cashRegister.decrementBalance(-delta);
-          }
+      if (delta > 0) {
+        cashRegister.incrementBalance(delta);
+      } else {
+        cashRegister.decrementBalance(-delta);
+      }
 
-          await this.cashRegisterGateway.update(cashRegister);
-        },
-      ),
-    );
+      updated.push(cashRegister);
+    }
+    return updated;
   }
 }

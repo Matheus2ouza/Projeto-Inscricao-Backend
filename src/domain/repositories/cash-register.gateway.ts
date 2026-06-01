@@ -9,6 +9,7 @@ export abstract class CashRegisterGateway {
     cashRegister: CashRegister,
     tx: PrismaTransactionClient,
   ): Promise<CashRegister>;
+  abstract upsert(cashRegister: CashRegister): Promise<CashRegister>;
   abstract update(cashRegister: CashRegister): Promise<CashRegister>;
   abstract updateTx(
     cashRegister: CashRegister,

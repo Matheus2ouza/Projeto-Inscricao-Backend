@@ -1,13 +1,21 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { EventTicket } from '../entities/event-tickets.entity';
 
 export abstract class EventTicketsGateway {
   // CRUD básico
-  abstract create(EventTicket: EventTicket): Promise<EventTicket>;
+  abstract create(eventTicket: EventTicket): Promise<EventTicket>;
+
+  abstract upsert(eventTicket: EventTicket): Promise<EventTicket>;
 
   // Atualizações
   abstract decrementAvailable(
     id: string,
     quantity: number,
+  ): Promise<EventTicket>;
+  abstract decrementAvailableTx(
+    id: string,
+    quantity: number,
+    tx: PrismaTransactionClient,
   ): Promise<EventTicket>;
   abstract incrementAvailable(
     id: string,
