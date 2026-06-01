@@ -1,3 +1,4 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { OnSiteParticipant } from '../entities/on-site-participant.entity';
 
 export abstract class OnSiteParticipantGateway {
@@ -5,7 +6,29 @@ export abstract class OnSiteParticipantGateway {
     onSiteParticipant: OnSiteParticipant,
   ): Promise<OnSiteParticipant>;
 
-  abstract createMany(participants: OnSiteParticipant[]): Promise<void>;
+  abstract createTx(
+    onSiteParticipant: OnSiteParticipant,
+    tx: PrismaTransactionClient,
+  ): Promise<OnSiteParticipant>;
+
+  abstract createMany(participants: OnSiteParticipant[]): Promise<number>;
+
+  abstract createManyTx(
+    participants: OnSiteParticipant[],
+    tx: PrismaTransactionClient,
+  ): Promise<number>;
+
+  abstract upsert(
+    onSiteParticipant: OnSiteParticipant,
+  ): Promise<OnSiteParticipant>;
+
+  abstract updateManyTx(
+    onSiteParticipant: OnSiteParticipant[],
+    tx: PrismaTransactionClient,
+  ): Promise<number>;
+
+  abstract findById(id: string): Promise<OnSiteParticipant | null>;
+
   abstract findManyByOnSiteRegistrationId(
     OnSiteRegistrationId: string,
   ): Promise<OnSiteParticipant[]>;

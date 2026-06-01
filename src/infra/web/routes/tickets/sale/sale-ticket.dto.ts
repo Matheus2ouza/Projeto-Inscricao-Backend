@@ -1,6 +1,10 @@
 import { PaymentMethod } from 'generated/prisma';
 
-export type SaleTicketRequest = {
+export type SaleTicketParams = {
+  eventId: string;
+};
+
+export type SaleTicketBody = {
   name: string;
   items: {
     ticketId: string;
@@ -13,7 +17,11 @@ export type SaleTicketRequest = {
 };
 
 export type SaleTicketResponse = {
-  id: string;
-  ticketQuantity: number;
-  ticketPdfBase64: string;
+  saleId: string;
+  totalUnits: number;
+  eventName: string;
+  buyerName: string;
+  saleDate: string;
+  totalValue: number;
+  barcodes: string[];
 };

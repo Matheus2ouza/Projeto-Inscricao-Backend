@@ -4,9 +4,13 @@ import { SaleTicketResponse } from './sale-ticket.dto';
 export class SaleTicketPresenter {
   public static toHttp(output: SaleTicketOutput): SaleTicketResponse {
     return {
-      id: output.saleId,
-      ticketQuantity: output.totalUnits,
-      ticketPdfBase64: output.pdfBase64,
+      saleId: output.saleId,
+      totalUnits: output.totalUnits,
+      eventName: output.eventName,
+      buyerName: output.buyerName,
+      saleDate: output.saleDate,
+      totalValue: output.totalValue,
+      barcodes: output.barcodes,
     };
   }
 }

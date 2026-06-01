@@ -10,6 +10,8 @@ export abstract class TicketSaleGateway {
     tx: PrismaTransactionClient,
   ): Promise<TicketSale>;
 
+  abstract upsert(ticketSale: TicketSale): Promise<TicketSale>;
+
   // Buscas e listagens
   abstract findById(ticketSaleId: string): Promise<TicketSale | null>;
   abstract findByEventId(eventId: string): Promise<TicketSale[]>;

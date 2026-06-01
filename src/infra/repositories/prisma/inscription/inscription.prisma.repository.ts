@@ -34,6 +34,17 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return PrismaToEntity.map(created);
   }
 
+  async upsert(inscription: Inscription): Promise<Inscription> {
+    const data = EntityToPrisma.map(inscription);
+    const created = await this.prisma.inscription.upsert({
+      where: { id: inscription.getId() },
+      update: data,
+      create: data,
+    });
+
+    return PrismaToEntity.map(created);
+  }
+
   async update(inscription: Inscription): Promise<Inscription> {
     const data = EntityToPrisma.map(inscription);
     const updated = await this.prisma.inscription.update({

@@ -27,6 +27,18 @@ export class TicketSalePrismaRepository implements TicketSaleGateway {
     return PrismaToEntity.map(created);
   }
 
+  async upsert(ticketSale: TicketSale): Promise<TicketSale> {
+    const data = EntityToPrisma.map(ticketSale);
+    const created = await this.prisma.ticketSale.upsert({
+      where: {
+        id: ticketSale.getId(),
+      },
+      update: data,
+      create: data,
+    });
+    return PrismaToEntity.map(created);
+  }
+
   // Buscas e listagens
   async findById(ticketSaleId: string): Promise<TicketSale | null> {
     const data = await this.prisma.ticketSale.findUnique({

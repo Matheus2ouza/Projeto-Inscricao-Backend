@@ -2,20 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { EventTicket } from 'src/domain/entities/event-tickets.entity';
 import { EventTicketsGateway } from 'src/domain/repositories/event-tickets.gateway';
 import { PrismaService, PrismaTransactionClient } from '../prisma.service';
-import { EventTicketToEntityToEventTicketPrismaModelMapper } from './model/mappers/event-tickets-to-entity-to-event-tickets-prisma-model.mapper';
-import { EventTicketToPrismaModelToEnvetTicketEntityMapper } from './model/mappers/event-tickets-to-prisma-model-to-event-tickets-entity.mapper';
+import { EventTicketToEntityToEventTicketPrismaModelMapper as EntityToPrisma } from './model/mappers/event-tickets-to-entity-to-event-tickets-prisma-model.mapper';
+import { EventTicketToPrismaModelToEnvetTicketEntityMapper as PrismaToEntity } from './model/mappers/event-tickets-to-prisma-model-to-event-tickets-entity.mapper';
 
 @Injectable()
 export class EventTicketPrismaRepository implements EventTicketsGateway {
   constructor(private readonly prisma: PrismaService) {}
 
   // CRUD básico
-  async create(EventTicket: EventTicket): Promise<EventTicket> {
-    const data =
-      EventTicketToEntityToEventTicketPrismaModelMapper.map(EventTicket);
+  async create(eventTicket: EventTicket): Promise<EventTicket> {
+    const data = EntityToPrisma.map(eventTicket);
 
     const created = await this.prisma.eventTickets.create({ data });
-    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(created);
+    return PrismaToEntity.map(created);
+  }
+
+  async upsert(eventTicket: EventTicket): Promise<EventTicket> {
+    const data = EntityToPrisma.map(eventTicket);
+    const created = await this.prisma.eventTickets.upsert({
+      where: {
+        id: eventTicket.getId(),
+      },
+      update: data,
+      create: data,
+    });
+    return PrismaToEntity.map(created);
   }
 
   // Atualizações
@@ -29,7 +40,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       },
     });
 
-    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async decrementAvailableTx(
@@ -46,7 +57,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       },
     });
 
-    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   async incrementAvailable(id: string, quantity: number): Promise<EventTicket> {
@@ -59,7 +70,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       },
     });
 
-    return EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data);
+    return PrismaToEntity.map(data);
   }
 
   // Buscas e listagens
@@ -68,9 +79,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       where: { id },
     });
 
-    return data
-      ? EventTicketToPrismaModelToEnvetTicketEntityMapper.map(data)
-      : null;
+    return data ? PrismaToEntity.map(data) : null;
   }
 
   async findByIds(ids: string[]): Promise<EventTicket[]> {
@@ -82,7 +91,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       },
     });
 
-    return data.map(EventTicketToPrismaModelToEnvetTicketEntityMapper.map);
+    return data.map(PrismaToEntity.map);
   }
 
   async findAll(eventId: string): Promise<EventTicket[]> {
@@ -90,7 +99,7 @@ export class EventTicketPrismaRepository implements EventTicketsGateway {
       where: { eventId },
     });
 
-    return aModal.map(EventTicketToPrismaModelToEnvetTicketEntityMapper.map);
+    return aModal.map(PrismaToEntity.map);
   }
 
   // Agregações e contagens

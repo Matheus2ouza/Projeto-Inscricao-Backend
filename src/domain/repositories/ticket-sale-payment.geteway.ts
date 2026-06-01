@@ -24,6 +24,11 @@ export abstract class TicketSalePaymentGateway {
     ticketSalePayment: TicketSalePayment,
   ): Promise<TicketSalePayment>;
 
+  abstract updateTx(
+    ticketSalePayment: TicketSalePayment,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSalePayment>;
+
   // Buscas e listagens
   abstract findById(id: string): Promise<TicketSalePayment | null>;
   abstract findByTicketSaleId(

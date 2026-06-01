@@ -3,7 +3,9 @@ import { EventTicket } from '../entities/event-tickets.entity';
 
 export abstract class EventTicketsGateway {
   // CRUD básico
-  abstract create(EventTicket: EventTicket): Promise<EventTicket>;
+  abstract create(eventTicket: EventTicket): Promise<EventTicket>;
+
+  abstract upsert(eventTicket: EventTicket): Promise<EventTicket>;
 
   // Atualizações
   abstract decrementAvailable(

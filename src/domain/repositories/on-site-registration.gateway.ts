@@ -1,4 +1,5 @@
 import { PaymentMethod } from 'generated/prisma';
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { OnSiteParticipantPayment } from '../entities/on-site-participant-payment.entity';
 import { OnSiteParticipant } from '../entities/on-site-participant.entity';
 import { OnSiteRegistration } from '../entities/on-site-registration.entity';
@@ -17,6 +18,15 @@ export type OnSiteRegistrationParticipantCountByMethod = {
 
 export abstract class OnSiteRegistrationGateway {
   abstract create(
+    onSiteRegistration: OnSiteRegistration,
+  ): Promise<OnSiteRegistration>;
+
+  abstract createTx(
+    onSiteRegistration: OnSiteRegistration,
+    tx: PrismaTransactionClient,
+  ): Promise<OnSiteRegistration>;
+
+  abstract upsert(
     onSiteRegistration: OnSiteRegistration,
   ): Promise<OnSiteRegistration>;
 

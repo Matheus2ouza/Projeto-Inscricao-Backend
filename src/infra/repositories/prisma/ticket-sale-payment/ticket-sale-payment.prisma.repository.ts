@@ -57,6 +57,22 @@ export class TicketSalePaymentPrismaRepository
     return PrismaToEntity.map(updated);
   }
 
+  async updateTx(
+    ticketSalePayment: TicketSalePayment,
+    tx: PrismaTransactionClient,
+  ): Promise<TicketSalePayment> {
+    const data = EntityToPrisma.map(ticketSalePayment);
+
+    const updated = await tx.ticketSalePayment.update({
+      where: {
+        id: ticketSalePayment.getId(),
+      },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
   // Buscas e listagens
   async findById(id: string): Promise<TicketSalePayment | null> {
     const found = await this.prisma.ticketSalePayment.findUnique({
