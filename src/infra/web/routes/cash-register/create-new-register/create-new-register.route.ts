@@ -25,11 +25,13 @@ export class CreateNewRegisterRoute {
       cashRegisterId: param.cashRegisterId,
       type: body.type,
       method: body.method,
+      favorite: body.favorite,
       value: body.value,
       description: body.description,
       eventId: body.eventId,
       responsible: body.responsible,
       image: body.image,
+      createAt: body.createAt,
     };
 
     const response = await this.createNewRegisterUsecase.execute(input);

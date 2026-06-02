@@ -11,6 +11,7 @@ export class CashRegisterEntryPrismaModelToCashRegisterEntryEntityMapper {
       type: entryPrisma.type,
       origin: entryPrisma.origin,
       method: entryPrisma.method,
+      favorite: entryPrisma.favorite,
       value: entryPrisma.value.toNumber(),
       description: entryPrisma.description ?? undefined,
       eventId: entryPrisma.eventId ?? undefined,
