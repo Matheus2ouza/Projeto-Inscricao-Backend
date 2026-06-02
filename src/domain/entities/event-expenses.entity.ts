@@ -10,6 +10,7 @@ export type EventExpensesCreateDto = {
   responsible: string;
   category: CategoryExpense;
   imageUrl?: string;
+  createdAt?: Date;
 };
 
 export type EventExpensesWithDto = {
@@ -50,9 +51,10 @@ export class EventExpenses extends Entity {
     responsible,
     category,
     imageUrl,
+    createdAt,
   }: EventExpensesCreateDto): EventExpenses {
     const id = Utils.generateUUID();
-    const createdAt = new Date();
+    const createdAtDefault = createdAt ?? new Date();
     const updatedAt = new Date();
 
     return new EventExpenses(
@@ -63,7 +65,7 @@ export class EventExpenses extends Entity {
       paymentMethod,
       responsible,
       category,
-      createdAt,
+      createdAtDefault,
       updatedAt,
       imageUrl,
     );

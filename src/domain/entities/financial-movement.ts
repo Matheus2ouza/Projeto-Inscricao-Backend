@@ -11,6 +11,7 @@ export type FinancialMovementCreateDto = {
   inscriptionId?: string;
   type: TransactionType;
   value: Decimal;
+  createdAt?: Date;
 };
 
 export type FinancialMovementWithDto = {
@@ -48,9 +49,10 @@ export class FinancialMovement extends Entity {
     inscriptionId,
     type,
     value,
+    createdAt,
   }: FinancialMovementCreateDto) {
     const id = Utils.generateUUID();
-    const createdAt = new Date();
+    const createdAtDefault = createdAt ?? new Date();
     const updatedAt = new Date();
 
     guestEmail = guestEmail || undefined;
@@ -61,7 +63,7 @@ export class FinancialMovement extends Entity {
       eventId,
       type,
       value,
-      createdAt,
+      createdAtDefault,
       updatedAt,
       accountId,
       guestEmail,

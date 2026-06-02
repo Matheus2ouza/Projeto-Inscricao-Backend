@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import {
   CashEntryOrigin,
   CashEntryType,
+  CategoryExpense,
   PaymentMethod,
 } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
@@ -14,8 +15,12 @@ import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gatew
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
+import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 
 export type CreateExpensesInput = {
   accountId: string;
@@ -24,6 +29,9 @@ export type CreateExpensesInput = {
   value: number;
   paymentMethod: PaymentMethod;
   responsible: string;
+  category: CategoryExpense;
+  image: string;
+  createAt?: Date;
 };
 
 export type CreateExpensesOutput = {
@@ -34,6 +42,7 @@ export type CreateExpensesOutput = {
 export class CreateExpensesUsecase
   implements Usecase<CreateExpensesInput, CreateExpensesOutput>
 {
+  private readonly logger = new Logger(CreateExpensesUsecase.name);
   public constructor(
     private readonly eventExpensesGateway: EventExpensesGateway,
     private readonly eventGateway: EventGateway,
@@ -41,6 +50,8 @@ export class CreateExpensesUsecase
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly cashRegisterGateway: CashRegisterGateway,
     private readonly financialMovementGateway: FinancialMovementGateway,
+    private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly imageOptimizerService: ImageOptimizerService,
   ) {}
 
   async execute(input: CreateExpensesInput): Promise<CreateExpensesOutput> {
@@ -54,12 +65,22 @@ export class CreateExpensesUsecase
       );
     }
 
+    const imageUrl = await this.processEventImage(
+      input.image,
+      event.getName(),
+      input.value,
+      input.responsible,
+    );
+
     const eventExpense = EventExpenses.create({
       eventId: event.getId(),
       description: input.description,
       value: input.value,
       paymentMethod: input.paymentMethod,
       responsible: input.responsible,
+      category: input.category,
+      imageUrl,
+      createdAt: input.createAt,
     });
 
     const expense = await this.eventExpensesGateway.create(eventExpense);
@@ -69,6 +90,7 @@ export class CreateExpensesUsecase
       accountId: input.accountId,
       type: 'EXPENSE',
       value: new Decimal(expense.getValue()),
+      createdAt: input.createAt,
     });
     await this.financialMovementGateway.create(financialMovement);
 
@@ -83,11 +105,13 @@ export class CreateExpensesUsecase
           type: CashEntryType.EXPENSE,
           origin: CashEntryOrigin.EXPENSE,
           method: expense.getPaymentMethod(),
+          favorite: true,
           value: expense.getValue(),
           description: expense.getDescription(),
           eventId: event.getId(),
           eventExpenseId: expense.getId(),
           responsible: expense.getResponsible(),
+          createAt: input.createAt,
         }),
       );
 
@@ -138,5 +162,74 @@ export class CreateExpensesUsecase
         },
       ),
     );
+  }
+
+  private async processEventImage(
+    image: string,
+    eventName: string,
+    value: number,
+    responsible: string,
+  ): Promise<string> {
+    this.logger.log('Processando imagem do evento');
+
+    const { buffer, extension } =
+      await this.imageOptimizerService.processBase64Image(image);
+
+    // Valida a imagem
+    const isValidImage = await this.imageOptimizerService.validateImage(
+      buffer,
+      `expense_${value}.${extension}`,
+    );
+    if (!isValidImage) {
+      throw new InvalidImageFormatUsecaseException(
+        'invalid image format',
+        'Formato da imagem inválido',
+        CreateExpensesUsecase.name,
+      );
+    }
+
+    // Otimiza imagem (ex: converte para webp e reduz tamanho)
+    const optimizedImage = await this.imageOptimizerService.optimizeImage(
+      buffer,
+      {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 70,
+        format: 'webp',
+        maxFileSize: 300 * 1024, // 300KB
+      },
+    );
+
+    // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
+    const sanitizedEventName = sanitizeFileName(eventName || 'evento');
+
+    // Sanitiza o responsável pelo gasto para evitar caracteres inválidos no Supabase
+    const sanitizedResponsible = sanitizeFileName(responsible || 'responsavel');
+
+    // Cria nome do arquivo: payment+valor+hora formatada
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
+    const fileName = `expense_${sanitizedResponsible}_${value}_${formattedDateTime}.${optimizedImage.format}`;
+
+    // Define a pasta com base no evento e no responsável pelo gasto
+    const folderName = `expenses/${sanitizedEventName}/${sanitizedResponsible}`;
+
+    // Faz upload no Supabase
+    const imageUrl = await this.supabaseStorageService.uploadFile({
+      folderName: folderName,
+      fileName: fileName,
+      fileBuffer: optimizedImage.buffer,
+      contentType: this.imageOptimizerService.getMimeType(
+        optimizedImage.format,
+      ),
+    });
+
+    return imageUrl;
   }
 }
