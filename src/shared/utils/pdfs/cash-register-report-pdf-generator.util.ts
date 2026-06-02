@@ -61,21 +61,15 @@ function pad2(n: number) {
 }
 
 function formatDate(date: Date) {
-  const d = new Date(date);
-  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+  return new Date(date).toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+  });
 }
 
 function formatDateTime(date: Date) {
-  const d = new Date(date);
-  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ${pad2(
-    d.getHours(),
-  )}:${pad2(d.getMinutes())}`;
-}
-
-function toPortugueseStatus(status: string) {
-  if (status === 'OPEN') return 'Aberto';
-  if (status === 'CLOSED') return 'Fechado';
-  return status;
+  return new Date(date).toLocaleString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+  });
 }
 
 function toPortugueseOrigin(origin: string) {
