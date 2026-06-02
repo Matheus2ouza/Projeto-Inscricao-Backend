@@ -12,6 +12,7 @@ export type CashRegisterEntryCreateDto = {
   type: CashEntryType;
   origin: CashEntryOrigin;
   method: PaymentMethod;
+  favorite?: boolean;
   value: number;
   description?: string;
   eventId?: string;
@@ -22,6 +23,7 @@ export type CashRegisterEntryCreateDto = {
   transferId?: string;
   responsible?: string;
   imageUrl?: string;
+  createAt?: Date;
 };
 
 export type CashRegisterEntryWithDto = {
@@ -30,6 +32,7 @@ export type CashRegisterEntryWithDto = {
   type: CashEntryType;
   origin: CashEntryOrigin;
   method: PaymentMethod;
+  favorite?: boolean;
   value: number;
   description?: string;
   eventId?: string;
@@ -63,6 +66,7 @@ export class CashRegisterEntry extends Entity {
     private transferId?: string,
     private responsible?: string,
     private imageUrl?: string,
+    private favorite?: boolean,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -73,6 +77,7 @@ export class CashRegisterEntry extends Entity {
     type,
     origin,
     method,
+    favorite,
     value,
     description,
     eventId,
@@ -83,9 +88,11 @@ export class CashRegisterEntry extends Entity {
     transferId,
     responsible,
     imageUrl,
+    createAt,
   }: CashRegisterEntryCreateDto): CashRegisterEntry {
     const id = Utils.generateUUID();
-    const createdAt = new Date();
+    const favoriteDefault = favorite ?? false;
+    const createdAt = createAt ?? new Date();
     const updatedAt = new Date();
 
     return new CashRegisterEntry(
@@ -106,6 +113,7 @@ export class CashRegisterEntry extends Entity {
       transferId,
       responsible,
       imageUrl,
+      favoriteDefault,
     );
   }
 
@@ -115,6 +123,7 @@ export class CashRegisterEntry extends Entity {
     type,
     origin,
     method,
+    favorite,
     value,
     description,
     eventId,
@@ -146,6 +155,7 @@ export class CashRegisterEntry extends Entity {
       transferId,
       responsible,
       imageUrl,
+      favorite,
     );
   }
 
@@ -167,6 +177,10 @@ export class CashRegisterEntry extends Entity {
 
   public getMethod(): PaymentMethod {
     return this.method;
+  }
+
+  public getFavorite(): boolean {
+    return this.favorite ?? false;
   }
 
   public getValue(): number {

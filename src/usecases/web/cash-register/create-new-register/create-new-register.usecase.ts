@@ -22,11 +22,13 @@ export type CreateNewRegisterInput = {
   cashRegisterId: string;
   type: CashEntryType;
   method: PaymentMethod;
+  favorite?: boolean;
   value: number;
   description?: string;
   eventId: string;
   responsible: string;
   image?: string;
+  createAt?: Date;
 };
 
 export type CreateNewRegisterOutput = {
@@ -89,11 +91,13 @@ export class CreateNewRegisterUsecase
       type: input.type,
       origin: CashEntryOrigin.MANUAL,
       method: input.method,
+      favorite: input.favorite,
       value: input.value,
       description: input.description,
       eventId: event.getId(),
       responsible: input.responsible,
       imageUrl: imagePath,
+      createAt: input.createAt,
     });
 
     if (cashRegisterEntry.getType() === CashEntryType.INCOME) {

@@ -7,11 +7,13 @@ export type CreateNewRegisterParam = {
 export type CreateNewRegisterBody = {
   type: CashEntryType;
   method: PaymentMethod;
+  favorite?: boolean;
   value: number;
   description?: string;
   eventId: string;
   responsible: string;
   image?: string;
+  createAt?: Date;
 };
 
 export type CreateNewRegisterResponse = {
