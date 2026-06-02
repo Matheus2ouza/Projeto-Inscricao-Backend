@@ -622,6 +622,7 @@ enum StatusPayment {
 }
 
 enum CategoryExpense {
+  BRINDES
   COZINHA
   DECORACAO
   DECORACAO_ESTACAO
