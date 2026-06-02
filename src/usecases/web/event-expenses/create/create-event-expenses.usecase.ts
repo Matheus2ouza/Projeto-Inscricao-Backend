@@ -31,6 +31,7 @@ export type CreateExpensesInput = {
   responsible: string;
   category: CategoryExpense;
   image: string;
+  createAt?: Date;
 };
 
 export type CreateExpensesOutput = {
@@ -79,6 +80,7 @@ export class CreateExpensesUsecase
       responsible: input.responsible,
       category: input.category,
       imageUrl,
+      createdAt: input.createAt,
     });
 
     const expense = await this.eventExpensesGateway.create(eventExpense);
@@ -88,6 +90,7 @@ export class CreateExpensesUsecase
       accountId: input.accountId,
       type: 'EXPENSE',
       value: new Decimal(expense.getValue()),
+      createdAt: input.createAt,
     });
     await this.financialMovementGateway.create(financialMovement);
 
@@ -102,11 +105,13 @@ export class CreateExpensesUsecase
           type: CashEntryType.EXPENSE,
           origin: CashEntryOrigin.EXPENSE,
           method: expense.getPaymentMethod(),
+          favorite: true,
           value: expense.getValue(),
           description: expense.getDescription(),
           eventId: event.getId(),
           eventExpenseId: expense.getId(),
           responsible: expense.getResponsible(),
+          createAt: input.createAt,
         }),
       );
 

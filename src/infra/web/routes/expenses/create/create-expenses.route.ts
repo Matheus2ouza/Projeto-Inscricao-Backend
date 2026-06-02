@@ -8,7 +8,7 @@ import {
   CreateExpensesUsecase,
 } from 'src/usecases/web/event-expenses/create/create-event-expenses.usecase';
 import type {
-  CreateExpensesRequest,
+  CreateExpensesBody,
   CreateExpensesResponse,
 } from './create-expenses.dto';
 import { CreateExpensesPresenter } from './create-expenses.presenter';
@@ -21,18 +21,19 @@ export class CreateExpensesRoute {
 
   @Post('create')
   async handle(
-    @Body() request: CreateExpensesRequest,
+    @Body() body: CreateExpensesBody,
     @UserInfo() userInfo: UserInfoType,
   ): Promise<CreateExpensesResponse> {
     const input: CreateExpensesInput = {
       accountId: userInfo.userId,
-      eventId: request.eventId,
-      description: request.description,
-      value: request.value,
-      paymentMethod: request.paymentMethod,
-      responsible: request.responsible,
-      category: request.category,
-      image: request.image,
+      eventId: body.eventId,
+      description: body.description,
+      value: body.value,
+      paymentMethod: body.paymentMethod,
+      responsible: body.responsible,
+      category: body.category,
+      image: body.image,
+      createAt: body.createAt,
     };
 
     const response = await this.createExpensesUsecase.execute(input);
