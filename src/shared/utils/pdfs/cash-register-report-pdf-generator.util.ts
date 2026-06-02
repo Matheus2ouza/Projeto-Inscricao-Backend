@@ -35,6 +35,7 @@ type CashRegisterReportPdfData = {
     openedAt: Date;
     closedAt?: Date;
   };
+  favoriteReport?: boolean;
   moviments: {
     index: number;
     type: string;
@@ -42,6 +43,9 @@ type CashRegisterReportPdfData = {
     origin: string;
     value: number;
     createdAt: Date;
+    responsible?: string;
+    description?: string;
+    category?: string;
   }[];
 };
 
@@ -90,6 +94,14 @@ function toPortugueseMethod(method: string) {
   if (method === 'PIX') return 'Pix';
   if (method === 'CARTAO') return 'Cartão';
   return method;
+}
+
+function toPortugueseCategory(category: string) {
+  return String(category)
+    .toLowerCase()
+    .split('_')
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 export class CashRegisterReportPdfGeneratorUtils {
@@ -293,68 +305,208 @@ export class CashRegisterReportPdfGeneratorUtils {
       margin: [0, 0, 0, 20],
     };
 
-    const dateGroups = new Map<
-      string,
-      CashRegisterReportPdfData['moviments']
-    >();
-    const dateKeysInOrder: string[] = [];
-
-    for (const m of data.moviments) {
-      const key = formatDate(m.createdAt);
-      const current = dateGroups.get(key);
-      if (!current) {
-        dateGroups.set(key, [m]);
-        dateKeysInOrder.push(key);
-        continue;
-      }
-      current.push(m);
-    }
-
-    const movimentsByDateContent = dateKeysInOrder.flatMap(
-      (dateKey, groupIdx) => {
-        const moviments = dateGroups.get(dateKey) ?? [];
-        const movimentsBody = [
-          [
-            { text: '#', style: 'tableHeader' },
-            { text: 'Método', style: 'tableHeader' },
-            { text: 'Origem', style: 'tableHeader' },
-            { text: 'Valor', style: 'tableHeader' },
-            { text: 'Data', style: 'tableHeader' },
-          ],
-          ...moviments.map((m, idx) => [
-            { text: String(idx + 1), style: 'tableCell' },
-            { text: toPortugueseMethod(String(m.method)), style: 'tableCell' },
-            { text: toPortugueseOrigin(String(m.origin)), style: 'tableCell' },
+    const movimentsByDateContent = data.favoriteReport
+      ? data.moviments.map((m) => ({
+          stack: [
+            // Índice acima e ao lado
             {
-              text: formatCurrency(m.value),
-              style: 'tableCell',
-              alignment: 'right',
+              columns: [
+                {
+                  width: 30,
+                  text: [{ text: `${m.index}`, style: 'favoriteIndex' }],
+                  alignment: 'left',
+                  margin: [0, 0, 0, 4],
+                },
+                {
+                  width: '*',
+                  text: [],
+                },
+              ],
+              columnGap: 0,
             },
-            { text: formatDate(m.createdAt), style: 'tableCell' },
-          ]),
-        ];
+            // Linha 1: Tipo, Método, Origem e Valor
+            {
+              columns: [
+                {
+                  width: 80,
+                  text: [
+                    { text: 'Tipo: ', style: 'favoriteLabel' },
+                    {
+                      text: `${String(m.type).toUpperCase() === 'INCOME' ? 'ENTRADA' : 'SAÍDA'}`,
+                      style:
+                        String(m.type).toUpperCase() === 'INCOME'
+                          ? 'typeEntrada'
+                          : 'typeSaida',
+                    },
+                  ],
+                },
+                {
+                  width: 120,
+                  text: [
+                    { text: 'Método: ', style: 'favoriteLabel' },
+                    {
+                      text: toPortugueseMethod(String(m.method)),
+                      style: 'favoriteValue',
+                    },
+                  ],
+                },
+                {
+                  width: 120,
+                  text: [
+                    { text: 'Origem: ', style: 'favoriteLabel' },
+                    {
+                      text: toPortugueseOrigin(String(m.origin)),
+                      style: 'favoriteValue',
+                    },
+                  ],
+                },
+                {
+                  width: 100,
+                  text: [
+                    { text: 'Valor: ', style: 'favoriteLabel' },
+                    {
+                      text: formatCurrency(m.value),
+                      style: 'favoriteValueBold',
+                    },
+                  ],
+                  alignment: 'right',
+                },
+              ],
+              columnGap: 8,
+              margin: [0, 4, 0, 8],
+            },
+            // Linha 2: Data, Categoria (se tiver) e Responsável
+            {
+              columns: [
+                {
+                  width: 180,
+                  text: [
+                    { text: 'Data: ', style: 'favoriteLabel' },
+                    {
+                      text: formatDateTime(m.createdAt),
+                      style: 'favoriteValue',
+                    },
+                  ],
+                },
+                ...(m.category
+                  ? [
+                      {
+                        width: 160,
+                        text: [
+                          { text: 'Categoria: ', style: 'favoriteLabel' },
+                          {
+                            text: toPortugueseCategory(m.category),
+                            style: 'favoriteValue',
+                          },
+                        ],
+                      },
+                    ]
+                  : []),
+                {
+                  width: 160,
+                  text: [
+                    { text: 'Responsável: ', style: 'favoriteLabel' },
+                    { text: m.responsible ?? '-', style: 'favoriteValue' },
+                  ],
+                },
+              ],
+              columnGap: 8,
+              margin: [0, 4, 0, 8],
+            },
+            // Linha 3: Apenas a observação
+            {
+              text: [
+                { text: 'Observação: ', style: 'favoriteLabel' },
+                { text: m.description ?? '-', style: 'favoriteValue' },
+              ],
+              margin: [0, 4, 0, 10],
+            },
+            // Linha separadora
+            {
+              canvas: [
+                {
+                  type: 'line',
+                  x1: 0,
+                  y1: 0,
+                  x2: 520,
+                  y2: 0,
+                  lineWidth: 0.5,
+                  lineColor: '#dddddd',
+                },
+              ],
+              margin: [0, 0, 0, 0],
+            },
+          ],
+          keepTogether: true,
+        }))
+      : (() => {
+          const dateGroups = new Map<
+            string,
+            CashRegisterReportPdfData['moviments']
+          >();
+          const dateKeysInOrder: string[] = [];
 
-        const movimentsTable = {
-          table: {
-            headerRows: 1,
-            widths: [24, 90, 120, 80, 120],
-            body: movimentsBody,
-          },
-          layout: 'lightHorizontalLines',
-          alignment: 'center',
-        };
+          for (const m of data.moviments) {
+            const key = formatDate(m.createdAt);
+            const current = dateGroups.get(key);
+            if (!current) {
+              dateGroups.set(key, [m]);
+              dateKeysInOrder.push(key);
+              continue;
+            }
+            current.push(m);
+          }
 
-        const dateHeaderMarginTop = groupIdx === 0 ? 8 : 24;
-        return [
-          {
-            text: dateKey,
-            style: 'sectionTitle',
-            margin: [0, dateHeaderMarginTop, 0, 8],
-          },
-          movimentsTable,
-        ];
-      },
-    );
+          return dateKeysInOrder.flatMap((dateKey, groupIdx) => {
+            const moviments = dateGroups.get(dateKey) ?? [];
+            const movimentsBody = [
+              [
+                { text: '#', style: 'tableHeader' },
+                { text: 'Método', style: 'tableHeader' },
+                { text: 'Origem', style: 'tableHeader' },
+                { text: 'Valor', style: 'tableHeader' },
+                { text: 'Data', style: 'tableHeader' },
+              ],
+              ...moviments.map((m, idx) => [
+                { text: String(idx + 1), style: 'tableCell' },
+                {
+                  text: toPortugueseMethod(String(m.method)),
+                  style: 'tableCell',
+                },
+                {
+                  text: toPortugueseOrigin(String(m.origin)),
+                  style: 'tableCell',
+                },
+                {
+                  text: formatCurrency(m.value),
+                  style: 'tableCell',
+                  alignment: 'right',
+                },
+                { text: formatDate(m.createdAt), style: 'tableCell' },
+              ]),
+            ];
+
+            const movimentsTable = {
+              table: {
+                headerRows: 1,
+                widths: [24, 90, 120, 80, 120],
+                body: movimentsBody,
+              },
+              layout: 'lightHorizontalLines',
+              alignment: 'center',
+            };
+
+            const dateHeaderMarginTop = groupIdx === 0 ? 8 : 24;
+            return [
+              {
+                text: dateKey,
+                style: 'sectionTitle',
+                margin: [0, dateHeaderMarginTop, 0, 8],
+              },
+              movimentsTable,
+            ];
+          });
+        })();
 
     const docDefinition: any = {
       pageMargins: [32, 32, 32, 32],
@@ -400,6 +552,16 @@ export class CashRegisterReportPdfGeneratorUtils {
         tableHeader: { bold: true, fillColor: '#f3f4f6', margin: [0, 4, 0, 4] },
         tableCell: { margin: [0, 3, 0, 3] },
         tableCellBold: { bold: true, margin: [0, 3, 0, 3] },
+        favoriteIndex: {
+          fontSize: 13,
+          bold: true,
+          color: '#000000',
+        },
+        favoriteLabel: { fontSize: 10, bold: true, color: '#333333' },
+        favoriteValue: { fontSize: 10, color: '#111111' },
+        favoriteValueBold: { fontSize: 10, bold: true, color: '#111111' },
+        typeEntrada: { fontSize: 10, bold: true, color: '#00B894' },
+        typeSaida: { fontSize: 10, bold: true, color: '#E74C3C' },
       },
     };
 

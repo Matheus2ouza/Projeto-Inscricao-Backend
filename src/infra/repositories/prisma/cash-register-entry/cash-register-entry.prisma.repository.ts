@@ -72,6 +72,20 @@ export class CashRegisterEntryPrismaRepository
     return found.map(PrismaToEntity.map);
   }
 
+  async findAllMovementsFavorites(
+    cashRegisterId: string,
+    favorite: boolean,
+  ): Promise<CashRegisterEntry[]> {
+    const found = await this.prisma.cashRegisterEntry.findMany({
+      where: {
+        cashRegisterId,
+        favorite,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async countAll(
     cashRegisterId: string,
     filters?: {

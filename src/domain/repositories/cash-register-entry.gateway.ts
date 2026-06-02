@@ -26,6 +26,11 @@ export abstract class CashRegisterEntryGateway {
     },
   ): Promise<CashRegisterEntry[]>;
 
+  abstract findAllMovementsFavorites(
+    cashRegisterId: string,
+    favorite: boolean,
+  ): Promise<CashRegisterEntry[]>;
+
   abstract countAll(
     cashRegisterId: string,
     filters?: {
