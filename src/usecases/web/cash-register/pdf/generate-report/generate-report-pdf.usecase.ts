@@ -42,15 +42,19 @@ export class GenerateReportPdfUsecase
     const cashRegisterDetails =
       await this.findDetailsCashRegisterUsecase.execute(detailsInput);
 
-    const moviments = input.favorite
+    // Always collect all moviments for the payment summary table
+    const allMoviments = await this.collectAllMoviments(input.id);
+
+    // Get moviments for display (all or only favorites)
+    const movimentsForDisplay = input.favorite
       ? await this.cashRegisterEntryGateway.findAllMovementsFavorites(
           input.id,
           input.favorite,
         )
-      : await this.collectAllMoviments(input.id);
+      : allMoviments;
 
     const mappedMoviments = await Promise.all(
-      moviments.map(async (m, idx) => {
+      movimentsForDisplay.map(async (m, idx) => {
         let responsible: Account | null = null;
         if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
           responsible = await this.userGateway.findById(m.getResponsible()!);
@@ -66,6 +70,35 @@ export class GenerateReportPdfUsecase
 
         return {
           index: idx + 1,
+          type: String(m.getType()),
+          method: String(m.getMethod()),
+          origin: String(m.getOrigin()),
+          value: m.getValue(),
+          createdAt: m.getCreatedAt(),
+          responsible: responsible?.getUsername() || m.getResponsible(),
+          description: m.getDescription(),
+          category,
+        };
+      }),
+    );
+
+    // Map all moviments for the summary tables (payment method totals)
+    const mappedAllMoviments = await Promise.all(
+      allMoviments.map(async (m) => {
+        let responsible: Account | null = null;
+        if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
+          responsible = await this.userGateway.findById(m.getResponsible()!);
+        }
+
+        let category: string | undefined;
+        if (m.getType() === CashEntryType.EXPENSE && m.getEventExpenseId()) {
+          const expense = await this.eventExpensesGateway.findById(
+            m.getEventExpenseId()!,
+          );
+          category = expense?.getCategory();
+        }
+
+        return {
           type: String(m.getType()),
           method: String(m.getMethod()),
           origin: String(m.getOrigin()),
@@ -96,6 +129,7 @@ export class GenerateReportPdfUsecase
         },
         favoriteReport: input.favorite ?? false,
         moviments: mappedMoviments,
+        allMoviments: mappedAllMoviments,
       });
 
     const filename = `Relatorio-Caixa-${cashRegisterDetails.name

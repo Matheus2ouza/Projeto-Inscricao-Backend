@@ -47,6 +47,16 @@ type CashRegisterReportPdfData = {
     description?: string;
     category?: string;
   }[];
+  allMoviments?: {
+    type: string;
+    method: string;
+    origin: string;
+    value: number;
+    createdAt: Date;
+    responsible?: string;
+    description?: string;
+    category?: string;
+  }[];
 };
 
 function formatCurrency(value: number) {
@@ -113,12 +123,17 @@ export class CashRegisterReportPdfGeneratorUtils {
       periodEnd,
     )}`;
 
+    // Use allMoviments for calculations if favoriteReport is true, otherwise use regular moviments
+    const movimentsForCalculations = data.favoriteReport
+      ? data.allMoviments || data.moviments
+      : data.moviments;
+
     const initialBalance =
       data.cashRegister.initialBalance ??
       data.cashRegister.balance -
         data.cashRegister.totalIncome +
         data.cashRegister.totalExpense;
-    const receivedValues = data.moviments
+    const receivedValues = movimentsForCalculations
       .filter((m) => String(m.type).toUpperCase() === 'INCOME')
       .reduce((sum, m) => sum + m.value, 0);
     const expenses = data.cashRegister.totalExpense;
@@ -178,7 +193,7 @@ export class CashRegisterReportPdfGeneratorUtils {
 
     const methodKey = (method: string) => String(method).toUpperCase();
 
-    const incomeMoviments = data.moviments.filter(
+    const incomeMoviments = movimentsForCalculations.filter(
       (m) => String(m.type).toUpperCase() === 'INCOME',
     );
 
