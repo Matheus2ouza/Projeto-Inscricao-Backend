@@ -1,4 +1,4 @@
-import { PaymentMethod } from 'generated/prisma';
+import { CategoryExpense, PaymentMethod } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { Entity } from '../shared/entities/entity';
 
@@ -8,6 +8,8 @@ export type EventExpensesCreateDto = {
   value: number;
   paymentMethod: PaymentMethod;
   responsible: string;
+  category: CategoryExpense;
+  imageUrl?: string;
 };
 
 export type EventExpensesWithDto = {
@@ -17,6 +19,8 @@ export type EventExpensesWithDto = {
   value: number;
   paymentMethod: PaymentMethod;
   responsible: string;
+  category: CategoryExpense;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -29,8 +33,10 @@ export class EventExpenses extends Entity {
     private value: number,
     private paymentMethod: PaymentMethod,
     private responsible: string,
+    private category: CategoryExpense,
     createdAt: Date,
     updatedAt: Date,
+    private imageUrl?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -42,6 +48,8 @@ export class EventExpenses extends Entity {
     value,
     paymentMethod,
     responsible,
+    category,
+    imageUrl,
   }: EventExpensesCreateDto): EventExpenses {
     const id = Utils.generateUUID();
     const createdAt = new Date();
@@ -54,8 +62,10 @@ export class EventExpenses extends Entity {
       value,
       paymentMethod,
       responsible,
+      category,
       createdAt,
       updatedAt,
+      imageUrl,
     );
   }
 
@@ -66,6 +76,8 @@ export class EventExpenses extends Entity {
     value,
     paymentMethod,
     responsible,
+    category,
+    imageUrl,
     createdAt,
     updatedAt,
   }: EventExpensesWithDto): EventExpenses {
@@ -76,8 +88,10 @@ export class EventExpenses extends Entity {
       value,
       paymentMethod,
       responsible,
+      category,
       createdAt,
       updatedAt,
+      imageUrl,
     );
   }
 
@@ -100,6 +114,14 @@ export class EventExpenses extends Entity {
 
   public getResponsible(): string {
     return this.responsible;
+  }
+
+  public getCategory(): CategoryExpense {
+    return this.category;
+  }
+
+  public getImageUrl(): string | undefined {
+    return this.imageUrl;
   }
 
   public getCreatedAt(): Date {
