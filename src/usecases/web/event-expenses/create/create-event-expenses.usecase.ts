@@ -65,12 +65,15 @@ export class CreateExpensesUsecase
       );
     }
 
-    const imageUrl = await this.processEventImage(
-      input.image,
-      event.getName(),
-      input.value,
-      input.responsible,
-    );
+    let imageUrl;
+    if (input.image) {
+      imageUrl = await this.processEventImage(
+        input.image,
+        event.getName(),
+        input.value,
+        input.responsible,
+      );
+    }
 
     const eventExpense = EventExpenses.create({
       eventId: event.getId(),
