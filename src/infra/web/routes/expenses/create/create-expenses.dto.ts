@@ -1,4 +1,4 @@
-import type { PaymentMethod } from 'generated/prisma';
+import type { CategoryExpense, PaymentMethod } from 'generated/prisma';
 
 export type CreateExpensesRequest = {
   eventId: string;
@@ -6,6 +6,8 @@ export type CreateExpensesRequest = {
   value: number;
   paymentMethod: PaymentMethod;
   responsible: string;
+  category: CategoryExpense;
+  image: string;
 };
 
 export type CreateExpensesResponse = {

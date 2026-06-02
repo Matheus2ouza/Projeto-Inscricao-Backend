@@ -31,6 +31,8 @@ export class CreateExpensesRoute {
       value: request.value,
       paymentMethod: request.paymentMethod,
       responsible: request.responsible,
+      category: request.category,
+      image: request.image,
     };
 
     const response = await this.createExpensesUsecase.execute(input);
