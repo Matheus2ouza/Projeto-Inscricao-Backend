@@ -11,6 +11,8 @@ export class EventExpensesEntityToEventExpensesPrismaModelMapper {
       value: new Decimal(eventExpenses.getValue()),
       paymentMethod: eventExpenses.getPaymentMethod(),
       responsible: eventExpenses.getResponsible(),
+      category: eventExpenses.getCategory(),
+      imageUrl: eventExpenses.getImageUrl() ?? null,
       createdAt: eventExpenses.getCreatedAt(),
       updatedAt: eventExpenses.getUpdatedAt(),
     };
