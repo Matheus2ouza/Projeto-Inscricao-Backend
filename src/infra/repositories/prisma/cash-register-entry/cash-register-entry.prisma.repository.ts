@@ -81,6 +81,9 @@ export class CashRegisterEntryPrismaRepository
         cashRegisterId,
         favorite,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return found.map(PrismaToEntity.map);
