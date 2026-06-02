@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { CashEntryOrigin, CashEntryType } from 'generated/prisma';
+import { Account } from 'src/domain/entities/account.entity';
+import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
+import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
+import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { CashRegisterReportPdfGeneratorUtils } from 'src/shared/utils/pdfs/cash-register-report-pdf-generator.util';
 import { Usecase } from 'src/usecases/usecase';
-import {
-  FindAllMovimentsCashRegisterInput,
-  FindAllMovimentsCashRegisterUsecase,
-} from '../../find-all-moviments-cash-register/find-all-moviments-cash-register.usecase';
 import {
   FindDetailsCashRegisterInput,
   FindDetailsCashRegisterUsecase,
@@ -12,6 +14,9 @@ import {
 
 export type GenerateReportPdfInput = {
   id: string;
+
+  // filters
+  favorite?: boolean;
 };
 
 export type GenerateReportPdfOutput = {
@@ -25,7 +30,9 @@ export class GenerateReportPdfUsecase
 {
   public constructor(
     private readonly findDetailsCashRegisterUsecase: FindDetailsCashRegisterUsecase,
-    private readonly findAllMovimentsCashRegisterUsecase: FindAllMovimentsCashRegisterUsecase,
+    private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
+    private readonly eventExpensesGateway: EventExpensesGateway,
+    private readonly userGateway: AccountGateway,
   ) {}
 
   public async execute(
@@ -35,7 +42,41 @@ export class GenerateReportPdfUsecase
     const cashRegisterDetails =
       await this.findDetailsCashRegisterUsecase.execute(detailsInput);
 
-    const moviments = await this.fetchAllMoviments(input.id);
+    const moviments = input.favorite
+      ? await this.cashRegisterEntryGateway.findAllMovementsFavorites(
+          input.id,
+          input.favorite,
+        )
+      : await this.collectAllMoviments(input.id);
+
+    const mappedMoviments = await Promise.all(
+      moviments.map(async (m, idx) => {
+        let responsible: Account | null = null;
+        if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
+          responsible = await this.userGateway.findById(m.getResponsible()!);
+        }
+
+        let category: string | undefined;
+        if (m.getType() === CashEntryType.EXPENSE && m.getEventExpenseId()) {
+          const expense = await this.eventExpensesGateway.findById(
+            m.getEventExpenseId()!,
+          );
+          category = expense?.getCategory();
+        }
+
+        return {
+          index: idx + 1,
+          type: String(m.getType()),
+          method: String(m.getMethod()),
+          origin: String(m.getOrigin()),
+          value: m.getValue(),
+          createdAt: m.getCreatedAt(),
+          responsible: responsible?.getUsername() || m.getResponsible(),
+          description: m.getDescription(),
+          category,
+        };
+      }),
+    );
 
     const pdfBuffer =
       await CashRegisterReportPdfGeneratorUtils.generateReportPdf({
@@ -53,14 +94,8 @@ export class GenerateReportPdfUsecase
           openedAt: cashRegisterDetails.openedAt,
           closedAt: cashRegisterDetails.closedAt,
         },
-        moviments: moviments.map((m, idx) => ({
-          index: idx + 1,
-          type: String(m.type),
-          method: String(m.method),
-          origin: String(m.origin),
-          value: m.value,
-          createdAt: m.createdAt,
-        })),
+        favoriteReport: input.favorite ?? false,
+        moviments: mappedMoviments,
       });
 
     const filename = `Relatorio-Caixa-${cashRegisterDetails.name
@@ -73,27 +108,26 @@ export class GenerateReportPdfUsecase
     };
   }
 
-  private async fetchAllMoviments(cashRegisterId: string) {
+  private async collectAllMoviments(cashRegisterId: string) {
     const pageSize = 20;
     let page = 1;
-    const all: Awaited<
-      ReturnType<FindAllMovimentsCashRegisterUsecase['execute']>
-    >['moviments'] = [];
+    const all: CashRegisterEntry[] = [];
 
     while (true) {
-      const input: FindAllMovimentsCashRegisterInput = {
-        id: cashRegisterId,
-        page,
-        pageSize,
-        orderBy: 'desc',
-      };
+      const [moviments, totalMoviments] = await Promise.all([
+        this.cashRegisterEntryGateway.findManyPaginated(
+          cashRegisterId,
+          page,
+          pageSize,
+          { orderBy: 'desc' },
+        ),
+        this.cashRegisterEntryGateway.countAll(cashRegisterId),
+      ]);
 
-      const result =
-        await this.findAllMovimentsCashRegisterUsecase.execute(input);
+      all.push(...moviments);
 
-      all.push(...result.moviments);
-
-      if (page >= result.pageCount) break;
+      const pageCount = Math.max(1, Math.ceil(totalMoviments / pageSize));
+      if (page >= pageCount) break;
       page += 1;
     }
 

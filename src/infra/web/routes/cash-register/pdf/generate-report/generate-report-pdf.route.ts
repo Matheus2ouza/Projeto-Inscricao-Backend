@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   GenerateReportPdfInput,
   GenerateReportPdfUsecase,
@@ -18,9 +18,12 @@ export class GenerateReportPdfRoute {
   @Get(':id/pdf')
   async handle(
     @Param() param: GenerateReportPdfRequest,
+    @Query('favorite') favorite?: string,
   ): Promise<GenerateReportPdfResponse> {
     const input: GenerateReportPdfInput = {
       id: param.id,
+      favorite: true,
+      // favorite: favorite === 'true',
     };
 
     const response = await this.generateReportPdfUsecase.execute(input);
