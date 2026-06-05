@@ -1,7 +1,13 @@
+import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { EventExpenses } from '../entities/event-expenses.entity';
 
 export abstract class EventExpensesGateway {
   abstract create(eventExpenses: EventExpenses): Promise<EventExpenses>;
+  abstract createTx(
+    eventExpense: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<EventExpenses>;
+
   abstract findById(id: string): Promise<EventExpenses | null>;
   abstract findMany(eventId: string): Promise<EventExpenses[]>;
   abstract findManyByEventId(eventId: string): Promise<EventExpenses[]>;
