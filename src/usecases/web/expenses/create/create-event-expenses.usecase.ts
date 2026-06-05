@@ -7,6 +7,8 @@ import {
   PaymentMethod,
 } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
+import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
+import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
@@ -15,8 +17,10 @@ import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gatew
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { FinancialMovementGateway } from 'src/domain/repositories/financial-movement.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { generateExpenseSlug } from 'src/shared/utils/expense-file-name.util';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
@@ -30,7 +34,7 @@ export type CreateExpensesInput = {
   paymentMethod: PaymentMethod;
   responsible: string;
   category: CategoryExpense;
-  image: string;
+  images: string[];
   createAt?: Date;
 };
 
@@ -52,6 +56,7 @@ export class CreateExpensesUsecase
     private readonly financialMovementGateway: FinancialMovementGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(input: CreateExpensesInput): Promise<CreateExpensesOutput> {
@@ -65,28 +70,30 @@ export class CreateExpensesUsecase
       );
     }
 
-    let imageUrl;
-    if (input.image) {
-      imageUrl = await this.processEventImage(
-        input.image,
-        event.getName(),
-        input.value,
-        input.responsible,
-      );
-    }
+    const imagePaths = input.images?.length
+      ? await Promise.all(
+          input.images.map((image) =>
+            this.processEventImage(
+              image,
+              event.getName(),
+              input.category,
+              input.value,
+              input.description,
+            ),
+          ),
+        )
+      : [];
 
-    const eventExpense = EventExpenses.create({
+    const expense = EventExpenses.create({
       eventId: event.getId(),
       description: input.description,
       value: input.value,
       paymentMethod: input.paymentMethod,
       responsible: input.responsible,
       category: input.category,
-      imageUrl,
+      imageUrls: imagePaths,
       createdAt: input.createAt,
     });
-
-    const expense = await this.eventExpensesGateway.create(eventExpense);
 
     const financialMovement = FinancialMovement.create({
       eventId: event.getId(),
@@ -95,83 +102,102 @@ export class CreateExpensesUsecase
       value: new Decimal(expense.getValue()),
       createdAt: input.createAt,
     });
-    await this.financialMovementGateway.create(financialMovement);
 
-    const cashRegisterEvent = await this.cashRegisterEventGateway.findByEventId(
-      event.getId(),
+    // preparar dados de caixa
+    const cashRegisterEvents =
+      await this.cashRegisterEventGateway.findByEventId(expense.getEventId());
+    const cashRegisterEntries = this.buildCashRegisterEntries(
+      cashRegisterEvents,
+      expense,
     );
-
-    if (cashRegisterEvent.length > 0) {
-      const entries = cashRegisterEvent.map((c) =>
-        CashRegisterEntry.create({
-          cashRegisterId: c.getCashRegisterId(),
-          type: CashEntryType.EXPENSE,
-          origin: CashEntryOrigin.EXPENSE,
-          method: expense.getPaymentMethod(),
-          favorite: true,
-          value: expense.getValue(),
-          description: expense.getDescription(),
-          eventId: event.getId(),
-          eventExpenseId: expense.getId(),
-          responsible: expense.getResponsible(),
-          createAt: input.createAt,
-        }),
-      );
-
-      await this.cashRegisterEntryGateway.createMany(entries);
-      await this.updateCashRegisterBalances(entries);
-    }
+    const updatedCashRegisters = cashRegisterEntries.length
+      ? await this.buildUpdatedCashRegisters(cashRegisterEntries)
+      : [];
 
     // atualiza o valor gasto do evento com a nova saida
     event.incrementAmountSpent(expense.getValue());
-    await this.eventGateway.update(event);
 
-    return {
+    // abre a transaction para salvar no banco
+    await this.prisma.runInTransaction(async (tx) => {
+      // salva o gasto
+      await this.eventExpensesGateway.createTx(expense, tx);
+
+      // salva a nova movimentação
+      await this.financialMovementGateway.createTx(financialMovement, tx);
+
+      // se encontrar caixa referente ao evento, então cria as entradas e atualiza o caixa
+      if (cashRegisterEntries.length) {
+        await this.cashRegisterEntryGateway.createManyTx(
+          cashRegisterEntries,
+          tx,
+        );
+
+        for (const cashRegister of updatedCashRegisters) {
+          await this.cashRegisterGateway.updateTx(cashRegister, tx);
+        }
+      } else {
+        this.logger.warn(
+          `Nenhum caixa encontrado para o evento ${expense.getEventId()}`,
+        );
+      }
+
+      await this.eventGateway.updateTx(event, tx);
+    });
+
+    const output: CreateExpensesOutput = {
       id: expense.getId(),
     };
+    return output;
   }
 
-  private async updateCashRegisterBalances(
+  private buildCashRegisterEntries(
+    cashRegisterEvents: CashRegisterEvent[],
+    expense: EventExpenses,
+  ): CashRegisterEntry[] {
+    return cashRegisterEvents.map((cashRegisterEvent) =>
+      CashRegisterEntry.create({
+        cashRegisterId: cashRegisterEvent.getCashRegisterId(),
+        type: CashEntryType.EXPENSE,
+        origin: CashEntryOrigin.EXPENSE,
+        method: expense.getPaymentMethod(),
+        value: expense.getValue(),
+        description: expense.getDescription(),
+        eventId: expense.getEventId(),
+        eventExpenseId: expense.getId(),
+        responsible: expense.getResponsible(),
+        imageUrls: expense.getImageUrls(), /// como o registro do caixa aceita somente uma imagem, passamos somente a primeira
+      }),
+    );
+  }
+
+  private async buildUpdatedCashRegisters(
     entries: CashRegisterEntry[],
-  ): Promise<void> {
-    const deltaByCashRegisterId = new Map<string, number>();
-
+  ): Promise<CashRegister[]> {
+    const deltaMap = new Map<string, Decimal>();
     for (const entry of entries) {
-      const cashRegisterId = entry.getCashRegisterId();
-      const previous = deltaByCashRegisterId.get(cashRegisterId) ?? 0;
-      const delta =
-        entry.getType() === CashEntryType.INCOME
-          ? entry.getValue()
-          : -entry.getValue();
-
-      deltaByCashRegisterId.set(cashRegisterId, previous + delta);
+      const id = entry.getCashRegisterId();
+      const current = deltaMap.get(id) ?? new Decimal(0);
+      deltaMap.set(id, current.add(entry.getValue()));
     }
 
-    await Promise.all(
-      [...deltaByCashRegisterId.entries()].map(
-        async ([cashRegisterId, delta]) => {
-          if (delta === 0) return;
-          const cashRegister =
-            await this.cashRegisterGateway.findById(cashRegisterId);
-          if (!cashRegister) return;
-
-          if (delta > 0) {
-            cashRegister.incrementBalance(delta);
-          } else {
-            cashRegister.decrementBalance(-delta);
-          }
-
-          await this.cashRegisterGateway.update(cashRegister);
-        },
-      ),
-    );
+    const updated: CashRegister[] = [];
+    for (const [cashRegisterId, delta] of deltaMap.entries()) {
+      if (delta.isZero()) continue;
+      const cashRegister =
+        await this.cashRegisterGateway.findById(cashRegisterId);
+      if (!cashRegister) continue;
+      cashRegister.decrementBalance(delta.toNumber());
+      updated.push(cashRegister);
+    }
+    return updated;
   }
 
   private async processEventImage(
     image: string,
     eventName: string,
+    category: string,
     value: number,
-    responsible: string,
+    description: string,
   ): Promise<string> {
     this.logger.log('Processando imagem do evento');
 
@@ -199,17 +225,20 @@ export class CreateExpensesUsecase
         maxHeight: 800,
         quality: 70,
         format: 'webp',
-        maxFileSize: 300 * 1024, // 300KB
+        maxFileSize: 300 * 1024,
       },
     );
 
-    // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
+    // Sanitiza os dados para evitar caracteres inválidos no Supabase
     const sanitizedEventName = sanitizeFileName(eventName || 'evento');
+    const sanitizedCategoryName = sanitizeFileName(
+      category || CategoryExpense.OUTROS,
+    );
+    const sanitizedDescription = generateExpenseSlug(
+      description || 'descrição não encontrada',
+    );
 
-    // Sanitiza o responsável pelo gasto para evitar caracteres inválidos no Supabase
-    const sanitizedResponsible = sanitizeFileName(responsible || 'responsavel');
-
-    // Cria nome do arquivo: payment+valor+hora formatada
+    // Cria nome do arquivo
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -218,10 +247,10 @@ export class CreateExpensesUsecase
     const minutes = String(now.getMinutes()).padStart(2, '0');
 
     const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
-    const fileName = `expense_${sanitizedResponsible}_${value}_${formattedDateTime}.${optimizedImage.format}`;
+    const fileName = `${sanitizedDescription}_${value}_${formattedDateTime}.${optimizedImage.format}`;
 
     // Define a pasta com base no evento e no responsável pelo gasto
-    const folderName = `expenses/${sanitizedEventName}/${sanitizedResponsible}`;
+    const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}`;
 
     // Faz upload no Supabase
     const imageUrl = await this.supabaseStorageService.uploadFile({

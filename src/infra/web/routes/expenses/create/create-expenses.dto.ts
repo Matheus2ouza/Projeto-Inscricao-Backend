@@ -7,7 +7,7 @@ export type CreateExpensesBody = {
   paymentMethod: PaymentMethod;
   responsible: string;
   category: CategoryExpense;
-  image: string;
+  images: string[];
   createAt?: Date;
 };
 

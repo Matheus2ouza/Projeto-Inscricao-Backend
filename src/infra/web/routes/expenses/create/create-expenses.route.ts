@@ -6,14 +6,14 @@ import {
 import {
   CreateExpensesInput,
   CreateExpensesUsecase,
-} from 'src/usecases/web/event-expenses/create/create-event-expenses.usecase';
+} from 'src/usecases/web/expenses/create/create-event-expenses.usecase';
 import type {
   CreateExpensesBody,
   CreateExpensesResponse,
 } from './create-expenses.dto';
 import { CreateExpensesPresenter } from './create-expenses.presenter';
 
-@Controller('event-expenses')
+@Controller('expenses')
 export class CreateExpensesRoute {
   public constructor(
     private readonly createExpensesUsecase: CreateExpensesUsecase,
@@ -32,7 +32,7 @@ export class CreateExpensesRoute {
       paymentMethod: body.paymentMethod,
       responsible: body.responsible,
       category: body.category,
-      image: body.image,
+      images: body.images,
       createAt: body.createAt,
     };
 
