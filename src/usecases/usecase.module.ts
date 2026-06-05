@@ -26,8 +26,6 @@ import { FindUsageStorageSupabaseSuperUsecase } from './web/dashboard/super/find
 import { FindActiveEventsUserUsecase } from './web/dashboard/user/find-active-events.usecase';
 import { FindTotalDebtUserUsecase } from './web/dashboard/user/find-total-debt.usecase';
 import { FindTotalInscriptionsUserUsecase } from './web/dashboard/user/find-total-inscriptions.usecase';
-import { CreateExpensesUsecase } from './web/event-expenses/create/create-event-expenses.usecase';
-import { FindAllPaginatedEventExpensesUsecase } from './web/event-expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-event-responsible.usecase';
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { FindAccountsDetailsUseCase } from './web/event/check-in/find-accounts-details/find-accounts-details.usecase';
@@ -65,6 +63,9 @@ import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscripti
 import { FindAllExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/find-all-exclusive-inscription-link/find-all-exclusive-inscription-link.usecase';
 import { PreviewExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/preview-exclusive-inscription-link/preview-exclusive-inscription-link.usecase';
 import { ValidateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.usecase';
+import { CreateExpensesUsecase } from './web/expenses/create/create-event-expenses.usecase';
+import { FindAllPaginatedEventExpensesUsecase } from './web/expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
+import { FindDetailsExpenseUsecase } from './web/expenses/find-details-expense/find-details-expense.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
@@ -384,6 +385,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Event Expenses
     CreateExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
+    FindDetailsExpenseUsecase,
 
     // Reports
     ReportGeneralUsecase,
@@ -618,6 +620,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Event Expenses
     CreateExpensesUsecase,
     FindAllPaginatedEventExpensesUsecase,
+    FindDetailsExpenseUsecase,
 
     // Reports
     ReportGeneralUsecase,
