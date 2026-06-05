@@ -466,7 +466,7 @@ model EventExpenses {
   paymentMethod       PaymentMethod
   responsible         String
   category            CategoryExpense     @default(OUTROS)
-  imageUrl            String?             @map("image_url")
+  imageUrls           String[]            @map("image_urls")
   createdAt           DateTime            @default(now()) @map("created_at")
   updatedAt           DateTime            @updatedAt @map("updated_at")
   cashRegisterEntries CashRegisterEntry[]
@@ -521,7 +521,7 @@ model CashRegisterEntry {
   onSiteRegistrationId String?               @map("on_site_registration_id")
   transferId           String?               @map("transfer_id")
   responsible          String?
-  imageUrl             String?               @map("image_url")
+  imageUrls            String[]              @map("image_urls")
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
   eventExpenseId       String?               @map("event_expense_id")
