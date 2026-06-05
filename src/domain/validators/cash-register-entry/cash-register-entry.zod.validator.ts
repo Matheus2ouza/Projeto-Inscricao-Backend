@@ -59,7 +59,7 @@ export class CashRegisterEntryZodValidator
       onSiteRegistrationId: z.uuid().optional(),
       transferId: z.uuid().optional(),
       responsible: z.string().optional(),
-      imageUrl: z.string().optional(),
+      imageUrls: z.string().optional(),
     });
   }
 }
