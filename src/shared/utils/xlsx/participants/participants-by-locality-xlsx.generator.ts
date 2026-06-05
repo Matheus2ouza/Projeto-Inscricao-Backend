@@ -1,11 +1,13 @@
 import * as ExcelJS from 'exceljs';
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
+import { formatPhoneNumber } from 'src/shared/utils/phone.util';
 
 export type ReportColumn =
   | 'name'
   | 'preferredName'
   | 'cpf'
   | 'birthDate'
+  | 'phone'
   | 'gender'
   | 'shirtSize'
   | 'shirtType'
@@ -23,9 +25,11 @@ export type ParticipantLocalityXlsxRow = {
   preferredName?: string;
   locality: string;
   age?: number;
+  phone?: string;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender?: genderType;
+  typeInscription?: string;
 };
 
 export type ParticipantLocalityXlsxData = {
@@ -88,6 +92,10 @@ export class ParticipantsByLocalityXlsxGenerator {
       });
     }
 
+    if (shouldShow('phone')) {
+      columns.push({ header: 'Telefone', key: 'phone', width: 18 });
+    }
+
     if (shouldShowAge) {
       columns.push({ header: 'Idade', key: 'age', width: 8 });
     }
@@ -100,6 +108,13 @@ export class ParticipantsByLocalityXlsxGenerator {
     }
     if (shouldShow('shirtType')) {
       columns.push({ header: 'Tipo', key: 'shirtType', width: 15 });
+    }
+    if (shouldShow('typeInscription')) {
+      columns.push({
+        header: 'Tipo de Inscrição',
+        key: 'typeInscription',
+        width: 30,
+      });
     }
 
     ws.columns = columns;
@@ -140,19 +155,25 @@ export class ParticipantsByLocalityXlsxGenerator {
           row.name = participant.name || '-';
         }
         if (shouldShow('preferredName')) {
-          row.preferredName = participant.preferredName || '-';
+          row.preferredName = participant.preferredName || 'Não informado';
+        }
+        if (shouldShow('phone')) {
+          row.phone = formatPhoneNumber(participant.phone) || 'Não informado';
         }
         if (shouldShowAge) {
-          row.age = participant.age ?? '-';
+          row.age = participant.age ?? 'Não informado';
         }
         if (shouldShow('gender')) {
           row.gender = formatGender(participant.gender);
         }
         if (shouldShow('shirtSize')) {
-          row.shirtSize = participant.shirtSize || '-';
+          row.shirtSize = participant.shirtSize || 'Não informado';
         }
         if (shouldShow('shirtType')) {
-          row.shirtType = participant.shirtType || '-';
+          row.shirtType = participant.shirtType || 'Não informado';
+        }
+        if (shouldShow('typeInscription')) {
+          row.typeInscription = participant.typeInscription || 'Não informado';
         }
 
         ws.addRow(row);
