@@ -20,7 +20,7 @@ export class CashRegisterEntryEntityToCashRegisterEntryPrismaModelMapper {
       ticketSaleId: entry.getTicketSaleId() ?? null,
       transferId: entry.getTransferId() ?? null,
       responsible: entry.getResponsible() ?? null,
-      imageUrl: entry.getImageUrl() ?? null,
+      imageUrls: entry.getImageUrls(),
       createdAt: entry.getCreatedAt(),
       updatedAt: entry.getUpdatedAt(),
     };
