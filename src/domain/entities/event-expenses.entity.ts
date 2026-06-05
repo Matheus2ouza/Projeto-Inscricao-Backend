@@ -1,6 +1,6 @@
 import { CategoryExpense, PaymentMethod } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
-import { EventExpensesValidatorFactory } from '../factories/event-expenses/inscription.validator.factory';
+import { EventExpensesValidatorFactory } from '../factories/event-expenses/event-expenses.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type EventExpensesCreateDto = {
