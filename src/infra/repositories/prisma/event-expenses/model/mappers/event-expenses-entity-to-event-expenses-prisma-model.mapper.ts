@@ -12,7 +12,7 @@ export class EventExpensesEntityToEventExpensesPrismaModelMapper {
       paymentMethod: eventExpenses.getPaymentMethod(),
       responsible: eventExpenses.getResponsible(),
       category: eventExpenses.getCategory(),
-      imageUrl: eventExpenses.getImageUrl() ?? null,
+      imageUrls: eventExpenses.getImageUrls(),
       createdAt: eventExpenses.getCreatedAt(),
       updatedAt: eventExpenses.getUpdatedAt(),
     };

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
-import { PrismaService } from '../prisma.service';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { EventExpensesEntityToEventExpensesPrismaModelMapper as EntityToPrisma } from './model/mappers/event-expenses-entity-to-event-expenses-prisma-model.mapper';
 import { EventExpensesPrismaModelToEventExpensesEntityMapper as PrismaToEntity } from './model/mappers/event-expenses-prisma-model-to-event-expenses-entity.mapper';
 
@@ -12,6 +12,18 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
   async create(eventExpenses: EventExpenses): Promise<EventExpenses> {
     const data = EntityToPrisma.map(eventExpenses);
     const created = await this.prisma.eventExpenses.create({
+      data,
+    });
+
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(
+    eventExpense: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<EventExpenses> {
+    const data = EntityToPrisma.map(eventExpense);
+    const created = await tx.eventExpenses.create({
       data,
     });
 
