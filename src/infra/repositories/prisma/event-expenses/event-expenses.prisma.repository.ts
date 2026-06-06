@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CategoryExpense } from 'generated/prisma';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { PrismaService, PrismaTransactionClient } from '../prisma.service';
@@ -68,6 +69,35 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     });
 
     return rows.map(PrismaToEntity.map);
+  }
+
+  async summarizeByCategory(
+    cashRegisterId: string,
+  ): Promise<
+    { category: CategoryExpense; count: number; totalValue: number }[]
+  > {
+    const found = await this.prisma.eventExpenses.groupBy({
+      by: ['category'],
+      where: {
+        cashRegisterEntries: {
+          some: {
+            cashRegisterId,
+          },
+        },
+      },
+      _count: {
+        _all: true,
+      },
+      _sum: {
+        value: true,
+      },
+    });
+
+    return found.map((item) => ({
+      category: item.category,
+      count: item._count._all,
+      totalValue: item._sum.value?.toNumber() ?? 0,
+    }));
   }
 
   async countAll(eventId: string): Promise<number> {

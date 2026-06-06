@@ -1,3 +1,4 @@
+import { CategoryExpense } from 'generated/prisma';
 import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { EventExpenses } from '../entities/event-expenses.entity';
 
@@ -16,6 +17,14 @@ export abstract class EventExpensesGateway {
     pageSize: number,
     eventId: string,
   ): Promise<EventExpenses[]>;
+
+  abstract summarizeByCategory(cashRegisterId: string): Promise<
+    {
+      category: CategoryExpense;
+      count: number;
+      totalValue: number;
+    }[]
+  >;
 
   abstract countAll(eventId: string): Promise<number>;
   abstract countTotalExpense(eventId: string): Promise<number>;

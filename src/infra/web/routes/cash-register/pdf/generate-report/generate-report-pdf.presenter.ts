@@ -8,6 +8,7 @@ export class GenerateReportPdfPresenter {
     return {
       pdfBase64: output.pdfBase64,
       filename: output.filename,
+      contentType: output.contentType,
     };
   }
 }
