@@ -10,19 +10,20 @@ export type FindAllPaginatedEventExpensesInput = {
 };
 
 export type FindAllPaginatedEventExpensesOutput = {
-  expenses: {
-    id: string;
-    eventId: string;
-    description: string;
-    value: number;
-    paymentMethod: PaymentMethod;
-    responsible: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }[];
+  expenses: Expense[];
   total: number;
   page: number;
   pageCount: number;
+};
+
+export type Expense = {
+  id: string;
+  eventId: string;
+  description: string;
+  value: number;
+  paymentMethod: PaymentMethod;
+  responsible: string;
+  createdAt: Date;
 };
 
 @Injectable()
@@ -46,7 +47,7 @@ export class FindAllPaginatedEventExpensesUsecase
       Math.min(50, Math.floor(input.pageSize || 10)),
     );
 
-    const [rows, total] = await Promise.all([
+    const [expensesArray, total] = await Promise.all([
       this.eventExpensesGateway.findManyPaginated(
         safePage,
         safePageSize,
@@ -55,17 +56,20 @@ export class FindAllPaginatedEventExpensesUsecase
       this.eventExpensesGateway.countAll(input.eventId),
     ]);
 
+    const expenses: Expense[] = expensesArray.map((e) => {
+      return {
+        id: e.getId(),
+        eventId: e.getEventId(),
+        description: e.getDescription(),
+        value: e.getValue(),
+        paymentMethod: e.getPaymentMethod(),
+        responsible: e.getResponsible(),
+        createdAt: e.getCreatedAt(),
+      };
+    });
+
     return {
-      expenses: rows.map((expense) => ({
-        id: expense.getId(),
-        eventId: expense.getEventId(),
-        description: expense.getDescription(),
-        value: expense.getValue(),
-        paymentMethod: expense.getPaymentMethod(),
-        responsible: expense.getResponsible(),
-        createdAt: expense.getCreatedAt(),
-        updatedAt: expense.getUpdatedAt(),
-      })),
+      expenses,
       total,
       page: safePage,
       pageCount: Math.max(1, Math.ceil(total / safePageSize)),

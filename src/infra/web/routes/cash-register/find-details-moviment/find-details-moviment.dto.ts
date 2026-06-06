@@ -22,7 +22,7 @@ export type FindDetailsMovimentResponse = {
   eventExpenseId?: string;
   ticketSaleId?: string;
   responsible?: string;
-  imageUrl?: string;
+  imageUrls: string[];
   createdAt: Date;
   reference: FindDetailsMovimentOutput['reference'];
 };

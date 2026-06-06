@@ -59,7 +59,9 @@ export class CashRegisterEntryZodValidator
       onSiteRegistrationId: z.uuid().optional(),
       transferId: z.uuid().optional(),
       responsible: z.string().optional(),
-      imageUrl: z.string().optional(),
+      imageUrls: z
+        .array(z.string())
+        .max(3, { error: 'Numero maximo de imagens excedido' }),
     });
   }
 }

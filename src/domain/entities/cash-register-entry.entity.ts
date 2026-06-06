@@ -14,6 +14,7 @@ export type CashRegisterEntryCreateDto = {
   method: PaymentMethod;
   favorite?: boolean;
   value: number;
+  imageUrls?: string[];
   description?: string;
   eventId?: string;
   paymentInstallmentId?: string;
@@ -22,7 +23,6 @@ export type CashRegisterEntryCreateDto = {
   ticketSaleId?: string;
   transferId?: string;
   responsible?: string;
-  imageUrl?: string;
   createAt?: Date;
 };
 
@@ -34,6 +34,7 @@ export type CashRegisterEntryWithDto = {
   method: PaymentMethod;
   favorite?: boolean;
   value: number;
+  imageUrls: string[];
   description?: string;
   eventId?: string;
   paymentInstallmentId?: string;
@@ -42,7 +43,6 @@ export type CashRegisterEntryWithDto = {
   ticketSaleId?: string;
   transferId?: string;
   responsible?: string;
-  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -55,6 +55,7 @@ export class CashRegisterEntry extends Entity {
     private origin: CashEntryOrigin,
     private method: PaymentMethod,
     private value: number,
+    private imageUrls: string[] = [],
     createdAt: Date,
     updatedAt: Date,
     private description?: string,
@@ -65,7 +66,6 @@ export class CashRegisterEntry extends Entity {
     private ticketSaleId?: string,
     private transferId?: string,
     private responsible?: string,
-    private imageUrl?: string,
     private favorite?: boolean,
   ) {
     super(id, createdAt, updatedAt);
@@ -87,13 +87,15 @@ export class CashRegisterEntry extends Entity {
     ticketSaleId,
     transferId,
     responsible,
-    imageUrl,
+    imageUrls,
     createAt,
   }: CashRegisterEntryCreateDto): CashRegisterEntry {
     const id = Utils.generateUUID();
     const favoriteDefault = favorite ?? false;
     const createdAt = createAt ?? new Date();
     const updatedAt = new Date();
+
+    const imagesDefault = imageUrls ?? [];
 
     return new CashRegisterEntry(
       id,
@@ -102,6 +104,7 @@ export class CashRegisterEntry extends Entity {
       origin,
       method,
       value,
+      imagesDefault,
       createdAt,
       updatedAt,
       description,
@@ -112,7 +115,6 @@ export class CashRegisterEntry extends Entity {
       ticketSaleId,
       transferId,
       responsible,
-      imageUrl,
       favoriteDefault,
     );
   }
@@ -133,7 +135,7 @@ export class CashRegisterEntry extends Entity {
     ticketSaleId,
     transferId,
     responsible,
-    imageUrl,
+    imageUrls,
     createdAt,
     updatedAt,
   }: CashRegisterEntryWithDto): CashRegisterEntry {
@@ -144,6 +146,7 @@ export class CashRegisterEntry extends Entity {
       origin,
       method,
       value,
+      imageUrls,
       createdAt,
       updatedAt,
       description,
@@ -154,7 +157,6 @@ export class CashRegisterEntry extends Entity {
       ticketSaleId,
       transferId,
       responsible,
-      imageUrl,
       favorite,
     );
   }
@@ -219,8 +221,8 @@ export class CashRegisterEntry extends Entity {
     return this.responsible;
   }
 
-  public getImageUrl(): string | undefined {
-    return this.imageUrl;
+  public getImageUrls(): string[] {
+    return this.imageUrls;
   }
 
   public getCreatedAt(): Date {

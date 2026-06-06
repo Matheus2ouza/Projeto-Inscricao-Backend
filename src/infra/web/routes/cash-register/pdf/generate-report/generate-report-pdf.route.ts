@@ -4,7 +4,8 @@ import {
   GenerateReportPdfUsecase,
 } from 'src/usecases/web/cash-register/pdf/generate-report/generate-report-pdf.usecase';
 import type {
-  GenerateReportPdfRequest,
+  GenerateReportPdfParams,
+  GenerateReportPdfQuery,
   GenerateReportPdfResponse,
 } from './generate-report-pdf.dto';
 import { GenerateReportPdfPresenter } from './generate-report-pdf.presenter';
@@ -17,13 +18,14 @@ export class GenerateReportPdfRoute {
 
   @Get(':id/pdf')
   async handle(
-    @Param() param: GenerateReportPdfRequest,
-    @Query('favorite') favorite?: string,
+    @Param() param: GenerateReportPdfParams,
+    @Query() query: GenerateReportPdfQuery,
   ): Promise<GenerateReportPdfResponse> {
     const input: GenerateReportPdfInput = {
       id: param.id,
-      favorite: true,
-      // favorite: favorite === 'true',
+      listExpenseCategory: query.listExpenseCategory === 'true',
+      moviments: query.moviments === 'true',
+      favorite: query.favorite === 'true',
     };
 
     const response = await this.generateReportPdfUsecase.execute(input);

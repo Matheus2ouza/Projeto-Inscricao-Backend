@@ -21,7 +21,7 @@ export class CashRegisterEntryPrismaModelToCashRegisterEntryEntityMapper {
       ticketSaleId: entryPrisma.ticketSaleId ?? undefined,
       transferId: entryPrisma.transferId ?? undefined,
       responsible: entryPrisma.responsible ?? undefined,
-      imageUrl: entryPrisma.imageUrl ?? undefined,
+      imageUrls: entryPrisma.imageUrls,
       createdAt: entryPrisma.createdAt,
       updatedAt: entryPrisma.updatedAt,
     });

@@ -17,6 +17,44 @@ export interface OptimizedImageResult {
   size: number;
 }
 
+// Presets de otimização
+export const IMAGE_OPTIMIZATION_PRESETS = {
+  thumbnail: {
+    // era: thumb
+    maxWidth: 400,
+    maxHeight: 250,
+    quality: 60,
+    format: 'webp' as const,
+    maxFileSize: 50 * 1024,
+  },
+  standard: {
+    // era: medium
+    maxWidth: 800,
+    maxHeight: 500,
+    quality: 70,
+    format: 'webp' as const,
+    maxFileSize: 150 * 1024,
+  },
+  highQuality: {
+    // era: full
+    maxWidth: 1920,
+    maxHeight: 1080,
+    quality: 80,
+    format: 'webp' as const,
+    maxFileSize: 500 * 1024,
+  },
+  receipt: {
+    // era: expense — mais específico pro domínio
+    maxWidth: 800,
+    maxHeight: 800,
+    quality: 70,
+    format: 'webp' as const,
+    maxFileSize: 300 * 1024,
+  },
+} satisfies Record<string, ImageOptimizationOptions>;
+
+export type ImageOptimizationPreset = keyof typeof IMAGE_OPTIMIZATION_PRESETS;
+
 @Injectable()
 export class ImageOptimizerService {
   private readonly logger = new Logger(ImageOptimizerService.name);
@@ -70,7 +108,8 @@ export class ImageOptimizerService {
       );
       return true;
     } catch (error) {
-      this.logger.error(`Erro na validação da imagem: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Erro na validação da imagem: ${err.message}`);
       return false;
     }
   }
@@ -83,16 +122,21 @@ export class ImageOptimizerService {
    */
   async optimizeImage(
     buffer: Buffer,
-    options: ImageOptimizationOptions = {},
+    options: ImageOptimizationOptions | ImageOptimizationPreset = 'standard',
   ): Promise<OptimizedImageResult> {
     try {
+      const resolvedOptions: ImageOptimizationOptions =
+        typeof options === 'string'
+          ? IMAGE_OPTIMIZATION_PRESETS[options]
+          : options;
+
       const {
-        maxWidth = 1920, // Reduzido para economizar espaço
-        maxHeight = 1080, // Reduzido para economizar espaço
-        quality = 70, // Qualidade mais baixa para menor tamanho
+        maxWidth = 1920,
+        maxHeight = 1080,
+        quality = 70,
         format = 'webp',
-        maxFileSize = 500 * 1024, // 500KB por padrão - muito menor para economizar espaço
-      } = options;
+        maxFileSize = 500 * 1024,
+      } = resolvedOptions;
 
       this.logger.log(
         `Iniciando otimização da imagem (${maxWidth}x${maxHeight}, qualidade inicial: ${quality}, formato: ${format})`,
@@ -229,74 +273,26 @@ export class ImageOptimizerService {
 
       return result;
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro na otimização da imagem: ${error.message}`,
-        error.stack,
+        `Erro na otimização da imagem: ${err.message}`,
+        err.stack,
       );
       this.logger.debug(`Tamanho do buffer: ${buffer.length} bytes`);
       this.logger.debug(`Opções: ${JSON.stringify(options)}`);
 
       // Tratamento específico para imagens corrompidas/incompletas
       if (
-        error.message.includes('Premature end of input file') ||
-        error.message.includes('VipsJpeg')
+        err.message.includes('Premature end of input file') ||
+        err.message.includes('VipsJpeg')
       ) {
         throw new Error(
           'A imagem enviada está corrompida ou incompleta. Por favor, tente enviar novamente ou use outra imagem.',
         );
       }
 
-      throw new Error(`Falha na otimização da imagem: ${error.message}`);
+      throw new Error(`Falha na otimização da imagem: ${err.message}`);
     }
-  }
-
-  /**
-   * Gera um nome único para o arquivo baseado no timestamp e formato
-   * @param originalName - Nome original do arquivo
-   * @param format - Formato de saída
-   * @returns Nome único do arquivo
-   */
-  generateUniqueFileName(originalName: string, format: string): string {
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 8);
-    const extension = format === 'jpeg' ? 'jpeg' : format;
-
-    return `${timestamp}_${randomString}.${extension}`;
-  }
-
-  /**
-   * Obtém o tipo MIME baseado no formato da imagem
-   * @param format - Formato da imagem
-   * @returns Tipo MIME correspondente
-   */
-  getMimeType(format: string): string {
-    switch (format.toLowerCase()) {
-      case 'jpeg':
-      case 'jpg':
-        return 'image/jpeg';
-      case 'png':
-        return 'image/png';
-      case 'webp':
-        return 'image/webp';
-      default:
-        return 'image/jpeg';
-    }
-  }
-
-  /**
-   * Obtém os formatos de imagem suportados
-   * @returns Array com os formatos suportados
-   */
-  getSupportedFormats(): string[] {
-    return [...this.supportedFormats];
-  }
-
-  /**
-   * Obtém o tamanho máximo de arquivo de entrada permitido
-   * @returns Tamanho máximo em bytes
-   */
-  getMaxInputFileSize(): number {
-    return this.maxInputFileSize;
   }
 
   /**
@@ -322,11 +318,9 @@ export class ImageOptimizerService {
       const extension = match[2];
       const base64Data = match[3];
 
-      // Valida formato suportado
-      const allowedFormats = ['webp', 'jpeg', 'jpg', 'png'];
-      if (!allowedFormats.includes(extension)) {
+      if (!this.supportedFormats.includes(extension)) {
         throw new Error(
-          `Formato de imagem não suportado: ${extension}. Formatos aceitos: ${allowedFormats.join(', ')}`,
+          `Formato de imagem não suportado: ${extension}. Formatos aceitos: ${this.supportedFormats.join(', ')}`,
         );
       }
 
@@ -343,8 +337,20 @@ export class ImageOptimizerService {
         originalName,
       };
     } catch (error) {
-      this.logger.error(`Erro ao processar imagem base64: ${error.message}`);
-      throw new Error(`Falha no processamento da imagem: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Erro ao processar imagem base64: ${err.message}`);
+      throw new Error(`Falha no processamento da imagem: ${err.message}`);
     }
+  }
+
+  private readonly mimeTypes: Record<string, string> = {
+    jpeg: 'image/jpeg',
+    jpg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+  };
+
+  getMimeType(format: string): string {
+    return this.mimeTypes[format.toLowerCase()] ?? 'image/jpeg';
   }
 }

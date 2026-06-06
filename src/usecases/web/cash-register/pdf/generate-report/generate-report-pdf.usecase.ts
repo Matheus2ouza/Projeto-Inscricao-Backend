@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CashEntryOrigin, CashEntryType } from 'generated/prisma';
+import {
+  CashEntryOrigin,
+  CashEntryType,
+  CategoryExpense,
+} from 'generated/prisma';
 import { Account } from 'src/domain/entities/account.entity';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
@@ -15,13 +19,22 @@ import {
 export type GenerateReportPdfInput = {
   id: string;
 
-  // filters
-  favorite?: boolean;
+  // filtros
+  listExpenseCategory: boolean;
+  moviments: boolean;
+  favorite: boolean;
 };
 
 export type GenerateReportPdfOutput = {
   pdfBase64: string;
   filename: string;
+  contentType: 'application/pdf' | 'application/zip';
+};
+
+type CategorySummary = {
+  category: CategoryExpense;
+  count: number;
+  totalValue: number;
 };
 
 @Injectable()
@@ -42,16 +55,27 @@ export class GenerateReportPdfUsecase
     const cashRegisterDetails =
       await this.findDetailsCashRegisterUsecase.execute(detailsInput);
 
-    // Always collect all moviments for the payment summary table
+    // Sempre coleta todas as movimentações para a tabela de resumo de pagamentos
     const allMoviments = await this.collectAllMoviments(input.id);
 
-    // Get moviments for display (all or only favorites)
-    const movimentsForDisplay = input.favorite
-      ? await this.cashRegisterEntryGateway.findAllMovementsFavorites(
-          input.id,
-          input.favorite,
-        )
-      : allMoviments;
+    // Obtém as movimentações para exibição baseado no filtro moviments
+    // Se moviments for false, não inclui nenhuma movimentação
+    // Se moviments for true e favorite for true, inclui apenas as favoritas
+    // Se moviments for true e favorite for false, inclui todas
+    let movimentsForDisplay: CashRegisterEntry[] = [];
+
+    if (input.moviments) {
+      if (input.favorite) {
+        movimentsForDisplay =
+          await this.cashRegisterEntryGateway.findAllMovementsFavorites(
+            input.id,
+            input.favorite,
+          );
+      } else {
+        movimentsForDisplay = allMoviments;
+      }
+    }
+    // Se moviments for false, mantém array vazio
 
     const mappedMoviments = await Promise.all(
       movimentsForDisplay.map(async (m, idx) => {
@@ -82,34 +106,50 @@ export class GenerateReportPdfUsecase
       }),
     );
 
-    // Map all moviments for the summary tables (payment method totals)
-    const mappedAllMoviments = await Promise.all(
-      allMoviments.map(async (m) => {
-        let responsible: Account | null = null;
-        if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
-          responsible = await this.userGateway.findById(m.getResponsible()!);
-        }
+    // Mapeia todas as movimentações para as tabelas de resumo (totais por método de pagamento)
+    // Só mapeia se moviments for true, caso contrário envia array vazio
+    const mappedAllMoviments = input.moviments
+      ? await Promise.all(
+          allMoviments.map(async (m) => {
+            let responsible: Account | null = null;
+            if (m.getOrigin() !== CashEntryOrigin.ASAAS && m.getResponsible()) {
+              responsible = await this.userGateway.findById(
+                m.getResponsible()!,
+              );
+            }
 
-        let category: string | undefined;
-        if (m.getType() === CashEntryType.EXPENSE && m.getEventExpenseId()) {
-          const expense = await this.eventExpensesGateway.findById(
-            m.getEventExpenseId()!,
-          );
-          category = expense?.getCategory();
-        }
+            let category: string | undefined;
+            if (
+              m.getType() === CashEntryType.EXPENSE &&
+              m.getEventExpenseId()
+            ) {
+              const expense = await this.eventExpensesGateway.findById(
+                m.getEventExpenseId()!,
+              );
+              category = expense?.getCategory();
+            }
 
-        return {
-          type: String(m.getType()),
-          method: String(m.getMethod()),
-          origin: String(m.getOrigin()),
-          value: m.getValue(),
-          createdAt: m.getCreatedAt(),
-          responsible: responsible?.getUsername() || m.getResponsible(),
-          description: m.getDescription(),
-          category,
-        };
-      }),
-    );
+            return {
+              type: String(m.getType()),
+              method: String(m.getMethod()),
+              origin: String(m.getOrigin()),
+              value: m.getValue(),
+              createdAt: m.getCreatedAt(),
+              responsible: responsible?.getUsername() || m.getResponsible(),
+              description: m.getDescription(),
+              category,
+            };
+          }),
+        )
+      : [];
+
+    // Obtém o resumo por categoria se o filtro listExpenseCategory for true
+    let categorySummary: CategorySummary[] | undefined;
+    if (input.listExpenseCategory) {
+      categorySummary = await this.eventExpensesGateway.summarizeByCategory(
+        input.id,
+      );
+    }
 
     const pdfBuffer =
       await CashRegisterReportPdfGeneratorUtils.generateReportPdf({
@@ -130,6 +170,8 @@ export class GenerateReportPdfUsecase
         favoriteReport: input.favorite ?? false,
         moviments: mappedMoviments,
         allMoviments: mappedAllMoviments,
+        includeMovements: input.moviments,
+        categorySummary, // Passa o resumo por categoria para o PDF
       });
 
     const filename = `Relatorio-Caixa-${cashRegisterDetails.name
@@ -139,6 +181,7 @@ export class GenerateReportPdfUsecase
     return {
       pdfBase64: pdfBuffer.toString('base64'),
       filename,
+      contentType: 'application/pdf',
     };
   }
 

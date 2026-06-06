@@ -18,7 +18,7 @@ export class FindDetailsMovimentPresenter {
       eventExpenseId: output.eventExpenseId,
       ticketSaleId: output.ticketSaleId,
       responsible: output.responsible,
-      imageUrl: output.imageUrl,
+      imageUrls: output.imageUrls,
       createdAt: output.createdAt,
       reference: output.reference,
     };

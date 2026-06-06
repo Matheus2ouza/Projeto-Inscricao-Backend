@@ -16,6 +16,7 @@ import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/use
 import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/usecases/environment-variable-not-found-usecase-exception.filter';
 import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
+import { EventExpensesNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/expense/event-not-found.usecase-exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
@@ -81,6 +82,7 @@ import { PreviewExclusiveInscriptionLinkRoute } from './routes/exclusive-inscrip
 import { ValidateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.route';
 import { CreateExpensesRoute } from './routes/expenses/create/create-expenses.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
+import { FindDetailsExpenseRoute } from './routes/expenses/find-details-expense/find-details-expense.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
@@ -412,6 +414,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Event Expenses
     CreateExpensesRoute,
     FindAllPaginatedEventExpensesRoute,
+    FindDetailsExpenseRoute,
 
     // Reports
     ReportGeneralRoute,
@@ -471,6 +474,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     // TYPE INSCRIPTION
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,
     ParticipantLimitReachedUsecaseExceptionFilterProvider,
+
+    // EVENT EXPENSE
+    EventExpensesNotFoundUsecaseExceptionFilterProvider,
 
     // Environment Variable
     EnvironmentVariableNotFoundExceptionFilterProvider,

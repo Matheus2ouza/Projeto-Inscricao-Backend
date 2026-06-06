@@ -11,7 +11,7 @@ export class EventExpensesPrismaModelToEventExpensesEntityMapper {
       paymentMethod: eventExpenses.paymentMethod,
       responsible: eventExpenses.responsible,
       category: eventExpenses.category,
-      imageUrl: eventExpenses.imageUrl ?? undefined,
+      imageUrls: eventExpenses.imageUrls,
       createdAt: eventExpenses.createdAt,
       updatedAt: eventExpenses.updatedAt,
     });

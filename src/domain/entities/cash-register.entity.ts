@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { CashRegisterStatus } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
 import { CashRegisterValidatorFactory } from '../factories/cash-register/cash-register.validator.factory';
@@ -138,13 +139,13 @@ export class CashRegister extends Entity {
   }
 
   public incrementBalance(amount: number): void {
-    this.balance += amount;
+    this.balance = new Decimal(this.balance).add(amount).toNumber();
     this.updatedAt = new Date();
     this.validate();
   }
 
   public decrementBalance(amount: number): void {
-    this.balance -= amount;
+    this.balance = new Decimal(this.balance).sub(amount).toNumber();
     this.updatedAt = new Date();
     this.validate();
   }

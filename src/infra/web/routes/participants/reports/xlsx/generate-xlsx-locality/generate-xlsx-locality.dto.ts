@@ -14,6 +14,7 @@ export type ReportColumn =
   | 'preferredName'
   | 'cpf'
   | 'birthDate'
+  | 'phone'
   | 'gender'
   | 'shirtSize'
   | 'shirtType'

@@ -31,6 +31,7 @@ export type ReportColumn =
   | 'preferredName'
   | 'cpf'
   | 'birthDate'
+  | 'phone'
   | 'gender'
   | 'shirtSize'
   | 'shirtType'
@@ -92,8 +93,14 @@ export class GenerateXlsxLocalityUsecase
       inscription.getId(),
     );
 
+    const phoneByInscriptionId = new Map(
+      inscriptions.map(
+        (inscription) => [inscription.getId(), inscription.getPhone()] as const,
+      ),
+    );
+
     const rowsNormal = await this.fetchNormalParticipants(
-      inscriptionIds,
+      inscriptions,
       filters,
     );
 
@@ -101,6 +108,7 @@ export class GenerateXlsxLocalityUsecase
       inscriptionIds,
       inscriptions,
       filters,
+      phoneByInscriptionId,
     );
 
     // Unir, ordenar por localidade e nome, e indexar
@@ -302,6 +310,7 @@ export class GenerateXlsxLocalityUsecase
         filtered.preferredName = row.preferredName;
       // We expose "Idade" when "birthDate" is requested.
       if (shouldInclude('birthDate')) filtered.age = row.age;
+      if (shouldInclude('phone')) filtered.phone = row.phone;
       if (shouldInclude('gender')) filtered.gender = row.gender;
       if (shouldInclude('shirtSize')) filtered.shirtSize = row.shirtSize;
       if (shouldInclude('shirtType')) filtered.shirtType = row.shirtType;
@@ -322,6 +331,7 @@ export class GenerateXlsxLocalityUsecase
       'preferredName',
       'cpf',
       'birthDate',
+      'phone',
       'gender',
       'shirtSize',
       'shirtType',
@@ -354,36 +364,45 @@ export class GenerateXlsxLocalityUsecase
   }
 
   private async fetchNormalParticipants(
-    inscriptionIds: string[],
+    inscriptions: any[],
     filters: any,
   ): Promise<Array<any>> {
-    const participantsNormalArray =
-      await this.accountParticipantGateway.findByInscriptionsIds(
-        inscriptionIds,
-        filters,
-      );
+    const rowsNormal = (
+      await Promise.all(
+        inscriptions.map(async (inscription) => {
+          const participantsNormalArray =
+            await this.accountParticipantGateway.findByInscriptionId(
+              inscription.getId(),
+            );
 
-    const rowsNormal = await Promise.all(
-      participantsNormalArray.map(async (pn) => {
-        const account = await this.accountGateway.findById(pn.getAccountId());
+          return Promise.all(
+            participantsNormalArray.map(async (pn) => {
+              const account = await this.accountGateway.findById(
+                pn.getAccountId(),
+              );
 
-        const typeInscription =
-          await this.typeInscriptionGateway.findTypeInscriptionByAccountParticipantInEventId(
-            pn.getId(),
+              const typeInscription =
+                await this.typeInscriptionGateway.findTypeInscriptionByAccountParticipantInEventId(
+                  pn.getId(),
+                );
+
+              return {
+                name: pn.getName(),
+                preferredName: pn.getPreferredName(),
+                locality: account?.getUsername() ?? '-',
+                age: this.calculateAge(pn.getBirthDate()),
+                phone: inscription.getPhone(),
+                shirtSize: pn.getShirtSize(),
+                shirtType: pn.getShirtType(),
+                gender: pn.getGender(),
+                typeInscription:
+                  typeInscription?.getDescription() ?? 'Não informado',
+              };
+            }),
           );
-
-        return {
-          name: pn.getName(),
-          preferredName: pn.getPreferredName(),
-          locality: account?.getUsername() ?? '-',
-          age: this.calculateAge(pn.getBirthDate()),
-          shirtSize: pn.getShirtSize(),
-          shirtType: pn.getShirtType(),
-          gender: pn.getGender(),
-          typeInscription: typeInscription?.getDescription() ?? 'Não informado',
-        };
-      }),
-    );
+        }),
+      )
+    ).flat();
 
     return rowsNormal;
   }
@@ -392,6 +411,7 @@ export class GenerateXlsxLocalityUsecase
     inscriptionIds: string[],
     inscriptions: any[],
     filters: any,
+    phoneByInscriptionId: Map<string, string>,
   ): Promise<Array<any>> {
     const participantsGuest =
       await this.participantGateway.findByInscriptionsIds(
@@ -419,6 +439,7 @@ export class GenerateXlsxLocalityUsecase
           preferredName: pg.getPreferredName(),
           locality,
           age: this.calculateAge(pg.getBirthDate()),
+          phone: phoneByInscriptionId.get(pg.getInscriptionId()),
           shirtSize: pg.getShirtSize(),
           shirtType: pg.getShirtType(),
           gender: pg.getGender(),

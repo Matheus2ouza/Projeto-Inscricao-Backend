@@ -12,7 +12,7 @@ export type CreateNewRegisterBody = {
   description?: string;
   eventId: string;
   responsible: string;
-  image?: string;
+  images: string[];
   createAt?: Date;
 };
 

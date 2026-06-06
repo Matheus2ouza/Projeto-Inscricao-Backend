@@ -36,6 +36,12 @@ type CashRegisterReportPdfData = {
     closedAt?: Date;
   };
   favoriteReport?: boolean;
+  includeMovements?: boolean;
+  categorySummary?: {
+    category: string;
+    count: number;
+    totalValue: number;
+  }[];
   moviments: {
     index: number;
     type: string;
@@ -119,7 +125,7 @@ export class CashRegisterReportPdfGeneratorUtils {
     headerContent[0].margin = [0, 0, 0, 6];
 
     const periodEnd = data.cashRegister.closedAt ?? generatedAt;
-    const periodText = `Periodo: ${formatDateTime(data.cashRegister.openedAt)} - ${formatDateTime(
+    const periodText = `Período: ${formatDateTime(data.cashRegister.openedAt)} - ${formatDateTime(
       periodEnd,
     )}`;
 
@@ -314,208 +320,354 @@ export class CashRegisterReportPdfGeneratorUtils {
       margin: [0, 0, 0, 20],
     };
 
-    const movimentsByDateContent = data.favoriteReport
-      ? data.moviments.map((m) => ({
-          stack: [
-            // Índice acima e ao lado
-            {
-              columns: [
-                {
-                  width: 30,
-                  text: [{ text: `${m.index}`, style: 'favoriteIndex' }],
-                  alignment: 'left',
-                  margin: [0, 0, 0, 4],
-                },
-                {
-                  width: '*',
-                  text: [],
-                },
-              ],
-              columnGap: 0,
-            },
-            // Linha 1: Tipo, Método, Origem e Valor
-            {
-              columns: [
-                {
-                  width: 80,
-                  text: [
-                    { text: 'Tipo: ', style: 'favoriteLabel' },
-                    {
-                      text: `${String(m.type).toUpperCase() === 'INCOME' ? 'ENTRADA' : 'SAÍDA'}`,
-                      style:
-                        String(m.type).toUpperCase() === 'INCOME'
-                          ? 'typeEntrada'
-                          : 'typeSaida',
-                    },
-                  ],
-                },
-                {
-                  width: 120,
-                  text: [
-                    { text: 'Método: ', style: 'favoriteLabel' },
-                    {
-                      text: toPortugueseMethod(String(m.method)),
-                      style: 'favoriteValue',
-                    },
-                  ],
-                },
-                {
-                  width: 120,
-                  text: [
-                    { text: 'Origem: ', style: 'favoriteLabel' },
-                    {
-                      text: toPortugueseOrigin(String(m.origin)),
-                      style: 'favoriteValue',
-                    },
-                  ],
-                },
-                {
-                  width: 100,
-                  text: [
-                    { text: 'Valor: ', style: 'favoriteLabel' },
-                    {
-                      text: formatCurrency(m.value),
-                      style: 'favoriteValueBold',
-                    },
-                  ],
-                  alignment: 'right',
-                },
-              ],
-              columnGap: 8,
-              margin: [0, 4, 0, 8],
-            },
-            // Linha 2: Data, Categoria (se tiver) e Responsável
-            {
-              columns: [
-                {
-                  width: 180,
-                  text: [
-                    { text: 'Data: ', style: 'favoriteLabel' },
-                    {
-                      text: formatDateTime(m.createdAt),
-                      style: 'favoriteValue',
-                    },
-                  ],
-                },
-                ...(m.category
-                  ? [
-                      {
-                        width: 160,
-                        text: [
-                          { text: 'Categoria: ', style: 'favoriteLabel' },
-                          {
-                            text: toPortugueseCategory(m.category),
-                            style: 'favoriteValue',
-                          },
-                        ],
-                      },
-                    ]
-                  : []),
-                {
-                  width: 160,
-                  text: [
-                    { text: 'Responsável: ', style: 'favoriteLabel' },
-                    { text: m.responsible ?? '-', style: 'favoriteValue' },
-                  ],
-                },
-              ],
-              columnGap: 8,
-              margin: [0, 4, 0, 8],
-            },
-            // Linha 3: Apenas a observação
-            {
-              text: [
-                { text: 'Observação: ', style: 'favoriteLabel' },
-                { text: m.description ?? '-', style: 'favoriteValue' },
-              ],
-              margin: [0, 4, 0, 10],
-            },
-            // Linha separadora
-            {
-              canvas: [
-                {
-                  type: 'line',
-                  x1: 0,
-                  y1: 0,
-                  x2: 520,
-                  y2: 0,
-                  lineWidth: 0.5,
-                  lineColor: '#dddddd',
-                },
-              ],
-              margin: [0, 0, 0, 0],
-            },
-          ],
-          keepTogether: true,
-        }))
-      : (() => {
-          const dateGroups = new Map<
-            string,
-            CashRegisterReportPdfData['moviments']
-          >();
-          const dateKeysInOrder: string[] = [];
+    // Gera a tabela de resumo por categoria se existir
+    const categorySummaryTable =
+      data.categorySummary && data.categorySummary.length > 0
+        ? (() => {
+            const sortedCategories = [...data.categorySummary].sort(
+              (a, b) => b.totalValue - a.totalValue,
+            );
+            const totalExpenses = sortedCategories.reduce(
+              (sum, cat) => sum + cat.totalValue,
+              0,
+            );
+            const totalCount = sortedCategories.reduce(
+              (sum, cat) => sum + cat.count,
+              0,
+            );
 
-          for (const m of data.moviments) {
-            const key = formatDate(m.createdAt);
-            const current = dateGroups.get(key);
-            if (!current) {
-              dateGroups.set(key, [m]);
-              dateKeysInOrder.push(key);
-              continue;
-            }
-            current.push(m);
-          }
-
-          return dateKeysInOrder.flatMap((dateKey, groupIdx) => {
-            const moviments = dateGroups.get(dateKey) ?? [];
-            const movimentsBody = [
+            const tableBody = [
               [
-                { text: '#', style: 'tableHeader' },
-                { text: 'Método', style: 'tableHeader' },
-                { text: 'Origem', style: 'tableHeader' },
-                { text: 'Valor', style: 'tableHeader' },
-                { text: 'Data', style: 'tableHeader' },
+                { text: 'Categoria', style: 'tableHeader' },
+                {
+                  text: 'Quantidade',
+                  style: 'tableHeader',
+                  alignment: 'center',
+                },
+                {
+                  text: 'Valor Total',
+                  style: 'tableHeader',
+                  alignment: 'right',
+                },
+                {
+                  text: '% do Total',
+                  style: 'tableHeader',
+                  alignment: 'right',
+                },
               ],
-              ...moviments.map((m, idx) => [
-                { text: String(idx + 1), style: 'tableCell' },
+              ...sortedCategories.map((cat) => [
                 {
-                  text: toPortugueseMethod(String(m.method)),
+                  text: toPortugueseCategory(cat.category),
                   style: 'tableCell',
                 },
                 {
-                  text: toPortugueseOrigin(String(m.origin)),
+                  text: String(cat.count),
                   style: 'tableCell',
+                  alignment: 'center',
                 },
                 {
-                  text: formatCurrency(m.value),
+                  text: formatCurrency(cat.totalValue),
                   style: 'tableCell',
                   alignment: 'right',
                 },
-                { text: formatDate(m.createdAt), style: 'tableCell' },
+                {
+                  text: `${((cat.totalValue / totalExpenses) * 100).toFixed(1)}%`,
+                  style: 'tableCell',
+                  alignment: 'right',
+                },
               ]),
+              [
+                { text: 'TOTAL', style: 'tableCellBold' },
+                {
+                  text: String(totalCount),
+                  style: 'tableCellBold',
+                  alignment: 'center',
+                },
+                {
+                  text: formatCurrency(totalExpenses),
+                  style: 'tableCellBold',
+                  alignment: 'right',
+                },
+                { text: '100%', style: 'tableCellBold', alignment: 'right' },
+              ],
             ];
 
-            const movimentsTable = {
+            return {
               table: {
                 headerRows: 1,
-                widths: [24, 90, 120, 80, 120],
-                body: movimentsBody,
+                widths: ['*', 80, 120, 80],
+                body: tableBody,
               },
-              layout: 'lightHorizontalLines',
-              alignment: 'center',
+              layout: {
+                hLineWidth: () => 1,
+                vLineWidth: () => 1,
+                hLineColor: () => '#111111',
+                vLineColor: () => '#111111',
+                paddingLeft: () => 4,
+                paddingRight: () => 4,
+                paddingTop: () => 4,
+                paddingBottom: () => 4,
+              },
+              margin: [0, 0, 0, 20],
             };
+          })()
+        : null;
 
-            const dateHeaderMarginTop = groupIdx === 0 ? 8 : 24;
-            return [
-              {
-                text: dateKey,
-                style: 'sectionTitle',
-                margin: [0, dateHeaderMarginTop, 0, 8],
-              },
-              movimentsTable,
-            ];
-          });
-        })();
+    // Só gera a seção de movimentações se includeMovements for true
+    const movimentsByDateContent =
+      (data.includeMovements ?? true)
+        ? data.favoriteReport
+          ? data.moviments.map((m) => ({
+              stack: [
+                // Índice acima e ao lado
+                {
+                  columns: [
+                    {
+                      width: 30,
+                      text: [{ text: `${m.index}`, style: 'favoriteIndex' }],
+                      alignment: 'left',
+                      margin: [0, 0, 0, 4],
+                    },
+                    {
+                      width: '*',
+                      text: [],
+                    },
+                  ],
+                  columnGap: 0,
+                },
+                // Linha 1: Tipo, Método, Origem e Valor
+                {
+                  columns: [
+                    {
+                      width: 80,
+                      text: [
+                        { text: 'Tipo: ', style: 'favoriteLabel' },
+                        {
+                          text: `${String(m.type).toUpperCase() === 'INCOME' ? 'ENTRADA' : 'SAÍDA'}`,
+                          style:
+                            String(m.type).toUpperCase() === 'INCOME'
+                              ? 'typeEntrada'
+                              : 'typeSaida',
+                        },
+                      ],
+                    },
+                    {
+                      width: 120,
+                      text: [
+                        { text: 'Método: ', style: 'favoriteLabel' },
+                        {
+                          text: toPortugueseMethod(String(m.method)),
+                          style: 'favoriteValue',
+                        },
+                      ],
+                    },
+                    {
+                      width: 120,
+                      text: [
+                        { text: 'Origem: ', style: 'favoriteLabel' },
+                        {
+                          text: toPortugueseOrigin(String(m.origin)),
+                          style: 'favoriteValue',
+                        },
+                      ],
+                    },
+                    {
+                      width: 100,
+                      text: [
+                        { text: 'Valor: ', style: 'favoriteLabel' },
+                        {
+                          text: formatCurrency(m.value),
+                          style: 'favoriteValueBold',
+                        },
+                      ],
+                      alignment: 'right',
+                    },
+                  ],
+                  columnGap: 8,
+                  margin: [0, 4, 0, 8],
+                },
+                // Linha 2: Data, Categoria (se tiver) e Responsável
+                {
+                  columns: [
+                    {
+                      width: 180,
+                      text: [
+                        { text: 'Data: ', style: 'favoriteLabel' },
+                        {
+                          text: formatDateTime(m.createdAt),
+                          style: 'favoriteValue',
+                        },
+                      ],
+                    },
+                    ...(m.category
+                      ? [
+                          {
+                            width: 160,
+                            text: [
+                              { text: 'Categoria: ', style: 'favoriteLabel' },
+                              {
+                                text: toPortugueseCategory(m.category),
+                                style: 'favoriteValue',
+                              },
+                            ],
+                          },
+                        ]
+                      : []),
+                    {
+                      width: 160,
+                      text: [
+                        { text: 'Responsável: ', style: 'favoriteLabel' },
+                        { text: m.responsible ?? '-', style: 'favoriteValue' },
+                      ],
+                    },
+                  ],
+                  columnGap: 8,
+                  margin: [0, 4, 0, 8],
+                },
+                // Linha 3: Apenas a observação
+                {
+                  text: [
+                    { text: 'Observação: ', style: 'favoriteLabel' },
+                    { text: m.description ?? '-', style: 'favoriteValue' },
+                  ],
+                  margin: [0, 4, 0, 10],
+                },
+                // Linha separadora
+                {
+                  canvas: [
+                    {
+                      type: 'line',
+                      x1: 0,
+                      y1: 0,
+                      x2: 520,
+                      y2: 0,
+                      lineWidth: 0.5,
+                      lineColor: '#dddddd',
+                    },
+                  ],
+                  margin: [0, 0, 0, 0],
+                },
+              ],
+              keepTogether: true,
+            }))
+          : (() => {
+              const dateGroups = new Map<
+                string,
+                CashRegisterReportPdfData['moviments']
+              >();
+              const dateKeysInOrder: string[] = [];
+
+              for (const m of data.moviments) {
+                const key = formatDate(m.createdAt);
+                const current = dateGroups.get(key);
+                if (!current) {
+                  dateGroups.set(key, [m]);
+                  dateKeysInOrder.push(key);
+                  continue;
+                }
+                current.push(m);
+              }
+
+              return dateKeysInOrder.flatMap((dateKey, groupIdx) => {
+                const moviments = dateGroups.get(dateKey) ?? [];
+                const movimentsBody = [
+                  [
+                    { text: '#', style: 'tableHeader' },
+                    { text: 'Método', style: 'tableHeader' },
+                    { text: 'Origem', style: 'tableHeader' },
+                    { text: 'Valor', style: 'tableHeader' },
+                    { text: 'Data', style: 'tableHeader' },
+                  ],
+                  ...moviments.map((m, idx) => [
+                    { text: String(idx + 1), style: 'tableCell' },
+                    {
+                      text: toPortugueseMethod(String(m.method)),
+                      style: 'tableCell',
+                    },
+                    {
+                      text: toPortugueseOrigin(String(m.origin)),
+                      style: 'tableCell',
+                    },
+                    {
+                      text: formatCurrency(m.value),
+                      style: 'tableCell',
+                      alignment: 'right',
+                    },
+                    { text: formatDate(m.createdAt), style: 'tableCell' },
+                  ]),
+                ];
+
+                const movimentsTable = {
+                  table: {
+                    headerRows: 1,
+                    widths: [24, 90, 120, 80, 120],
+                    body: movimentsBody,
+                  },
+                  layout: 'lightHorizontalLines',
+                  alignment: 'center',
+                };
+
+                const dateHeaderMarginTop = groupIdx === 0 ? 8 : 24;
+                return [
+                  {
+                    text: dateKey,
+                    style: 'sectionTitle',
+                    margin: [0, dateHeaderMarginTop, 0, 8],
+                  },
+                  movimentsTable,
+                ];
+              });
+            })()
+        : [];
+
+    // Monta o conteúdo base (sempre inclui resumo e totais)
+    const baseContent: any[] = [
+      ...headerContent,
+      {
+        text: periodText,
+        style: 'headerSubtitle',
+        alignment: 'left',
+        margin: [0, 0, 0, 14],
+      },
+      {
+        text: 'Resumo do Caixa',
+        style: 'sectionTitle',
+        margin: [0, 0, 0, 8],
+      },
+      summaryTable,
+      {
+        text: 'Total por Meio de Pagamento',
+        style: 'sectionTitle',
+        margin: [0, 0, 0, 8],
+      },
+      paymentTotalsTable,
+    ];
+
+    // Adiciona a tabela de resumo por categoria se existir
+    if (categorySummaryTable) {
+      baseContent.push(
+        {
+          text: 'Resumo de Gastos por Categoria',
+          style: 'sectionTitle',
+          margin: [0, 20, 0, 8],
+        },
+        categorySummaryTable,
+      );
+    }
+
+    // Só adiciona a seção de movimentações se tiver conteúdo e includeMovements for true
+    const content =
+      (data.includeMovements ?? true) && movimentsByDateContent.length > 0
+        ? [
+            ...baseContent,
+            {
+              text: 'Movimentações',
+              style: 'sectionTitle',
+              margin: [0, 8, 0, 8],
+            },
+            ...movimentsByDateContent,
+          ]
+        : baseContent;
 
     const docDefinition: any = {
       pageMargins: [32, 32, 32, 32],
@@ -524,29 +676,7 @@ export class CashRegisterReportPdfGeneratorUtils {
         fontSize: 10,
         color: '#222222',
       },
-      content: [
-        ...headerContent,
-        {
-          text: periodText,
-          style: 'headerSubtitle',
-          alignment: 'left',
-          margin: [0, 0, 0, 14],
-        },
-        {
-          text: 'Resumo do Caixa',
-          style: 'sectionTitle',
-          margin: [0, 0, 0, 8],
-        },
-        summaryTable,
-        {
-          text: 'Total por Meio de Pagamento',
-          style: 'sectionTitle',
-          margin: [0, 0, 0, 8],
-        },
-        paymentTotalsTable,
-        { text: 'Movimentações', style: 'sectionTitle', margin: [0, 8, 0, 8] },
-        ...movimentsByDateContent,
-      ],
+      content,
       styles: {
         headerTitle: { fontSize: 18, bold: true, color: '#1b1f23' },
         headerSubtitle: { fontSize: 12, bold: true },

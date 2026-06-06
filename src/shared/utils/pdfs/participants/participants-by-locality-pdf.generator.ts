@@ -1,6 +1,7 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
+import { formatPhoneNumber } from 'src/shared/utils/phone.util';
 import {
   buildPdfHeaderSection,
   PdfHeaderDefinition,
@@ -34,6 +35,7 @@ export type ReportColumn =
   | 'preferredName'
   | 'cpf'
   | 'birthDate'
+  | 'phone'
   | 'gender'
   | 'shirtSize'
   | 'shirtType'
@@ -51,6 +53,7 @@ export type ParticipantLocalityPdfRow = {
   preferredName?: string;
   locality: string;
   age?: number;
+  phone?: string;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender?: genderType;
@@ -228,14 +231,14 @@ function buildParticipantBlocks(
               width: '25%',
               stack: [
                 { text: 'Nome', style: 'labelText' },
-                { text: p.name || '-', style: 'valueText' },
+                { text: p.name || 'Não informado', style: 'valueText' },
               ],
             },
             shouldShow('preferredName') && {
               width: '25%',
               stack: [
                 { text: 'Como ser chamado', style: 'labelText' },
-                { text: preferredName || '-', style: 'valueText' },
+                { text: preferredName || 'Não informado', style: 'valueText' },
               ],
             },
             {
@@ -249,7 +252,7 @@ function buildParticipantBlocks(
               width: '25%',
               stack: [
                 { text: 'Idade', style: 'labelText' },
-                { text: String(p.age ?? '-'), style: 'valueText' },
+                { text: String(p.age ?? 'Não informado'), style: 'valueText' },
               ],
             },
           ].filter(Boolean),
@@ -257,22 +260,32 @@ function buildParticipantBlocks(
         },
         {
           columns: [
+            shouldShow('phone') && {
+              width: '25%',
+              stack: [
+                { text: 'Telefone', style: 'labelText' },
+                {
+                  text: formatPhoneNumber(p.phone) || 'Não informado',
+                  style: 'valueText',
+                },
+              ],
+            },
             shouldShow('gender') && {
-              width: '33%',
+              width: '25%',
               stack: [
                 { text: 'Gênero', style: 'labelText' },
                 { text: formatGender(p.gender), style: 'valueText' },
               ],
             },
             shouldShow('shirtSize') && {
-              width: '33%',
+              width: '25%',
               stack: [
                 { text: 'Tamanho', style: 'labelText' },
                 { text: formatShirtSize(p.shirtSize), style: 'valueText' },
               ],
             },
             shouldShow('shirtType') && {
-              width: '34%',
+              width: '25%',
               stack: [
                 { text: 'Tipo', style: 'labelText' },
                 { text: formatShirtType(p.shirtType), style: 'valueText' },

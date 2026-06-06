@@ -27,7 +27,7 @@ export type CreateNewRegisterInput = {
   description?: string;
   eventId: string;
   responsible: string;
-  image?: string;
+  images: string[];
   createAt?: Date;
 };
 
@@ -74,17 +74,18 @@ export class CreateNewRegisterUsecase
       );
     }
 
-    let imagePath: string | undefined = undefined;
-
-    if (input.image) {
-      // Processamento da imagem
-      imagePath = await this.processEventImage(
-        input.image,
-        event,
-        input.value,
-        input.responsible,
-      );
-    }
+    const imagePaths = input.images?.length
+      ? await Promise.all(
+          input.images.map((image) =>
+            this.processEventImage(
+              image,
+              event,
+              input.value,
+              input.responsible,
+            ),
+          ),
+        )
+      : [];
 
     const cashRegisterEntry = CashRegisterEntry.create({
       cashRegisterId: cashRegister.getId(),
@@ -96,7 +97,7 @@ export class CreateNewRegisterUsecase
       description: input.description,
       eventId: event.getId(),
       responsible: input.responsible,
-      imageUrl: imagePath,
+      imageUrls: imagePaths,
       createAt: input.createAt,
     });
 

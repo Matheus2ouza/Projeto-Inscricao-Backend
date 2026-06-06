@@ -40,7 +40,7 @@ export type FindDetailsMovimentOutput = {
   eventExpenseId?: string;
   ticketSaleId?: string;
   responsible?: string;
-  imageUrl?: string;
+  imageUrls: string[];
   createdAt: Date;
   reference: Reference;
 };
@@ -189,7 +189,7 @@ export class FindDetailsMovimentUsecase
       eventExpenseId,
       ticketSaleId,
       responsible: responsible?.getUsername() || moviment.getResponsible(),
-      imageUrl: await this.getPublicUrl(moviment.getImageUrl()),
+      imageUrls: await this.getPublicUrls(moviment.getImageUrls()),
       createdAt: moviment.getCreatedAt(),
       reference,
     };
@@ -345,15 +345,21 @@ export class FindDetailsMovimentUsecase
     return { kind: 'UNKNOWN', id: input.fallbackId };
   }
 
-  private async getPublicUrl(path?: string): Promise<string> {
-    if (!path) {
-      return '';
+  private async getPublicUrls(paths: string[] = []): Promise<string[]> {
+    if (!paths.length) {
+      return [];
     }
 
-    try {
-      return await this.supabaseStorageService.getPublicUrl(path);
-    } catch {
-      return '';
-    }
+    const publicUrls = await Promise.all(
+      paths.map(async (path) => {
+        try {
+          return await this.supabaseStorageService.getPublicUrl(path);
+        } catch {
+          return '';
+        }
+      }),
+    );
+
+    return publicUrls.filter(Boolean);
   }
 }

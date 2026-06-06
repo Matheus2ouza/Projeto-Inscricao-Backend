@@ -210,6 +210,7 @@ export class ApprovePaymentUsecase
     paymentInstallment: PaymentInstallment,
     accountId: string,
   ): CashRegisterEntry[] {
+    const paymentImage = payment.getImageUrl();
     return cashRegisterEvents.map((cashRegisterEvent) =>
       CashRegisterEntry.create({
         cashRegisterId: cashRegisterEvent.getCashRegisterId(),
@@ -221,7 +222,7 @@ export class ApprovePaymentUsecase
         eventId: payment.getEventId(),
         paymentInstallmentId: paymentInstallment.getId(),
         responsible: accountId,
-        imageUrl: payment.getImageUrl(),
+        imageUrls: paymentImage ? [paymentImage] : [],
       }),
     );
   }

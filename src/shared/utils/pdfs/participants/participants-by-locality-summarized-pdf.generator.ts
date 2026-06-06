@@ -1,6 +1,7 @@
 import { ShirtSize, ShirtType } from 'generated/prisma';
 import path from 'path';
 import PdfPrinter from 'pdfmake';
+import { formatPhoneNumber } from 'src/shared/utils/phone.util';
 import {
   buildPdfHeaderSection,
   PdfHeaderDefinition,
@@ -34,6 +35,7 @@ export type ReportColumn =
   | 'preferredName'
   | 'cpf'
   | 'birthDate'
+  | 'phone'
   | 'gender'
   | 'shirtSize'
   | 'shirtType'
@@ -52,6 +54,7 @@ export type ParticipantLocalitySummarizedPdfRow = {
   cpf: string;
   locality: string;
   age?: number;
+  phone?: string;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   gender?: any;
@@ -250,6 +253,10 @@ function buildParticipantsTable(
     columnConfig.push({ key: 'cpf', header: 'CPF', width: 80 });
   }
 
+  if (shouldShow('phone')) {
+    columnConfig.push({ key: 'phone', header: 'Telefone', width: 90 });
+  }
+
   if (shouldShowAge) {
     columnConfig.push({ key: 'age', header: 'Idade', width: 30 });
   }
@@ -301,6 +308,12 @@ function buildParticipantsTable(
             break;
           case 'cpf':
             cells.push({ text: p.cpf || '-', style: 'tableCell' });
+            break;
+          case 'phone':
+            cells.push({
+              text: formatPhoneNumber(p.phone) || '-',
+              style: 'tableCell',
+            });
             break;
           case 'age':
             cells.push({ text: String(p.age ?? '-'), style: 'tableCell' });

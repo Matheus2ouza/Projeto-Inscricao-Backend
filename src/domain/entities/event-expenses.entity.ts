@@ -1,5 +1,6 @@
 import { CategoryExpense, PaymentMethod } from 'generated/prisma';
 import { Utils } from 'src/shared/utils/utils';
+import { EventExpensesValidatorFactory } from '../factories/event-expenses/event-expenses.validator.factory';
 import { Entity } from '../shared/entities/entity';
 
 export type EventExpensesCreateDto = {
@@ -9,7 +10,7 @@ export type EventExpensesCreateDto = {
   paymentMethod: PaymentMethod;
   responsible: string;
   category: CategoryExpense;
-  imageUrl?: string;
+  imageUrls?: string[];
   createdAt?: Date;
 };
 
@@ -21,7 +22,7 @@ export type EventExpensesWithDto = {
   paymentMethod: PaymentMethod;
   responsible: string;
   category: CategoryExpense;
-  imageUrl?: string;
+  imageUrls: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -35,9 +36,9 @@ export class EventExpenses extends Entity {
     private paymentMethod: PaymentMethod,
     private responsible: string,
     private category: CategoryExpense,
+    private imageUrls: string[] = [],
     createdAt: Date,
     updatedAt: Date,
-    private imageUrl?: string,
   ) {
     super(id, createdAt, updatedAt);
     this.validate();
@@ -50,12 +51,16 @@ export class EventExpenses extends Entity {
     paymentMethod,
     responsible,
     category,
-    imageUrl,
+    imageUrls,
     createdAt,
   }: EventExpensesCreateDto): EventExpenses {
     const id = Utils.generateUUID();
+
     const createdAtDefault = createdAt ?? new Date();
+
     const updatedAt = new Date();
+
+    const imagesDefault = imageUrls ?? [];
 
     return new EventExpenses(
       id,
@@ -65,9 +70,9 @@ export class EventExpenses extends Entity {
       paymentMethod,
       responsible,
       category,
+      imagesDefault,
       createdAtDefault,
       updatedAt,
-      imageUrl,
     );
   }
 
@@ -79,7 +84,7 @@ export class EventExpenses extends Entity {
     paymentMethod,
     responsible,
     category,
-    imageUrl,
+    imageUrls,
     createdAt,
     updatedAt,
   }: EventExpensesWithDto): EventExpenses {
@@ -91,13 +96,13 @@ export class EventExpenses extends Entity {
       paymentMethod,
       responsible,
       category,
+      imageUrls,
       createdAt,
       updatedAt,
-      imageUrl,
     );
   }
 
-  // ✅ Getters básicos
+  // Getters
   public getEventId(): string {
     return this.eventId;
   }
@@ -122,8 +127,8 @@ export class EventExpenses extends Entity {
     return this.category;
   }
 
-  public getImageUrl(): string | undefined {
-    return this.imageUrl;
+  public getImageUrls(): string[] {
+    return this.imageUrls;
   }
 
   public getCreatedAt(): Date {
@@ -135,14 +140,6 @@ export class EventExpenses extends Entity {
   }
 
   protected validate(): void {
-    if (!this.eventId?.trim()) throw new Error('O ID do evento é obrigatório.');
-    if (!this.description?.trim())
-      throw new Error('A descrição do gasto é obrigatória.');
-    if (this.value <= 0)
-      throw new Error('O valor do gasto deve ser maior que zero.');
-    if (!this.paymentMethod)
-      throw new Error('O método de pagamento é obrigatório.');
-    if (!this.responsible?.trim())
-      throw new Error('O responsável pelo gasto é obrigatório.');
+    EventExpensesValidatorFactory.create().validate(this);
   }
 }

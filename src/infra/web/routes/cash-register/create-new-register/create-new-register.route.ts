@@ -30,7 +30,7 @@ export class CreateNewRegisterRoute {
       description: body.description,
       eventId: body.eventId,
       responsible: body.responsible,
-      image: body.image,
+      images: body.images,
       createAt: body.createAt,
     };
 
