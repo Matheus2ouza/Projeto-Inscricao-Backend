@@ -40,11 +40,86 @@ export class CashRegisterEntryPrismaRepository
     await tx.cashRegisterEntry.createMany({ data });
   }
 
+  async update(entry: CashRegisterEntry): Promise<CashRegisterEntry> {
+    const data = EntityToPrisma.map(entry);
+    const updated = await this.prisma.cashRegisterEntry.update({
+      where: { id: entry.getId() },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
+  async updateTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegisterEntry> {
+    const data = EntityToPrisma.map(entry);
+    const updated = await tx.cashRegisterEntry.update({
+      where: { id: entry.getId() },
+      data,
+    });
+
+    return PrismaToEntity.map(updated);
+  }
+
+  async delete(entry: CashRegisterEntry): Promise<void> {
+    await this.prisma.cashRegisterEntry.delete({
+      where: {
+        id: entry.getId(),
+      },
+    });
+  }
+
+  async deleteTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    await tx.cashRegisterEntry.delete({
+      where: {
+        id: entry.getId(),
+      },
+    });
+  }
+
+  async deleteMany(entrys: CashRegisterEntry[]): Promise<void> {
+    await this.prisma.cashRegisterEntry.deleteMany({
+      where: {
+        id: {
+          in: entrys.map((entry) => entry.getId()),
+        },
+      },
+    });
+  }
+
+  async deleteManyTx(
+    entrys: CashRegisterEntry[],
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    await tx.cashRegisterEntry.deleteMany({
+      where: {
+        id: {
+          in: entrys.map((entry) => entry.getId()),
+        },
+      },
+    });
+  }
+
   async findById(id: string): Promise<CashRegisterEntry | null> {
     const found = await this.prisma.cashRegisterEntry.findUnique({
       where: { id },
     });
     return found ? PrismaToEntity.map(found) : null;
+  }
+
+  async findByExpenseId(expenseId: string): Promise<CashRegisterEntry[]> {
+    const found = await this.prisma.cashRegisterEntry.findMany({
+      where: {
+        eventExpenseId: expenseId,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
   }
 
   async findManyPaginated(

@@ -10,7 +10,6 @@ import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entit
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
-import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
@@ -24,6 +23,7 @@ import { generateExpenseSlug } from 'src/shared/utils/expense-file-name.util';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
+import { ReceiptsLimitExceededUsecaseException } from '../../exceptions/expense/receipts-limit-exceeded.usecase.exception';
 import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 
 export type CreateExpensesInput = {
@@ -70,19 +70,25 @@ export class CreateExpensesUsecase
       );
     }
 
-    const imagePaths = input.images?.length
-      ? await Promise.all(
-          input.images.map((image) =>
-            this.processEventImage(
-              image,
-              event.getName(),
-              input.category,
-              input.value,
-              input.description,
-            ),
-          ),
-        )
-      : [];
+    let imagePaths: string[] = [];
+    if (input.images.length > 0) {
+      if (input.images.length > 3) {
+        throw new ReceiptsLimitExceededUsecaseException(
+          `Attempting to register expenses with more receipts than allowed: ${input.images.length}`,
+          `Limite de 3 comprovantes atingido`,
+          CreateExpensesUsecase.name,
+        );
+      }
+
+      imagePaths = await this.processExpenseImages(
+        input.images,
+        event,
+        input.category,
+        input.value,
+        input.description,
+        0, // como ainda não existe nem o gasto ainda, então passamos o currentImageCount como zero
+      );
+    }
 
     const expense = EventExpenses.create({
       eventId: event.getId(),
@@ -92,14 +98,6 @@ export class CreateExpensesUsecase
       responsible: input.responsible,
       category: input.category,
       imageUrls: imagePaths,
-      createdAt: input.createAt,
-    });
-
-    const financialMovement = FinancialMovement.create({
-      eventId: event.getId(),
-      accountId: input.accountId,
-      type: 'EXPENSE',
-      value: new Decimal(expense.getValue()),
       createdAt: input.createAt,
     });
 
@@ -121,9 +119,6 @@ export class CreateExpensesUsecase
     await this.prisma.runInTransaction(async (tx) => {
       // salva o gasto
       await this.eventExpensesGateway.createTx(expense, tx);
-
-      // salva a nova movimentação
-      await this.financialMovementGateway.createTx(financialMovement, tx);
 
       // se encontrar caixa referente ao evento, então cria as entradas e atualiza o caixa
       if (cashRegisterEntries.length) {
@@ -165,7 +160,7 @@ export class CreateExpensesUsecase
         eventId: expense.getEventId(),
         eventExpenseId: expense.getId(),
         responsible: expense.getResponsible(),
-        imageUrls: expense.getImageUrls(), /// como o registro do caixa aceita somente uma imagem, passamos somente a primeira
+        imageUrls: expense.getImageUrls(),
       }),
     );
   }
@@ -192,44 +187,17 @@ export class CreateExpensesUsecase
     return updated;
   }
 
-  private async processEventImage(
-    image: string,
-    eventName: string,
+  private async processExpenseImages(
+    images: string[],
+    event: any, // EventEntity
     category: string,
     value: number,
     description: string,
-  ): Promise<string> {
-    this.logger.log('Processando imagem do evento');
+    currentImageCount: number,
+  ): Promise<string[]> {
+    this.logger.log(`Processando ${images.length} imagem(ns) de comprovante`);
 
-    const { buffer, extension } =
-      await this.imageOptimizerService.processBase64Image(image);
-
-    // Valida a imagem
-    const isValidImage = await this.imageOptimizerService.validateImage(
-      buffer,
-      `expense_${value}.${extension}`,
-    );
-    if (!isValidImage) {
-      throw new InvalidImageFormatUsecaseException(
-        'invalid image format',
-        'Formato da imagem inválido',
-        CreateExpensesUsecase.name,
-      );
-    }
-
-    // Otimiza imagem (ex: converte para webp e reduz tamanho)
-    const optimizedImage = await this.imageOptimizerService.optimizeImage(
-      buffer,
-      {
-        maxWidth: 800,
-        maxHeight: 800,
-        quality: 70,
-        format: 'webp',
-        maxFileSize: 300 * 1024,
-      },
-    );
-
-    // Sanitiza os dados para evitar caracteres inválidos no Supabase
+    const eventName = event.getName();
     const sanitizedEventName = sanitizeFileName(eventName || 'evento');
     const sanitizedCategoryName = sanitizeFileName(
       category || CategoryExpense.OUTROS,
@@ -237,31 +205,59 @@ export class CreateExpensesUsecase
     const sanitizedDescription = generateExpenseSlug(
       description || 'descrição não encontrada',
     );
-
-    // Cria nome do arquivo
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-
-    const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
-    const fileName = `${sanitizedDescription}_${value}_${formattedDateTime}.${optimizedImage.format}`;
-
-    // Define a pasta com base no evento e no responsável pelo gasto
     const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}`;
 
-    // Faz upload no Supabase
-    const imageUrl = await this.supabaseStorageService.uploadFile({
-      folderName: folderName,
-      fileName: fileName,
-      fileBuffer: optimizedImage.buffer,
-      contentType: this.imageOptimizerService.getMimeType(
-        optimizedImage.format,
-      ),
-    });
+    const filesOptions = await Promise.all(
+      images.map(async (image, index) => {
+        const { buffer, extension } =
+          await this.imageOptimizerService.processBase64Image(image);
 
-    return imageUrl;
+        const isValidImage = await this.imageOptimizerService.validateImage(
+          buffer,
+          `expense_${value}.${extension}`,
+        );
+        if (!isValidImage) {
+          throw new InvalidImageFormatUsecaseException(
+            'invalid image format',
+            'Formato da imagem inválido',
+            CreateExpensesUsecase.name,
+          );
+        }
+
+        const optimizedImage = await this.imageOptimizerService.optimizeImage(
+          buffer,
+          {
+            maxWidth: 800,
+            maxHeight: 800,
+            quality: 70,
+            format: 'webp',
+            maxFileSize: 300 * 1024,
+          },
+        );
+
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
+
+        // Para criação, currentImageCount é 0, então o índice real é igual ao index
+        const realIndex = currentImageCount + index;
+        const fileName = `${sanitizedDescription}_${value}_${formattedDateTime}_${realIndex}.${optimizedImage.format}`;
+
+        return {
+          folderName,
+          fileName,
+          fileBuffer: optimizedImage.buffer,
+          contentType: this.imageOptimizerService.getMimeType(
+            optimizedImage.format,
+          ),
+        };
+      }),
+    );
+
+    return await this.supabaseStorageService.uploadFiles(filesOptions);
   }
 }

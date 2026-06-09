@@ -14,7 +14,25 @@ export abstract class CashRegisterEntryGateway {
     tx: PrismaTransactionClient,
   ): Promise<void>;
 
+  abstract update(entry: CashRegisterEntry): Promise<CashRegisterEntry>;
+  abstract updateTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<CashRegisterEntry>;
+
+  abstract delete(entry: CashRegisterEntry): Promise<void>;
+  abstract deleteTx(
+    entry: CashRegisterEntry,
+    tx: PrismaTransactionClient,
+  ): Promise<void>;
+  abstract deleteMany(entrys: CashRegisterEntry[]): Promise<void>;
+  abstract deleteManyTx(
+    entrys: CashRegisterEntry[],
+    tx: PrismaTransactionClient,
+  ): Promise<void>;
+
   abstract findById(id: string): Promise<CashRegisterEntry | null>;
+  abstract findByExpenseId(expenseId: string): Promise<CashRegisterEntry[]>;
   abstract findManyPaginated(
     cashRegisterId: string,
     page: number,

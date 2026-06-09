@@ -17,6 +17,9 @@ import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/us
 import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
 import { EventExpensesNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/expense/event-not-found.usecase-exception.filter';
+import { ReceiptIndexInvalidUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipt-index-invalid.usecase.exception.filter';
+import { ReceiptsLimitExceededUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipts-limit-exceeded.usecase.exception.filter';
+import { ReceiptsNotProvidedUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipts-not-provided.usecase.exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
@@ -80,9 +83,13 @@ import { CreateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscript
 import { FindAllExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/find-all-exclusive-inscription-link/find-all-exclusive-inscription-link.route';
 import { PreviewExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/preview-exclusive-inscription-link/preview-exclusive-inscription-link.route';
 import { ValidateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.route';
-import { CreateExpensesRoute } from './routes/expenses/create/create-expenses.route';
+import { CreateExpensesRoute } from './routes/expenses/create-expenses/create-expenses.route';
+import { DeleteExpenseRoute } from './routes/expenses/delete-expenses/delete-expenses.route';
+import { DeleteReceiptExpenseRoute } from './routes/expenses/delete-receipt-expense/delete-receipt-expense.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { FindDetailsExpenseRoute } from './routes/expenses/find-details-expense/find-details-expense.route';
+import { UpdateExpenseRoute } from './routes/expenses/update-expense/update-expense.route';
+import { UpdateReceiptExpenseRoute } from './routes/expenses/update-receipt-expense/update-receipt-expense.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
 import { FindAllPaginatedOnSiteRegistrationRoute } from './routes/inscription-avul/find-all-paginated/find-all-paginated-onsite-registration.route';
 import { findDetailsInscriptionAvulRoute } from './routes/inscription-avul/find-details-inscription-avul/find-details-inscription-avul.route';
@@ -413,6 +420,10 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Event Expenses
     CreateExpensesRoute,
+    UpdateExpenseRoute,
+    UpdateReceiptExpenseRoute,
+    DeleteExpenseRoute,
+    DeleteReceiptExpenseRoute,
     FindAllPaginatedEventExpensesRoute,
     FindDetailsExpenseRoute,
 
@@ -477,6 +488,9 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // EVENT EXPENSE
     EventExpensesNotFoundUsecaseExceptionFilterProvider,
+    ReceiptsNotProvidedUsecaseExceptionFilterProvider,
+    ReceiptsLimitExceededUsecaseExceptionFilterProvider,
+    ReceiptIndexInvalidUsecaseExceptionFilterProvider,
 
     // Environment Variable
     EnvironmentVariableNotFoundExceptionFilterProvider,

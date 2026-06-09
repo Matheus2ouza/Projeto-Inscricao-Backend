@@ -63,9 +63,13 @@ import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscripti
 import { FindAllExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/find-all-exclusive-inscription-link/find-all-exclusive-inscription-link.usecase';
 import { PreviewExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/preview-exclusive-inscription-link/preview-exclusive-inscription-link.usecase';
 import { ValidateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/validate-exclusive-inscription-link/validate-exclusive-inscription-link.usecase';
-import { CreateExpensesUsecase } from './web/expenses/create/create-event-expenses.usecase';
+import { CreateExpensesUsecase } from './web/expenses/create-expenses/create-expenses.usecase';
+import { DeleteExpenseUsecase } from './web/expenses/delete-expenses/delete-expenses.usecase';
+import { DeleteReceiptExpenseUsecase } from './web/expenses/delete-receipt-expense/delete-receipt-expense.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { FindDetailsExpenseUsecase } from './web/expenses/find-details-expense/find-details-expense.usecase';
+import { UpdateExpenseUsecase } from './web/expenses/update-expense/update-expense.usecase';
+import { UpdateReceiptExpenseUsecase } from './web/expenses/update-receipt-expense/update-receipt-expense.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
 import { UpdateStatusInscriptionUsecase } from './web/inscription/analysis/update-status-inscription/update-status-inscription.usecase';
 import { CreateInscriptionAvulUsecase } from './web/inscription/avul/create/create-inscription-avul.usecase';
@@ -384,6 +388,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Event Expenses
     CreateExpensesUsecase,
+    UpdateExpenseUsecase,
+    DeleteExpenseUsecase,
+    DeleteReceiptExpenseUsecase,
+    UpdateReceiptExpenseUsecase,
     FindAllPaginatedEventExpensesUsecase,
     FindDetailsExpenseUsecase,
 
@@ -619,6 +627,10 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
 
     // Event Expenses
     CreateExpensesUsecase,
+    UpdateExpenseUsecase,
+    DeleteExpenseUsecase,
+    DeleteReceiptExpenseUsecase,
+    UpdateReceiptExpenseUsecase,
     FindAllPaginatedEventExpensesUsecase,
     FindDetailsExpenseUsecase,
 
