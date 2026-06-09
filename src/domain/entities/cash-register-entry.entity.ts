@@ -26,6 +26,16 @@ export type CashRegisterEntryCreateDto = {
   createAt?: Date;
 };
 
+export type CashRegisterEntryUpdateDto = {
+  type?: CashEntryType;
+  origin?: CashEntryOrigin;
+  method?: PaymentMethod;
+  favorite?: boolean;
+  value?: number;
+  description?: string;
+  responsible?: string;
+};
+
 export type CashRegisterEntryWithDto = {
   id: string;
   cashRegisterId: string;
@@ -235,5 +245,58 @@ export class CashRegisterEntry extends Entity {
 
   protected validate(): void {
     CashRegisterEntryValidatorFactory.create().validate(this);
+  }
+
+  public update({
+    type,
+    origin,
+    method,
+    favorite,
+    value,
+    description,
+    responsible,
+  }: CashRegisterEntryUpdateDto): void {
+    if (type !== undefined) {
+      this.type = type;
+    }
+
+    if (origin !== undefined) {
+      this.origin = origin;
+    }
+
+    if (method !== undefined) {
+      this.method = method;
+    }
+
+    if (favorite !== undefined) {
+      this.favorite = favorite;
+    }
+
+    if (value !== undefined) {
+      this.value = value;
+    }
+
+    if (description !== undefined) {
+      this.description = description;
+    }
+
+    if (responsible !== undefined) {
+      this.responsible = responsible;
+    }
+
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public addImageUrls(urls: string[]): void {
+    this.imageUrls = [...this.imageUrls, ...urls];
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public removeImageUrl(index: number): void {
+    this.imageUrls.splice(index, 1);
+    this.updatedAt = new Date();
+    this.validate();
   }
 }

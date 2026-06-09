@@ -14,6 +14,15 @@ export type EventExpensesCreateDto = {
   createdAt?: Date;
 };
 
+export type EventExpensesUpdateDto = {
+  description?: string;
+  value?: number;
+  paymentMethod?: PaymentMethod;
+  responsible?: string;
+  category?: CategoryExpense;
+  createdAt?: Date;
+};
+
 export type EventExpensesWithDto = {
   id: string;
   eventId: string;
@@ -141,5 +150,53 @@ export class EventExpenses extends Entity {
 
   protected validate(): void {
     EventExpensesValidatorFactory.create().validate(this);
+  }
+
+  public update({
+    description,
+    value,
+    paymentMethod,
+    responsible,
+    category,
+    createdAt,
+  }: EventExpensesUpdateDto): void {
+    if (description !== undefined) {
+      this.description = description;
+    }
+
+    if (value !== undefined) {
+      this.value = value;
+    }
+
+    if (paymentMethod !== undefined) {
+      this.paymentMethod = paymentMethod;
+    }
+
+    if (responsible !== undefined) {
+      this.responsible = responsible;
+    }
+
+    if (category !== undefined) {
+      this.category = category;
+    }
+
+    if (createdAt !== undefined) {
+      this.createdAt = createdAt;
+    }
+
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public addImageUrls(urls: string[]): void {
+    this.imageUrls = [...this.imageUrls, ...urls];
+    this.updatedAt = new Date();
+    this.validate();
+  }
+
+  public removeImageUrl(index: number): void {
+    this.imageUrls.splice(index, 1);
+    this.updatedAt = new Date();
+    this.validate();
   }
 }
