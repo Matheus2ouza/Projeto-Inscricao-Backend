@@ -9,6 +9,18 @@ export abstract class EventExpensesGateway {
     tx: PrismaTransactionClient,
   ): Promise<EventExpenses>;
 
+  abstract update(eventExpenses: EventExpenses): Promise<EventExpenses>;
+  abstract updateTx(
+    eventExpenses: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<EventExpenses>;
+
+  abstract delete(eventExpenses: EventExpenses): Promise<void>;
+  abstract deleteTx(
+    eventExpenses: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<void>;
+
   abstract findById(id: string): Promise<EventExpenses | null>;
   abstract findMany(eventId: string): Promise<EventExpenses[]>;
   abstract findManyByEventId(eventId: string): Promise<EventExpenses[]>;

@@ -31,6 +31,50 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     return PrismaToEntity.map(created);
   }
 
+  async update(eventExpenses: EventExpenses): Promise<EventExpenses> {
+    const data = EntityToPrisma.map(eventExpenses);
+    const updated = await this.prisma.eventExpenses.update({
+      where: {
+        id: eventExpenses.getId(),
+      },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async updateTx(
+    eventExpenses: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<EventExpenses> {
+    const data = EntityToPrisma.map(eventExpenses);
+    const updated = await tx.eventExpenses.update({
+      where: {
+        id: eventExpenses.getId(),
+      },
+      data,
+    });
+    return PrismaToEntity.map(updated);
+  }
+
+  async delete(eventExpenses: EventExpenses): Promise<void> {
+    await this.prisma.eventExpenses.delete({
+      where: {
+        id: eventExpenses.getId(),
+      },
+    });
+  }
+
+  async deleteTx(
+    eventExpenses: EventExpenses,
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    await tx.eventExpenses.delete({
+      where: {
+        id: eventExpenses.getId(),
+      },
+    });
+  }
+
   async findById(id: string): Promise<EventExpenses | null> {
     const found = await this.prisma.eventExpenses.findUnique({
       where: { id },
