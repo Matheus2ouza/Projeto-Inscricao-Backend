@@ -50,14 +50,21 @@ export class EventExpensesZodValidator implements Validator<EventExpenses> {
         .positive({ error: 'O valor valor minimo do gasto é R$:0,01' }),
       paymentMethod: z.enum(
         [PaymentMethod.CARTAO, PaymentMethod.DINHEIRO, PaymentMethod.PIX],
-        { error: 'A escolha de como foi gasto é inválido' },
+        { error: 'Selecione como o gasto foi realizado' },
       ),
       responsible: z
         .string({
           error: 'O responsavel pelo gasto é obrigatório',
         })
         .min(2, { error: 'Nome do responsavel muito curto' })
-        .max(100, { error: 'Nome do Responsavel muito longo' }),
+        .max(50, { error: 'Nome do Responsavel muito longo' }),
+      imageUrls: z
+        .array(
+          z.string({
+            error: 'Um dos comprovantes enviados é inválido',
+          }),
+        )
+        .default([]),
     });
 
     return zodSchema;
