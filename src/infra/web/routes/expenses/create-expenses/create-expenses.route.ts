@@ -6,7 +6,7 @@ import {
 import {
   CreateExpensesInput,
   CreateExpensesUsecase,
-} from 'src/usecases/web/expenses/create/create-event-expenses.usecase';
+} from 'src/usecases/web/expenses/create-expenses/create-expenses.usecase';
 import type {
   CreateExpensesBody,
   CreateExpensesResponse,
