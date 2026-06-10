@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   GenerateReportPdfInput,
   GenerateReportPdfUsecase,
-} from 'src/usecases/web/cash-register/pdf/generate-report/generate-report-pdf.usecase';
+} from 'src/usecases/web/cash-register/reports/pdf/generate-report/generate-report-pdf.usecase';
 import type {
   GenerateReportPdfParams,
   GenerateReportPdfQuery,
