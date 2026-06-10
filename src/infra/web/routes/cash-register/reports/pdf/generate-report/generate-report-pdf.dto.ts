@@ -9,7 +9,7 @@ export type GenerateReportPdfQuery = {
 };
 
 export type GenerateReportPdfResponse = {
-  pdfBase64: string;
+  fileBase64: string;
   filename: string;
   contentType: 'application/pdf' | 'application/zip';
 };

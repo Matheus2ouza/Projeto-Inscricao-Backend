@@ -42,7 +42,7 @@ import { FindAllMovimentsCashRegisterRoute } from './routes/cash-register/find-a
 import { FindDetailsCashRegisterRoute } from './routes/cash-register/find-details-cash-register/find-details-cash-register.route';
 import { FindDetailsMovimentRoute } from './routes/cash-register/find-details-moviment/find-details-moviment.route';
 import { FindFutureReleasesCashRegisterRoute } from './routes/cash-register/find-future-releases-cash-register/find-future-releases-cash-register.route';
-import { GenerateReportPdfRoute } from './routes/cash-register/pdf/generate-report/generate-report-pdf.route';
+import { GenerateReportPdfRoute } from './routes/cash-register/reports/pdf/generate-report/generate-report-pdf.route';
 import { DashboardAdminRoute } from './routes/dashboard/admin/dashboard-admin.route';
 import { DashboardSuperRoute } from './routes/dashboard/super/dashboard-super.route';
 import { DashboardUserRoute } from './routes/dashboard/user/dashboard-user.route';

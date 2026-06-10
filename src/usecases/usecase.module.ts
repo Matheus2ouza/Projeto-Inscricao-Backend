@@ -5,6 +5,7 @@ import { MailModule } from 'src/infra/services/mail/mail.module';
 import { ServiceModule } from 'src/infra/services/service.module';
 import { SupabaseModule } from 'src/infra/services/supabase/supabase.module';
 import { SyncModule } from 'src/infra/sync/sync.module';
+import { GenerateReportPdfUsecase } from './web//cash-register/reports/pdf/generate-report/generate-report-pdf.usecase';
 import { CreateCashRegisterUsecase } from './web/cash-register/create-cash-register/create-cash-register.usecase';
 import { CreateNewRegisterUsecase } from './web/cash-register/create-new-register/create-new-register.usecase';
 import { FindAllCashRegisterUsecase } from './web/cash-register/find-all-cash-register/find-all-cash-register.usecase';
@@ -12,7 +13,6 @@ import { FindAllMovimentsCashRegisterUsecase } from './web/cash-register/find-al
 import { FindDetailsCashRegisterUsecase } from './web/cash-register/find-details-cash-register/find-details-cash-register.usecase';
 import { FindDetailsMovimentUsecase } from './web/cash-register/find-details-moviment/find-details-moviment.usecase';
 import { FindFutureReleasesCashRegisterUsecase } from './web/cash-register/find-future-releases-cash-register/find-future-releases-cash-register.usecase';
-import { GenerateReportPdfUsecase } from './web/cash-register/pdf/generate-report/generate-report-pdf.usecase';
 import { FindActiveEventsAdminUsecase } from './web/dashboard/admin/find-active-events.usecase';
 import { FindActiveParticipantsAdminUsecase } from './web/dashboard/admin/find-active-participants.usecase';
 import { FindTotalCollectedAdminUsecase } from './web/dashboard/admin/find-total-collected.usecase';

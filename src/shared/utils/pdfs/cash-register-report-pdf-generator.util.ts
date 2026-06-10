@@ -53,15 +53,10 @@ type CashRegisterReportPdfData = {
     description?: string;
     category?: string;
   }[];
-  allMoviments?: {
-    type: string;
+  methodOriginTotals: {
     method: string;
     origin: string;
-    value: number;
-    createdAt: Date;
-    responsible?: string;
-    description?: string;
-    category?: string;
+    total: number;
   }[];
 };
 
@@ -70,10 +65,6 @@ function formatCurrency(value: number) {
     style: 'currency',
     currency: 'BRL',
   });
-}
-
-function pad2(n: number) {
-  return String(n).padStart(2, '0');
 }
 
 function formatDate(date: Date) {
@@ -129,21 +120,12 @@ export class CashRegisterReportPdfGeneratorUtils {
       periodEnd,
     )}`;
 
-    // Use allMoviments for calculations if favoriteReport is true, otherwise use regular moviments
-    const movimentsForCalculations = data.favoriteReport
-      ? data.allMoviments || data.moviments
-      : data.moviments;
-
+    // Usa os dados já calculados do cashRegister
     const initialBalance =
       data.cashRegister.initialBalance ??
       data.cashRegister.balance -
         data.cashRegister.totalIncome +
         data.cashRegister.totalExpense;
-    const receivedValues = movimentsForCalculations
-      .filter((m) => String(m.type).toUpperCase() === 'INCOME')
-      .reduce((sum, m) => sum + m.value, 0);
-    const expenses = data.cashRegister.totalExpense;
-    const finalBalance = data.cashRegister.balance;
 
     const summaryTable = {
       table: {
@@ -155,15 +137,24 @@ export class CashRegisterReportPdfGeneratorUtils {
           ],
           [
             { text: 'Valores recebidos', style: 'label' },
-            { text: formatCurrency(receivedValues), style: 'value' },
+            {
+              text: formatCurrency(data.cashRegister.totalIncome),
+              style: 'value',
+            },
           ],
           [
             { text: 'Despesas', style: 'labelRed' },
-            { text: formatCurrency(expenses), style: 'valueRed' },
+            {
+              text: formatCurrency(data.cashRegister.totalExpense),
+              style: 'valueRed',
+            },
           ],
           [
             { text: 'Saldo Final', style: 'labelBlue' },
-            { text: formatCurrency(finalBalance), style: 'valueBlue' },
+            {
+              text: formatCurrency(data.cashRegister.balance),
+              style: 'valueBlue',
+            },
           ],
         ],
       },
@@ -181,31 +172,24 @@ export class CashRegisterReportPdfGeneratorUtils {
       margin: [0, 0, 0, 20],
     };
 
+    // Converte os methodOriginTotals para a estrutura da tabela
     const originLabelByKey = {
       INSCRICOES: 'Inscrições',
       ONSITE: 'Inscrição Avulsa',
       TICKET: 'Alimentação',
     } as const;
 
-    const originKey = (
-      origin: string,
-    ): keyof typeof originLabelByKey | null => {
-      const o = String(origin).toUpperCase();
-      if (o === 'ASAAS' || o === 'INTERNAL') return 'INSCRICOES';
-      if (o === 'ONSITE') return 'ONSITE';
-      if (o === 'TICKET') return 'TICKET';
-      return null;
+    const originKeyMap: Record<string, keyof typeof originLabelByKey> = {
+      ASAAS: 'INSCRICOES',
+      INTERNAL: 'INSCRICOES',
+      ONSITE: 'ONSITE',
+      TICKET: 'TICKET',
     };
-
-    const methodKey = (method: string) => String(method).toUpperCase();
-
-    const incomeMoviments = movimentsForCalculations.filter(
-      (m) => String(m.type).toUpperCase() === 'INCOME',
-    );
 
     const methodsInOrder = ['DINHEIRO', 'CARTAO', 'PIX'] as const;
     const originsInOrder = ['INSCRICOES', 'ONSITE', 'TICKET'] as const;
 
+    // Inicializa estrutura de totais
     const totalsByMethodAndOrigin: Record<
       (typeof methodsInOrder)[number],
       Record<(typeof originsInOrder)[number], number>
@@ -215,15 +199,16 @@ export class CashRegisterReportPdfGeneratorUtils {
       PIX: { INSCRICOES: 0, ONSITE: 0, TICKET: 0 },
     };
 
-    for (const m of incomeMoviments) {
-      const mk = methodKey(m.method);
-      if (!methodsInOrder.includes(mk as any)) continue;
-      const ok = originKey(m.origin);
-      if (!ok) continue;
-      totalsByMethodAndOrigin[mk as (typeof methodsInOrder)[number]][ok] +=
-        m.value;
+    // Preenche com os dados do methodOriginTotals
+    for (const item of data.methodOriginTotals) {
+      const method = item.method as (typeof methodsInOrder)[number];
+      const origin = originKeyMap[item.origin];
+      if (methodsInOrder.includes(method) && origin) {
+        totalsByMethodAndOrigin[method][origin] = item.total;
+      }
     }
 
+    // Calcula totais por origem
     const totalsByOrigin: Record<(typeof originsInOrder)[number], number> = {
       INSCRICOES: 0,
       ONSITE: 0,
@@ -235,6 +220,7 @@ export class CashRegisterReportPdfGeneratorUtils {
         0,
       );
     }
+
     const grandTotal = originsInOrder.reduce(
       (sum, ok) => sum + totalsByOrigin[ok],
       0,
@@ -415,11 +401,10 @@ export class CashRegisterReportPdfGeneratorUtils {
 
     // Só gera a seção de movimentações se includeMovements for true
     const movimentsByDateContent =
-      (data.includeMovements ?? true)
+      (data.includeMovements ?? true) && data.moviments.length > 0
         ? data.favoriteReport
           ? data.moviments.map((m) => ({
               stack: [
-                // Índice acima e ao lado
                 {
                   columns: [
                     {
@@ -435,7 +420,6 @@ export class CashRegisterReportPdfGeneratorUtils {
                   ],
                   columnGap: 0,
                 },
-                // Linha 1: Tipo, Método, Origem e Valor
                 {
                   columns: [
                     {
@@ -486,7 +470,6 @@ export class CashRegisterReportPdfGeneratorUtils {
                   columnGap: 8,
                   margin: [0, 4, 0, 8],
                 },
-                // Linha 2: Data, Categoria (se tiver) e Responsável
                 {
                   columns: [
                     {
@@ -524,7 +507,6 @@ export class CashRegisterReportPdfGeneratorUtils {
                   columnGap: 8,
                   margin: [0, 4, 0, 8],
                 },
-                // Linha 3: Apenas a observação
                 {
                   text: [
                     { text: 'Observação: ', style: 'favoriteLabel' },
@@ -532,7 +514,6 @@ export class CashRegisterReportPdfGeneratorUtils {
                   ],
                   margin: [0, 4, 0, 10],
                 },
-                // Linha separadora
                 {
                   canvas: [
                     {
@@ -551,10 +532,7 @@ export class CashRegisterReportPdfGeneratorUtils {
               keepTogether: true,
             }))
           : (() => {
-              const dateGroups = new Map<
-                string,
-                CashRegisterReportPdfData['moviments']
-              >();
+              const dateGroups = new Map<string, typeof data.moviments>();
               const dateKeysInOrder: string[] = [];
 
               for (const m of data.moviments) {
@@ -620,7 +598,7 @@ export class CashRegisterReportPdfGeneratorUtils {
             })()
         : [];
 
-    // Monta o conteúdo base (sempre inclui resumo e totais)
+    // Monta o conteúdo base
     const baseContent: any[] = [
       ...headerContent,
       {
@@ -649,13 +627,13 @@ export class CashRegisterReportPdfGeneratorUtils {
         {
           text: 'Resumo de Gastos por Categoria',
           style: 'sectionTitle',
-          margin: [0, 20, 0, 8],
+          margin: [0, 0, 0, 8],
         },
         categorySummaryTable,
       );
     }
 
-    // Só adiciona a seção de movimentações se tiver conteúdo e includeMovements for true
+    // Só adiciona a seção de movimentações se tiver conteúdo
     const content =
       (data.includeMovements ?? true) && movimentsByDateContent.length > 0
         ? [
