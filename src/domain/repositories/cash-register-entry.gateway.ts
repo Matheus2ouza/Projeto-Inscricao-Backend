@@ -44,9 +44,11 @@ export abstract class CashRegisterEntryGateway {
     },
   ): Promise<CashRegisterEntry[]>;
 
-  abstract findAllMovementsFavorites(
+  abstract findAllMovements(
     cashRegisterId: string,
-    favorite: boolean,
+    filters: {
+      favorite: boolean;
+    },
   ): Promise<CashRegisterEntry[]>;
 
   abstract countAll(
@@ -63,4 +65,7 @@ export abstract class CashRegisterEntryGateway {
     cashRegisterId: string,
     method: PaymentMethod,
   ): Promise<number>;
+  abstract sumByMethodAndOrigin(
+    cashRegisterId: string,
+  ): Promise<{ method: string; origin: string; total: number }[]>;
 }

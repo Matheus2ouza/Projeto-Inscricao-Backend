@@ -147,14 +147,17 @@ export class CashRegisterEntryPrismaRepository
     return found.map(PrismaToEntity.map);
   }
 
-  async findAllMovementsFavorites(
+  async findAllMovements(
     cashRegisterId: string,
-    favorite: boolean,
+    filters: {
+      favorite: boolean;
+    },
   ): Promise<CashRegisterEntry[]> {
+    const where = this.buildWhereClauseCashRegisterEntry(filters);
     const found = await this.prisma.cashRegisterEntry.findMany({
       where: {
         cashRegisterId,
-        favorite,
+        ...where,
       },
       orderBy: {
         createdAt: 'desc',
@@ -223,15 +226,35 @@ export class CashRegisterEntryPrismaRepository
     return sum._sum.value?.toNumber() || 0;
   }
 
+  async sumByMethodAndOrigin(cashRegisterId: string) {
+    const rows = await this.prisma.cashRegisterEntry.groupBy({
+      by: ['method', 'origin'],
+      where: {
+        cashRegisterId,
+        type: 'INCOME',
+        origin: { in: ['INTERNAL', 'ASAAS', 'ONSITE', 'TICKET'] },
+      },
+      _sum: { value: true },
+    });
+
+    return rows.map((r) => ({
+      method: String(r.method),
+      origin: String(r.origin),
+      total: Number(r._sum.value ?? 0),
+    }));
+  }
+
   private buildWhereClauseCashRegisterEntry(filters?: {
+    favorite?: boolean;
     type?: CashEntryType | CashEntryType[];
     limitTime?: string;
   }) {
-    const { type, limitTime } = filters || {};
+    const { favorite, type, limitTime } = filters || {};
 
     const typeArray = type ? (Array.isArray(type) ? type : [type]) : [];
 
     return {
+      favorite,
       type: typeArray && typeArray.length > 0 ? { in: typeArray } : undefined,
       createdAt: limitTime ? { gte: new Date(limitTime) } : undefined,
     };
