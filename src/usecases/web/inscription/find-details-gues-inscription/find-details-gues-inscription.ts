@@ -57,7 +57,7 @@ export type Payment = {
   method: PaymentMethod;
   installments: number;
   rejectionReason?: string;
-  imageUrl?: string;
+  imageUrls: string[];
   totalValue: number;
   totalPaid: number;
   paidInstallments: number;
@@ -142,7 +142,7 @@ export class FindDetailsGuestInscriptionUsecase
 
     const paymentsData = await Promise.all(
       payments.map(async (payment) => {
-        const imagePath = await this.getPublicUrl(payment.getImageUrl());
+        const imagePath = await this.getPublicUrls(payment.getImageUrls());
 
         const installments =
           await this.paymentInstallmentGateway.findByPaymentId(payment.getId());
@@ -162,7 +162,7 @@ export class FindDetailsGuestInscriptionUsecase
           method: payment.getMethodPayment(),
           installments: payment.getInstallments(),
           rejectionReason: payment.getRejectionReason(),
-          imageUrl: imagePath,
+          imageUrls: imagePath,
           totalValue: payment.getTotalValue(),
           totalPaid: payment.getTotalPaid(),
           paidInstallments: payment.getPaidInstallments(),
@@ -198,15 +198,21 @@ export class FindDetailsGuestInscriptionUsecase
     return output;
   }
 
-  private async getPublicUrl(path?: string): Promise<string> {
-    if (!path) {
-      return '';
+  private async getPublicUrls(paths: string[] = []): Promise<string[]> {
+    if (!paths.length) {
+      return [];
     }
 
-    try {
-      return await this.supabaseStorageService.getPublicUrl(path);
-    } catch {
-      return '';
-    }
+    const publicUrls = await Promise.all(
+      paths.map(async (path) => {
+        try {
+          return await this.supabaseStorageService.getPublicUrl(path);
+        } catch {
+          return '';
+        }
+      }),
+    );
+
+    return publicUrls.filter(Boolean);
   }
 }

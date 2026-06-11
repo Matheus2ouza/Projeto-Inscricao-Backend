@@ -55,7 +55,7 @@ type InscriptionsDetails = {
     totalPaid: number;
     totalReceived: number;
     createdAt: Date;
-    receiptPath?: string;
+    receiptPath?: string[];
     installments?: {
       installmentNumber: number;
       received: boolean;
@@ -210,7 +210,7 @@ export class GeneratePdfAllInscriptionsUsecase
                 const isPixPayment =
                   payment.getMethodPayment() === PaymentMethod.PIX;
                 const receiptPath = isPixPayment
-                  ? this.extractReceiptPath(payment.getImageUrl())
+                  ? this.extractReceiptPaths(payment.getImageUrls())
                   : undefined;
                 const installments = (
                   await this.paymentInstallmentGateway.findByPaymentId(
@@ -409,22 +409,24 @@ export class GeneratePdfAllInscriptionsUsecase
     }
   }
 
-  private extractReceiptPath(imageUrl?: string): string {
-    if (!imageUrl) return '';
+  private extractReceiptPaths(imageUrls: string[]): string[] {
+    if (!imageUrls || imageUrls.length === 0) return [];
 
     const guestMarker = '/guest/';
     const normalMarker = '/normal/';
 
-    const guestIndex = imageUrl.indexOf(guestMarker);
-    if (guestIndex >= 0) {
-      return `/${imageUrl.slice(guestIndex + guestMarker.length)}`;
-    }
+    return imageUrls.map((imageUrl) => {
+      const guestIndex = imageUrl.indexOf(guestMarker);
+      if (guestIndex >= 0) {
+        return imageUrl.slice(guestIndex + guestMarker.length);
+      }
 
-    const normalIndex = imageUrl.indexOf(normalMarker);
-    if (normalIndex >= 0) {
-      return `/${imageUrl.slice(normalIndex + normalMarker.length)}`;
-    }
+      const normalIndex = imageUrl.indexOf(normalMarker);
+      if (normalIndex >= 0) {
+        return imageUrl.slice(normalIndex + normalMarker.length);
+      }
 
-    return imageUrl;
+      return imageUrl;
+    });
   }
 }

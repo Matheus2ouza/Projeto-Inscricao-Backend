@@ -9,7 +9,7 @@ export type CreateNewRegisterBody = {
   method: PaymentMethod;
   favorite?: boolean;
   value: number;
-  description?: string;
+  description: string;
   eventId: string;
   responsible: string;
   images: string[];

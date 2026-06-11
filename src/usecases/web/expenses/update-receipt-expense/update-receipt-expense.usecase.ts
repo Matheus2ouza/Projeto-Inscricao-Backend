@@ -13,8 +13,8 @@ import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { EventExpensesNotFoundUsecaseException } from '../../exceptions/expense/event-expense-not-found.usecase.exception';
-import { ReceiptsLimitExceededUsecaseException } from '../../exceptions/expense/receipts-limit-exceeded.usecase.exception';
 import { ReceiptsNotProvidedUsecaseException } from '../../exceptions/expense/receipts-not-provided.usecase.exception';
+import { ImageLimitExceededUsecaseException } from '../../exceptions/image-limit-exceeded.usecase.exception';
 import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 
 export type UpdateReceiptExpenseInput = {
@@ -66,7 +66,7 @@ export class UpdateReceiptExpenseUsecase
     // Valida limite de 3 antes de processar qualquer imagem
     const currentCount = expense.getImageUrls().length;
     if (currentCount + receipts.length > 3) {
-      throw new ReceiptsLimitExceededUsecaseException(
+      throw new ImageLimitExceededUsecaseException(
         `Attempt to register new receipts but the limit was exceeded. The expense already has ${currentCount} registered, and ${receipts.length} more were being processed.`,
         `Limite de 3 comprovantes atingido, tente excluir alguns primeiro`,
         UpdateReceiptExpenseUsecase.name,
@@ -142,13 +142,14 @@ export class UpdateReceiptExpenseUsecase
     const description = expense.getDescription();
 
     const sanitizedEventName = sanitizeFileName(eventName || 'evento');
+    const sanitizedResponsibleName = sanitizeFileName(expense.getResponsible());
     const sanitizedCategoryName = sanitizeFileName(
       category || CategoryExpense.OUTROS,
     );
     const sanitizedDescription = generateExpenseSlug(
       description || 'descrição não encontrada',
     );
-    const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}`;
+    const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}/${sanitizedResponsibleName}`;
 
     const filesOptions = await Promise.all(
       images.map(async (image, index) => {

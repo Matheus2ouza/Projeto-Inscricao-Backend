@@ -56,7 +56,7 @@ export type ListInscriptionsPdfInscription = {
     totalPaid: number;
     totalReceived: number;
     createdAt: Date;
-    receiptPath?: string;
+    receiptPaths?: string[];
     installments?: {
       installmentNumber: number;
       received: boolean;
@@ -526,17 +526,21 @@ export class ListInscriptionsPdfGeneratorUtils {
                 margin: [0, 6, 0, 4],
               },
               buildInstallmentsTable(payment.installments),
-              ...(payment.methodPayment === PaymentMethod.PIX
+              ...(payment.methodPayment === PaymentMethod.PIX &&
+              payment.receiptPaths?.length
                 ? [
                     {
                       stack: [
                         {
-                          text: 'Diretório do comprovante',
+                          text: 'Comprovantes',
                           style: 'labelText',
                         },
                         {
-                          text: payment.receiptPath || '-',
-                          style: 'valueText',
+                          ul: payment.receiptPaths.map((path) => ({
+                            text: path,
+                            style: 'valueText',
+                          })),
+                          margin: [0, 4, 0, 0],
                         },
                       ],
                       margin: [0, 0, 0, 10],
@@ -579,7 +583,7 @@ export class ListInscriptionsPdfGeneratorUtils {
   }
 }
 
-// ========== Funções auxiliares (inalteradas, exceto pela nova função buildPaymentSummaryTable) ==========
+// ========== Funções auxiliares ==========
 
 function buildParticipantsTable(
   participants: ListInscriptionsPdfParticipant[],
