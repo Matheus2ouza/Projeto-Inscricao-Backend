@@ -12,7 +12,7 @@ export class CashRegisterEntryEntityToCashRegisterEntryPrismaModelMapper {
       method: entry.getMethod(),
       favorite: entry.getFavorite(),
       value: new Decimal(entry.getValue()),
-      description: entry.getDescription() ?? null,
+      description: entry.getDescription(),
       eventId: entry.getEventId() ?? null,
       paymentInstallmentId: entry.getPaymentInstallmentId() ?? null,
       onSiteRegistrationId: entry.getOnSiteRegistrationId() ?? null,

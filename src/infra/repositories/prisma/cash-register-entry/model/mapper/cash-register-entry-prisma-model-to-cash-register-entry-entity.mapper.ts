@@ -13,7 +13,7 @@ export class CashRegisterEntryPrismaModelToCashRegisterEntryEntityMapper {
       method: entryPrisma.method,
       favorite: entryPrisma.favorite,
       value: entryPrisma.value.toNumber(),
-      description: entryPrisma.description ?? undefined,
+      description: entryPrisma.description,
       eventId: entryPrisma.eventId ?? undefined,
       paymentInstallmentId: entryPrisma.paymentInstallmentId ?? undefined,
       onSiteRegistrationId: entryPrisma.onSiteRegistrationId ?? undefined,
