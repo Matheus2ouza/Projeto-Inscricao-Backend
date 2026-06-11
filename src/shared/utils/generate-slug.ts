@@ -1,6 +1,16 @@
 import { sanitizeFileName } from './file-name.util';
 
-export function generateExpenseSlug(description: string, maxWords = 6): string {
+type GenerateExpenseSlugType = {
+  description: string;
+  maxWords?: number;
+  defaultSlug: string;
+};
+
+export function generateSlug({
+  description,
+  maxWords = 6,
+  defaultSlug,
+}: GenerateExpenseSlugType): string {
   const safeWordSize = Math.max(1, Math.min(6, Math.floor(maxWords || 6)));
 
   const stopWords = [
@@ -18,9 +28,10 @@ export function generateExpenseSlug(description: string, maxWords = 6): string {
 
   return (
     sanitizeFileName(description)
+      .toLowerCase()
       .split('-')
       .filter((word) => word && !stopWords.includes(word))
       .slice(0, safeWordSize)
-      .join('-') || 'expense'
+      .join('-') || defaultSlug
   );
 }

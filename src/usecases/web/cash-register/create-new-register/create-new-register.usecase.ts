@@ -12,8 +12,8 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { generateExpenseSlug } from 'src/shared/utils/expense-file-name.util';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
+import { generateSlug } from 'src/shared/utils/generate-slug';
 import { Usecase } from 'src/usecases/usecase';
 import { CashRegisterNotFoundUsecaseException } from '../../exceptions/cash-register/cash-register-not-found.usecase.exception';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
@@ -149,9 +149,10 @@ export class CreateNewRegisterUsecase
     const sanitizedtypeName = sanitizeFileName(type);
     const sanitizedMethodName = sanitizeFileName(method);
     const sanitizedResponsibleName = sanitizeFileName(responsible);
-    const sanitizedDescription = generateExpenseSlug(
-      description || 'descrição não encontrada',
-    );
+    const sanitizedDescription = generateSlug({
+      description,
+      defaultSlug: 'receipt',
+    });
     const folderName = `receipts/${sanitizedEventName}/${sanitizedtypeName}/${sanitizedMethodName}/${sanitizedResponsibleName}`;
 
     const filesOptions = await Promise.all(

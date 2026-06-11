@@ -20,8 +20,8 @@ import { FinancialMovementGateway } from 'src/domain/repositories/financial-move
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { generateExpenseSlug } from 'src/shared/utils/expense-file-name.util';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
+import { generateSlug } from 'src/shared/utils/generate-slug';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { ImageLimitExceededUsecaseException } from '../../exceptions/image-limit-exceeded.usecase.exception';
@@ -206,9 +206,10 @@ export class CreateExpensesUsecase
       category || CategoryExpense.OUTROS,
     );
     const sanitizedResponsibleName = sanitizeFileName(responsible);
-    const sanitizedDescription = generateExpenseSlug(
-      description || 'descrição não encontrada',
-    );
+    const sanitizedDescription = generateSlug({
+      description,
+      defaultSlug: 'expense',
+    });
     const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}/${sanitizedResponsibleName}`;
 
     const filesOptions = await Promise.all(
