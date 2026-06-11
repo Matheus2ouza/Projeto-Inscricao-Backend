@@ -15,7 +15,7 @@ export type CashRegisterEntryCreateDto = {
   favorite?: boolean;
   value: number;
   imageUrls?: string[];
-  description?: string;
+  description: string;
   eventId?: string;
   paymentInstallmentId?: string;
   onSiteRegistrationId?: string;
@@ -45,7 +45,7 @@ export type CashRegisterEntryWithDto = {
   favorite?: boolean;
   value: number;
   imageUrls: string[];
-  description?: string;
+  description: string;
   eventId?: string;
   paymentInstallmentId?: string;
   onSiteRegistrationId?: string;
@@ -66,9 +66,9 @@ export class CashRegisterEntry extends Entity {
     private method: PaymentMethod,
     private value: number,
     private imageUrls: string[] = [],
+    private description: string,
     createdAt: Date,
     updatedAt: Date,
-    private description?: string,
     private eventId?: string,
     private paymentInstallmentId?: string,
     private onSiteRegistrationId?: string,
@@ -115,9 +115,9 @@ export class CashRegisterEntry extends Entity {
       method,
       value,
       imagesDefault,
+      description,
       createdAt,
       updatedAt,
-      description,
       eventId,
       paymentInstallmentId,
       onSiteRegistrationId,
@@ -157,9 +157,9 @@ export class CashRegisterEntry extends Entity {
       method,
       value,
       imageUrls,
+      description,
       createdAt,
       updatedAt,
-      description,
       eventId,
       paymentInstallmentId,
       onSiteRegistrationId,
@@ -199,7 +199,7 @@ export class CashRegisterEntry extends Entity {
     return this.value;
   }
 
-  public getDescription(): string | undefined {
+  public getDescription(): string {
     return this.description;
   }
 

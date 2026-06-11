@@ -148,7 +148,7 @@ export class RegisterPaymentPixUsecase
       totalReceived: 0,
       installment: 1,
       methodPayment: PaymentMethod.PIX,
-      imageUrl: imagePath,
+      imageUrls: [imagePath], // Agora é um array com uma única imagem
     });
 
     await this.paymentGateway.create(payment);

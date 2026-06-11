@@ -29,7 +29,7 @@ type Receipt = {
   status: string;
   totalValue: number;
   createdAt: Date;
-  imageUrl: string;
+  imageUrls: string[];
 };
 
 @Injectable()
@@ -65,13 +65,15 @@ export class ListAllReceiptUsecase
 
     const receipts = await Promise.all(
       receiptsArray.map(async (receipt) => {
-        const imagePath = await this.getPublicUrlOrEmpty(receipt.getImageUrl());
+        const imageUrls = await this.getPublicUrlsOrEmpty(
+          receipt.getImageUrls(),
+        );
         return {
           id: receipt.getId(),
           status: receipt.getStatus(),
           totalValue: receipt.getTotalValue(),
           createdAt: receipt.getCreatedAt(),
-          imageUrl: imagePath,
+          imageUrls: imageUrls,
         };
       }),
     );
@@ -86,15 +88,24 @@ export class ListAllReceiptUsecase
     return output;
   }
 
-  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
-    if (!path) {
-      return '';
+  private async getPublicUrlsOrEmpty(paths: string[]): Promise<string[]> {
+    if (!paths || paths.length === 0) {
+      return [];
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      const publicUrls = await Promise.all(
+        paths.map(async (path) => {
+          try {
+            return await this.supabaseStorageService.getPublicUrl(path);
+          } catch {
+            return '';
+          }
+        }),
+      );
+      return publicUrls.filter((url) => url !== '');
     } catch {
-      return '';
+      return [];
     }
   }
 }

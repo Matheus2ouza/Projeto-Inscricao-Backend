@@ -33,7 +33,7 @@ type Payment = {
   status: string;
   totalValue: number;
   createdAt: Date;
-  imageUrl: string;
+  imageUrls: string[];
   rejectionReason?: string;
   allocation?: PaymentAllocation[];
 };
@@ -91,7 +91,7 @@ export class ListAllPaymentsUseCase
         const PaymentAllocation =
           await this.paymentAllocationGateway.findByPaymentId(p.getId());
 
-        const imagePath = await this.getPublicUrlOrEmpty(p.getImageUrl());
+        const imageUrls = await this.getPublicUrlsOrEmpty(p.getImageUrls());
 
         const allocation = PaymentAllocation?.map((a) => ({
           value: a.getValue(),
@@ -103,7 +103,7 @@ export class ListAllPaymentsUseCase
           status: p.getStatus(),
           totalValue: p.getTotalValue(),
           createdAt: p.getCreatedAt(),
-          imageUrl: imagePath,
+          imageUrls: imageUrls,
           rejectionReason: p.getRejectionReason(),
           allocation: allocation,
         };
@@ -121,15 +121,24 @@ export class ListAllPaymentsUseCase
     return output;
   }
 
-  private async getPublicUrlOrEmpty(path?: string): Promise<string> {
-    if (!path) {
-      return '';
+  private async getPublicUrlsOrEmpty(paths: string[]): Promise<string[]> {
+    if (!paths || paths.length === 0) {
+      return [];
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      const publicUrls = await Promise.all(
+        paths.map(async (path) => {
+          try {
+            return await this.supabaseStorageService.getPublicUrl(path);
+          } catch {
+            return '';
+          }
+        }),
+      );
+      return publicUrls.filter((url) => url !== '');
     } catch {
-      return '';
+      return [];
     }
   }
 }

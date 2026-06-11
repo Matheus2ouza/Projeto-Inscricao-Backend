@@ -23,7 +23,7 @@ export type UpdatePaymentReceiptInput = {
 
 export type UpdatePaymentReceiptOutput = {
   paymentId: string;
-  image: string;
+  imageUrls: string[];
 };
 
 @Injectable()
@@ -54,7 +54,7 @@ export class UpdatePaymentReceiptUsecase
       );
     }
 
-    const oldImagePath = payment.getImageUrl();
+    const oldImagePaths = payment.getImageUrls(); // Agora é string[]
 
     const imagePath = await this.processEventImage(
       input.image,
@@ -65,15 +65,17 @@ export class UpdatePaymentReceiptUsecase
       payment.getGuestName(),
     );
 
-    // Upload bem-sucedido — deleta a imagem antiga se existir
-    if (oldImagePath) {
+    // Upload bem-sucedido — deleta as imagens antigas se existirem
+    if (oldImagePaths && oldImagePaths.length > 0) {
       try {
-        await this.supabaseStorageService.deleteFile(oldImagePath);
-        this.logger.log(`Imagem antiga deletada: ${oldImagePath}`);
-      } catch (error) {
-        // Não bloqueia o fluxo se falhar ao deletar a antiga
+        await this.supabaseStorageService.deleteFiles(oldImagePaths);
+        this.logger.log(
+          `${oldImagePaths.length} imagem(ns) antiga(s) deletada(s): ${oldImagePaths.join(', ')}`,
+        );
+      } catch (error: any) {
+        // Não bloqueia o fluxo se falhar ao deletar as antigas
         this.logger.warn(
-          `Falha ao deletar imagem antiga (${oldImagePath}): ${error.message}`,
+          `Falha ao deletar imagem(ns) antiga(s) (${oldImagePaths.join(', ')}): ${error.message}`,
         );
       }
     }
@@ -85,7 +87,7 @@ export class UpdatePaymentReceiptUsecase
 
     const output: UpdatePaymentReceiptOutput = {
       paymentId: payment.getId(),
-      image: payment.getImageUrl()!,
+      imageUrls: payment.getImageUrls()!,
     };
 
     return output;
@@ -127,23 +129,26 @@ export class UpdatePaymentReceiptUsecase
         }),
       );
 
-      const imageUrl = payment.getImageUrl();
-      if (!imageUrl) {
+      const imageUrls = payment.getImageUrls();
+      if (!imageUrls || imageUrls.length === 0) {
         this.logger.warn(
-          `Pagamento ${payment.getId()} não possui imagem para notificação de comprovante atualizado.`,
+          `Pagamento ${payment.getId()} não possui imagens para notificação de comprovante atualizado.`,
         );
         return;
       }
 
+      // Para o email, pode pegar a primeira imagem ou todas
+      const firstImageUrl = imageUrls[0];
+
       await this.paymentReceiptUpdateEmailHandler.sendNewPaymentReceiptUpdate(
         {
           paymentId: payment.getId(),
-          imageUrl,
+          imageUrl: firstImageUrl,
           eventName: event.getName(),
         },
         responsibles,
       );
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Erro ao notificar responsáveis sobre comprovante atualizado: ${error.message}`,
         error.stack,

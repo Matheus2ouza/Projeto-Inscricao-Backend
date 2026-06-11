@@ -40,7 +40,7 @@ export class EventExpensesZodValidator implements Validator<EventExpenses> {
     const zodSchema = z.object({
       eventId: z.uuid({ error: 'O id do evento é obrigatório' }),
       description: z
-        .string()
+        .string({ error: 'A descrição é obrigatório' })
         .min(5, { error: 'Descrição muito curta' })
         .max(300, {
           error: 'Descrição muito longa, tamanho maximo: 300 caractere',

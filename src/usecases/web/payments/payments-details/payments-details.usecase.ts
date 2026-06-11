@@ -22,7 +22,7 @@ export type PaymentsDetailsOutput = {
   totalValue: number;
   createdAt: Date;
   updatedAt: Date;
-  imageUrl: string;
+  imageUrls: string[];
   rejectionReason?: string;
   allocations?: PaymentAllocation[];
   installments?: PaymentInstallment[];
@@ -65,7 +65,7 @@ export class PaymentsDetailsUsecase
       );
     }
 
-    const imagePath = await this.getPublicUrl(payment.getImageUrl());
+    const imageUrls = await this.getPublicUrls(payment.getImageUrls());
 
     // Pegando as alocações do pagamento
     const paymentAllocation =
@@ -149,7 +149,7 @@ export class PaymentsDetailsUsecase
       totalValue: payment.getTotalValue(),
       createdAt: payment.getCreatedAt(),
       updatedAt: payment.getUpdatedAt(),
-      imageUrl: imagePath,
+      imageUrls: imageUrls,
       rejectionReason: payment.getRejectionReason(),
       allocations,
       installments,
@@ -158,15 +158,24 @@ export class PaymentsDetailsUsecase
     return output;
   }
 
-  private async getPublicUrl(path?: string): Promise<string> {
-    if (!path) {
-      return '';
+  private async getPublicUrls(paths: string[]): Promise<string[]> {
+    if (!paths || paths.length === 0) {
+      return [];
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      const publicUrls = await Promise.all(
+        paths.map(async (path) => {
+          try {
+            return await this.supabaseStorageService.getPublicUrl(path);
+          } catch {
+            return '';
+          }
+        }),
+      );
+      return publicUrls.filter((url) => url !== '');
     } catch {
-      return '';
+      return [];
     }
   }
 }

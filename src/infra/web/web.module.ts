@@ -18,8 +18,8 @@ import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
 import { EventExpensesNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/expense/event-not-found.usecase-exception.filter';
 import { ReceiptIndexInvalidUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipt-index-invalid.usecase.exception.filter';
-import { ReceiptsLimitExceededUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipts-limit-exceeded.usecase.exception.filter';
 import { ReceiptsNotProvidedUsecaseExceptionFilterProvider } from './filters/usecases/expense/receipts-not-provided.usecase.exception.filter';
+import { ImageLimitExceededUsecaseExceptionFilterProvider } from './filters/usecases/image-limit-exceeded.usecase.exception.filter';
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
@@ -489,11 +489,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     // EVENT EXPENSE
     EventExpensesNotFoundUsecaseExceptionFilterProvider,
     ReceiptsNotProvidedUsecaseExceptionFilterProvider,
-    ReceiptsLimitExceededUsecaseExceptionFilterProvider,
     ReceiptIndexInvalidUsecaseExceptionFilterProvider,
 
     // Environment Variable
     EnvironmentVariableNotFoundExceptionFilterProvider,
+
+    ImageLimitExceededUsecaseExceptionFilterProvider,
   ],
 })
 export class WebModule {}

@@ -12,7 +12,7 @@ export class PaymentsDetailsPresenter {
       totalValue: output.totalValue,
       createdAt: output.createdAt,
       updatedAt: output.updatedAt,
-      imageUrl: output.imageUrl,
+      imageUrls: output.imageUrls,
       rejectionReason: output.rejectionReason,
       allocations: output.allocations,
       installments: output.installments,

@@ -10,6 +10,7 @@ import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entit
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
+import { Event } from 'src/domain/entities/event.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
@@ -19,11 +20,11 @@ import { FinancialMovementGateway } from 'src/domain/repositories/financial-move
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { generateExpenseSlug } from 'src/shared/utils/expense-file-name.util';
 import { sanitizeFileName } from 'src/shared/utils/file-name.util';
+import { generateSlug } from 'src/shared/utils/generate-slug';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
-import { ReceiptsLimitExceededUsecaseException } from '../../exceptions/expense/receipts-limit-exceeded.usecase.exception';
+import { ImageLimitExceededUsecaseException } from '../../exceptions/image-limit-exceeded.usecase.exception';
 import { InvalidImageFormatUsecaseException } from '../../exceptions/payment/invalid-image-format.usecase.exception';
 
 export type CreateExpensesInput = {
@@ -73,7 +74,7 @@ export class CreateExpensesUsecase
     let imagePaths: string[] = [];
     if (input.images.length > 0) {
       if (input.images.length > 3) {
-        throw new ReceiptsLimitExceededUsecaseException(
+        throw new ImageLimitExceededUsecaseException(
           `Attempting to register expenses with more receipts than allowed: ${input.images.length}`,
           `Limite de 3 comprovantes atingido`,
           CreateExpensesUsecase.name,
@@ -85,6 +86,7 @@ export class CreateExpensesUsecase
         event,
         input.category,
         input.value,
+        input.responsible,
         input.description,
         0, // como ainda não existe nem o gasto ainda, então passamos o currentImageCount como zero
       );
@@ -189,9 +191,10 @@ export class CreateExpensesUsecase
 
   private async processExpenseImages(
     images: string[],
-    event: any, // EventEntity
+    event: Event,
     category: string,
     value: number,
+    responsible: string,
     description: string,
     currentImageCount: number,
   ): Promise<string[]> {
@@ -202,10 +205,12 @@ export class CreateExpensesUsecase
     const sanitizedCategoryName = sanitizeFileName(
       category || CategoryExpense.OUTROS,
     );
-    const sanitizedDescription = generateExpenseSlug(
-      description || 'descrição não encontrada',
-    );
-    const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}`;
+    const sanitizedResponsibleName = sanitizeFileName(responsible);
+    const sanitizedDescription = generateSlug({
+      description,
+      defaultSlug: 'expense',
+    });
+    const folderName = `expenses/${sanitizedEventName}/${sanitizedCategoryName}/${sanitizedResponsibleName}`;
 
     const filesOptions = await Promise.all(
       images.map(async (image, index) => {

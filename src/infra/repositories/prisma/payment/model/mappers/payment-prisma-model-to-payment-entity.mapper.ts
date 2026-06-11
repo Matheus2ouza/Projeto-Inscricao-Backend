@@ -19,7 +19,7 @@ export class PaymentPrismaModelToPaymentEntityMapper {
       totalReceived: Number(payment.totalReceived),
       installments: payment.installments || 1,
       paidInstallments: payment.paidInstallments || 0,
-      imageUrl: payment.imageUrl || undefined,
+      imageUrls: payment.imageUrls,
       asaasCheckoutId: payment.asaasCheckoutId || undefined,
       paymentLinkId: payment.paymentLinkId || undefined,
       externalReference: payment.externalReference || undefined,

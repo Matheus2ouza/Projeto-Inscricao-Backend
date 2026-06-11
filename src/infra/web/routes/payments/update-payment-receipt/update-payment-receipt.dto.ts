@@ -6,5 +6,5 @@ export type UpdatePaymentReceiptResquest = {
 
 export type UpdatePaymentReceiptResponse = {
   paymentId: string;
-  image: string;
+  imageUrls: string[];
 };

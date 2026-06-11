@@ -111,7 +111,6 @@ secrets.txt
 *.session
 
 # Arquivos de dump e backup de banco
-*.sql
 *.dump
 *.backup
 *.bak
@@ -336,7 +335,5 @@ sincronizar.bat
 *.bat
 
 *.ps1
-prisma/migrations/migration_lock.toml
-prisma/migrations/migration_lock.toml
 
 grafana-data/

@@ -54,7 +54,7 @@ type InscriptionsDetails = {
     totalPaid: number;
     totalReceived: number;
     createdAt: Date;
-    receiptPath?: string;
+    receiptPaths?: string[];
     installments?: {
       installmentNumber: number;
       received: boolean;
@@ -213,14 +213,21 @@ export class GenerateXlsxAllInscriptionsUsecase
               payments.map(async (payment) => {
                 const isPixPayment =
                   payment.getMethodPayment() === PaymentMethod.PIX;
-                const extractedReceiptPath = isPixPayment
-                  ? this.extractReceiptPath(payment.getImageUrl())
-                  : undefined;
 
-                const receiptPath = extractedReceiptPath
-                  ? (await this.getPublicUrl(extractedReceiptPath)) ||
-                    extractedReceiptPath
-                  : undefined;
+                let receiptPaths: string[] | undefined = undefined;
+                if (isPixPayment) {
+                  const extractedPaths = this.extractReceiptPaths(
+                    payment.getImageUrls(),
+                  );
+                  if (extractedPaths && extractedPaths.length > 0) {
+                    receiptPaths = await Promise.all(
+                      extractedPaths.map(async (path) => {
+                        const publicUrl = await this.getPublicUrl(path);
+                        return publicUrl || path;
+                      }),
+                    );
+                  }
+                }
 
                 const installments = (
                   await this.paymentInstallmentGateway.findByPaymentId(
@@ -268,7 +275,7 @@ export class GenerateXlsxAllInscriptionsUsecase
                   totalPaid: payment.getTotalPaid(),
                   totalReceived: payment.getTotalReceived(),
                   createdAt: payment.getCreatedAt(),
-                  receiptPath,
+                  receiptPaths,
                   installments,
                 };
               }),
@@ -403,22 +410,24 @@ export class GenerateXlsxAllInscriptionsUsecase
     }
   }
 
-  private extractReceiptPath(imageUrl?: string): string {
-    if (!imageUrl) return '';
+  private extractReceiptPaths(imageUrls: string[]): string[] {
+    if (!imageUrls || imageUrls.length === 0) return [];
 
     const guestMarker = '/guest/';
     const normalMarker = '/normal/';
 
-    const guestIndex = imageUrl.indexOf(guestMarker);
-    if (guestIndex >= 0) {
-      return `/${imageUrl.slice(guestIndex + guestMarker.length)}`;
-    }
+    return imageUrls.map((imageUrl) => {
+      const guestIndex = imageUrl.indexOf(guestMarker);
+      if (guestIndex >= 0) {
+        return imageUrl.slice(guestIndex + guestMarker.length);
+      }
 
-    const normalIndex = imageUrl.indexOf(normalMarker);
-    if (normalIndex >= 0) {
-      return `/${imageUrl.slice(normalIndex + normalMarker.length)}`;
-    }
+      const normalIndex = imageUrl.indexOf(normalMarker);
+      if (normalIndex >= 0) {
+        return imageUrl.slice(normalIndex + normalMarker.length);
+      }
 
-    return imageUrl;
+      return imageUrl;
+    });
   }
 }

@@ -52,7 +52,12 @@ export class CashRegisterEntryZodValidator
           error: 'Valor é obrigatório',
         })
         .positive('Valor deve ser maior que zero'),
-      description: z.string().optional(),
+      description: z
+        .string()
+        .min(5, { error: 'Descrição muito curta' })
+        .max(300, {
+          error: 'Descrição muito longa, tamanho maximo: 300 caractere',
+        }),
       eventId: z.uuid().optional(),
       paymentInstallmentId: z.uuid().optional(),
       financialMovementId: z.uuid().optional(),

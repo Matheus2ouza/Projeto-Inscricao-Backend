@@ -284,7 +284,7 @@ model Payment {
   totalValue          Decimal              @default(0) @db.Decimal(10, 2)
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
-  imageUrl            String?
+  imageUrls           String[]             @map("image_urls")
   approvedBy          String?
   methodPayment       PaymentMethod        @default(PIX) @map("method_payment")
   asaasCheckoutId     String?              @unique @map("asaas_checkout_id")
@@ -515,7 +515,7 @@ model CashRegisterEntry {
   method               PaymentMethod
   favorite             Boolean               @default(false)
   value                Decimal               @db.Decimal(10, 2)
-  description          String?
+  description          String
   eventId              String?               @map("event_id")
   paymentInstallmentId String?               @map("payment_installment_id")
   onSiteRegistrationId String?               @map("on_site_registration_id")

@@ -21,7 +21,7 @@ export class PaymentEntityToPaymentPrismaModelMapper {
       installments: payment.getInstallments() || null,
       paidInstallments: payment.getPaidInstallments(),
       rejectionReason: payment.getRejectionReason() || null,
-      imageUrl: payment.getImageUrl() || null,
+      imageUrls: payment.getImageUrls(),
       asaasCheckoutId: payment.getAsaasCheckoutId() || null,
       paymentLinkId: payment.getPaymentLinkId() || null,
       externalReference: payment.getExternalReference() || null,
