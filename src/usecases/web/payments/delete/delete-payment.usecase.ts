@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   InscriptionStatus,
   PaymentMethod,
@@ -22,6 +22,8 @@ export type DeletePaymentInput = {
 
 @Injectable()
 export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
+  private readonly logger = new Logger(DeletePaymentUsecase.name);
+
   public constructor(
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
@@ -136,8 +138,22 @@ export class DeletePaymentUsecase implements Usecase<DeletePaymentInput, void> {
       );
     }
 
-    // Deleta a imagem do pagamento do bucket do supabase
-    await this.supabaseStorageService.deleteFile(payment.getImageUrl());
+    // Deleta as imagens do pagamento do bucket do supabase
+    const imageUrls = payment.getImageUrls();
+    if (imageUrls && imageUrls.length > 0) {
+      try {
+        await this.supabaseStorageService.deleteFiles(imageUrls);
+        this.logger.log(
+          `${imageUrls.length} imagem(ns) do pagamento ${payment.getId()} deletada(s) com sucesso do storage`,
+        );
+      } catch (error: any) {
+        // Não lança erro para não comprometer a deleção do banco de dados
+        this.logger.error(
+          `Erro ao deletar imagens do storage para o pagamento ${payment.getId()}: ${error.message}`,
+        );
+      }
+    }
+
     // Deleta o pagamento
     await this.paymentGateway.delete(payment.getId());
   }

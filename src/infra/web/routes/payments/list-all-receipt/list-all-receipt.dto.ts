@@ -24,5 +24,5 @@ type Receipt = {
   status: string;
   totalValue: number;
   createdAt: Date;
-  imageUrl: string;
+  imageUrls: string[];
 };

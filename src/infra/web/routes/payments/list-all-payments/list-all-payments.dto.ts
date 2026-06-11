@@ -25,7 +25,7 @@ type Payment = {
   status: string;
   totalValue: number;
   createdAt: Date;
-  imageUrl: string;
+  imageUrls: string[];
   rejectionReason?: string;
   allocation?: PaymentAllocation[];
 };

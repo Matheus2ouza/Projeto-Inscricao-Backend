@@ -43,7 +43,7 @@ type Payment = {
   id: string;
   status: string;
   totalValue: number;
-  imageUrl?: string;
+  imageUrls?: string[];
   rejectionReason?: string;
   createdAt: Date;
 };
@@ -110,7 +110,7 @@ export class ListPaymentPendingDetailsUsecase
       id: p.getId(),
       status: p.getStatus(),
       totalValue: p.getTotalValue(),
-      imageUrl: p.getImageUrl(),
+      imageUrls: p.getImageUrls(),
       rejectionReason: p.getRejectionReason(),
       createdAt: p.getCreatedAt(),
     }));

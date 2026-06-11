@@ -169,7 +169,7 @@ export class RegisterPaymentAdminUsecase
       totalReceived: input.amount,
       installment: 1,
       paidInstallments: 1,
-      imageUrl: imagePath,
+      imageUrls: [imagePath], // Agora é um array com uma única imagem
       methodPayment: PaymentMethod.PIX,
       approvedBy: input.userId,
     });
@@ -387,7 +387,7 @@ export class RegisterPaymentAdminUsecase
     paymentInstallment: PaymentInstallment,
     accountId: string,
   ): CashRegisterEntry[] {
-    const paymentImage = payment.getImageUrl();
+    const paymentImages = payment.getImageUrls(); // Retorna string[]
     return cashRegisterEvents.map((cashRegisterEvent) =>
       CashRegisterEntry.create({
         cashRegisterId: cashRegisterEvent.getCashRegisterId(),
@@ -399,7 +399,7 @@ export class RegisterPaymentAdminUsecase
         eventId: payment.getEventId(),
         paymentInstallmentId: paymentInstallment.getId(),
         responsible: accountId,
-        imageUrls: paymentImage ? [paymentImage] : [],
+        imageUrls: paymentImages, // Passa o array diretamente
       }),
     );
   }

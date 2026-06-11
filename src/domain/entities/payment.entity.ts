@@ -21,7 +21,7 @@ export type PaymentCreateDto = {
   asaasCheckoutId?: string;
   paymentLinkId?: string;
   externalReference?: string;
-  imageUrl?: string;
+  imageUrls?: string[];
   approvedBy?: string;
 };
 
@@ -41,8 +41,8 @@ export type PaymentWithDto = {
   totalReceived: number;
   installments: number;
   paidInstallments: number;
+  imageUrls: string[];
   rejectionReason?: string;
-  imageUrl?: string;
   asaasCheckoutId?: string;
   paymentLinkId?: string;
   externalReference?: string;
@@ -63,6 +63,7 @@ export class Payment extends Entity {
     private totalReceived: number,
     private installments: number,
     private paidInstallments: number,
+    private imageUrls: string[] = [],
     createdAt: Date,
     updatedAt: Date,
     private accountId?: string,
@@ -70,7 +71,6 @@ export class Payment extends Entity {
     private guestEmail?: string,
     private accessToken?: string,
     private isGuest?: boolean,
-    private imageUrl?: string,
     private asaasCheckoutId?: string,
     private paymentLinkId?: string,
     private externalReference?: string,
@@ -89,17 +89,17 @@ export class Payment extends Entity {
     accessToken,
     isGuest,
     status,
+    methodPayment,
     totalValue,
     totalPaid,
     totalNetValue,
     totalReceived,
     installment,
     paidInstallments,
-    imageUrl,
+    imageUrls,
     asaasCheckoutId,
     paymentLinkId,
     externalReference,
-    methodPayment,
     approvedBy,
   }: PaymentCreateDto): Payment {
     const id = Utils.generateUUID();
@@ -115,10 +115,11 @@ export class Payment extends Entity {
 
     const isGuestDefault = isGuest || false;
 
+    let finalAccessToken = accessToken;
     if (isGuestDefault) {
-      accessToken = Utils.generateUUID();
+      finalAccessToken = Utils.generateUUID();
     } else {
-      accessToken = undefined;
+      finalAccessToken = undefined;
     }
 
     return new Payment(
@@ -132,14 +133,14 @@ export class Payment extends Entity {
       totalReceivedDefault,
       installmentsDefault,
       paidInstallmentsDefault,
+      imageUrls,
       createdAt,
       updatedAt,
       accountId,
       guestName,
       guestEmail,
-      accessToken,
+      finalAccessToken,
       isGuestDefault,
-      imageUrl,
       asaasCheckoutId,
       paymentLinkId,
       externalReference,
@@ -164,7 +165,7 @@ export class Payment extends Entity {
     totalReceived,
     installments,
     paidInstallments,
-    imageUrl,
+    imageUrls,
     asaasCheckoutId,
     paymentLinkId,
     externalReference,
@@ -184,6 +185,7 @@ export class Payment extends Entity {
       totalReceived,
       installments,
       paidInstallments,
+      imageUrls,
       createdAt,
       updatedAt,
       accountId,
@@ -191,7 +193,6 @@ export class Payment extends Entity {
       guestEmail,
       accessToken,
       isGuest,
-      imageUrl,
       asaasCheckoutId,
       paymentLinkId,
       externalReference,
@@ -264,8 +265,8 @@ export class Payment extends Entity {
     return this.paidInstallments;
   }
 
-  public getImageUrl(): string | undefined {
-    return this.imageUrl;
+  public getImageUrls(): string[] {
+    return this.imageUrls;
   }
 
   public getAsaasCheckoutId(): string | undefined {
@@ -320,7 +321,6 @@ export class Payment extends Entity {
   }
 
   public reverse(): void {
-    // se o pagamento estiver aprovado, reverter os dados especificos de quando o pagamento foi aprovado
     if (this.getStatus() === StatusPayment.APPROVED) {
       this.paidInstallments = 0;
       this.totalPaid = 0;
@@ -355,7 +355,7 @@ export class Payment extends Entity {
   }
 
   public updateImage(imageUrl: string, status: StatusPayment): void {
-    this.imageUrl = imageUrl;
+    this.imageUrls = [imageUrl];
     this.status =
       status === StatusPayment.REFUSED ? StatusPayment.UNDER_REVIEW : status;
     this.updatedAt = new Date();
