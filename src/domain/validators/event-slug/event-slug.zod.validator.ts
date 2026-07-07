@@ -19,7 +19,7 @@ export class EventSlugZodValidator implements Validator<EventSlug> {
         const messages = error.issues.map((issue) => issue.message).join(', ');
 
         throw new ValidatorDomainException(
-          `Error while validating payment ${input.getId()}: ${messages}`,
+          `Error while validating event slug ${input.getId()}: ${messages}`,
           `${messages}`,
           EventSlugZodValidator.name,
         );
@@ -43,7 +43,7 @@ export class EventSlugZodValidator implements Validator<EventSlug> {
       isCurrent: z.boolean(),
       clickCount: z
         .number({ error: 'A contagem de acessos tem que ser um numero' })
-        .positive({
+        .nonnegative({
           error: 'A contagem de acessos tem que ser um numero possitivo',
         }),
       createdAt: z.date(),
