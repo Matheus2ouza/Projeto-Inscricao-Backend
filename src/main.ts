@@ -85,7 +85,7 @@ async function bootstrap() {
   const port = Number(process.env.PORT ?? 3000);
   const host =
     process.env.NODE_ENV === 'production'
-      ? process.env.APP_URL || 'https://seu-dominio.com'
+      ? process.env.API_URL || 'https://seu-dominio.com'
       : `http://localhost:${port}`;
 
   await app.listen(port, '0.0.0.0');

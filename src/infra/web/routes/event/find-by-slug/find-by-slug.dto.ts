@@ -1,0 +1,31 @@
+import { InscriptionMode, statusEvent } from 'generated/prisma';
+
+export type FindBySlugEventRequest = {
+  slug: string;
+};
+
+export type FindBySlugEventResponse = {
+  id: string;
+  name: string;
+  quantityParticipants: number;
+  amountCollected: number;
+  startDate: Date;
+  endDate: Date;
+  image?: string;
+  logoUrl?: string;
+  location?: string;
+  longitude?: number | null;
+  latitude?: number | null;
+  status: statusEvent;
+  allowedInscriptionModes: InscriptionMode[];
+  paymentEnebled: boolean;
+  allowCard?: boolean;
+  createdAt: Date;
+  regionName: string;
+  responsibles: Responsible[];
+};
+
+export type Responsible = {
+  id: string;
+  name: string;
+};

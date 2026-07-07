@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CategoryExpense } from 'generated/prisma';
+import { CategoryExpense, PaymentMethod } from 'generated/prisma';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { PrismaService, PrismaTransactionClient } from '../prisma.service';
@@ -115,14 +115,36 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     return rows.map(PrismaToEntity.map);
   }
 
+  async findExpensesForReport(
+    eventId: string,
+    filters: {
+      category?: CategoryExpense[];
+      paymentMethod?: PaymentMethod[];
+      startCreatedAt?: Date | string;
+      endCreatedAt?: Date | string;
+    },
+  ): Promise<EventExpenses[]> {
+    const where = this.buildWhereClauseExpense(filters);
+    const found = await this.prisma.eventExpenses.findMany({
+      where: {
+        eventId,
+        ...where,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   async summarizeByCategory(
     cashRegisterId: string,
+    eventId?: string,
   ): Promise<
     { category: CategoryExpense; count: number; totalValue: number }[]
   > {
     const found = await this.prisma.eventExpenses.groupBy({
       by: ['category'],
       where: {
+        eventId,
         cashRegisterEntries: {
           some: {
             cashRegisterId,
@@ -161,5 +183,58 @@ export class EventExpensesPrismaRepository implements EventExpensesGateway {
     });
 
     return Number(total);
+  }
+
+  private buildWhereClauseExpense(filters: {
+    category?: CategoryExpense[];
+    paymentMethod?: PaymentMethod[];
+    startCreatedAt?: Date | string;
+    endCreatedAt?: Date | string;
+  }) {
+    const { category, paymentMethod, startCreatedAt, endCreatedAt } = filters;
+
+    // Converte os arrays para garantir que são arrays
+    const categoryArray = category
+      ? Array.isArray(category)
+        ? category
+        : [category]
+      : [];
+
+    const paymentMethodArray = paymentMethod
+      ? Array.isArray(paymentMethod)
+        ? paymentMethod
+        : [paymentMethod]
+      : [];
+
+    // Processa as datas
+    const parsedStartDate = startCreatedAt
+      ? new Date(startCreatedAt)
+      : undefined;
+    const parsedEndDate = endCreatedAt ? new Date(endCreatedAt) : undefined;
+
+    const validStartDate =
+      parsedStartDate && !Number.isNaN(parsedStartDate.getTime())
+        ? parsedStartDate
+        : undefined;
+    const validEndDate =
+      parsedEndDate && !Number.isNaN(parsedEndDate.getTime())
+        ? parsedEndDate
+        : undefined;
+
+    // Monta o filtro de data (similar ao createdAt da função original)
+    const createdAt =
+      validStartDate || validEndDate
+        ? {
+            ...(validStartDate ? { gte: validStartDate } : {}),
+            ...(validEndDate ? { lte: validEndDate } : {}),
+          }
+        : undefined;
+
+    return {
+      category: categoryArray.length > 0 ? { in: categoryArray } : undefined,
+      paymentMethod:
+        paymentMethodArray.length > 0 ? { in: paymentMethodArray } : undefined,
+      createdAt,
+    };
   }
 }

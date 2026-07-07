@@ -14,6 +14,7 @@ export type FindAllPaginatedEventResponse = {
     amountCollected: number;
     startDate: Date;
     endDate: Date;
+    url: string;
     imageUrl?: string;
     location: string;
     longitude?: number | null;

@@ -8,6 +8,7 @@ import { CashRegisterTransferPrismaRepositoryProvider } from './prisma/cash-regi
 import { CashRegisterPrismaRepositoryProvider } from './prisma/cash-register/model/cash-register.prisma.repository.provider';
 import { EventExpensesPrismaRepositoryProvider } from './prisma/event-expenses/model/event-expenses.prisma.repository.provider';
 import { EventResponsiblePrismaRepositoryProvider } from './prisma/event-responsibles/model/event-responsibles.prisma.repository.provider';
+import { EventSlugPrismaRepositoryProvider } from './prisma/event-slug/event-slug.prisma.repository.provider';
 import { EventTicketPrismaRepositoryProvider } from './prisma/event-tickets/model/event-tickets.prisma.repository.provider';
 import { EventPrismaRepositoryProvider } from './prisma/event/model/event.prisma.repository.provider';
 import { ExclusiveInscriptionLinkTypePrismaRepositoryProvider } from './prisma/exclusive-inscription-link-type/model/exclusive-inscription-link-type.prisma.repository.provider';
@@ -41,6 +42,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     CashRegisterEventPrismaRepositoryProvider,
     CashRegisterTransferPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
+    EventSlugPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
@@ -72,6 +74,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     CashRegisterEventPrismaRepositoryProvider,
     CashRegisterTransferPrismaRepositoryProvider,
     EventPrismaRepositoryProvider,
+    EventSlugPrismaRepositoryProvider,
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
