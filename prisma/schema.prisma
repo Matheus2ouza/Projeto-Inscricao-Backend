@@ -102,6 +102,7 @@ model Events {
   cashRegisterEvents       CashRegisterEvent[]
   EventExpenses            EventExpenses[]
   responsibles             EventResponsibles[]
+  slugs                    EventSlug[]
   EventTickets             EventTickets[]
   region                   Regions                    @relation(fields: [regionId], references: [id])
   FinancialMovement        FinancialMovement[]
@@ -123,6 +124,20 @@ model EventResponsibles {
 
   @@unique([eventId, accountId])
   @@map("event_responsibles")
+}
+
+model EventSlug {
+  id         String   @id @default(uuid())
+  slug       String   @unique
+  eventId    String
+  isCurrent  Boolean  @default(true)
+  clickCount Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  event Events @relation(fields: [eventId], references: [id])
+
+  @@index([eventId])
+  @@map("event_slugs")
 }
 
 model TypeInscriptions {
