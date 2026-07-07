@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
 import { Event } from 'src/domain/entities/event.entity';
 import { EventSlugGateway } from 'src/domain/repositories/event-slug.gateway';
@@ -43,8 +43,6 @@ export type FindAllPaginatedEventsOutput = {
 export class FindAllPaginatedEventsUsecase
   implements Usecase<FindAllPaginatedEventsInput, FindAllPaginatedEventsOutput>
 {
-  private readonly logger = new Logger(FindAllPaginatedEventsUsecase.name);
-
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly regionGateway: RegionGateway,
@@ -73,8 +71,6 @@ export class FindAllPaginatedEventsUsecase
         regionId: input.regionId,
       }),
     ]);
-
-    this.logger.log(`Processando ${events.length} eventos para gerar URLs`);
 
     const enriched = await Promise.all(
       events.map(async (event: any) => {
@@ -129,35 +125,17 @@ export class FindAllPaginatedEventsUsecase
   }
 
   private async getEventUrl(event: Event): Promise<string> {
-    const eventId = event.getId();
-    this.logger.debug(`Buscando slug para o evento ID: ${eventId}`);
-
-    let currentSlug = await this.eventSlugGateway.findByEventId(eventId);
+    let currentSlug = await this.eventSlugGateway.findByEventId(event.getId());
 
     if (!currentSlug) {
-      this.logger.warn(
-        `Slug não encontrado para o evento ID: ${eventId}. Criando novo slug...`,
-      );
-
       currentSlug = await this.createSlugEventUsecase.execute({
-        eventId: eventId,
+        eventId: event.getId(),
         eventName: event.getName(),
       });
-
-      this.logger.log(
-        `Slug criado com sucesso para o evento "${event.getName()}" (ID: ${eventId}): ${currentSlug?.getSlug()}`,
-      );
-    } else {
-      this.logger.debug(
-        `Slug encontrado para o evento "${event.getName()}" (ID: ${eventId}): ${currentSlug.getSlug()}`,
-      );
     }
 
     const baseUrl = process.env.APP_URL;
-    const url = `${baseUrl}/events/${currentSlug?.getSlug()}`;
 
-    this.logger.debug(`URL gerada para o evento ${eventId}: ${url}`);
-
-    return url;
+    return `${baseUrl}/events/${currentSlug?.getSlug()}`;
   }
 }
