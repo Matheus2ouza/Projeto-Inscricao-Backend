@@ -14,6 +14,8 @@ import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecase
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
 import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/usecases/environment-variable-not-found-usecase-exception.filter';
+import { EventNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-not-found.usecase-exception.filter';
+import { EventSlugNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-slug-not-found.usecase-exception.filter';
 import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
 import { EventExpensesNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/expense/event-not-found.usecase-exception.filter';
@@ -65,6 +67,7 @@ import { FindAllWithParticipantsRoute } from './routes/event/find-all-with-parti
 import { FindAllWithPaymentsRoute } from './routes/event/find-all-with-payments/find-all-with-payments.route';
 import { FindAllWithTicketsRoute } from './routes/event/find-all-with-tickets/find-all-with-tickets.route';
 import { FindByIdEventRoute } from './routes/event/find-by-id/find-by-id.route';
+import { FindBySlugEventRoute } from './routes/event/find-by-slug/find-by-slug.route';
 import { FindDetailsEventRoute } from './routes/event/find-details/find-details-event.route';
 import { FindEventCarouselRoute } from './routes/event/find-event-carousel/find-event-carousel.route';
 import { FindEventDateRoute } from './routes/event/find-event-dates/find-event-dates.route';
@@ -88,6 +91,7 @@ import { DeleteExpenseRoute } from './routes/expenses/delete-expenses/delete-exp
 import { DeleteReceiptExpenseRoute } from './routes/expenses/delete-receipt-expense/delete-receipt-expense.route';
 import { FindAllPaginatedEventExpensesRoute } from './routes/expenses/find-all-paginated/find-all-paginated-event-expenses.route';
 import { FindDetailsExpenseRoute } from './routes/expenses/find-details-expense/find-details-expense.route';
+import { GeneratePdfExpensesRoute } from './routes/expenses/reports/pdf/generate-pdf-expenses/generate-pdf-expenses.route';
 import { UpdateExpenseRoute } from './routes/expenses/update-expense/update-expense.route';
 import { UpdateReceiptExpenseRoute } from './routes/expenses/update-receipt-expense/update-receipt-expense.route';
 import { CreateInscriptionAvulRoute } from './routes/inscription-avul/create/create-inscription-avul.route';
@@ -265,6 +269,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     UpdateInscriptionEventRoute,
     UpdateTicketsSaleRoute,
 
+    FindBySlugEventRoute,
+
     // Events - Delete
     DeleteEventRoute,
     DeleteImageEventRoute,
@@ -426,6 +432,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     DeleteReceiptExpenseRoute,
     FindAllPaginatedEventExpensesRoute,
     FindDetailsExpenseRoute,
+    GeneratePdfExpensesRoute,
 
     // Reports
     ReportGeneralRoute,
@@ -453,6 +460,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    EventNotFoundUsecaseExceptionFilterProvider,
+    EventSlugNotFoundUsecaseExceptionFilterProvider,
 
     // Account Participant
     AccountParticipantNotFoundUsecaseExceptionFilterProvider,

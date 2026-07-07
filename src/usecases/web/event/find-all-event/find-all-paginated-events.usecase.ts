@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
+import { Event } from 'src/domain/entities/event.entity';
+import { EventSlugGateway } from 'src/domain/repositories/event-slug.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
+import { CreateSlugEventUsecase } from '../create-slug/create-slug-event.usecase';
 
 export type FindAllPaginatedEventsInput = {
   regionId?: string;
@@ -20,6 +23,7 @@ export type FindAllPaginatedEventsOutput = {
     amountCollected: number;
     startDate: Date;
     endDate: Date;
+    url: string;
     imageUrl?: string;
     location: string;
     longitude?: number | null;
@@ -42,6 +46,8 @@ export class FindAllPaginatedEventsUsecase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly regionGateway: RegionGateway,
+    private readonly eventSlugGateway: EventSlugGateway,
+    private readonly createSlugEventUsecase: CreateSlugEventUsecase,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
@@ -75,6 +81,8 @@ export class FindAllPaginatedEventsUsecase
 
         const region = await this.regionGateway.findById(event.getRegionId());
 
+        const url = await this.getEventUrl(event);
+
         return {
           id: event.getId(),
           name: event.getName(),
@@ -82,6 +90,7 @@ export class FindAllPaginatedEventsUsecase
           amountCollected: event.getAmountCollected(),
           startDate: event.getStartDate(),
           endDate: event.getEndDate(),
+          url,
           imageUrl: imagePath,
           location: event.getLocation() || event.location || '',
           longitude: event.getLongitude?.() ?? event.longitude ?? null,
@@ -113,5 +122,20 @@ export class FindAllPaginatedEventsUsecase
     } catch {
       return '';
     }
+  }
+
+  private async getEventUrl(event: Event): Promise<string> {
+    let currentSlug = await this.eventSlugGateway.findByEventId(event.getId());
+
+    if (!currentSlug) {
+      currentSlug = await this.createSlugEventUsecase.execute({
+        eventId: event.getId(),
+        eventName: event.getName(),
+      });
+    }
+
+    const baseUrl = process.env.APP_URL;
+
+    return `${baseUrl}/events/${currentSlug?.getSlug()}`;
   }
 }

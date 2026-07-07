@@ -30,6 +30,7 @@ import { DeleteEventResponsibleUseCase } from './web/event-responsible/delete-ev
 import { ListInscriptionToAnalysisUsecase } from './web/event/analysis/list-inscription-to-analysis/list-Inscription-to-analysis.usecase';
 import { FindAccountsDetailsUseCase } from './web/event/check-in/find-accounts-details/find-accounts-details.usecase';
 import { FindAccountsToCheckInUsecase } from './web/event/check-in/find-accounts-to-checkin/find-accounts-to-checkin.usecase';
+import { CreateSlugEventUsecase } from './web/event/create-slug/create-slug-event.usecase';
 import { CreateEventUseCase } from './web/event/create/create-event.usecase';
 import { DeleteEventUsecase } from './web/event/delete/delete-event/delete-event.usecase';
 import { DeleteImageEventUsecase } from './web/event/delete/delete-image/delete-image-event.usecase';
@@ -45,6 +46,7 @@ import { FindAllWithParticipantsUsecase } from './web/event/find-all-with-partic
 import { FindAllWithPaymentsUsecase } from './web/event/find-all-with-payments/find-all-with-payments.usecase';
 import { FindAllWithTicketsUsecase } from './web/event/find-all-with-tickets/find-all-with-tickets.usecase';
 import { FindByIdEventUsecase } from './web/event/find-by-id/find-by-id.usecase';
+import { FindBySlugEventUsecase } from './web/event/find-by-slug/find-by-slug.usecase';
 import { FindDetailsEventUsecase } from './web/event/find-details/find-details-event.usecase';
 import { FindEventCarouselUsecase } from './web/event/find-event-carousel/find-event-carousel.usecase';
 import { FindEventDateUsecase } from './web/event/find-event-dates/find-event-dates.usecase';
@@ -68,6 +70,7 @@ import { DeleteExpenseUsecase } from './web/expenses/delete-expenses/delete-expe
 import { DeleteReceiptExpenseUsecase } from './web/expenses/delete-receipt-expense/delete-receipt-expense.usecase';
 import { FindAllPaginatedEventExpensesUsecase } from './web/expenses/find-all-paginated/find-all-paginated-event-expenses.usecase';
 import { FindDetailsExpenseUsecase } from './web/expenses/find-details-expense/find-details-expense.usecase';
+import { GeneratePdfExpensesUsecase } from './web/expenses/reports/pdf/generate-pdf-expenses/generate-pdf-expenses.usecase';
 import { UpdateExpenseUsecase } from './web/expenses/update-expense/update-expense.usecase';
 import { UpdateReceiptExpenseUsecase } from './web/expenses/update-receipt-expense/update-receipt-expense.usecase';
 import { AnalysisInscriptionUsecase } from './web/inscription/analysis/analysis-inscription/analysis-inscription.usecase';
@@ -244,6 +247,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Events - Listings & Details
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
+    FindBySlugEventUsecase,
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
@@ -261,6 +265,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAccountsDetailsUseCase,
     DeleteEventResponsibleUseCase,
     FindAllToParticipantsUsecase,
+
+    // Event Slug
+    CreateSlugEventUsecase,
 
     // Regions
     CreateRegionUseCase,
@@ -394,6 +401,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateReceiptExpenseUsecase,
     FindAllPaginatedEventExpensesUsecase,
     FindDetailsExpenseUsecase,
+    GeneratePdfExpensesUsecase,
 
     // Reports
     ReportGeneralUsecase,
@@ -484,6 +492,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Events - Listings & Details
     FindAllPaginatedEventsUsecase,
     FindByIdEventUsecase,
+    FindBySlugEventUsecase,
     FindDetailsEventUsecase,
     FindAllnamesEventUsecase,
     FindEventCarouselUsecase,
@@ -499,6 +508,9 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllPaginatedEventToPaymentUsecase,
     DeleteEventResponsibleUseCase,
     FindAllToParticipantsUsecase,
+
+    // Event Slug
+    CreateSlugEventUsecase,
 
     // Regions
     CreateRegionUseCase,
@@ -633,6 +645,7 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     UpdateReceiptExpenseUsecase,
     FindAllPaginatedEventExpensesUsecase,
     FindDetailsExpenseUsecase,
+    GeneratePdfExpensesUsecase,
 
     // Reports
     ReportGeneralUsecase,

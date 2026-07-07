@@ -1,7 +1,5 @@
 # Configuração do banco de dados usado para testes e desenvolvimento
 
-version: '3.9'
-
 services:
   db:
     image: postgres:15
@@ -16,8 +14,20 @@ services:
     networks:
       - inscricao_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_inscricao
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/data'
+    networks:
+      - inscricao_net
+
 volumes:
   db_data:
+  redis_data:
 
 networks:
   inscricao_net:
