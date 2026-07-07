@@ -1,4 +1,4 @@
-import { CategoryExpense } from 'generated/prisma';
+import { CategoryExpense, PaymentMethod } from 'generated/prisma';
 import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
 import { EventExpenses } from '../entities/event-expenses.entity';
 
@@ -30,7 +30,20 @@ export abstract class EventExpensesGateway {
     eventId: string,
   ): Promise<EventExpenses[]>;
 
-  abstract summarizeByCategory(cashRegisterId: string): Promise<
+  abstract findExpensesForReport(
+    eventId: string,
+    filters: {
+      category?: CategoryExpense[];
+      paymentMethod?: PaymentMethod[];
+      startCreatedAt?: Date | string;
+      endCreatedAt?: Date | string;
+    },
+  ): Promise<EventExpenses[]>;
+
+  abstract summarizeByCategory(
+    cashRegisterId?: string,
+    eventId?: string,
+  ): Promise<
     {
       category: CategoryExpense;
       count: number;
