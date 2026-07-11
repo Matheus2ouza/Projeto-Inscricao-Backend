@@ -21,7 +21,6 @@ export class FindByIdUserRoute {
     const result = await this.findUserUsecase.execute(input);
 
     const response = FindByIdUserPresenter.toHttp(result);
-
     return response;
   }
 }

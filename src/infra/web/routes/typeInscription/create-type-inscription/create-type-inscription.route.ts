@@ -19,16 +19,16 @@ export class CreateTypeInscriptionRoute {
   @Post(':eventId/create')
   public async handle(
     @Param() param: CreateTypeInscriptionParam,
-    @Body() request: CreateTypeInscriptionBody,
+    @Body() body: CreateTypeInscriptionBody,
   ): Promise<CreateTypeInscriptionResponse> {
     const input: CreateTypeInscriptionInput = {
-      description: request.description,
-      value: request.value,
+      description: body.description,
+      value: body.value,
       eventId: param.eventId,
-      rule: request.rule,
-      specialType: request.specialType,
-      participantLimit: request.participantLimit,
-      limitIsStrict: request.limitIsStrict,
+      rule: body.rule,
+      specialType: body.specialType,
+      participantLimit: body.participantLimit,
+      limitIsStrict: body.limitIsStrict,
     };
 
     const response = await this.createTypeInscriptionUseCase.execute(input);

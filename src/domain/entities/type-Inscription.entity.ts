@@ -187,10 +187,12 @@ export class TypeInscription extends Entity {
     description,
     value,
     specialType,
+    rule,
   }: {
     description: string;
     value: number;
     specialType: boolean;
+    rule: Date | null;
   }): void {
     if (!description !== undefined) {
       this.setDescription(description);
@@ -202,6 +204,10 @@ export class TypeInscription extends Entity {
 
     if (!specialType !== undefined) {
       this.setSpecialType(specialType);
+    }
+
+    if (!rule !== undefined) {
+      this.setRule(rule);
     }
   }
 

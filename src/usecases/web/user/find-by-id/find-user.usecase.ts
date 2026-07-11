@@ -12,8 +12,6 @@ export type FindUserOutput = {
   username: string;
   role: string;
   createdAt: Date;
-  updatedAt: Date;
-  regionId: string | undefined;
 };
 
 @Injectable()
@@ -35,8 +33,6 @@ export class FindUserUsecase implements Usecase<FindUserInput, FindUserOutput> {
       username: anUser.getUsername(),
       role: anUser.getRole(),
       createdAt: anUser.getCreatedAt(),
-      updatedAt: anUser.getUpdatedAt(),
-      regionId: anUser.getRegionId(),
     };
 
     return output;

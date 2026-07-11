@@ -5,7 +5,7 @@ export type CreateTypeInscriptionParam = {
 export type CreateTypeInscriptionBody = {
   description: string;
   value: number;
-  rule: Date | null;
+  rule: number | null;
   eventId: string;
   specialType: boolean;
   participantLimit: number;

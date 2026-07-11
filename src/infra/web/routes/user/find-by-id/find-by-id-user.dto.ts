@@ -3,5 +3,4 @@ export type FindByIdUserResponse = {
   username: string;
   role: string;
   createdAt: Date;
-  updatedAt: Date;
 };

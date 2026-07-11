@@ -3,4 +3,5 @@ export type FindEventCarouselResponse = {
   name: string;
   location?: string;
   image?: string;
+  url: string;
 }[];

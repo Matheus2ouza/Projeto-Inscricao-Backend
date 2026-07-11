@@ -13,7 +13,7 @@ export class LoginUserRoute {
   public constructor(private readonly loginUserUsecase: LoginUserUsecase) {}
 
   @IsPublic()
-  @Post('/')
+  @Post('/login')
   public async handle(
     @Body() request: LoginUserRequest,
     @Res({ passthrough: true }) res: Response,

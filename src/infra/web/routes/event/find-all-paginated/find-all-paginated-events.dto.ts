@@ -21,7 +21,6 @@ export type FindAllPaginatedEventResponse = {
     latitude?: number | null;
     status: statusEvent;
     createdAt: Date;
-    updatedAt: Date;
     regionName?: string;
   }[];
   total: number;
