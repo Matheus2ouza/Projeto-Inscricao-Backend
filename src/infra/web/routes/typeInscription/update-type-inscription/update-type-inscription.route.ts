@@ -25,6 +25,7 @@ export class UpdateTypeInscriptionRoute {
       description: body.description,
       value: body.value,
       specialType: body.specialType,
+      rule: body.rule,
     };
 
     const response = await this.updateTypeInscriptionUsecase.execute(input);

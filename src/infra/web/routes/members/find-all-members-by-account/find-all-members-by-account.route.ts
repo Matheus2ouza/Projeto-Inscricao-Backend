@@ -32,7 +32,6 @@ export class FindAllMembersByAccountRoute {
         user.userRole === roleType.USER ? user.userId : query.accountId,
     };
 
-    console.log(input);
     const response = await this.findAllMembersByAccountUsecase.execute(input);
     return FindAllMembersByAccountPresenter.toHttp(response);
   }
