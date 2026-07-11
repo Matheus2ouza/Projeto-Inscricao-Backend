@@ -30,7 +30,6 @@ export type FindAllPaginatedEventsOutput = {
     latitude?: number | null;
     status: statusEvent;
     createdAt: Date;
-    updatedAt: Date;
     regionName?: string;
     countTypeInscriptions: number;
   }[];

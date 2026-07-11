@@ -10,6 +10,7 @@ export class FindEventCarousePresenter {
       name: event.name,
       location: event.location,
       image: event.image,
+      url: event.url,
     }));
   }
 }

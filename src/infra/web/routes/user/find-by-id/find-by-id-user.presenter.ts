@@ -8,7 +8,6 @@ export class FindByIdUserPresenter {
       username: input.username,
       role: input.role,
       createdAt: input.createdAt,
-      updatedAt: input.updatedAt,
     };
 
     return response;

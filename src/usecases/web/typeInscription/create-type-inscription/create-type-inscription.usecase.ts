@@ -9,7 +9,7 @@ import { DescriptionAlreadyExistsUsecaseException } from 'src/usecases/web/excep
 export type CreateTypeInscriptionInput = {
   description: string;
   value: number;
-  rule: Date | null;
+  rule: number | null;
   eventId: string;
   specialType: boolean;
   participantLimit: number;
@@ -54,11 +54,18 @@ export class CreateTypeInscriptionUseCase
         CreateTypeInscriptionUseCase.name,
       );
     }
+
+    // Converte a idade (número) para data de nascimento
+    const ruleDate =
+      input.rule !== null
+        ? this.convertAgeToDate(input.rule, event.getStartDate())
+        : null;
+
     const newTypeInscription = TypeInscription.create({
-      description: input.description.trim().toLowerCase(),
+      description: input.description.toLowerCase(),
       value: input.value,
       eventId: input.eventId,
-      rule: input.rule,
+      rule: ruleDate, // Agora passa a data calculada
       specialType: input.specialType,
       participantLimit: input.participantLimit,
       limitIsStrict: input.limitIsStrict,
@@ -71,5 +78,23 @@ export class CreateTypeInscriptionUseCase
     };
 
     return output;
+  }
+
+  /**
+   * Converte uma idade em anos para uma data de nascimento
+   * @param ageInYears Idade em anos
+   * @param baseDate Data base para o cálculo (geralmente a data do evento)
+   * @returns Data de nascimento calculada ou null
+   */
+  private convertAgeToDate(ageInYears: number, baseDate: Date): Date | null {
+    if (!ageInYears || ageInYears <= 0) return null;
+
+    const birthDate = new Date(baseDate);
+    birthDate.setFullYear(birthDate.getFullYear() - ageInYears);
+
+    // Opcional: Ajusta para o início do dia para evitar problemas de fuso horário
+    birthDate.setHours(0, 0, 0, 0);
+
+    return birthDate;
   }
 }
