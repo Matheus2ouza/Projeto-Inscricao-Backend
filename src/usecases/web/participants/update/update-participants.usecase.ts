@@ -38,10 +38,13 @@ export class UpdateParticipantsUsecase
       );
     }
 
+    const birthDate =
+      input.birthDate != undefined ? new Date(input.birthDate) : undefined;
+
     participant.update({
       name: input.name,
       cpf: input.cpf,
-      birthDate: input.birthDate,
+      birthDate,
       gender: input.gender,
       preferredName: input.preferredName,
       shirtSize: input.shirtSize,
