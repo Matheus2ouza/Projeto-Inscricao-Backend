@@ -1,6 +1,9 @@
 export type UpdateLogoEventRequest = {
   eventId: string;
-  image: string;
+  file: {
+    buffer: Buffer;
+    mimeType: string;
+  };
 };
 
 export type UpdateLogoEventResponse = {

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';

@@ -1,5 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
+import {
+  UserInfo,
+  UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindByIdEventInput,
   FindByIdEventUsecase,
@@ -16,14 +19,16 @@ export class FindByIdEventRoute {
     private readonly findByIdEventUsecase: FindByIdEventUsecase,
   ) {}
 
-  @IsPublic()
   @Get(':id')
   public async handle(
     @Param() params: FindByIdEventRequest,
+    @UserInfo() user: UserInfoType,
   ): Promise<FindByIdEventResponse> {
     const input: FindByIdEventInput = {
       id: params.id,
+      role: user.userRole,
     };
+
     const response = await this.findByIdEventUsecase.execute(input);
     return FindByEventPresenter.toHttp(response);
   }

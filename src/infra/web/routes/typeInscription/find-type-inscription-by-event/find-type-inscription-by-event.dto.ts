@@ -5,11 +5,11 @@ export type FindTypeInscriptionByEventRequest = {
 export type FindTypeInscriptionByEventResponse = {
   id: string;
   description: string;
-  rule: Date | null;
   value: number;
+  rule: Date | null;
   specialType: boolean;
-  active: boolean;
-  participantLimit: number;
-  limitIsStrict: boolean;
-  createdAt: Date;
+  active?: boolean;
+  participantLimit?: number;
+  limitIsStrict?: boolean;
+  createdAt?: Date;
 }[];

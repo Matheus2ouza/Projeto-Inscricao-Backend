@@ -1,27 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { PrismaService } from '../prisma.service';
 import { AccountEntityToUserPrismaModelMapper } from './model/mappers/account-entity-to-account-prisma-model.mapper';
-import { AccountPrismaModelToUserEntityMapper } from './model/mappers/account-prisma-model-to-account-entity.mapper';
+import { AccountPrismaModelToUserEntityMapper as PrismaToEntity } from './model/mappers/account-prisma-model-to-account-entity.mapper';
 
 @Injectable()
 export class AccountPrismaRepository implements AccountGateway {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async findByUser(username: string): Promise<Account | null> {
-    const aModel = await this.prisma.accounts.findFirst({
-      where: { username },
+  // ============ CREATES ============
+  public async create(user: Account): Promise<void> {
+    const aModel = AccountEntityToUserPrismaModelMapper.map(user);
+    await this.prisma.accounts.create({
+      data: aModel,
     });
-
-    if (!aModel) return null;
-
-    const anUser = AccountPrismaModelToUserEntityMapper.map(aModel);
-
-    return anUser;
   }
 
+  // ============ FINDS ============
   public async findById(id: string): Promise<Account | null> {
     const aModel = await this.prisma.accounts.findUnique({
       where: {
@@ -31,7 +28,32 @@ export class AccountPrismaRepository implements AccountGateway {
 
     if (!aModel) return null;
 
-    const anUser = AccountPrismaModelToUserEntityMapper.map(aModel);
+    const anUser = PrismaToEntity.map(aModel);
+
+    return anUser;
+  }
+
+  public async findByIds(ids: string[]): Promise<Account[]> {
+    const models = await this.prisma.accounts.findMany({
+      where: {
+        id: { in: ids },
+      },
+      orderBy: {
+        username: 'asc',
+      },
+    });
+
+    return models.map(PrismaToEntity.map);
+  }
+
+  public async findByUsername(username: string): Promise<Account | null> {
+    const aModel = await this.prisma.accounts.findFirst({
+      where: { username },
+    });
+
+    if (!aModel) return null;
+
+    const anUser = PrismaToEntity.map(aModel);
 
     return anUser;
   }
@@ -46,6 +68,53 @@ export class AccountPrismaRepository implements AccountGateway {
     if (!region) return null;
 
     return region;
+  }
+
+  public async findAll(): Promise<Account[]> {
+    const found = await this.prisma.accounts.findMany({
+      orderBy: { username: 'asc' },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  public async findAllNames(
+    roles?: roleType[],
+    regionId?: string,
+  ): Promise<Account[]> {
+    const found = await this.prisma.accounts.findMany({
+      where: {
+        role: {
+          in: roles,
+        },
+        regionId,
+      },
+    });
+    return found.map(PrismaToEntity.map);
+  }
+
+  public async findManyPaginated(
+    page: number,
+    pageSize: number,
+    regionId?: string,
+  ): Promise<Account[]> {
+    const skip = (page - 1) * pageSize;
+    const where = regionId ? { regionId } : {};
+
+    const models = await this.prisma.accounts.findMany({
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        region: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return models.map(PrismaToEntity.map);
   }
 
   public async findByEventIdWithPagination(
@@ -75,63 +144,10 @@ export class AccountPrismaRepository implements AccountGateway {
       orderBy: { username: 'asc' },
     });
 
-    return found.map(AccountPrismaModelToUserEntityMapper.map);
+    return found.map(PrismaToEntity.map);
   }
 
-  public async create(user: Account): Promise<void> {
-    const aModel = AccountEntityToUserPrismaModelMapper.map(user);
-    await this.prisma.accounts.create({
-      data: aModel,
-    });
-  }
-
-  public async findManyPaginated(
-    page: number,
-    pageSize: number,
-    regionId?: string,
-  ): Promise<Account[]> {
-    const skip = (page - 1) * pageSize;
-    const where = regionId ? { regionId } : {};
-
-    const models = await this.prisma.accounts.findMany({
-      where,
-      skip,
-      take: pageSize,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        region: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
-    return models.map(AccountPrismaModelToUserEntityMapper.map);
-  }
-
-  async findAll(): Promise<Account[]> {
-    const found = await this.prisma.accounts.findMany({
-      orderBy: { username: 'asc' },
-    });
-    return found.map(AccountPrismaModelToUserEntityMapper.map);
-  }
-
-  async findAllNames(
-    roles?: roleType[],
-    regionId?: string,
-  ): Promise<Account[]> {
-    const found = await this.prisma.accounts.findMany({
-      where: {
-        role: {
-          in: roles,
-        },
-        regionId,
-      },
-    });
-    return found.map(AccountPrismaModelToUserEntityMapper.map);
-  }
-
+  // ============ COUNTS ============
   public async countAll(regionId: string): Promise<number> {
     const where = regionId ? { regionId } : {};
 
@@ -163,35 +179,6 @@ export class AccountPrismaRepository implements AccountGateway {
     return count;
   }
 
-  public async findByIds(ids: string[]): Promise<Account[]> {
-    const models = await this.prisma.accounts.findMany({
-      where: {
-        id: { in: ids },
-      },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        regionId: true,
-        email: true,
-        imageUrl: true,
-        region: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: {
-        username: 'asc',
-      },
-    });
-
-    return models.map(AccountPrismaModelToUserEntityMapper.map);
-  }
-
   public async countAccountsWithInscriptionsByEvent(
     eventId: string,
   ): Promise<number> {
@@ -208,6 +195,32 @@ export class AccountPrismaRepository implements AccountGateway {
     return total;
   }
 
+  // ============ VALIDATIONS ============
+  public async verifyActiveAccount(username: string): Promise<Account | null> {
+    const found = await this.prisma.accounts.findFirst({
+      where: {
+        username,
+        active: true,
+      },
+    });
+
+    return found ? PrismaToEntity.map(found) : null;
+  }
+
+  public async findEligibleResponsibles(ids: string[]): Promise<Account[]> {
+    const found = await this.prisma.accounts.findMany({
+      where: {
+        id: { in: ids },
+        role: {
+          not: roleType.USER,
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  // ============ PRIVATE METHODS ============
   private buildWhereClauseAccount(filter?: { eventId: string; id?: string }) {
     const { eventId, id } = filter || {};
     return {

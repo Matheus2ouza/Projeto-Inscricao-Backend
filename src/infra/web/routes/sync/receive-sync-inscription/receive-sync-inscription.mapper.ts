@@ -1,5 +1,5 @@
 import { InscriptionStatus } from 'generated/prisma';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 
 export type SyncInscriptionRecord = {
   id: string;

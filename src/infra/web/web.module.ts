@@ -9,6 +9,7 @@ import { ValidatorDomainExceptionFilterProvider } from './filters/domain/validat
 import { AuthTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/auth-token-not-valid-service-exception.filter';
 import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/infra/service/refresh-token-not-valid-service-exception.filter';
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
+import { RegionIdNotFoundRouteExceptionFilterProvider } from './filters/routes/event/region-id-not-found-route-exception.filter';
 import { AccountParticipantNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account-participant/account-participant-not-found-usecase-exception.filter';
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
@@ -16,6 +17,8 @@ import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/use
 import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/usecases/environment-variable-not-found-usecase-exception.filter';
 import { EventNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-not-found.usecase-exception.filter';
 import { EventSlugNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-slug-not-found.usecase-exception.filter';
+import { InscriptionModeNotValidUsecaseExceptionFilterProvider } from './filters/usecases/event/inscription-mode-not-valid-usecase-exception.filter';
+import { PaymentModeNotValidUsecaseExceptionFilterProvider } from './filters/usecases/event/payment-mode-not-valid-usecase-exception.filter';
 import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
 import { EventExpensesNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/expense/event-not-found.usecase-exception.filter';
@@ -25,7 +28,10 @@ import { ImageLimitExceededUsecaseExceptionFilterProvider } from './filters/usec
 import { InscriptionExpiredUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-expired.usecase.exception.filter';
 import { InscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/inscription/find/inscription-not-found.usecase.exception.filter';
 import { MemberAlreadyInscribedUsecaseExceptionFilterProvider } from './filters/usecases/inscription/indiv/member-already-inscriptibed.usecase.exception.filter';
+import { LocalityNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/locality/locality-not-found-usecase-exception.filter';
 import { DuplicateParticipantCpfUsecaseExceptionFilterProvider } from './filters/usecases/participant/duplicate-participant-cpf.usecase.exception.filter';
+import { MissingRequiredParticipantFieldsForGroupUsecaseExceptionFilterProvider } from './filters/usecases/participant/missing-required-participant-fields-for-group-usecase-exception.filter';
+import { MissingRequiredParticipantFieldsUsecaseExceptionFilterProvider } from './filters/usecases/participant/missing-required-participant-fields-usecase-exception.filter';
 import { PaymentAllocationExceededUsecaseExceptionFilterProvider } from './filters/usecases/payment-Inscription/payment-allocation-exceeded.usecase.exception.filter';
 import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment-installment/payment-installment-not-fund-usecase-exception.filter';
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
@@ -34,6 +40,7 @@ import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usec
 import { SyncRecordAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/sync/sync-record-already-exists.usecase.exception.filter';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
 import { ParticipantLimitReachedUsecaseExceptionFilterProvider } from './filters/usecases/typeInscription/participant-limit-reached-usecase-exception.filter';
+import { TypeInscriptionNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/typeInscription/type-inscription-not-found-usecase-exception.filter';
 import { UsecaseExceptionFilterProvider } from './filters/usecases/usecase-exception.filter';
 import { UserAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/user-already-exist-usecase-exception.filter';
 import { UserNotAllowedToCreateUserUsecaseExceptionFilterProvider } from './filters/usecases/user-not-allowed-to-create-user-usecase-exception.filter';
@@ -74,12 +81,14 @@ import { FindEventDateRoute } from './routes/event/find-event-dates/find-event-d
 import { FindAccountWithInscriptionsRoute } from './routes/event/inscription/find-accounts-with-inscriptions/find-accounts-with-inscriptions.route';
 import { FindAllToParticipantsRoute } from './routes/event/participants/find-all-to-participants/find-all-to-participants.route';
 import { GeneratePdfSelectedInscriptionRoute } from './routes/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.route';
-import { UpdateAllowCardRoute } from './routes/event/update-allow-card/update-allow-card.route';
 import { UpdateEventRoute } from './routes/event/update-event/update-event.route';
 import { UpdateImageEventRoute } from './routes/event/update-image/update-image.route';
+import { UpdateInscriptionModeEventRoute } from './routes/event/update-inscription-mode/update-inscription-mode-event.route';
 import { UpdateInscriptionEventRoute } from './routes/event/update-inscription/update-inscription-event.route';
 import { UpdateLocationEventRoute } from './routes/event/update-location/update-location-event.route';
 import { UpdateLogoEventRoute } from './routes/event/update-logo/update-logo.route';
+import { UpdateParticipantFieldsConfigRoute } from './routes/event/update-participant-fields-config/update-participant-fields-config.route';
+import { UpdatePaymentModeEventRoute } from './routes/event/update-payment-mode/update-payment-mode-event.route';
 import { UpdatePaymentEventRoute } from './routes/event/update-payment/update-payment-event.route';
 import { UpdateTicketsSaleRoute } from './routes/event/update-tickets-sale/update-tickets-sale.route';
 import { CreateExclusiveInscriptionLinkRoute } from './routes/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.route';
@@ -117,6 +126,7 @@ import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-i
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
 import { UpdateValidateInscriptionRoute } from './routes/inscription/update-validate-inscription/update-validate-inscription.route';
+import { FindAllByEventRoute } from './routes/locality/find-all-by-event/find-all-by-event.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
@@ -236,6 +246,8 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllMembersByAccountRoute,
     FindMemberByIdRoute,
 
+    FindAllByEventRoute,
+
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
     FindAllWithInscriptionsRoute,
@@ -261,13 +273,21 @@ import { WelcomeRoute } from './routes/welcome.route';
     // Events - Create & Update
     CreateEventRoute,
     UpdateEventRoute,
-    UpdateAllowCardRoute,
     UpdateImageEventRoute,
     UpdateLogoEventRoute,
     UpdateLocationEventRoute,
     UpdatePaymentEventRoute,
     UpdateInscriptionEventRoute,
     UpdateTicketsSaleRoute,
+
+    // Atualiza o inscription mode
+    UpdateInscriptionModeEventRoute,
+
+    // Atualiza os campos de criação para as inscrições
+    UpdateParticipantFieldsConfigRoute,
+
+    // Atualiza o payment mode
+    UpdatePaymentModeEventRoute,
 
     FindBySlugEventRoute,
 
@@ -461,8 +481,15 @@ import { WelcomeRoute } from './routes/welcome.route';
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
 
+    // Locality
+    LocalityNotFoundUsecaseExceptionFilterProvider,
+
+    // Event
     EventNotFoundUsecaseExceptionFilterProvider,
     EventSlugNotFoundUsecaseExceptionFilterProvider,
+    RegionIdNotFoundRouteExceptionFilterProvider,
+    PaymentModeNotValidUsecaseExceptionFilterProvider,
+    InscriptionModeNotValidUsecaseExceptionFilterProvider,
 
     // Account Participant
     AccountParticipantNotFoundUsecaseExceptionFilterProvider,
@@ -480,6 +507,8 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // PARTICIPANTS
     DuplicateParticipantCpfUsecaseExceptionFilterProvider,
+    MissingRequiredParticipantFieldsUsecaseExceptionFilterProvider,
+    MissingRequiredParticipantFieldsForGroupUsecaseExceptionFilterProvider,
 
     // Payment
     PaymentNotFoundUsecaseExceptionFilterProvider,
@@ -493,6 +522,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentInstallmentNotFoundUsecaseExceptionFilterProvider,
 
     // TYPE INSCRIPTION
+    TypeInscriptionNotFoundUsecaseExceptionFilterProvider,
     DescriptionAlreadyExistsUsecaseExcepitonFilterProvider,
     ParticipantLimitReachedUsecaseExceptionFilterProvider,
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { statusEvent } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { EventSlugGateway } from 'src/domain/repositories/event-slug.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';

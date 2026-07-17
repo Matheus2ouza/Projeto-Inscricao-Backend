@@ -53,12 +53,14 @@ import { FindEventDateUsecase } from './web/event/find-event-dates/find-event-da
 import { FindAccountWithInscriptionsUsecase } from './web/event/inscription/find-accounts-with-inscriptions.usecase';
 import { FindAllToParticipantsUsecase } from './web/event/participants/find-all-to-participants/find-all-to-participants.usecase';
 import { GeneratePdfSelectedInscriptionUsecase } from './web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
-import { UpdateAllowCardUseCase } from './web/event/update-allow-card/update-allow-card.usecase';
-import { UpdateEventUseCase } from './web/event/update-event/update-event.usecase';
+import { UpdateEventUsecase } from './web/event/update-event/update-event.usecase';
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
+import { UpdateInscriptionModeEventUsecase } from './web/event/update-inscription-mode/update-inscription-mode-event.usecase';
 import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/update-inscription-event.usecase';
 import { UpdateLocationEventUsecase } from './web/event/update-location/update-location-event.usecase';
 import { UpdateLogoEventUsecase } from './web/event/update-logo/update-logo.usecase';
+import { UpdateParticipantFieldsConfigUsecase } from './web/event/update-participant-fields-config/update-participant-fields-config.usecase';
+import { UpdatePaymentModeEventUsecase } from './web/event/update-payment-mode/update-payment-mode-event.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
 import { UpdateTicketsSaleUsecase } from './web/event/update-tickets-sale/update-tickets-sale.usecase';
 import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.usecase';
@@ -96,6 +98,7 @@ import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xl
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
+import { FindAllByEventUsecase } from './web/locality/find-all-by-event/find-all-by-event.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -230,16 +233,21 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllMembersByAccountUsecase,
     FindMemberByIdUsecase,
 
+    // Localities
+    FindAllByEventUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
-    UpdateEventUseCase,
+    UpdateEventUsecase,
     DeleteEventUsecase,
-    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    UpdateInscriptionModeEventUsecase,
+    UpdatePaymentModeEventUsecase,
+    UpdateParticipantFieldsConfigUsecase,
     UpdateTicketsSaleUsecase,
     DeleteImageEventUsecase,
     DeleteLogoEventUsecase,
@@ -473,17 +481,22 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllMembersByAccountUsecase,
     FindMemberByIdUsecase,
 
+    // Localities
+    FindAllByEventUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
-    UpdateEventUseCase,
+    UpdateEventUsecase,
     DeleteEventUsecase,
-    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateTicketsSaleUsecase,
     UpdateLocationEventUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    UpdateInscriptionModeEventUsecase,
+    UpdatePaymentModeEventUsecase,
+    UpdateParticipantFieldsConfigUsecase,
     FindAccountsToCheckInUsecase,
     FindAccountsDetailsUseCase,
     DeleteLogoEventUsecase,

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { Usecase } from 'src/usecases/usecase';
 

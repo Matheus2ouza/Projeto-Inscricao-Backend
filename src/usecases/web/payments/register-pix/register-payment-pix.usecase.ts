@@ -4,8 +4,8 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import { Account } from 'src/domain/entities/account.entity';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
@@ -314,7 +314,7 @@ export class RegisterPaymentPixUsecase
     accountId?: string,
     guestName?: string,
   ): Promise<string> {
-    this.logger.log('Processando imagem do evento');
+    this.logger.log('Processando imagem do registro de pagamento');
 
     const { buffer, extension } =
       await this.imageOptimizerService.processBase64Image(image);

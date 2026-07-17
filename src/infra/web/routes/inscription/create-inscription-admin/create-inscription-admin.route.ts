@@ -23,13 +23,13 @@ export class CreateInscriptionAdminRoute {
     @Body() body: CreateInscriptionAdminRequest,
   ): Promise<CreateInscriptionAdminResponse> {
     const input: CreateInscriptionAdminInput = {
+      localityId: body.localityId,
       eventId: body.eventId,
       isGuest: body.isGuest,
       accountId: body.accountId,
       responsible: body.responsible,
       email: body.email,
       phone: body.phone,
-      locality: body.locality,
       participants: body.participants,
     };
 

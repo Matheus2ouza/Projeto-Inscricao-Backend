@@ -1,4 +1,9 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
+import {
+  UserRole,
+  UserRoleType,
+} from 'src/infra/web/authenticator/decorators/user-role.decorator';
 import {
   FindTypeInscriptionByEventInput,
   FindTypeInscriptionByEventUsecase,
@@ -15,11 +20,14 @@ export class FindTypeInscriptionByEvent {
     private readonly findTypeInscriptionByEventUsecase: FindTypeInscriptionByEventUsecase,
   ) {}
 
+  @IsPublic()
   @Get('event/:eventId')
   public async handle(
     @Param() query: FindTypeInscriptionByEventRequest,
+    @UserRole() user: UserRoleType,
   ): Promise<FindTypeInscriptionByEventResponse> {
     const input: FindTypeInscriptionByEventInput = {
+      user,
       eventId: query.eventId,
     };
 

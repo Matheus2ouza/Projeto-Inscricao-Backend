@@ -23,6 +23,7 @@ export class RegisterGroupInscriptionRoute {
   ): Promise<RegisterGroupInscriptionUsecaseResponse> {
     const input: RegisterGroupInscriptionUsecaseInput = {
       accountId: userId,
+      localityId: body.localityId,
       eventId: body.eventId,
       responsible: body.responsible,
       phone: body.phone,

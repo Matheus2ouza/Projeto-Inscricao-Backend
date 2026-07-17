@@ -3,7 +3,11 @@ import { statusEvent } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
+import {
+  IMAGE_PRESETS,
+  SupabaseStorageService,
+} from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
@@ -24,14 +28,14 @@ export type FindDetailsEventOutput = {
   name: string;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string;
+  image?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   paymentEnabled: boolean;
   regionName?: string;
-  typeInscriptions: TypeInscription[];
+  participanteConfig: ParticipantFieldsConfig;
 };
 
 @Injectable()
@@ -56,25 +60,6 @@ export class FindDetailsEventUsecase
       );
     }
 
-    const filters = {
-      active: true,
-    };
-
-    //Busca os tipos de inscrição referente ao evento
-    const typeInscription = await this.typeInscriptionGateway.findByEventId(
-      event.getId(),
-      filters,
-    );
-
-    //Mapeia para retornar somente a descriçao e o valor
-    const typeInscriptions = typeInscription.map((type) => ({
-      id: type.getId(),
-      description: type.getDescription(),
-      value: type.getValue(),
-      rule: type.getRule(),
-      specialType: type.getSpecialType(),
-    }));
-
     //Busca a url da imagem do evento, caso tenha
     const imagePath = await this.getPublicUrl(event.getImageUrl());
 
@@ -86,14 +71,14 @@ export class FindDetailsEventUsecase
       name: event.getName(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
-      imageUrl: imagePath,
+      image: imagePath,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
       paymentEnabled: event.getPaymentEnabled(),
       regionName: region?.getName(),
-      typeInscriptions,
+      participanteConfig: event.getParticipantFieldsConfig(),
     };
     return output;
   }
@@ -104,7 +89,11 @@ export class FindDetailsEventUsecase
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      return await this.supabaseStorageService.getPublicUrl(
+        path,
+        IMAGE_PRESETS.logo,
+        100,
+      );
     } catch {
       return '';
     }

@@ -8,6 +8,7 @@ import {
   StatusPayment,
 } from 'generated/prisma';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
@@ -26,13 +27,18 @@ export type FindDetailsGuestInscriptionOutput = {
   status: InscriptionStatus;
   guestEmail: string;
   guestName: string;
-  guestLocality: string;
   phone: string;
   createdAt: Date;
   totalValue: number;
   totalPaid: number;
-  participants: Participant[];
+  locality: Locality;
+  participant: Participant;
   payments?: Payment[];
+};
+
+export type Locality = {
+  id: string;
+  name: string;
 };
 
 export type Participant = {
@@ -78,6 +84,7 @@ export class FindDetailsGuestInscriptionUsecase
 {
   constructor(
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly paymentGateway: PaymentGateway,
@@ -108,37 +115,37 @@ export class FindDetailsGuestInscriptionUsecase
       );
     }
 
-    const [participants, payments] = await Promise.all([
+    const [locality, participants, payments] = await Promise.all([
+      this.localityGateway.findById(inscription.getLocalityId()!),
       this.participantGateway.findByInscriptionId(inscription.getId()),
       this.paymentGateway.findAllByInscriptionId(inscription.getId()),
     ]);
 
-    const participantData = await Promise.all(
-      participants.map(async (p) => {
-        const typeInscription = await this.typeInscriptionGateway.findById(
-          p.getTypeInscriptionId(),
-        );
+    // Pega o primeiro participante (sempre será 1 para guest)
+    const participant = participants[0];
 
-        if (!typeInscription) {
-          return null;
-        }
-        const typeInscriptionData: TypeInscription = {
-          description: typeInscription.getDescription(),
-          price: typeInscription.getValue(),
-        };
+    if (!participant) {
+      throw new Error('Participant not found for this inscription');
+    }
 
-        return {
-          id: p.getId(),
-          name: p.getName(),
-          birthDate: p.getBirthDate(),
-          preferredName: p.getPreferredName(),
-          shirtSize: p.getShirtSize(),
-          shirtType: p.getShirtType(),
-          gender: p.getGender(),
-          typeInscription: typeInscriptionData,
-        };
-      }),
+    // Busca o tipo de inscrição do participante
+    const typeInscription = await this.typeInscriptionGateway.findById(
+      participant.getTypeInscriptionId(),
     );
+
+    const participantData: Participant = {
+      id: participant.getId(),
+      name: participant.getName(),
+      birthDate: participant.getBirthDate(),
+      preferredName: participant.getPreferredName(),
+      shirtSize: participant.getShirtSize(),
+      shirtType: participant.getShirtType(),
+      gender: participant.getGender(),
+      typeInscription: {
+        description: typeInscription?.getDescription() ?? '',
+        price: typeInscription?.getValue() ?? 0,
+      },
+    };
 
     const paymentsData = await Promise.all(
       payments.map(async (payment) => {
@@ -171,27 +178,22 @@ export class FindDetailsGuestInscriptionUsecase
       }),
     );
 
-    const participantsData = participantData.reduce<Participant[]>(
-      (acc, participant) => {
-        if (participant) {
-          acc.push(participant);
-        }
-        return acc;
-      },
-      [],
-    );
+    const localityData: Locality = {
+      id: locality?.getId() ?? '',
+      name: `${locality?.getName()} - ${locality?.getUf()}`,
+    };
 
     const output: FindDetailsGuestInscriptionOutput = {
       id: inscription.getId(),
       status: inscription.getStatus(),
       guestEmail: inscription.getGuestEmail() ?? '',
       guestName: inscription.getGuestName() ?? '',
-      guestLocality: inscription.getGuestLocality() ?? '',
       phone: inscription.getPhone() ?? '',
       createdAt: inscription.getCreatedAt(),
       totalValue: inscription.getTotalValue(),
       totalPaid: inscription.getTotalPaid(),
-      participants: participantsData,
+      locality: localityData,
+      participant: participantData,
       payments: paymentsData,
     };
 

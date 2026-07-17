@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionMode } from 'generated/prisma';
-import { EventResponsible } from 'src/domain/entities/event-responsibles.entity';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { Usecase } from 'src/usecases/usecase';
@@ -14,8 +12,6 @@ export type UpdateEventInput = {
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
-  responsibles: string[];
-  allowedInscriptionModes: InscriptionMode[];
 };
 
 export type UpdateEventOutput = {
@@ -23,7 +19,7 @@ export type UpdateEventOutput = {
 };
 
 @Injectable()
-export class UpdateEventUseCase
+export class UpdateEventUsecase
   implements Usecase<UpdateEventInput, UpdateEventOutput>
 {
   public constructor(
@@ -36,51 +32,28 @@ export class UpdateEventUseCase
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found with id ${input.id} in ${UpdateEventUseCase.name}`,
+        `Event not found with id ${input.id} in ${UpdateEventUsecase.name}`,
         `Evento não encontrado`,
-        UpdateEventUseCase.name,
+        UpdateEventUsecase.name,
       );
     }
 
     // Atualiza os campos do evento
     event.update({
       name: input.name,
-      startDate: input.startDate,
-      endDate: input.endDate,
+      startDate: new Date(input.startDate),
+      endDate: new Date(input.endDate),
       location: input.location,
       longitude: input.longitude,
       latitude: input.latitude,
-      allowedInscriptionModes: input.allowedInscriptionModes,
     });
 
     // Salva o evento atualizado
     await this.eventGateway.update(event);
 
-    // Adiciona novos responsáveis (se houver)
-    if (input.responsibles && input.responsibles.length > 0) {
-      const currentResponsibles =
-        await this.eventResponsibleGateway.findByEventId(input.id);
-
-      // Extrai os IDs dos responsáveis atuais
-      const currentResponsibleIds = currentResponsibles.map((r) =>
-        r.getAccountId(),
-      );
-
-      // Adiciona apenas novos responsáveis que ainda não existem
-      const responsiblesToAdd = input.responsibles.filter(
-        (id) => !currentResponsibleIds.includes(id),
-      );
-      for (const accountId of responsiblesToAdd) {
-        const responsibleEntity = EventResponsible.create({
-          eventId: input.id,
-          accountId: accountId,
-        });
-        await this.eventResponsibleGateway.create(responsibleEntity);
-      }
-    }
-
-    return {
+    const output: UpdateEventOutput = {
       id: event.getId(),
     };
+    return output;
   }
 }

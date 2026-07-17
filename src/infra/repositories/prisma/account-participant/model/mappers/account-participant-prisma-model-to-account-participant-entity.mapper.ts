@@ -1,4 +1,4 @@
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 import AccountParticipantPrismaModel from '../account-participant.prisma.model';
 
 export class AccountParticipantPrismaModelToAccountParticipantEntityMapper {
@@ -9,7 +9,7 @@ export class AccountParticipantPrismaModelToAccountParticipantEntityMapper {
   ): AccountParticipant {
     return AccountParticipant.with({
       id: accountParticipant.id,
-      accountId: accountParticipant.accountId,
+      localityId: accountParticipant.localityId,
       name: accountParticipant.name,
       birthDate: new Date(accountParticipant.birthDate),
       preferredName: accountParticipant.preferredName ?? undefined,

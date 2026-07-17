@@ -19,8 +19,13 @@ export interface OptimizedImageResult {
 
 // Presets de otimização
 export const IMAGE_OPTIMIZATION_PRESETS = {
+  logo: {
+    maxWidth: 500,
+    maxHeight: 500,
+    format: 'png' as const,
+    maxFileSize: 200 * 1024,
+  },
   thumbnail: {
-    // era: thumb
     maxWidth: 400,
     maxHeight: 250,
     quality: 60,
@@ -28,15 +33,20 @@ export const IMAGE_OPTIMIZATION_PRESETS = {
     maxFileSize: 50 * 1024,
   },
   standard: {
-    // era: medium
     maxWidth: 800,
     maxHeight: 500,
     quality: 70,
     format: 'webp' as const,
     maxFileSize: 150 * 1024,
   },
+  mediumQuality: {
+    maxWidth: 1280,
+    maxHeight: 720,
+    quality: 75,
+    format: 'webp' as const,
+    maxFileSize: 400 * 1024,
+  },
   highQuality: {
-    // era: full
     maxWidth: 1920,
     maxHeight: 1080,
     quality: 80,
@@ -44,7 +54,6 @@ export const IMAGE_OPTIMIZATION_PRESETS = {
     maxFileSize: 500 * 1024,
   },
   receipt: {
-    // era: expense — mais específico pro domínio
     maxWidth: 800,
     maxHeight: 800,
     quality: 70,

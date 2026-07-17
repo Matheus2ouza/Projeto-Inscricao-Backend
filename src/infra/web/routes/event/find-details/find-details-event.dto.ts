@@ -1,4 +1,5 @@
 import { statusEvent } from 'generated/prisma';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 
 export type FindDetailsEventRequest = {
   eventId: string;
@@ -17,12 +18,12 @@ export type FindDetailsEventResponse = {
   name: string;
   startDate: Date;
   endDate: Date;
-  imageUrl?: string;
+  image?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   paymentEnabled: boolean;
   regionName?: string;
-  typeInscriptions: TypeInscription[];
+  participanteConfig: ParticipantFieldsConfig;
 };

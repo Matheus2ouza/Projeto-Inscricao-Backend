@@ -16,13 +16,18 @@ export type FindDetailsGuestInscriptionResponse = {
   status: InscriptionStatus;
   guestEmail: string;
   guestName: string;
-  guestLocality: string;
   phone: string;
   createdAt: Date;
   totalValue: number;
   totalPaid: number;
-  participants: Participant[];
+  locality: Locality;
+  participant: Participant;
   payments?: Payment[];
+};
+
+export type Locality = {
+  id: string;
+  name: string;
 };
 
 export type Participant = {

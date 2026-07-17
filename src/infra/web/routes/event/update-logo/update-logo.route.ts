@@ -1,12 +1,16 @@
-import { Body, Controller, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Patch,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   UpdateLogoEventInput,
   UpdateLogoEventUsecase,
 } from 'src/usecases/web/event/update-logo/update-logo.usecase';
-import {
-  UpdateLogoEventRequest,
-  UpdateLogoEventResponse,
-} from './update-logo.dto';
+import { UpdateLogoEventResponse } from './update-logo.dto';
 import { UpdateLogoEventPresenter } from './update-logo.presenter';
 
 @Controller('events')
@@ -16,13 +20,21 @@ export class UpdateLogoEventRoute {
   ) {}
 
   @Patch(':id/update/logo')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // limite máximo de 5mb,
+    }),
+  )
   async handle(
     @Param('id') eventId: string,
-    @Body() body: Pick<UpdateLogoEventRequest, 'image'>,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateLogoEventResponse> {
     const input: UpdateLogoEventInput = {
       eventId,
-      image: body.image,
+      file: {
+        buffer: file.buffer,
+        mimeType: file.mimetype,
+      },
     };
 
     const response = await this.updateLogoEventUsecase.execute(input);

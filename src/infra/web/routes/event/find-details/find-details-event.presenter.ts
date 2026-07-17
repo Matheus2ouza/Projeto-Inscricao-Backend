@@ -10,14 +10,14 @@ export class FindDetailsEventPresenter {
       name: output.name,
       startDate: output.startDate,
       endDate: output.endDate,
-      imageUrl: output.imageUrl,
+      image: output.image,
       location: output.location,
       longitude: output.longitude,
       latitude: output.latitude,
       status: output.status,
       paymentEnabled: output.paymentEnabled,
       regionName: output.regionName,
-      typeInscriptions: output.typeInscriptions,
+      participanteConfig: output.participanteConfig,
     };
   }
 }

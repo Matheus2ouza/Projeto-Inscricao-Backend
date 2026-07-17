@@ -87,7 +87,7 @@ export class ReversePaymentUsecase
 
       // Decrementa o valor do pagamento do valor coletado do evento
       if (event) {
-        event.decrementAmountCollected(payment.getTotalValue());
+        event.removeCollectedAmount(payment.getTotalValue());
         await this.eventGateway.update(event);
       }
     }

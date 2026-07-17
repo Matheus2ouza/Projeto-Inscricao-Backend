@@ -1,10 +1,11 @@
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import InscriptionPrismaModel from '../inscription.prisma.model';
 
 export class InscriptionPrismaModalToInscriptionEntityMapper {
   public static map(inscription: InscriptionPrismaModel): Inscription {
     return Inscription.with({
       id: inscription.id,
+      localityId: inscription.localityId || undefined,
       accountId: inscription.accountId || undefined,
       eventId: inscription.eventId,
       accessToken: inscription.accessToken || undefined,

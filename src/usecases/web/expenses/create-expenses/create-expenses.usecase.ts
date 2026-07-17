@@ -10,7 +10,7 @@ import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entit
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
@@ -115,7 +115,7 @@ export class CreateExpensesUsecase
       : [];
 
     // atualiza o valor gasto do evento com a nova saida
-    event.incrementAmountSpent(expense.getValue());
+    event.addSpentAmount(expense.getValue());
 
     // abre a transaction para salvar no banco
     await this.prisma.runInTransaction(async (tx) => {

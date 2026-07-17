@@ -56,7 +56,7 @@ describe(ApprovePaymentUsecase.name, () => {
     isGuest = false,
     guestName = '',
     guestEmail = '',
-    imageUrl = 'image-url',
+    imageUrls = ['image-url-1', 'image-url-2', 'image-url-3'],
   }: Partial<{
     id: string;
     eventId: string;
@@ -67,7 +67,7 @@ describe(ApprovePaymentUsecase.name, () => {
     isGuest: boolean;
     guestName: string;
     guestEmail: string;
-    imageUrl: string;
+    imageUrls: string[];
   }> = {}) => {
     let currentStatus = status;
     return {
@@ -81,7 +81,7 @@ describe(ApprovePaymentUsecase.name, () => {
       getIsGuest: jest.fn(() => isGuest),
       getGuestName: jest.fn(() => guestName),
       getGuestEmail: jest.fn(() => guestEmail),
-      getImageUrl: jest.fn(() => imageUrl),
+      getImageUrls: jest.fn(() => imageUrls),
       getInstallments: jest.fn(() => 1),
       approve: jest.fn((approvedBy: string) => {
         currentStatus = StatusPayment.APPROVED;
@@ -96,9 +96,14 @@ describe(ApprovePaymentUsecase.name, () => {
     ({
       getId: jest.fn(() => id),
       getName: jest.fn(() => 'Evento Teste'),
+      addCollectedAmount: jest.fn(),
+      addNetValueCollected: jest.fn(),
+      addParticipants: jest.fn(),
+      addParticipant: jest.fn(),
       incrementAmountCollected: jest.fn(),
       incrementAmountNetValueCollected: jest.fn(),
       incrementParticipantsCount: jest.fn(),
+      incrementQuantityParticipants: jest.fn(),
     }) as any;
 
   const makeAllocation = (inscriptionId: string, value: number) =>
@@ -193,7 +198,6 @@ describe(ApprovePaymentUsecase.name, () => {
       getInstallmentNumber: jest.fn(() => 1),
     } as any);
 
-    // Ajustar o mock do CashRegisterEntry.create para retornar um objeto mais completo
     jest.spyOn(CashRegisterEntry, 'create').mockImplementation(
       (props) =>
         ({
@@ -206,7 +210,7 @@ describe(ApprovePaymentUsecase.name, () => {
           getEventId: jest.fn(() => props.eventId),
           getPaymentInstallmentId: jest.fn(() => props.paymentInstallmentId),
           getResponsible: jest.fn(() => props.responsible),
-          getImageUrl: jest.fn(() => props.imageUrl),
+          getImageUrls: jest.fn(() => props.imageUrls),
         }) as any,
     );
 
@@ -255,7 +259,7 @@ describe(ApprovePaymentUsecase.name, () => {
       if (id === 'insc-id-2') return Promise.resolve(inscription2);
       return Promise.resolve(null);
     });
-    inscriptionGateway.countParticipants.mockResolvedValue(2); // cada inscrição tem 2 participantes
+    inscriptionGateway.countParticipants.mockResolvedValue(2);
 
     // Mock dos caixas do evento
     const cashRegisterEvents = [
@@ -287,9 +291,9 @@ describe(ApprovePaymentUsecase.name, () => {
     expect(paymentInstallmentGateway.createTx).toHaveBeenCalledTimes(1);
 
     // Verificações do evento
-    expect(event.incrementAmountCollected).toHaveBeenCalledWith(200);
-    expect(event.incrementAmountNetValueCollected).toHaveBeenCalledWith(200);
-    expect(event.incrementParticipantsCount).toHaveBeenCalledTimes(4); // 2 inscrições x 2 participantes
+    expect(event.addCollectedAmount).toHaveBeenCalledWith(200);
+    expect(event.addNetValueCollected).toHaveBeenCalledWith(200);
+    expect(event.addParticipants).toHaveBeenCalledWith(4); // 2 inscrições x 2 participantes
 
     // Verificações das inscrições
     expect(inscription1.inscriptionPaid).toHaveBeenCalled();
@@ -300,14 +304,20 @@ describe(ApprovePaymentUsecase.name, () => {
     expect(cashRegisterEntryGateway.createManyTx).toHaveBeenCalledTimes(1);
     const createdEntries =
       cashRegisterEntryGateway.createManyTx.mock.calls[0][0];
-    expect(createdEntries).toHaveLength(2); // 2 caixas
+    expect(createdEntries).toHaveLength(2);
     expect(createdEntries[0].getValue()).toBe(200);
     expect(createdEntries[1].getValue()).toBe(200);
 
     expect(cashRegisterGateway.findById).toHaveBeenCalledTimes(2);
     expect(cashRegister1.incrementBalance).toHaveBeenCalledWith(200);
     expect(cashRegister2.incrementBalance).toHaveBeenCalledWith(200);
+
+    // CORREÇÃO: Verificar que updateManyTx foi chamado com os caixas atualizados
     expect(cashRegisterGateway.updateManyTx).toHaveBeenCalledTimes(1);
+    expect(cashRegisterGateway.updateManyTx).toHaveBeenCalledWith(
+      [cashRegister1, cashRegister2],
+      expect.anything(),
+    );
 
     // Verificações da transação
     expect(prisma.runInTransaction).toHaveBeenCalledTimes(1);
@@ -370,9 +380,12 @@ describe(ApprovePaymentUsecase.name, () => {
     // Não deve chamar gateways de caixa
     expect(cashRegisterEntryGateway.createManyTx).not.toHaveBeenCalled();
     expect(cashRegisterGateway.findById).not.toHaveBeenCalled();
-    expect(cashRegisterGateway.update).not.toHaveBeenCalled();
+    expect(cashRegisterGateway.updateManyTx).not.toHaveBeenCalled();
 
     // Demais verificações
+    expect(event.addCollectedAmount).toHaveBeenCalledWith(200);
+    expect(event.addNetValueCollected).toHaveBeenCalledWith(200);
+    expect(event.addParticipants).toHaveBeenCalledWith(4);
     expect(financialMovementGateway.createTx).toHaveBeenCalledTimes(1);
     expect(paymentInstallmentGateway.createTx).toHaveBeenCalledTimes(1);
     expect(inscriptionGateway.updateManyTx).toHaveBeenCalledTimes(1);
@@ -429,7 +442,7 @@ describe(ApprovePaymentUsecase.name, () => {
     // assert
     expect(output.status).toBe(StatusPayment.PENDING);
     expect(payment.approve).not.toHaveBeenCalled();
-    expect(event.incrementParticipantsCount).not.toHaveBeenCalled();
+    expect(event.addParticipants).not.toHaveBeenCalled();
     expect(inscriptionGateway.findById).not.toHaveBeenCalled();
     expect(inscriptionGateway.updateManyTx).not.toHaveBeenCalled();
     expect(

@@ -1,4 +1,5 @@
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 import EventPrismaModel from '../event.prisma.model';
 
 export class EventPrismaModelToEventEntityMapper {
@@ -19,10 +20,13 @@ export class EventPrismaModelToEventEntityMapper {
       latitude: event.latitude ?? undefined,
       status: event.status,
       allowedInscriptionModes: event.allowedInscriptionModes,
+      allowedPaymentModes: event.allowedPaymentModes,
       paymentEnabled: event.paymentEnabled,
       ticketEnabled: event.ticketEnabled ?? undefined,
       regionId: event.regionId,
-      allowCard: event.allowCard ?? false,
+      participantFieldsConfig:
+        (event.participantFieldsConfig as ParticipantFieldsConfig | null) ??
+        undefined,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     });

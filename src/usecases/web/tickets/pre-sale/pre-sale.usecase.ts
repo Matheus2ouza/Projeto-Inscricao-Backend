@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PaymentMethod, TicketSaleStatus } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { TicketSaleItem } from 'src/domain/entities/ticket-sale-item.entity';
 import { TicketSalePayment } from 'src/domain/entities/ticket-sale-payment.entity';
 import { TicketSale } from 'src/domain/entities/ticket-sale.entity';

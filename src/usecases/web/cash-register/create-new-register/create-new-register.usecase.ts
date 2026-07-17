@@ -5,7 +5,7 @@ import {
   PaymentMethod,
 } from 'generated/prisma';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';

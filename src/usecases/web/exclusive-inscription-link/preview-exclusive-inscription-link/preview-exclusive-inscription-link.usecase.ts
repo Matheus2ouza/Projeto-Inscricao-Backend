@@ -151,7 +151,7 @@ export class PreviewExclusiveInscriptionLinkUsecase
     try {
       return await this.supabaseStorageService.getPublicUrl(
         path,
-        IMAGE_PRESETS.full,
+        IMAGE_PRESETS.mediumQuality,
         100,
       );
     } catch {

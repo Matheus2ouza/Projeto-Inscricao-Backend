@@ -7,7 +7,7 @@ export class ListAllPaymentsPendingPresenter {
   ): ListAllPaymentsPendingResponse {
     return {
       inscriptions: output.inscriptions,
-      allowCard: output.allowCard,
+      allowedPaymentModes: output.allowedPaymentModes,
       total: output.total,
       page: output.page,
       pageCount: output.pageCount,

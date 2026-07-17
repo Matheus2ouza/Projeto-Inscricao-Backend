@@ -5,7 +5,7 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';

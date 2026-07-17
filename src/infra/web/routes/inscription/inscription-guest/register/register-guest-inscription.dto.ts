@@ -1,20 +1,29 @@
-import { genderType, InscriptionStatus, ShirtSize } from 'generated/prisma';
+import {
+  genderType,
+  InscriptionStatus,
+  ShirtSize,
+  ShirtType,
+} from 'generated/prisma';
+
+export type RegisterGuestInscriptionParam = {
+  eventId: string;
+};
 
 export type RegisterGuestInscriptionBody = {
-  eventId: string;
+  localityId: string;
 
-  // Dados do inscrito guest
-  email: string;
+  // Dados do inscrito guest obrigatórios
   name: string;
-  preferredName?: string;
+  email: string;
+  phone: string;
+  birthDate: string;
   cpf: string;
   gender: genderType;
-  phone: string;
-  locality: string;
-  birthDate: Date;
 
-  // dados complementares
+  // Dados da inscrição guest opcionais
+  preferredName?: string;
   shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 
   // id da inscrição
   typeInscriptionId: string;
@@ -23,5 +32,6 @@ export type RegisterGuestInscriptionBody = {
 export type RegisterGuestInscriptionResponse = {
   id: string;
   status: InscriptionStatus;
-  confirmationCode: string;
+  confirmationCode?: string;
+  expiresAt?: Date | string;
 };

@@ -20,7 +20,7 @@ export class EventSlugNotFoundUsecaseExceptionFilter
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const status = HttpStatus.NOT_FOUND;
+    const status = HttpStatus.BAD_REQUEST;
     const aResponseData = ExceptionUtils.buildErrorResponse(exception, status);
 
     response.status(status).json(aResponseData);

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';

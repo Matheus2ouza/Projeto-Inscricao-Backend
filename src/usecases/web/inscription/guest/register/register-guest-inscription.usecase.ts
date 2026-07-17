@@ -5,40 +5,46 @@ import {
   ShirtSize,
   ShirtType,
 } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
 import { GuestInscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/guest-inscription-email.handler';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
 import {
   EventResponsibleEmailData,
   InscriptionEmailData,
 } from 'src/infra/services/mail/types/inscription/inscription-email.types';
+import { getMissingRequiredFields } from 'src/shared/utils/participant-fields-completeness.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
+import { LocalityNotFoundUsecaseException } from 'src/usecases/web/exceptions/locality/locality-not-found.usecase.exception';
+import { MissingRequiredParticipantFieldsUsecaseException } from 'src/usecases/web/exceptions/participants/missing-required-participant-fields.usecase.exception';
 
 export type RegisterGuestInscriptionInput = {
+  localityId: string;
   eventId: string;
 
-  // Dados do inscrito guest
-  guestEmail: string;
-  guestName: string;
-  preferredName?: string;
+  // Dados do inscrito guest obrigatórios
+  name: string;
+  email: string;
+  phone: string;
+  birthDate: string;
   cpf: string;
   gender: genderType;
-  phone: string;
-  guestLocality: string;
-  birthDate: Date;
 
-  // dados complementares
+  // Dados da inscrição guest opcionais
+  preferredName?: string;
   shirtSize?: ShirtSize;
+  shirtType?: ShirtType;
 
   // id da inscrição
   typeInscriptionId: string;
@@ -47,7 +53,8 @@ export type RegisterGuestInscriptionInput = {
 export type RegisterGuestInscriptionOutput = {
   id: string;
   status: InscriptionStatus;
-  confirmationCode: string;
+  confirmationCode?: string;
+  expiresAt?: Date | string;
 };
 
 @Injectable()
@@ -59,6 +66,7 @@ export class RegisterGuestInscriptionUsecase
 
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
@@ -66,17 +74,29 @@ export class RegisterGuestInscriptionUsecase
     private readonly accountGateway: AccountGateway,
     private readonly guestInscriptionEmailHandler: GuestInscriptionEmailHandler,
     private readonly inscriptionEmailHandler: InscriptionEmailHandler,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(
     input: RegisterGuestInscriptionInput,
   ): Promise<RegisterGuestInscriptionOutput> {
+    console.log(JSON.stringify(input, null, 2));
     const event = await this.eventGateway.findById(input.eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
         `attempt to create guest inscription for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
+        RegisterGuestInscriptionUsecase.name,
+      );
+    }
+
+    const locality = await this.localityGateway.findById(input.localityId);
+
+    if (!locality) {
+      throw new LocalityNotFoundUsecaseException(
+        `Tentativa de criar uma inscrição mas a localidade informada ${input.localityId} é invalida`,
+        `Localidade não encontrada ou invalida`,
         RegisterGuestInscriptionUsecase.name,
       );
     }
@@ -93,37 +113,48 @@ export class RegisterGuestInscriptionUsecase
       );
     }
 
+    const participantFieldsConfig = event.getParticipantFieldsConfig();
+    const missingFields = getMissingRequiredFields(participantFieldsConfig, {
+      cpf: input.cpf,
+      preferredName: input.preferredName,
+      shirtSize: input.shirtSize,
+    });
+
+    if (missingFields.length > 0) {
+      throw new MissingRequiredParticipantFieldsUsecaseException(
+        `attempt to create guest inscription for event: ${input.eventId} but participant is missing required fields: ${missingFields.join(', ')}`,
+        `Preencha os campos obrigatórios: ${missingFields.join(', ')}`,
+        RegisterGuestInscriptionUsecase.name,
+      );
+    }
+
     const inscription = Inscription.create({
+      localityId: locality.getId(),
       eventId: event.getId(),
-      guestName: input.guestName,
-      guestEmail: input.guestEmail,
-      guestLocality: input.guestLocality,
-      responsible: input.guestName,
+      guestName: input.name,
+      guestEmail: input.email,
+      responsible: input.name,
       phone: input.phone,
-      email: input.guestEmail,
+      email: input.email,
       isGuest: true,
       status: typeInscription.getSpecialType()
         ? InscriptionStatus.UNDER_REVIEW
         : InscriptionStatus.PENDING,
       totalValue: typeInscription.getValue(),
-      expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30min
+      // expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30min
     });
-
-    await this.inscriptionGateway.create(inscription);
 
     const participant = Participant.create({
       inscriptionId: inscription.getId(),
       typeInscriptionId: typeInscription.getId(),
-      name: input.guestName,
+      name: input.name,
       cpf: input.cpf,
-      preferredName: input.preferredName ?? input.guestName,
+      preferredName: input.preferredName,
       shirtSize: input.shirtSize,
-      shirtType: ShirtType.BABYLOOK,
+      shirtType: input.shirtType,
       birthDate: new Date(input.birthDate),
       gender: input.gender,
     });
-
-    await this.participantGateway.create(participant);
 
     if (inscription.getStatus() === InscriptionStatus.PENDING) {
       void this.sendGuestInscriptionEmail(event.getId(), inscription).catch(
@@ -151,10 +182,17 @@ export class RegisterGuestInscriptionUsecase
       });
     }
 
+    // começa a persistir os dados no bancos
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.inscriptionGateway.createTx(inscription, tx);
+      await this.participantGateway.createTx(participant, tx);
+    });
+
     const output: RegisterGuestInscriptionOutput = {
       id: inscription.getId(),
       status: inscription.getStatus(),
-      confirmationCode: inscription.getConfirmationCode()!,
+      confirmationCode: inscription.getConfirmationCode(),
+      expiresAt: inscription.getExpiresAt() || 'indefinite',
     };
     return output;
   }

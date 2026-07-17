@@ -177,7 +177,7 @@ export class FindAllExclusiveInscriptionLinkUsecase
     try {
       return await this.supabaseStorageService.getPublicUrl(
         path,
-        IMAGE_PRESETS.thumb,
+        IMAGE_PRESETS.thumbnail,
         100,
       );
     } catch {

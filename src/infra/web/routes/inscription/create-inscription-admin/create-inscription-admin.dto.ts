@@ -1,6 +1,7 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 
 export type CreateInscriptionAdminRequest = {
+  localityId: string;
   eventId: string;
 
   // para ver se é inscrição Guest
@@ -11,9 +12,6 @@ export type CreateInscriptionAdminRequest = {
   responsible: string;
   email: string;
   phone: string;
-
-  // Dados Guest
-  locality?: string;
 
   participants: ParticipantInscription[];
 };

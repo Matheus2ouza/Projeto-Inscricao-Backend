@@ -3,13 +3,11 @@ export type UpdateInscriptionParam = {
 };
 
 export type UpdateInscriptionBody = {
-  responsible?: string;
+  localityId?: string;
+  name?: string;
   phone?: string;
   email?: string;
   observation?: string;
-
-  //
-  guestLocality?: string;
 };
 
 export type UpdateInscriptionResponse = {

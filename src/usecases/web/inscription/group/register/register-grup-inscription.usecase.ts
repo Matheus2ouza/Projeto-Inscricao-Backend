@@ -1,22 +1,27 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEvent as AccountParticipantInEventEntity } from 'src/domain/entities/account-participant-in-event.entity';
-import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
+import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription/inscription.entity';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
+import { getMissingRequiredFields } from 'src/shared/utils/participant-fields-completeness.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
+import { LocalityNotFoundUsecaseException } from 'src/usecases/web/exceptions/locality/locality-not-found.usecase.exception';
 import { MemberNotFoundUsecaseException } from 'src/usecases/web/exceptions/members/member-not-found.usecase.exception';
+import { MissingRequiredParticipantFieldsForGroupUsecaseException } from 'src/usecases/web/exceptions/participants/missing-required-participant-fields-for-group.usecase.exception';
 
 export type RegisterGroupInscriptionUsecaseInput = {
   accountId: string;
+  localityId: string;
   eventId: string;
   responsible: string;
   email?: string;
@@ -44,6 +49,7 @@ export class RegisterGroupInscriptionUsecase
   private readonly logger = new Logger(RegisterGroupInscriptionUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
@@ -62,6 +68,16 @@ export class RegisterGroupInscriptionUsecase
       throw new EventNotFoundUsecaseException(
         `attempt to create group inscription for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
+        RegisterGroupInscriptionUsecase.name,
+      );
+    }
+
+    const locality = await this.localityGateway.findById(input.localityId);
+
+    if (!locality) {
+      throw new LocalityNotFoundUsecaseException(
+        `Tentativa de criar uma inscrição mas a localidade informada ${input.localityId} é invalida`,
+        `Localidade não encontrada ou invalida`,
         RegisterGroupInscriptionUsecase.name,
       );
     }
@@ -89,6 +105,34 @@ export class RegisterGroupInscriptionUsecase
         `attempt to create group inscription for members: ${missingMembers.join(', ')} but they were not found`,
         `Membros não encontrados: ${missingMembers.join(', ')}`,
         RegisterGroupInscriptionUsecase.name,
+      );
+    }
+
+    // Checar completude dos campos exigidos pelo evento, membro a membro
+    const participantFieldsConfig = eventExists.getParticipantFieldsConfig();
+
+    const incompleteMembers = memberIds
+      .map((id) => {
+        const participant = participantMap.get(id)!;
+        const missingFields = getMissingRequiredFields(
+          participantFieldsConfig,
+          {
+            cpf: participant.getCpf(),
+            preferredName: participant.getPreferredName(),
+            shirtSize: participant.getShirtSize(),
+            shirtType: participant.getShirtType(),
+          },
+        );
+        return { accountParticipantId: id, missingFields };
+      })
+      .filter((entry) => entry.missingFields.length > 0);
+
+    if (incompleteMembers.length > 0) {
+      throw new MissingRequiredParticipantFieldsForGroupUsecaseException(
+        `attempt to create group inscription for event: ${input.eventId} but some members are missing required fields: ${JSON.stringify(incompleteMembers)}`,
+        'Alguns membros estão com o cadastro incompleto para este evento',
+        RegisterGroupInscriptionUsecase.name,
+        incompleteMembers,
       );
     }
 
@@ -122,6 +166,7 @@ export class RegisterGroupInscriptionUsecase
     }, 0);
 
     const inscription = InscriptionEntity.create({
+      localityId: input.localityId,
       accountId: input.accountId,
       eventId: input.eventId,
       responsible: input.responsible,
@@ -161,9 +206,6 @@ export class RegisterGroupInscriptionUsecase
     };
   }
 
-  /**
-   * Envia e-mail de notificação de inscrição em grupo
-   */
   private async sendInscriptionNotificationEmail(
     eventId: string,
     inscription: InscriptionEntity,

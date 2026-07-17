@@ -1,4 +1,5 @@
-import { InscriptionMode, statusEvent } from 'generated/prisma';
+import { InscriptionMode, PaymentMode, statusEvent } from 'generated/prisma';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 
 export type FindByIdEventRequest = {
   id: string;
@@ -12,16 +13,17 @@ export type FindByIdEventResponse = {
   startDate: Date;
   endDate: Date;
   image?: string;
-  logoUrl?: string;
+  logo?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   allowedInscriptionModes: InscriptionMode[];
+  allowedPaymentModes: PaymentMode[];
   paymentEnebled: boolean;
-  allowCard?: boolean;
   createdAt: Date;
   regionName: string;
+  participanteConfig: ParticipantFieldsConfig;
   responsibles: Responsible[];
 };
 

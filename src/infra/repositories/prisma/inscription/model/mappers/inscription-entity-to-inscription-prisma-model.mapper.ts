@@ -1,11 +1,12 @@
 import Decimal from 'decimal.js';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import InscriptionPrismaModel from '../inscription.prisma.model';
 
 export class InscriptionEntityToInscriptionPrismaModelMapper {
   public static map(inscription: Inscription): InscriptionPrismaModel {
     return {
       id: inscription.getId(),
+      localityId: inscription.getLocalityId() ?? null,
       accountId: inscription.getAccountId() ?? null,
       eventId: inscription.getEventId(),
       accessToken: inscription.getAccessToken() ?? null,

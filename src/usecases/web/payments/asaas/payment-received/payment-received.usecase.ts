@@ -167,7 +167,7 @@ export class PaymentReceivedUsecase
           this.logger.log(
             `A quantiade de participantes: ${event.getQuantityParticipants()}`,
           );
-          event.incrementQuantityParticipants(count);
+          event.addParticipants(count);
           this.logger.log(
             `A quantiade de participantes apois a mudança: ${event.getQuantityParticipants()}`,
           );
@@ -179,14 +179,14 @@ export class PaymentReceivedUsecase
     if (event) {
       // Logs para incrementAmountCollected
       this.logger.log(`Valor arrecadado antes: ${event.getAmountCollected()}`);
-      event.incrementAmountCollected(paymentInstallment.getValue());
+      event.addCollectedAmount(paymentInstallment.getValue());
       this.logger.log(`Valor arrecadado depois: ${event.getAmountCollected()}`);
 
       // Logs para incrementAmountNetValueCollected
       this.logger.log(
         `Valor líquido arrecadado antes: ${event.getAmountNetValueCollected()}`,
       );
-      event.incrementAmountNetValueCollected(paymentInstallment.getNetValue());
+      event.addNetValueCollected(paymentInstallment.getNetValue());
       this.logger.log(
         `Valor líquido arrecadado depois: ${event.getAmountNetValueCollected()}`,
       );

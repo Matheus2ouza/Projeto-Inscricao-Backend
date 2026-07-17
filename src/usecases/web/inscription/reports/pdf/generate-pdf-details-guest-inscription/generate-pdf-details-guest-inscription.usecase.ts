@@ -5,7 +5,7 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';

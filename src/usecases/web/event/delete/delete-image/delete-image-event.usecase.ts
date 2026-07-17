@@ -39,7 +39,7 @@ export class DeleteImageEventUsecase
     }
 
     await this.supabaseStorageService.deleteFile(imageUrl);
-    event.deleteImage();
+    event.removeImage();
     await this.eventGateway.deleteImage(event.getId());
   }
 }

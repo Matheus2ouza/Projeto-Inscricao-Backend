@@ -1,14 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import {
+  IMAGE_OPTIMIZATION_PRESETS,
+  ImageOptimizerService,
+} from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/payment/invalid-image-format.usecase.exception';
 
 export type UpdateImageEventInput = {
   eventId: string;
-  image: string;
+  file: {
+    buffer: Buffer;
+    mimeType: string;
+  };
 };
 
 export type UpdateImageEventOutput = {
@@ -40,63 +47,80 @@ export class UpdateImageEventUsecase
       );
     }
 
-    const asImage = event.getImageUrl();
-    if (asImage) {
-      this.logger.log(`Deletando imagem anterior: ${asImage}`);
-      await this.supabaseStorageService.deleteFile(asImage);
+    if (!input.file) {
+      return { id: event.getId() };
     }
 
-    // Processa a imagem se fornecida
-    let imageUrl: string | undefined;
-    if (input.image) {
-      imageUrl = await this.processEventImage(input.image, event.getName());
-    }
+    const oldImage = event.getImageUrl();
 
-    if (imageUrl) {
-      event.updateImage(imageUrl);
-    }
+    // processa e sobe a imagem primeiro
+    const imageUrl = await this.processEventImage(input.file, event.getName());
 
+    // atualiza os dados após o upload já estar confirmado
+    event.setImageUrl(imageUrl);
     await this.eventGateway.update(event);
 
-    const output: UpdateImageEventOutput = {
-      id: event.getId(),
-    };
+    // dispara a limpeza da imagem antiga em background, sem bloquear a resposta
+    if (oldImage) {
+      void this.deleteOldImage(oldImage);
+    }
 
-    return output;
+    return { id: event.getId() };
   }
 
-  /**
-   * Processa a imagem do evento: valida, otimiza e faz upload
-   * @param image - Data URL base64 da imagem
-   * @param eventName - Nome do evento para gerar nome do arquivo
-   * @returns URL da imagem no Supabase Storage
-   */
+  private async deleteOldImage(oldImage: string): Promise<void> {
+    const maxAttempts = 3;
+    const delaysMs = [500, 1000, 2000];
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await this.supabaseStorageService.deleteFile(oldImage);
+        return;
+      } catch (error) {
+        const err = error as Error;
+
+        if (attempt === maxAttempts) {
+          this.logger.warn(
+            `Não foi possível remover a imagem antiga (${oldImage}) após ${maxAttempts} tentativas: ${err.message}`,
+          );
+          return;
+        }
+
+        this.logger.warn(
+          `Falha ao remover imagem antiga (tentativa ${attempt}/${maxAttempts}): ${err.message}. Tentando novamente em ${delaysMs[attempt - 1]}ms...`,
+        );
+        await new Promise((resolve) =>
+          setTimeout(resolve, delaysMs[attempt - 1]),
+        );
+      }
+    }
+  }
+
   private async processEventImage(
-    image: string,
+    file: { buffer: Buffer; mimeType: string },
     eventName: string,
   ): Promise<string> {
     this.logger.log('Processando imagem do evento');
 
     try {
-      // Processa a imagem base64
-      const { buffer, extension } =
-        await this.imageOptimizerService.processBase64Image(image);
+      // Extrai extensão a partir do mimeType
+      const extension = file.mimeType.split('/')[1] ?? 'png';
+      const buffer = file.buffer;
 
-      // Gera nome baseado no evento com data em formato ISO
-      // Limpa o nome do evento para ser seguro como nome de arquivo
-      const safeEventName = eventName
-        .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove caracteres especiais
-        .replace(/\s+/g, '-') // Substitui espaços por hífen
-        .toLowerCase();
-      // Formata a data ISO removendo caracteres especiais para usar em nome de arquivo
-      const isoDate = new Date()
-        .toISOString()
-        .replace(/[:.]/g, '-')
-        .replace('T', '_')
-        .split('.')[0];
-      const fileName = `${safeEventName}_${isoDate}.${extension}`;
+      // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
+      const sanitizedEventName = sanitizeFileName(eventName || 'evento');
 
-      // Valida a imagem
+      // Cria nome do arquivo: capa_event + nome do evento + hora formatada
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
+      const fileName = `capa_event_${sanitizedEventName}_${formattedDateTime}.${extension}`;
+
       const isValidImage = await this.imageOptimizerService.validateImage(
         buffer,
         fileName,
@@ -110,16 +134,9 @@ export class UpdateImageEventUsecase
         );
       }
 
-      // Otimiza a imagem para webp com tamanho máximo de 300KB para economizar espaço no Supabase
       const optimizedImage = await this.imageOptimizerService.optimizeImage(
         buffer,
-        {
-          maxWidth: 1920,
-          maxHeight: 1080,
-          quality: 60,
-          format: 'webp',
-          maxFileSize: 300 * 1024, // 300KB - muito menor para economizar espaço
-        },
+        IMAGE_OPTIMIZATION_PRESETS.mediumQuality,
       );
 
       // Substitui a extensão pelo formato otimizado (webp)
@@ -128,9 +145,11 @@ export class UpdateImageEventUsecase
         `.${optimizedImage.format}`,
       );
 
-      // Faz upload para o Supabase Storage
+      // Define a pasta como events/nome-do-evento
+      const folderName = `events/${sanitizedEventName}`;
+
       const imageUrl = await this.supabaseStorageService.uploadFile({
-        folderName: 'events',
+        folderName: folderName,
         fileName: finalFileName,
         fileBuffer: optimizedImage.buffer,
         contentType: this.imageOptimizerService.getMimeType(
@@ -142,15 +161,17 @@ export class UpdateImageEventUsecase
       try {
         await this.supabaseStorageService.calculateFolderSize('events');
       } catch (error) {
+        const err = error as Error;
         this.logger.warn(
-          `Não foi possível verificar o espaço usado: ${error.message}`,
+          `Não foi possível verificar o espaço usado: ${err.message}`,
         );
       }
 
       this.logger.log(`Imagem do evento processada com sucesso: ${imageUrl}`);
       return imageUrl;
     } catch (error) {
-      this.logger.error(`Erro ao processar imagem do evento: ${error.message}`);
+      const err = error as Error;
+      this.logger.error(`Erro ao processar imagem do evento: ${err.message}`);
 
       if (error instanceof InvalidImageFormatUsecaseException) {
         throw error;

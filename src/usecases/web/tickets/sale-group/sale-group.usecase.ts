@@ -262,8 +262,8 @@ export class SaleGrupUsecase implements Usecase<SaleGrupInput, SaleGrupOutput> {
     );
 
     // Atualizar o evento em memória
-    event.incrementAmountCollected(saleTotalValue);
-    event.incrementAmountNetValueCollected(saleTotalValue);
+    event.addCollectedAmount(saleTotalValue);
+    event.addNetValueCollected(saleTotalValue);
 
     // Executar tudo dentro da transação
     await this.prisma.runInTransaction(async (tx) => {

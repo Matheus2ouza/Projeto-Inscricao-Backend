@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { ExclusiveInscriptionLinkGateway } from 'src/domain/repositories/exclusive-inscription-link.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
@@ -21,10 +22,12 @@ import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { ExclusiveInscriptionLinkNotFoundException } from '../../exceptions/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from '../../exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
+import { LocalityNotFoundUsecaseException } from '../../exceptions/locality/locality-not-found.usecase.exception';
 import { ParticipantLimitReachedUsecaseException } from '../../exceptions/type-Inscription/participant-limit-reached.usecase.exception';
 
 export type InscriptionExclusiveLinkInput = {
   eventId: string;
+  localityId: string;
   exclusiveInscriptionLink: string;
 
   // Dados do inscrito
@@ -34,7 +37,6 @@ export type InscriptionExclusiveLinkInput = {
   cpf: string;
   gender: genderType;
   phone: string;
-  guestLocality: string;
   birthDate: Date;
 
   //dados complementares
@@ -58,6 +60,7 @@ export class InscriptionExclusiveLinkUsecase
   private readonly logger = new Logger(InscriptionExclusiveLinkUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly exclusiveInscriptionLinkGateway: ExclusiveInscriptionLinkGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly inscriptionGateway: InscriptionGateway,
@@ -79,6 +82,16 @@ export class InscriptionExclusiveLinkUsecase
       throw new EventNotFoundUsecaseException(
         `Attempting to create a registration, but the passed event ID is invalid.`,
         `Evento não encontrado`,
+        InscriptionExclusiveLinkUsecase.name,
+      );
+    }
+
+    const locality = await this.localityGateway.findById(input.localityId);
+
+    if (!locality) {
+      throw new LocalityNotFoundUsecaseException(
+        `Tentativa de criar uma inscrição mas a localidade informada ${input.localityId} é invalida`,
+        `Localidade não encontrada ou invalida`,
         InscriptionExclusiveLinkUsecase.name,
       );
     }
@@ -126,6 +139,7 @@ export class InscriptionExclusiveLinkUsecase
     }
     // cria a inscrição em memoria
     const inscription = Inscription.create({
+      localityId: locality.getId(),
       eventId: event.getId(),
       guestName: input.guestName.trim(),
       guestEmail: input.guestEmail.trim(),

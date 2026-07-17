@@ -9,7 +9,7 @@ export class ListPaymentDetailsPresenter {
       inscription: output.inscription,
       participant: output.participant,
       payments: output.payments,
-      allowCard: output.allowCard,
+      allowedPaymentModes: output.allowedPaymentModes,
       totalParticipant: output.totalParticipant,
       totalPayment: output.totalPayment,
       page: output.page,

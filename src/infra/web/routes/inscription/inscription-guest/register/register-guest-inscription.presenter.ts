@@ -9,6 +9,7 @@ export class RegisterGuestInscriptionPresenter {
       id: output.id,
       status: output.status,
       confirmationCode: output.confirmationCode,
+      expiresAt: output.expiresAt,
     };
   }
 }

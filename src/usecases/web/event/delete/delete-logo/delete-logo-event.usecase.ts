@@ -41,7 +41,7 @@ export class DeleteLogoEventUsecase
     }
 
     await this.supabaseStorageService.deleteFile(logoUrl);
-    event.deleteLogo();
+    event.removeLogo();
     await this.eventGateway.deleteLogo(event.getId());
   }
 }

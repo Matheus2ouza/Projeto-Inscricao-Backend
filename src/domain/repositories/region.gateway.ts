@@ -1,5 +1,5 @@
-import { Account } from '../entities/account.entity';
-import { Event } from '../entities/event.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Event } from '../entities/event/event.entity';
 import { Region } from '../entities/region.entity';
 
 export abstract class RegionGateway {

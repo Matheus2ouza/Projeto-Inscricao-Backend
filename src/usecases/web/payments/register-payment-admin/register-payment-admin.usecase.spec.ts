@@ -68,7 +68,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     isGuest = false,
     guestName = '',
     guestEmail = '',
-    imageUrl = 'image-url',
+    imageUrls = ['image-url-1', 'image-url-2', 'image-url-3'],
   }: Partial<{
     id: string;
     eventId: string;
@@ -79,7 +79,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     isGuest: boolean;
     guestName: string;
     guestEmail: string;
-    imageUrl: string;
+    imageUrls: string[];
   }> = {}) => {
     let currentStatus = status;
     return {
@@ -93,7 +93,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
       getIsGuest: jest.fn(() => isGuest),
       getGuestName: jest.fn(() => guestName),
       getGuestEmail: jest.fn(() => guestEmail),
-      getImageUrl: jest.fn(() => imageUrl),
+      getImageUrls: jest.fn(() => imageUrls),
       getInstallments: jest.fn(() => 1),
       approve: jest.fn((approvedBy: string) => {
         currentStatus = StatusPayment.APPROVED;
@@ -142,9 +142,9 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     ({
       getId: jest.fn(() => id),
       getName: jest.fn(() => 'Evento Teste'),
-      incrementAmountCollected: jest.fn(),
-      incrementAmountNetValueCollected: jest.fn(),
-      incrementParticipantsCount: jest.fn(),
+      addCollectedAmount: jest.fn(), // CORRIGIDO: era incrementAmountCollected
+      addNetValueCollected: jest.fn(), // CORRIGIDO: era incrementAmountNetValueCollected
+      addParticipant: jest.fn(), // CORRIGIDO: era incrementParticipantsCount
     }) as any;
 
   const makeCashRegisterEvent = (cashRegisterId: string) =>
@@ -196,7 +196,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
       getTotalPaid: jest.fn(() => 200),
       getTotalNetValue: jest.fn(() => 200),
       getInstallments: jest.fn(() => 1),
-      getImageUrl: jest.fn(() => 'image-url'),
+      getImageUrls: jest.fn(() => ['image-url-1', 'image-url-2']),
       getIsGuest: jest.fn(() => false),
       addPaidInstallment: jest.fn(),
       setTotalReceived: jest.fn(),
@@ -365,10 +365,10 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     expect(cashRegister1.incrementBalance).toHaveBeenCalledWith(200);
     expect(cashRegister2.incrementBalance).toHaveBeenCalledWith(200);
 
-    // Verificar atualização do evento
-    expect(event.incrementAmountCollected).toHaveBeenCalledWith(200);
-    expect(event.incrementAmountNetValueCollected).toHaveBeenCalledWith(200);
-    expect(event.incrementParticipantsCount).toHaveBeenCalledTimes(2); // 2 inscrições x 1 participante
+    // Verificar atualização do evento - CORRIGIDO
+    expect(event.addCollectedAmount).toHaveBeenCalledWith(200);
+    expect(event.addNetValueCollected).toHaveBeenCalledWith(200);
+    expect(event.addParticipant).toHaveBeenCalledTimes(2); // 2 inscrições x 1 participante
     expect(eventGateway.updateTx).toHaveBeenCalledTimes(1);
   });
 
@@ -538,7 +538,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
     });
 
     inscriptionGateway.findManyByIds.mockResolvedValue([inscription1]);
-    eventGateway.findById.mockResolvedValue(makeEvent);
+    eventGateway.findById.mockResolvedValue(makeEvent());
 
     const inputWithAllocatedAmountExceedingPayment: RegisterPaymentAdminInput =
       {
@@ -568,7 +568,7 @@ describe(RegisterPaymentAdminUsecase.name, () => {
       inscription,
       makeInscription({ id: 'insc-id-2', totalValue: 100, totalPaid: 0 }),
     ]);
-    eventGateway.findById.mockResolvedValue(makeEvent);
+    eventGateway.findById.mockResolvedValue(makeEvent());
 
     const inputWithOverpayment: RegisterPaymentAdminInput = {
       ...defaultInput,
@@ -679,8 +679,11 @@ describe(RegisterPaymentAdminUsecase.name, () => {
 
     await usecase.execute(defaultInput);
 
-    expect(event.incrementAmountCollected).toHaveBeenCalledWith(200);
-    expect(event.incrementParticipantsCount).toHaveBeenCalledTimes(8);
+    // CORRIGIDO: usando os métodos corretos do evento
+    expect(event.addCollectedAmount).toHaveBeenCalledWith(200);
+    expect(event.addNetValueCollected).toHaveBeenCalledWith(200);
+    // 2 inscrições x 4 participantes = 8 chamadas ao addParticipant
+    expect(event.addParticipant).toHaveBeenCalledTimes(8);
     expect(eventGateway.updateTx).toHaveBeenCalledTimes(1);
   });
 });

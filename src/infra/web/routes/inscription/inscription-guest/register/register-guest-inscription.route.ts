@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   RegisterGuestInscriptionInput,
@@ -6,6 +6,7 @@ import {
 } from 'src/usecases/web/inscription/guest/register/register-guest-inscription.usecase';
 import type {
   RegisterGuestInscriptionBody,
+  RegisterGuestInscriptionParam,
   RegisterGuestInscriptionResponse,
 } from './register-guest-inscription.dto';
 import { RegisterGuestInscriptionPresenter } from './register-guest-inscription.presenter';
@@ -17,21 +18,23 @@ export class RegisterGuestInscriptionRoute {
   ) {}
 
   @IsPublic()
-  @Post('register')
+  @Post(':eventId/register')
   async handle(
+    @Param() param: RegisterGuestInscriptionParam,
     @Body() body: RegisterGuestInscriptionBody,
   ): Promise<RegisterGuestInscriptionResponse> {
     const input: RegisterGuestInscriptionInput = {
-      eventId: body.eventId,
-      guestEmail: body.email,
-      guestName: body.name,
-      preferredName: body.preferredName,
+      eventId: param.eventId,
+      localityId: body.localityId,
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      birthDate: body.birthDate,
       cpf: body.cpf,
       gender: body.gender,
-      phone: body.phone,
-      guestLocality: body.locality,
-      birthDate: body.birthDate,
+      preferredName: body.preferredName,
       shirtSize: body.shirtSize,
+      shirtType: body.shirtType,
       typeInscriptionId: body.typeInscriptionId,
     };
 

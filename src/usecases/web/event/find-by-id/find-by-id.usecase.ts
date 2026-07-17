@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InscriptionMode, statusEvent } from 'generated/prisma';
+import {
+  InscriptionMode,
+  PaymentMode,
+  roleType,
+  statusEvent,
+} from 'generated/prisma';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 
 export type FindByIdEventInput = {
   id: string;
+  role: roleType;
 };
 
 export type FindByIdEventOutput = {
@@ -20,16 +27,17 @@ export type FindByIdEventOutput = {
   startDate: Date;
   endDate: Date;
   image?: string;
-  logoUrl?: string;
+  logo?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   allowedInscriptionModes: InscriptionMode[];
+  allowedPaymentModes: PaymentMode[];
   paymentEnebled: boolean;
-  allowCard?: boolean;
   createdAt: Date;
   regionName: string;
+  participanteConfig: ParticipantFieldsConfig;
   responsibles: Responsible[];
 };
 
@@ -53,6 +61,8 @@ export class FindByIdEventUsecase
   public async execute(
     input: FindByIdEventInput,
   ): Promise<FindByIdEventOutput> {
+    const isUser = input.role === roleType.USER;
+
     const event = await this.eventGateway.findById(input.id);
 
     if (!event) {
@@ -92,17 +102,19 @@ export class FindByIdEventUsecase
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
       image: imagePath,
-      logoUrl: logoPath,
+      logo: logoPath,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
       allowedInscriptionModes: event.getAllowedInscriptionModes(),
+      allowedPaymentModes: event.getAllowedPaymentModes(),
       paymentEnebled: event.getPaymentEnabled(),
-      allowCard: event.getAllowCard() ?? false,
       createdAt: event.getCreatedAt(),
       regionName: region?.getName() || '',
       responsibles: responsibleUsers,
+
+      participanteConfig: event.getParticipantFieldsConfig(),
     };
 
     return output;

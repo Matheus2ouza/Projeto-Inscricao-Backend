@@ -16,11 +16,12 @@ model Accounts {
   password                 String
   createdAt                DateTime                   @default(now()) @map("created_at")
   updatedAt                DateTime                   @updatedAt @map("updated_at")
-  regionId                 String?
+  regionId                 String?                    @map("region_id")
   email                    String?
   imageUrl                 String?
-  participants             AccountParticipant[]       @relation("AccountToParticipants")
+  active                   Boolean                    @default(true)
   region                   Regions?                   @relation(fields: [regionId], references: [id])
+  localities               AccountLocality[]
   responsibleForEvents     EventResponsibles[]
   FinancialMovement        FinancialMovement[]
   Inscription              Inscription[]
@@ -30,9 +31,22 @@ model Accounts {
   @@map("accounts")
 }
 
+model AccountLocality {
+  id         String   @id @default(uuid())
+  accountId  String   @map("account_id")
+  localityId String   @map("locality_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  account  Accounts   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  locality Localities @relation(fields: [localityId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, localityId])
+  @@map("account_localities")
+}
+
 model AccountParticipant {
   id            String                      @id @default(uuid())
-  accountId     String                      @map("account_id")
+  localityId    String                      @map("locality_id")
   name          String
   birthDate     DateTime                    @map("birth_date")
   gender        genderType
@@ -43,8 +57,9 @@ model AccountParticipant {
   shirtType     ShirtType?                  @map("shirt_type")
   cpf           String?                     @unique @map("cpf")
   eventLinks    AccountParticipantInEvent[] @relation("ParticipantToEvent")
-  account       Accounts                    @relation("AccountToParticipants", fields: [accountId], references: [id], onDelete: Cascade)
+  locality      Localities                  @relation(fields: [localityId], references: [id])
 
+  @@index([localityId])
   @@map("account_participants")
 }
 
@@ -72,8 +87,26 @@ model Regions {
   accounts           Accounts[]
   cashRegisters      CashRegister[]
   events             Events[]
+  localities         Localities[]
 
   @@map("regions")
+}
+
+model Localities {
+  id        String   @id @default(uuid())
+  name      String
+  uf        UF
+  regionId  String   @map("region_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  region       Regions              @relation(fields: [regionId], references: [id])
+  accounts     AccountLocality[]
+  inscrptions  Inscription[]
+  participants AccountParticipant[]
+
+  @@unique([name, regionId])
+  @@map("localities")
 }
 
 model Events {
@@ -92,12 +125,13 @@ model Events {
   longitude                Float?
   status                   statusEvent
   paymentEnabled           Boolean                    @default(false) @map("payment_enabled")
-  logoUrl                  String?
+  logoUrl                  String?                    @map("logo_url")
   ticketEnabled            Boolean                    @default(false) @map("ticket_enabled")
-  allowCard                Boolean                    @default(false) @map("allow_card")
   amountSpent              Decimal                    @default(0.00) @map("amount_spent") @db.Decimal(10, 2)
   amountNetValueCollected  Decimal                    @default(0.00) @map("amount_net_value_collected") @db.Decimal(10, 2)
   allowedInscriptionModes  InscriptionMode[]          @default([NORMAL]) @map("allowed_inscription_modes")
+  allowedPaymentModes      PaymentMode[]              @default([PIX]) @map("allowed_payment_modes")
+  participantFieldsConfig  Json                       @default("{}") @map("participant_fields_config")
   cashRegisterEntries      CashRegisterEntry[]
   cashRegisterEvents       CashRegisterEvent[]
   EventExpenses            EventExpenses[]
@@ -163,6 +197,7 @@ model TypeInscriptions {
 
 model Inscription {
   id               String            @id @default(uuid())
+  localityId       String?           @map("locality_id")
   accountId        String?           @map("account_id")
   eventId          String            @map("event_id")
   totalValue       Decimal           @db.Decimal(10, 2)
@@ -186,6 +221,7 @@ model Inscription {
 
   accountParticipantInEvent AccountParticipantInEvent[]
   financialMovements        FinancialMovement[]
+  locality                  Localities?                 @relation(fields: [localityId], references: [id])
   account                   Accounts?                   @relation(fields: [accountId], references: [id])
   event                     Events                      @relation(fields: [eventId], references: [id])
   exclusiveLink             ExclusiveInscriptionLink?   @relation(fields: [exclusiveLinkId], references: [id])
@@ -575,6 +611,12 @@ enum InscriptionMode {
   GUEST
 }
 
+enum PaymentMode {
+  CARTAO
+  PIX
+  BOLETO
+}
+
 enum CashRegisterStatus {
   OPEN
   CLOSED
@@ -672,4 +714,34 @@ enum ShirtSize {
 enum ShirtType {
   TRADICIONAL
   BABYLOOK
+}
+
+enum UF {
+  AC
+  AL
+  AP
+  AM
+  BA
+  CE
+  DF
+  ES
+  GO
+  MA
+  MT
+  MS
+  MG
+  PA
+  PB
+  PR
+  PE
+  PI
+  RJ
+  RN
+  RS
+  RO
+  RR
+  SC
+  SP
+  SE
+  TO
 }

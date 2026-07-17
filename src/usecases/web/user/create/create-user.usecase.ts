@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { Usecase } from 'src/usecases/usecase';
 import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/region-not-found.usecase.exception';
@@ -47,7 +47,7 @@ export class CreateUserUsecase
     }
 
     // Verifica se o usuário já existe
-    const userExists = await this.userGateway.findByUser(username);
+    const userExists = await this.userGateway.findByUsername(username);
 
     if (userExists) {
       throw new UserAlreadyExistsUsecaseException(

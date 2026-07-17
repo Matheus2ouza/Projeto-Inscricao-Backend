@@ -5,7 +5,7 @@ import {
   ShirtType,
 } from 'generated/prisma';
 import { AccountParticipantInEvent } from 'src/domain/entities/account-participant-in-event.entity';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import {
   CreateInscriptionAdminInput,

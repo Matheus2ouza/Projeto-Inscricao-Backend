@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { statusEvent } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
+import { Prisma, statusEvent } from 'generated/prisma';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { PrismaService, PrismaTransactionClient } from '../prisma.service';
@@ -15,7 +15,17 @@ export class EventPrismaRepository implements EventGateway {
   // CRUD básico
   async create(event: Event): Promise<Event> {
     const data = EntityToPrisma.map(event);
-    const created = await this.prisma.events.create({ data });
+    const created = await this.prisma.events.create({
+      data: data as unknown as Prisma.EventsUncheckedCreateInput,
+    });
+    return PrismaToEntity.map(created);
+  }
+
+  async createTx(event: Event, tx: PrismaTransactionClient): Promise<Event> {
+    const data = EntityToPrisma.map(event);
+    const created = await tx.events.create({
+      data: data as unknown as Prisma.EventsUncheckedCreateInput,
+    });
     return PrismaToEntity.map(created);
   }
 
@@ -23,7 +33,7 @@ export class EventPrismaRepository implements EventGateway {
     const data = EntityToPrisma.map(event);
     const updated = await this.prisma.events.update({
       where: { id: event.getId() },
-      data,
+      data: data as unknown as Prisma.EventsUncheckedUpdateInput,
     });
     return PrismaToEntity.map(updated);
   }
@@ -32,7 +42,7 @@ export class EventPrismaRepository implements EventGateway {
     const data = EntityToPrisma.map(event);
     const updated = await tx.events.update({
       where: { id: event.getId() },
-      data,
+      data: data as unknown as Prisma.EventsUncheckedUpdateInput,
     });
     return PrismaToEntity.map(updated);
   }

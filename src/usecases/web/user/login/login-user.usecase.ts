@@ -27,7 +27,7 @@ export class LoginUserUsecase
     username,
     password,
   }: loginUserInput): Promise<loginUserOutput> {
-    const anUser = await this.UserGateway.findByUser(username);
+    const anUser = await this.UserGateway.verifyActiveAccount(username);
 
     if (!anUser) {
       throw new CredentialsNoValidUsecaseException(

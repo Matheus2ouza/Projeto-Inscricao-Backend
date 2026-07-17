@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountParticipantEntityToAccountParticipantPrismaModelMapper as EntityToPrismaModel } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-entity-to-account-participant-prisma-model.mapper';
 import { AccountParticipantPrismaModelToAccountParticipantEntityMapper as PrismaModelToEntity } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-prisma-model-to-account-participant-entity.mapper';
@@ -59,11 +59,11 @@ export class AccountParticipantPrismaRepository
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
   }
 
-  async findAllByAccountId(accountId: string): Promise<AccountParticipant[]> {
+  async findAllByAccountId(localityId: string): Promise<AccountParticipant[]> {
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.findMany({
         where: {
-          accountId,
+          localityId,
         },
       });
     return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
@@ -98,7 +98,7 @@ export class AccountParticipantPrismaRepository
   async findAll(filter?: { regionId?: string }): Promise<AccountParticipant[]> {
     const found = await this.prisma.accountParticipant.findMany({
       where: {
-        account: {
+        locality: {
           regionId: filter?.regionId,
         },
       },

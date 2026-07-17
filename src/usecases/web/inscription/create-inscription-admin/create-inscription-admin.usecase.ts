@@ -6,11 +6,12 @@ import {
   ShirtType,
 } from 'generated/prisma';
 import { AccountParticipantInEvent } from 'src/domain/entities/account-participant-in-event.entity';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { Participant } from 'src/domain/entities/participant.entity';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
@@ -18,9 +19,11 @@ import { SyncQueue } from 'src/infra/sync/sync.queue';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from '../../exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
+import { LocalityNotFoundUsecaseException } from '../../exceptions/locality/locality-not-found.usecase.exception';
 import { DuplicateParticipantCpfUsecaseException } from '../../exceptions/participants/duplicate-participant-cpf.usecase.exception';
 
 export type CreateInscriptionAdminInput = {
+  localityId: string;
   eventId: string;
 
   // caso guest false entao envia o accountId
@@ -33,7 +36,6 @@ export type CreateInscriptionAdminInput = {
   phone: string;
 
   // caso guest true então envia o locality
-  locality?: string;
   participants: ParticipantInscription[];
 };
 
@@ -65,6 +67,7 @@ export class CreateInscriptionAdminUsecase
   private readonly logger = new Logger(CreateInscriptionAdminUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly participantGateway: ParticipantGateway,
@@ -87,12 +90,22 @@ export class CreateInscriptionAdminUsecase
       );
     }
 
+    const locality = await this.localityGateway.findById(input.localityId);
+
+    if (!locality) {
+      throw new LocalityNotFoundUsecaseException(
+        `Tentativa de criar uma inscrição mas a localidade informada ${input.localityId} é invalida`,
+        `Localidade não encontrada ou invalida`,
+        CreateInscriptionAdminUsecase.name,
+      );
+    }
+
     const inscription = Inscription.create({
+      localityId: locality.getId(),
       accountId: input.accountId,
       eventId: event.getId(),
       guestEmail: input.isGuest ? input.email : undefined,
       guestName: input.isGuest ? input.responsible : undefined,
-      guestLocality: input.locality ?? '',
       isGuest: input.isGuest,
       responsible: input.responsible,
       phone: input.phone,

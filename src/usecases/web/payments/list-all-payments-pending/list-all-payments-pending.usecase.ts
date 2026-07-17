@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMode } from 'generated/prisma';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
@@ -14,7 +15,7 @@ export type ListAllPaymentsPendingInput = {
 
 export type ListAllPaymentsPendingOutput = {
   inscriptions: Inscriptions[];
-  allowCard: boolean;
+  allowedPaymentModes: PaymentMode[];
   total: number;
   page: number;
   pageCount: number;
@@ -90,7 +91,7 @@ export class ListAllPaymentsPendingUsecase
 
     const output: ListAllPaymentsPendingOutput = {
       inscriptions: inscriptionsData,
-      allowCard: event.getAllowCard() || false,
+      allowedPaymentModes: event.getAllowedPaymentModes(),
       total,
       page: safePage,
       pageCount: Math.ceil(total / safePageSize),
