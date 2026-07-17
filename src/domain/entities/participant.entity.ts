@@ -61,9 +61,6 @@ export class Participant extends Entity {
     gender,
   }: ParticipantCreateDto) {
     const id = Utils.generateUUID();
-    const shirtSizeDefault = shirtSize || ShirtSize.M;
-    const shirtTypeDefault = shirtType || ShirtType.TRADICIONAL;
-
     const createdAt = new Date();
     const updatedAt = new Date();
 
@@ -77,8 +74,8 @@ export class Participant extends Entity {
       createdAt,
       updatedAt,
       preferredName,
-      shirtSizeDefault,
-      shirtTypeDefault,
+      shirtSize,
+      shirtType,
       cpf,
     );
   }
