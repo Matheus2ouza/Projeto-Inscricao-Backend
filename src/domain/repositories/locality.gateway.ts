@@ -16,5 +16,6 @@ export abstract class LocalityGateway {
 
   // buscas
   abstract findById(id: string): Promise<Locality | null>;
-  abstract findByEventId(eventId: string): Promise<Locality[]>;
+  abstract findByAccountId(accountId: string): Promise<Locality[]>;
+  abstract findAll(): Promise<Locality[]>;
 }

@@ -18,6 +18,7 @@ import { EnvironmentVariableNotFoundExceptionFilterProvider } from './filters/us
 import { EventNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-not-found.usecase-exception.filter';
 import { EventSlugNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/event/event-slug-not-found.usecase-exception.filter';
 import { InscriptionModeNotValidUsecaseExceptionFilterProvider } from './filters/usecases/event/inscription-mode-not-valid-usecase-exception.filter';
+import { PaymentModeNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/event/payment-mode-not-allowed-usecase-exception.filter';
 import { PaymentModeNotValidUsecaseExceptionFilterProvider } from './filters/usecases/event/payment-mode-not-valid-usecase-exception.filter';
 import { ExclusiveInscriptionLinkInactiveOrExpiredExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-inactive-or-expired.usecase.exception.filter';
 import { ExclusiveInscriptionLinkNotFoundExceptionFilterProvider } from './filters/usecases/exclusive-inscription-link/exclusive-inscription-link-not-found.usecase.exception.filter';
@@ -36,6 +37,7 @@ import { PaymentAllocationExceededUsecaseExceptionFilterProvider } from './filte
 import { PaymentInstallmentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment-installment/payment-installment-not-fund-usecase-exception.filter';
 import { CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/card-payment-deletion-not-allowed.usecase.exception.filter';
 import { PaymentNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/payment/delete/payment-not-found.usecase.exception.filter';
+import { InvalidInputUsecaseExceptionFilterProvider } from './filters/usecases/payment/invalid-input.exception.usecase.exception';
 import { InvalidImageFormatUsecaseExceptionFilterProvider } from './filters/usecases/payment/register/invalid-image-format.usecase.exception';
 import { SyncRecordAlreadyExistsUsecaseExceptionFilterProvider } from './filters/usecases/sync/sync-record-already-exists.usecase.exception.filter';
 import { DescriptionAlreadyExistsUsecaseExcepitonFilterProvider } from './filters/usecases/typeInscription/description-already-exists-usecase-exception.filter';
@@ -126,7 +128,8 @@ import { UpdateGuestInscriptionRoute } from './routes/inscription/update-guest-i
 import { UpdateInscriptionRoute } from './routes/inscription/update-inscription/update-inscription.route';
 import { UpdateStatusInscriptionRoute } from './routes/inscription/update-status-inscription/update-status-inscription.route';
 import { UpdateValidateInscriptionRoute } from './routes/inscription/update-validate-inscription/update-validate-inscription.route';
-import { FindAllByEventRoute } from './routes/locality/find-all-by-event/find-all-by-event.route';
+import { FindAllLocalityWithAccountRoute } from './routes/locality/find-all-with-account/find-all-with-account.route';
+import { FindAllLocalityRoute } from './routes/locality/find-all/find-all-locality.route';
 import { CreateMembersRoute } from './routes/members/create/create-membrers.route';
 import { FindAllMembersByAccountRoute } from './routes/members/find-all-members-by-account/find-all-members-by-account.route';
 import { FindAllPaginatedMembersRoute } from './routes/members/find-all-paginated/find-all-paginated-members.route';
@@ -156,6 +159,7 @@ import { ListAllReceiptRoute } from './routes/payments/list-all-receipt/list-all
 import { ListPaymentPendingDetailsRoute } from './routes/payments/list-payment-pending-details/list-payment-pending-details.route';
 import { PaymentsDetailsRoute } from './routes/payments/payments-details/payments-details.route';
 import { RegisterPaymentCredRoute } from './routes/payments/register-cred/register-payment-cred.route';
+import { RegisterPaymentGuestPixRoute } from './routes/payments/register-guest-pix/register-payment-guest-pix.route';
 import { RegisterPaymentAdminRoute } from './routes/payments/register-payment-admin/register-payment-admin.route';
 import { RegisterPaymentPixAssasRoute } from './routes/payments/register-pix-assas/register-pix-assas.route';
 import { RegisterPaymentPixRoute } from './routes/payments/register-pix/register-payment-pix.route';
@@ -246,7 +250,9 @@ import { WelcomeRoute } from './routes/welcome.route';
     FindAllMembersByAccountRoute,
     FindMemberByIdRoute,
 
-    FindAllByEventRoute,
+    // Locality
+    FindAllLocalityRoute,
+    FindAllLocalityWithAccountRoute,
 
     // Events - Listings & Details
     FindAllPaginatedEventsRoute,
@@ -387,6 +393,10 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Payment - Register Pix
     RegisterPaymentPixRoute,
+
+    // Payment - Register Pix Guest
+    RegisterPaymentGuestPixRoute,
+
     // Payment - Register Pix Assas
     RegisterPaymentPixAssasRoute,
 
@@ -490,6 +500,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     RegionIdNotFoundRouteExceptionFilterProvider,
     PaymentModeNotValidUsecaseExceptionFilterProvider,
     InscriptionModeNotValidUsecaseExceptionFilterProvider,
+    PaymentModeNotAllowedUsecaseExceptionFilterProvider,
 
     // Account Participant
     AccountParticipantNotFoundUsecaseExceptionFilterProvider,
@@ -514,6 +525,7 @@ import { WelcomeRoute } from './routes/welcome.route';
     PaymentNotFoundUsecaseExceptionFilterProvider,
     InvalidImageFormatUsecaseExceptionFilterProvider,
     CardPaymentDeletionNotAllowedUsecaseExceptionFilterProvider,
+    InvalidInputUsecaseExceptionFilterProvider,
 
     // PAYMENT INSCRIPTION
     PaymentAllocationExceededUsecaseExceptionFilterProvider,

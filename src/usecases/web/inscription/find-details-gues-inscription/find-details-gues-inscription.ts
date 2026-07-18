@@ -3,16 +3,19 @@ import {
   genderType,
   InscriptionStatus,
   PaymentMethod,
+  PaymentMode,
   ShirtSize,
   ShirtType,
   StatusPayment,
 } from 'generated/prisma';
+import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { PaymentInstallmentGateway } from 'src/domain/repositories/payment-installment.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { InscriptionExpiredUsecaseException } from '../../exceptions/inscription/find/inscription-expired.usecase.exception';
@@ -34,6 +37,12 @@ export type FindDetailsGuestInscriptionOutput = {
   locality: Locality;
   participant: Participant;
   payments?: Payment[];
+  eventConfig: EventConfig;
+};
+
+export type EventConfig = {
+  participanteConfig: ParticipantFieldsConfig;
+  allowedPaymentModes: PaymentMode[];
 };
 
 export type Locality = {
@@ -45,10 +54,11 @@ export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
+  gender: genderType;
   preferredName?: string;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
-  gender: genderType;
+  cpf: string;
   typeInscription: TypeInscription;
 };
 
@@ -84,6 +94,7 @@ export class FindDetailsGuestInscriptionUsecase
 {
   constructor(
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly eventGateway: EventGateway,
     private readonly localityGateway: LocalityGateway,
     private readonly participantGateway: ParticipantGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
@@ -115,7 +126,8 @@ export class FindDetailsGuestInscriptionUsecase
       );
     }
 
-    const [locality, participants, payments] = await Promise.all([
+    const [event, locality, participants, payments] = await Promise.all([
+      this.eventGateway.findById(inscription.getEventId()),
       this.localityGateway.findById(inscription.getLocalityId()!),
       this.participantGateway.findByInscriptionId(inscription.getId()),
       this.paymentGateway.findAllByInscriptionId(inscription.getId()),
@@ -137,10 +149,11 @@ export class FindDetailsGuestInscriptionUsecase
       id: participant.getId(),
       name: participant.getName(),
       birthDate: participant.getBirthDate(),
+      gender: participant.getGender(),
       preferredName: participant.getPreferredName(),
       shirtSize: participant.getShirtSize(),
       shirtType: participant.getShirtType(),
-      gender: participant.getGender(),
+      cpf: participant.getCpf()!,
       typeInscription: {
         description: typeInscription?.getDescription() ?? '',
         price: typeInscription?.getValue() ?? 0,
@@ -183,6 +196,11 @@ export class FindDetailsGuestInscriptionUsecase
       name: `${locality?.getName()} - ${locality?.getUf()}`,
     };
 
+    const eventConfig: EventConfig = {
+      participanteConfig: event?.getParticipantFieldsConfig()!,
+      allowedPaymentModes: event?.getAllowedPaymentModes()!,
+    };
+
     const output: FindDetailsGuestInscriptionOutput = {
       id: inscription.getId(),
       status: inscription.getStatus(),
@@ -195,6 +213,7 @@ export class FindDetailsGuestInscriptionUsecase
       locality: localityData,
       participant: participantData,
       payments: paymentsData,
+      eventConfig,
     };
 
     return output;

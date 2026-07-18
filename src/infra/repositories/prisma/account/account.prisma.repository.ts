@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { roleType } from 'generated/prisma';
 import { Account } from 'src/domain/entities/account/account.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
-import { PrismaService } from '../prisma.service';
-import { AccountEntityToUserPrismaModelMapper } from './model/mappers/account-entity-to-account-prisma-model.mapper';
+import { PrismaService, PrismaTransactionClient } from '../prisma.service';
+import { AccountEntityToUserPrismaModelMapper as EntityToPrisma } from './model/mappers/account-entity-to-account-prisma-model.mapper';
 import { AccountPrismaModelToUserEntityMapper as PrismaToEntity } from './model/mappers/account-prisma-model-to-account-entity.mapper';
 
 @Injectable()
@@ -12,10 +12,19 @@ export class AccountPrismaRepository implements AccountGateway {
 
   // ============ CREATES ============
   public async create(user: Account): Promise<void> {
-    const aModel = AccountEntityToUserPrismaModelMapper.map(user);
+    const aModel = EntityToPrisma.map(user);
     await this.prisma.accounts.create({
       data: aModel,
     });
+  }
+
+  public async createTx(
+    account: Account,
+    tx: PrismaTransactionClient,
+  ): Promise<Account> {
+    const data = EntityToPrisma.map(account);
+    const created = await tx.accounts.create({ data });
+    return PrismaToEntity.map(created);
   }
 
   // ============ FINDS ============
@@ -56,18 +65,6 @@ export class AccountPrismaRepository implements AccountGateway {
     const anUser = PrismaToEntity.map(aModel);
 
     return anUser;
-  }
-
-  public async findRegionById(id: string): Promise<any | null> {
-    const region = await this.prisma.regions.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!region) return null;
-
-    return region;
   }
 
   public async findAll(): Promise<Account[]> {

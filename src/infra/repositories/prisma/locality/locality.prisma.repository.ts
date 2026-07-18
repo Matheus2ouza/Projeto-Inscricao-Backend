@@ -63,19 +63,22 @@ export class LocalityPrismaRepository implements LocalityGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
-  public async findByEventId(eventId: string): Promise<Locality[]> {
+  public async findByAccountId(accountId: string): Promise<Locality[]> {
     const found = await this.prisma.localities.findMany({
       where: {
-        region: {
-          events: {
-            some: {
-              id: eventId,
-            },
+        accounts: {
+          some: {
+            accountId,
           },
         },
       },
     });
 
+    return found.map(PrismaToEntity.map);
+  }
+
+  public async findAll(): Promise<Locality[]> {
+    const found = await this.prisma.localities.findMany();
     return found.map(PrismaToEntity.map);
   }
 }

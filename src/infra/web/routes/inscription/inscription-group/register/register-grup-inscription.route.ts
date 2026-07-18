@@ -27,6 +27,7 @@ export class RegisterGroupInscriptionRoute {
       eventId: body.eventId,
       responsible: body.responsible,
       phone: body.phone,
+      email: body.email,
       members: body.members,
     };
 

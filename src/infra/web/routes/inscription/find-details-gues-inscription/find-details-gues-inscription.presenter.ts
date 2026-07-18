@@ -17,6 +17,7 @@ export class FindDetailsGuestInscriptionPresenter {
       locality: output.locality,
       participant: output.participant,
       payments: output.payments,
+      eventConfig: output.eventConfig,
     };
   }
 }

@@ -80,7 +80,7 @@ export class UpdatePaymentReceiptUsecase
       }
     }
 
-    payment.updateImage(imagePath, payment.getStatus());
+    payment.updateImage(imagePath);
     await this.paymentGateway.update(payment);
 
     await this.notifyEventResponsiblesAboutPaymentReceiptUpdate(payment);

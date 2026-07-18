@@ -13,7 +13,8 @@ export abstract class AccountParticipantGateway {
   // Buscas e listagens
   abstract findById(id: string): Promise<AccountParticipant | null>;
   abstract findByIds(ids: string[]): Promise<AccountParticipant[]>;
-  abstract findAllByAccountId(
+  abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
+  abstract findAllByLocalityId(
     localityId: string,
   ): Promise<AccountParticipant[]>;
   abstract findByInscriptionsIds(
@@ -34,7 +35,7 @@ export abstract class AccountParticipantGateway {
     page: number,
     pageSize: number,
     filter: {
-      accountId?: string;
+      localityId?: string;
     },
   ): Promise<AccountParticipant[]>;
   abstract findManyByEventId(
@@ -66,5 +67,5 @@ export abstract class AccountParticipantGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
-  abstract countAllFiltered(filter: { accountId?: string }): Promise<number>;
+  abstract countAllFiltered(filter: { localityId?: string }): Promise<number>;
 }

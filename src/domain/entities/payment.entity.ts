@@ -23,6 +23,7 @@ export type PaymentCreateDto = {
   externalReference?: string;
   imageUrls?: string[];
   approvedBy?: string;
+  createdAt?: Date;
 };
 
 export type PaymentWithDto = {
@@ -52,32 +53,73 @@ export type PaymentWithDto = {
 };
 
 export class Payment extends Entity {
+  private readonly eventId: string;
+  private status: StatusPayment;
+  private methodPayment: PaymentMethod;
+  private totalValue: number;
+  private totalPaid: number;
+  private totalNetValue: number;
+  private totalReceived: number;
+  private installments: number;
+  private paidInstallments: number;
+  private imageUrls: string[];
+  private accountId?: string;
+  private guestName?: string;
+  private guestEmail?: string;
+  private accessToken?: string;
+  private isGuest?: boolean;
+  private asaasCheckoutId?: string;
+  private paymentLinkId?: string;
+  private externalReference?: string;
+  private rejectionReason?: string;
+  private approvedBy?: string;
+
   constructor(
     id: string,
-    private eventId: string,
-    private status: StatusPayment,
-    private methodPayment: PaymentMethod,
-    private totalValue: number,
-    private totalPaid: number,
-    private totalNetValue: number,
-    private totalReceived: number,
-    private installments: number,
-    private paidInstallments: number,
-    private imageUrls: string[] = [],
+    eventId: string,
+    status: StatusPayment,
+    methodPayment: PaymentMethod,
+    totalValue: number,
+    totalPaid: number,
+    totalNetValue: number,
+    totalReceived: number,
+    installments: number,
+    paidInstallments: number,
+    imageUrls: string[],
     createdAt: Date,
     updatedAt: Date,
-    private accountId?: string,
-    private guestName?: string,
-    private guestEmail?: string,
-    private accessToken?: string,
-    private isGuest?: boolean,
-    private asaasCheckoutId?: string,
-    private paymentLinkId?: string,
-    private externalReference?: string,
-    private rejectionReason?: string,
-    private approvedBy?: string,
+    accountId?: string,
+    guestName?: string,
+    guestEmail?: string,
+    accessToken?: string,
+    isGuest?: boolean,
+    asaasCheckoutId?: string,
+    paymentLinkId?: string,
+    externalReference?: string,
+    rejectionReason?: string,
+    approvedBy?: string,
   ) {
     super(id, createdAt, updatedAt);
+    this.eventId = eventId;
+    this.status = status;
+    this.methodPayment = methodPayment;
+    this.totalValue = totalValue;
+    this.totalPaid = totalPaid;
+    this.totalNetValue = totalNetValue;
+    this.totalReceived = totalReceived;
+    this.installments = installments;
+    this.paidInstallments = paidInstallments;
+    this.imageUrls = imageUrls;
+    this.accountId = accountId;
+    this.guestName = guestName;
+    this.guestEmail = guestEmail;
+    this.accessToken = accessToken;
+    this.isGuest = isGuest;
+    this.asaasCheckoutId = asaasCheckoutId;
+    this.paymentLinkId = paymentLinkId;
+    this.externalReference = externalReference;
+    this.rejectionReason = rejectionReason;
+    this.approvedBy = approvedBy;
     this.validate();
   }
 
@@ -101,6 +143,7 @@ export class Payment extends Entity {
     paymentLinkId,
     externalReference,
     approvedBy,
+    createdAt,
   }: PaymentCreateDto): Payment {
     const id = Utils.generateUUID();
     const methodPaymentDefault = methodPayment || PaymentMethod.PIX;
@@ -109,17 +152,15 @@ export class Payment extends Entity {
     const totalNetValueDefault = totalNetValue || 0;
     const installmentsDefault = installment || 1;
     const paidInstallmentsDefault = paidInstallments || 0;
-    const createdAt = new Date();
+    const createdAtDefault = createdAt || new Date();
     const updatedAt = new Date();
-    const rejectionReason = undefined;
 
     const isGuestDefault = isGuest || false;
-
-    let finalAccessToken = accessToken;
+    let accessTokenDefault = accessToken;
     if (isGuestDefault) {
-      finalAccessToken = Utils.generateUUID();
+      accessTokenDefault = Utils.generateUUID();
     } else {
-      finalAccessToken = undefined;
+      accessTokenDefault = undefined;
     }
 
     return new Payment(
@@ -133,18 +174,18 @@ export class Payment extends Entity {
       totalReceivedDefault,
       installmentsDefault,
       paidInstallmentsDefault,
-      imageUrls,
-      createdAt,
+      imageUrls || [],
+      createdAtDefault,
       updatedAt,
       accountId,
       guestName,
       guestEmail,
-      finalAccessToken,
+      accessTokenDefault,
       isGuestDefault,
       asaasCheckoutId,
       paymentLinkId,
       externalReference,
-      rejectionReason,
+      undefined, // rejectionReason
       approvedBy,
     );
   }
@@ -205,12 +246,50 @@ export class Payment extends Entity {
     PaymentValidatorFactory.create().validate(this);
   }
 
-  public getId(): string {
-    return this.id;
+  private touch(): void {
+    this.updatedAt = new Date();
+    this.validate();
   }
 
+  // Getters
   public getEventId(): string {
     return this.eventId;
+  }
+
+  public getStatus(): StatusPayment {
+    return this.status;
+  }
+
+  public getMethodPayment(): PaymentMethod {
+    return this.methodPayment;
+  }
+
+  public getTotalValue(): number {
+    return this.totalValue;
+  }
+
+  public getTotalPaid(): number {
+    return this.totalPaid;
+  }
+
+  public getTotalNetValue(): number {
+    return this.totalNetValue;
+  }
+
+  public getTotalReceived(): number {
+    return this.totalReceived;
+  }
+
+  public getInstallments(): number {
+    return this.installments;
+  }
+
+  public getPaidInstallments(): number {
+    return this.paidInstallments;
+  }
+
+  public getImageUrls(): string[] {
+    return this.imageUrls;
   }
 
   public getAccountId(): string | undefined {
@@ -233,42 +312,6 @@ export class Payment extends Entity {
     return this.isGuest;
   }
 
-  public getStatus(): StatusPayment {
-    return this.status;
-  }
-
-  public getMethodPayment(): PaymentMethod {
-    return this.methodPayment;
-  }
-
-  public getTotalValue(): number {
-    return this.totalValue;
-  }
-
-  public getTotalPaid(): number {
-    return this.totalPaid;
-  }
-
-  public getTotalReceived(): number {
-    return this.totalReceived;
-  }
-
-  public getTotalNetValue(): number {
-    return this.totalNetValue;
-  }
-
-  public getInstallments(): number {
-    return this.installments;
-  }
-
-  public getPaidInstallments(): number {
-    return this.paidInstallments;
-  }
-
-  public getImageUrls(): string[] {
-    return this.imageUrls;
-  }
-
   public getAsaasCheckoutId(): string | undefined {
     return this.asaasCheckoutId;
   }
@@ -289,76 +332,78 @@ export class Payment extends Entity {
     return this.approvedBy;
   }
 
-  public getCreatedAt(): Date {
-    return this.createdAt;
-  }
-
-  public getUpdatedAt(): Date {
-    return this.updatedAt;
-  }
-
+  // Métodos de negócio
   public isFullyPaid(): boolean {
     return this.paidInstallments >= this.installments;
   }
 
   public setMethodPayment(methodPayment: PaymentMethod): void {
     this.methodPayment = methodPayment;
+    this.touch();
   }
 
   public approve(approvedBy: string): void {
     this.status = StatusPayment.APPROVED;
-    this.updatedAt = new Date();
     this.approvedBy = approvedBy;
-    if (this.getRejectionReason()) {
+    if (this.rejectionReason) {
       this.rejectionReason = undefined;
     }
+    this.touch();
   }
 
   public recuse(rejectionReason: string): void {
     this.status = StatusPayment.REFUSED;
-    this.updatedAt = new Date();
     this.rejectionReason = rejectionReason;
+    this.touch();
   }
 
   public reverse(): void {
-    if (this.getStatus() === StatusPayment.APPROVED) {
+    if (this.status === StatusPayment.APPROVED) {
       this.paidInstallments = 0;
       this.totalPaid = 0;
       this.totalNetValue = 0;
       this.approvedBy = undefined;
     }
-    if (this.getRejectionReason()) {
+    if (this.rejectionReason) {
       this.rejectionReason = undefined;
     }
     this.status = StatusPayment.UNDER_REVIEW;
-    this.updatedAt = new Date();
+    this.touch();
   }
 
   public addPaidInstallment(value: number, netValue: number): void {
     this.totalPaid += value;
     this.totalNetValue += netValue;
     this.paidInstallments += 1;
+    this.touch();
   }
 
   public setTotalNetValue(totalNetValue: number): void {
     this.totalNetValue = totalNetValue;
+    this.touch();
   }
 
   public setInstallments(installments: number): void {
     this.installments = installments;
+    this.touch();
   }
 
   public setTotalReceived(totalReceived: number): void {
     this.totalReceived += totalReceived;
-    this.updatedAt = new Date();
-    this.validate();
+    this.touch();
   }
 
-  public updateImage(imageUrl: string, status: StatusPayment): void {
+  public setImageUrls(image: string): void {
+    this.imageUrls.push(image);
+    this.touch();
+  }
+
+  public updateImage(imageUrl: string): void {
     this.imageUrls = [imageUrl];
-    this.status =
-      status === StatusPayment.REFUSED ? StatusPayment.UNDER_REVIEW : status;
-    this.updatedAt = new Date();
-    this.validate();
+    // Se estava rejeitado, volta para análise
+    if (this.status === StatusPayment.REFUSED) {
+      this.status = StatusPayment.UNDER_REVIEW;
+    }
+    this.touch();
   }
 }

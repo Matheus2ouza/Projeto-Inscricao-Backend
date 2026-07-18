@@ -2,12 +2,13 @@ import { FindUserOutput } from 'src/usecases/web/user/find-by-id/find-user.useca
 import { FindByIdUserResponse } from './find-by-id-user.dto';
 
 export class FindByIdUserPresenter {
-  public static toHttp(input: FindUserOutput): FindByIdUserResponse {
+  public static toHttp(output: FindUserOutput): FindByIdUserResponse {
     const response: FindByIdUserResponse = {
-      id: input.id,
-      username: input.username,
-      role: input.role,
-      createdAt: input.createdAt,
+      id: output.id,
+      username: output.username,
+      email: output.email,
+      role: output.role,
+      createdAt: output.createdAt,
     };
 
     return response;

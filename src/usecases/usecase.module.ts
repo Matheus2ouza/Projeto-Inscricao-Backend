@@ -98,7 +98,8 @@ import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xl
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
-import { FindAllByEventUsecase } from './web/locality/find-all-by-event/find-all-by-event.usecase';
+import { FindAllLocalityUsecase } from './web/locality/find-all-by-event/find-all-locality.usecase';
+import { FindAllLocalityWithAccountUsecase } from './web/locality/find-all-with-account/find-all-with-account.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -129,8 +130,9 @@ import { ListAllReceiptUsecase } from './web/payments/list-all-receipt/list-all-
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
 import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
+import { RegisterPaymentGuestPixUsecase } from './web/payments/register-guest-pix/register-payment-guest-pix.usecase';
 import { RegisterPaymentAdminUsecase } from './web/payments/register-payment-admin/register-payment-admin.usecase';
-import { RegisterPaymentPixAssasUsescase } from './web/payments/register-pix-assas/register-payment-pix-assas.usecase';
+import { RegisterPaymentPixAssasUsecase } from './web/payments/register-pix-assas/register-payment-pix-assas.usecase';
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
@@ -234,7 +236,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindMemberByIdUsecase,
 
     // Localities
-    FindAllByEventUsecase,
+    FindAllLocalityUsecase,
+    FindAllLocalityWithAccountUsecase,
 
     // Events - CRUD & Updates
     CreateEventUseCase,
@@ -348,8 +351,11 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
-    RegisterPaymentPixAssasUsescase,
+    RegisterPaymentPixAssasUsecase,
     CreatePaymentLinkUsecase,
+
+    // Payment - Create guest
+    RegisterPaymentGuestPixUsecase,
 
     // Payment - register admin
     RegisterPaymentAdminUsecase,
@@ -482,7 +488,8 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindMemberByIdUsecase,
 
     // Localities
-    FindAllByEventUsecase,
+    FindAllLocalityUsecase,
+    FindAllLocalityWithAccountUsecase,
 
     // Events - CRUD & Updates
     CreateEventUseCase,
@@ -593,10 +600,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     ListPaymentPendingDetailsUsecase,
     FindPaymentsDatesUsecase,
 
+    // Payment - Create guest
+    RegisterPaymentGuestPixUsecase,
+
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
-    RegisterPaymentPixAssasUsescase,
+    RegisterPaymentPixAssasUsecase,
     CreatePaymentLinkUsecase,
 
     // Payment - register admin

@@ -1,5 +1,4 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
   FindAllPaginatedMembersInput,
   FindAllPaginatedMembersUsecase,
@@ -19,10 +18,9 @@ export class FindAllPaginatedMembersRoute {
   @Get()
   public async handle(
     @Query() query: FindAllPaginatedMembersRequest,
-    @UserId() userId: string,
   ): Promise<FindAllPaginatedMembersResponse> {
     const input: FindAllPaginatedMembersInput = {
-      accountId: userId,
+      localityId: query.localityId,
       page: query.page,
       pageSize: query.pageSize,
     };

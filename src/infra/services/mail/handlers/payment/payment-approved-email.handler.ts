@@ -86,9 +86,10 @@ export class PaymentApprovedEmailHandler {
         `E-mail de pagamento aprovado enviado para ${paymentData.responsibleName ?? ''} (${paymentData.responsibleEmail ?? ''})`,
       );
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar e-mail de pagamento aprovado: ${error.message}`,
-        error.stack,
+        `Erro ao enviar e-mail de pagamento aprovado: ${err.message}`,
+        err.stack,
       );
       throw error;
     }
