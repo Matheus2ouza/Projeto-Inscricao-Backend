@@ -19,7 +19,7 @@ import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/except
 import { LocalityNotFoundUsecaseException } from 'src/usecases/web/exceptions/locality/locality-not-found.usecase.exception';
 import { MemberAlreadyInscribedUsecaseException } from 'src/usecases/web/exceptions/members/member-already-inscriptibed.usecase.exception';
 import { MemberNotFoundUsecaseException } from 'src/usecases/web/exceptions/members/member-not-found.usecase.exception';
-import { MissingRequiredParticipantFieldsUsecaseException } from 'src/usecases/web/exceptions/participants/missing-required-participant-fields.usecase.exception';
+import { MissingRequiredParticipantFieldsForGroupUsecaseException } from 'src/usecases/web/exceptions/participants/missing-required-participant-fields-for-group.usecase.exception';
 
 export type RegisterIndivInscriptionUsecaseInput = {
   accountId: string;
@@ -123,10 +123,16 @@ export class RegisterIndivInscriptionUsecase
     });
 
     if (missingFields.length > 0) {
-      throw new MissingRequiredParticipantFieldsUsecaseException(
+      throw new MissingRequiredParticipantFieldsForGroupUsecaseException(
         `attempt to create individual inscription for member: ${input.member.accountParticipantId} but it is missing required fields for event ${input.eventId}: ${missingFields.join(', ')}`,
-        `Complete o cadastro do membro com os campos obrigatórios: ${missingFields.join(', ')}`,
+        'Cadastro incompleto para este evento',
         RegisterIndivInscriptionUsecase.name,
+        [
+          {
+            accountParticipantId: input.member.accountParticipantId,
+            missingFields,
+          },
+        ],
       );
     }
 
