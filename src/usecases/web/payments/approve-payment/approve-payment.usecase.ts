@@ -12,7 +12,7 @@ import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entit
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -97,8 +97,8 @@ export class ApprovePaymentUsecase
     const { financialMovement, paymentInstallment } =
       this.buildApprovalFinancialData(payment);
 
-    event.incrementAmountCollected(paymentInstallment.getValue());
-    event.incrementAmountNetValueCollected(paymentInstallment.getNetValue());
+    event.addCollectedAmount(paymentInstallment.getValue());
+    event.addNetValueCollected(paymentInstallment.getNetValue());
 
     if (
       payment.getStatus() !== StatusPayment.APPROVED &&
@@ -118,7 +118,7 @@ export class ApprovePaymentUsecase
     );
 
     for (let i = 0; i < totalParticipantsToAdd; i += 1) {
-      event.incrementParticipantsCount();
+      event.addParticipants(totalParticipantsToAdd);
     }
 
     // prepara entradas do caixa (leituras + montagem, sem escrita)
@@ -210,7 +210,7 @@ export class ApprovePaymentUsecase
     paymentInstallment: PaymentInstallment,
     accountId: string,
   ): CashRegisterEntry[] {
-    const paymentImages = payment.getImageUrls(); // Agora é string[]
+    const paymentImages = payment.getImageUrls();
     return cashRegisterEvents.map((cashRegisterEvent) =>
       CashRegisterEntry.create({
         cashRegisterId: cashRegisterEvent.getCashRegisterId(),

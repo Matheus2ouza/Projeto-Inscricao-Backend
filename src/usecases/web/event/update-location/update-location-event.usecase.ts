@@ -31,7 +31,7 @@ export class UpdateLocationEventUsecase
       );
     }
 
-    event.updateLocation(input.location);
+    event.setLocation(input.location);
 
     await this.eventGateway.update(event);
 

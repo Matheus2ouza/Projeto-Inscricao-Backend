@@ -1,37 +1,35 @@
 services:
   backend1:
-    image: backend-sistema-inscricao:1.0
+    image: backend-sistema-inscricao:1.5
     container_name: backend1
+    build: .
     env_file:
       - .env.dev
-    command: ['dist/main.js']
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/main.js"
     ports:
       - '3000:3000'
     environment:
-      - DATABASE_URL
-      - JWT_AUTH_SECRET
-      - JWT_REFRESH_SECRET
       - CONTAINER_NAME=backend1
     mem_limit: 512m
-    cpus: 1.0
+    cpus: 0.1
     networks:
       - inscricao_net
 
   backend2:
-    image: backend-sistema-inscricao:1.0
+    image: backend-sistema-inscricao:1.5
     container_name: backend2
+    build: .
     env_file:
       - .env.dev
-    command: ['dist/main.js']
+    command: >
+      sh -c "npx prisma migrate deploy && node dist/main.js"
     ports:
       - '3001:3000'
     environment:
-      - DATABASE_URL
-      - JWT_AUTH_SECRET
-      - JWT_REFRESH_SECRET
       - CONTAINER_NAME=backend2
     mem_limit: 512m
-    cpus: 1.0
+    cpus: 0.1
     networks:
       - inscricao_net
 

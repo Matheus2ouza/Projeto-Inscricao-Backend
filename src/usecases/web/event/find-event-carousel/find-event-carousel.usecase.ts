@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { EventSlugGateway } from 'src/domain/repositories/event-slug.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import {
@@ -70,7 +70,7 @@ export class FindEventCarouselUsecase {
     try {
       return await this.supabaseStorageService.getPublicUrl(
         path,
-        IMAGE_PRESETS.thumb,
+        IMAGE_PRESETS.thumbnail,
         100,
       );
     } catch {

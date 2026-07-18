@@ -56,9 +56,10 @@ export class PaymentReceiptUpdateEmailHandler {
         `E-mails de comprovante atualizado enviados para ${responsibles.length} responsável(is) do evento "${paymentData.eventName}"`,
       );
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar notificação de comprovante atualizado: ${error.message}`,
-        error.stack,
+        `Erro ao enviar notificação de comprovante atualizado: ${err.message}`,
+        err.stack,
       );
       throw error;
     }

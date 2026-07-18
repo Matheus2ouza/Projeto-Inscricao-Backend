@@ -17,4 +17,8 @@ export abstract class Entity {
   public getCreatedAt(): Date {
     return this.createdAt;
   }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
 }

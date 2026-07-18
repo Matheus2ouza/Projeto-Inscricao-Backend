@@ -23,6 +23,7 @@ export class RegisterIndivInscriptionRoute {
   ): Promise<RegisterIndivInscriptionUsecaseResponse> {
     const input: RegisterIndivInscriptionUsecaseInput = {
       accountId: userId,
+      localityId: body.localityId,
       eventId: body.eventId,
       responsible: body.responsible,
       email: body.email,

@@ -1,6 +1,6 @@
-import { Account } from '../../entities/account.entity';
-import { Validator } from '../../shared/validators/validator';
-import { AccountZodValidator } from '../../validators/account/account.zod.validator';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Validator } from 'src/domain/shared/validators/validator';
+import { AccountZodValidator } from 'src/domain/validators/account/account.zod.validator';
 
 export class AccountValidatorFactory {
   public static create(): Validator<Account> {

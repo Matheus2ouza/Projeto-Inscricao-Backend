@@ -88,11 +88,9 @@ export class UpdateExpenseUsecase
     // Atualizar o valor gasto do evento com a diferença
     if (!valueDrift.isZero()) {
       if (valueDrift.isPositive()) {
-        // Se o novo valor é maior, incrementa o amountSpent
-        event.incrementAmountSpent(valueDrift.toNumber());
+        event.addSpentAmount(valueDrift.toNumber());
       } else {
-        // Se o novo valor é menor, decrementa o amountSpent
-        event.decrementAmountSpent(Math.abs(valueDrift.toNumber()));
+        event.removeSpentAmount(Math.abs(valueDrift.toNumber()));
       }
     }
 

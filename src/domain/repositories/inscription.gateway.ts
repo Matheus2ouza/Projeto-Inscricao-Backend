@@ -5,7 +5,7 @@ import {
   StatusPayment,
 } from 'generated/prisma';
 import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
-import { Inscription } from '../entities/inscription.entity';
+import { Inscription } from '../entities/inscription/inscription.entity';
 
 export abstract class InscriptionGateway {
   // CRUD básico

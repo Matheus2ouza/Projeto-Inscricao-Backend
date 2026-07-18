@@ -32,7 +32,7 @@ export class UpdateTicketsSaleUsecase
       );
     }
 
-    event.updateTicketStatus(input.saleTicketsStatus);
+    event.setTicketEnabled(input.saleTicketsStatus);
     await this.eventGateway.update(event);
 
     const output: UpdateTicketsSaleOutput = {

@@ -1,5 +1,5 @@
 export type RegisterIndivInscriptionUsecaseRequest = {
-  accountId: string;
+  localityId: string;
   eventId: string;
   responsible: string;
   email: string;

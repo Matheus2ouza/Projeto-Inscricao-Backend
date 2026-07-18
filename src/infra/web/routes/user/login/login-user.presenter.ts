@@ -6,7 +6,6 @@ export class LoginUserPresenter {
     const response: LoginUserResponse = {
       authToken: input.authToken,
       refreshToken: input.refreshToken,
-      user: input.user,
     };
 
     return response;

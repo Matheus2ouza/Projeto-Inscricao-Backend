@@ -268,7 +268,7 @@ export class ConfirmPaymentUsecase
               this.logger.log(
                 `Contagem de participantes antes: ${participantsBefore}, incrementando ${countParticipants}`,
               );
-              event.incrementQuantityParticipants(countParticipants);
+              event.addParticipants(countParticipants);
               shouldUpdateEvent = true;
               this.logger.log(
                 `Contagem de participantes depois: ${event.getQuantityParticipants()}`,
@@ -279,10 +279,8 @@ export class ConfirmPaymentUsecase
       }
 
       if (event && payment.getStatus() === StatusPayment.APPROVED) {
-        event.incrementAmountCollected(paymentInstallment.getValue());
-        event.incrementAmountNetValueCollected(
-          paymentInstallment.getNetValue(),
-        );
+        event.addCollectedAmount(paymentInstallment.getValue());
+        event.addNetValueCollected(paymentInstallment.getNetValue());
         shouldUpdateEvent = true;
       }
 

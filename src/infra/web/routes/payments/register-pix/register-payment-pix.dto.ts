@@ -1,18 +1,27 @@
 import { StatusPayment } from 'generated/prisma';
 
-export type RegisterPaymentPixRequest = {
+export type RegisterPaymentPixParam = {
   eventId: string;
-  accountId?: string;
-  guestName?: string;
-  guestEmail?: string;
-  isGuest: boolean;
-  totalValue: number;
-  image: string;
-  inscriptions: inscription[];
 };
 
-type inscription = {
+export type RegisterPaymentPixRequest = {
+  eventId: string;
+  accountId: string;
+  name: string;
+  email: string;
+  value: string;
+  date: string;
+  file: File;
+  inscriptions: string;
+};
+
+export type Inscription = {
   id: string;
+};
+
+export type File = {
+  buffer: Buffer;
+  mimeType: string;
 };
 
 export type RegisterPaymentPixResponse = {

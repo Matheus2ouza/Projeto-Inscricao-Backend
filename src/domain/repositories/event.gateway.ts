@@ -1,10 +1,11 @@
 import { statusEvent } from 'generated/prisma';
 import { PrismaTransactionClient } from 'src/infra/repositories/prisma/prisma.service';
-import { Event } from '../entities/event.entity';
+import { Event } from '../entities/event/event.entity';
 
 export abstract class EventGateway {
   // CRUD básico
   abstract create(event: Event): Promise<Event>;
+  abstract createTx(event: Event, tx: PrismaTransactionClient): Promise<Event>;
   abstract update(event: Event): Promise<Event>;
   abstract updateTx(event: Event, tx: PrismaTransactionClient): Promise<Event>;
   abstract delete(id: string): Promise<void>;

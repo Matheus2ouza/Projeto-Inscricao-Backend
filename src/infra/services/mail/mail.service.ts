@@ -100,20 +100,33 @@ export class MailService {
   private templateLoaders: Record<string, () => Promise<{ default: any }>> = {
     'payment/payment-approved': () =>
       import('./templates/payment/payment-approved/index.js'),
+
     'payment/payment-rejected': () =>
       import('./templates/payment/payment-rejected/index.js'),
+
     'payment/payment-review-notification': () =>
       import('./templates/payment/payment-review-notification/index.js'),
+
     'payment/payment-receipt-update': () =>
       import('./templates/payment/payment-receipt-update/index.js'),
+
+    'payment/payment-processed-notification': () =>
+      import(
+        './templates/payment/payment-processed/payment-processed-notification-email.template.js'
+      ),
+
     'inscription/inscription-notification': () =>
       import('./templates/inscription/inscription-notification/index.js'),
+
     'inscription/status-approved': () =>
       import('./templates/inscription/status-approved/index.js'),
+
     'inscription/status-rejected': () =>
       import('./templates/inscription/status-rejected/index.js'),
+
     'inscription/guest-registration': () =>
       import('./templates/inscription/guest-registration/index.js'),
+
     'inscription/guest-expired': async () =>
       // @ts-ignore
       require('./templates/inscription/guest-expired/index'),

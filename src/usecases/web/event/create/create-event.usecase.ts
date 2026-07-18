@@ -1,19 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InscriptionMode, statusEvent } from 'generated/prisma';
+import { InscriptionMode, PaymentMode, statusEvent } from 'generated/prisma';
 import { EventResponsible } from 'src/domain/entities/event-responsibles.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
+import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
-import { ImageOptimizerService } from 'src/infra/services/image-optimizer/image-optimizer.service';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
+import { PrismaService } from 'src/infra/repositories/prisma/prisma.service';
+import {
+  IMAGE_OPTIMIZATION_PRESETS,
+  ImageOptimizerService,
+} from 'src/infra/services/image-optimizer/image-optimizer.service';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { sanitizeFileName } from 'src/shared/utils/file-name.util';
 import { Usecase } from 'src/usecases/usecase';
 import { RegionNotFoundUsecaseException } from 'src/usecases/web/exceptions/accounts/region-not-found.usecase.exception';
 import { EventNameAlreadyExistsUsecaseException } from 'src/usecases/web/exceptions/events/event-name-already-exists.usecase.exception';
-import { InvalidEventDateRangeUsecaseException } from 'src/usecases/web/exceptions/events/invalid-event-date-range.usecase.exception';
-import { MissingRegionIdUsecaseException } from 'src/usecases/web/exceptions/events/missing-region-id.usecase.exception';
-import { missingStartDateOrEndDateUsecaseException } from 'src/usecases/web/exceptions/events/missing-start-date-or-end-date.usecase.exception';
 import { InvalidImageFormatUsecaseException } from 'src/usecases/web/exceptions/payment/invalid-image-format.usecase.exception';
+import { AccountNotFoundUsecaseException } from '../../exceptions/accounts/account-not-found.usecase.exception';
 
 export type CreateEventInput = {
   name: string;
@@ -26,6 +31,8 @@ export type CreateEventInput = {
   latitude?: number;
   status: statusEvent;
   allowedInscriptionModes: InscriptionMode[];
+  allowedPaymentModes: PaymentMode[];
+  participantFieldsConfig?: ParticipantFieldsConfig;
   paymentEnabled: boolean;
   responsibles: {
     accountId: string;
@@ -45,9 +52,11 @@ export class CreateEventUseCase
   public constructor(
     private readonly eventGateway: EventGateway,
     private readonly regionGateway: RegionGateway,
+    private readonly accountGateway: AccountGateway,
     private readonly eventResponsibleGateway: EventResponsibleGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
     private readonly imageOptimizerService: ImageOptimizerService,
+    private readonly prisma: PrismaService,
   ) {}
 
   public async execute({
@@ -61,29 +70,17 @@ export class CreateEventUseCase
     latitude,
     status,
     allowedInscriptionModes,
+    allowedPaymentModes,
+    participantFieldsConfig,
     paymentEnabled,
     responsibles,
   }: CreateEventInput): Promise<CreateEventOutput> {
-    if (!regionId) {
-      throw new MissingRegionIdUsecaseException(
-        'RegionId is missing',
-        'Região não informada',
-        CreateEventUseCase.name,
-      );
-    }
+    const region = await this.regionGateway.findById(regionId);
 
-    if (!startDate || !endDate) {
-      throw new missingStartDateOrEndDateUsecaseException(
-        `Start date and/or end date is missing`,
-        `Data de início e/ou data de término está faltando`,
-        CreateEventUseCase.name,
-      );
-    }
-
-    if (startDate > endDate) {
-      throw new InvalidEventDateRangeUsecaseException(
-        'Start date is after end date',
-        'A data de início não pode ser posterior à data de término',
+    if (!region) {
+      throw new RegionNotFoundUsecaseException(
+        `Tentativa de criar um evento mas o id passado: ${regionId} não é referente a nenhuma região`,
+        `Região a qual o evento refere-se é invalida ou inexistente`,
         CreateEventUseCase.name,
       );
     }
@@ -91,8 +88,9 @@ export class CreateEventUseCase
     // Verifica se já existe evento com o mesmo nome na mesma região
     const existingEvent = await this.eventGateway.findByNameAndRegionId(
       name,
-      regionId,
+      region.getId(),
     );
+
     if (existingEvent) {
       throw new EventNameAlreadyExistsUsecaseException(
         `Event with name ${name} already exists in region ${regionId}`,
@@ -101,13 +99,22 @@ export class CreateEventUseCase
       );
     }
 
-    const regionExists = await this.regionGateway.findById(regionId);
-    if (!regionExists) {
-      throw new RegionNotFoundUsecaseException(
-        `Region with id ${regionId} does not exist`,
-        `A região com id ${regionId} não existe`,
-        CreateEventUseCase.name,
-      );
+    const existingIds = new Set<string>();
+    if (responsibles && responsibles.length > 0) {
+      const accountIds = responsibles.map((r) => r.accountId);
+      const existingAccounts =
+        await this.accountGateway.findEligibleResponsibles(accountIds);
+      existingAccounts.forEach((a) => existingIds.add(a.getId()));
+
+      for (const responsible of responsibles) {
+        if (!existingIds.has(responsible.accountId)) {
+          throw new AccountNotFoundUsecaseException(
+            `Tentativa de criar um evento mas foi passado algum id que é inexistente ou não atende os requisitos de role`,
+            `Algum usuário passado não atende os requisitos ou é inexistente`,
+            CreateEventUseCase.name,
+          );
+        }
+      }
     }
 
     // Processa a imagem se fornecida
@@ -117,32 +124,38 @@ export class CreateEventUseCase
     }
 
     const event = Event.create({
-      name: name,
-      startDate: startDate,
-      endDate: endDate,
-      regionId: regionId,
-      imageUrl: imageUrl,
-      location: location,
-      longitude: longitude,
-      latitude: latitude,
-      status: status,
-      allowedInscriptionModes: allowedInscriptionModes,
-      paymentEnabled: paymentEnabled,
+      name,
+      startDate,
+      endDate,
+      regionId: region.getId(),
+      imageUrl,
+      location,
+      longitude,
+      latitude,
+      status,
+      allowedInscriptionModes,
+      allowedPaymentModes,
+      paymentEnabled,
       ticketEnabled: false,
+      participantFieldsConfig,
     });
 
-    await this.eventGateway.create(event);
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.eventGateway.createTx(event, tx);
 
-    if (responsibles && responsibles.length > 0) {
-      for (const responsible of responsibles) {
-        const responsibleEntity = EventResponsible.create({
-          eventId: event.getId(),
-          accountId: responsible.accountId,
-        });
-
-        await this.eventResponsibleGateway.create(responsibleEntity);
+      if (responsibles && responsibles.length > 0) {
+        const responsibleEntities = responsibles.map((responsible) =>
+          EventResponsible.create({
+            eventId: event.getId(),
+            accountId: responsible.accountId,
+          }),
+        );
+        await this.eventResponsibleGateway.createManyTx(
+          responsibleEntities,
+          tx,
+        );
       }
-    }
+    });
 
     const output: CreateEventOutput = {
       id: event.getId(),
@@ -151,104 +164,62 @@ export class CreateEventUseCase
     return output;
   }
 
-  /**
-   * Processa a imagem do evento: valida, otimiza e faz upload
-   * @param image - Data URL base64 da imagem
-   * @param eventName - Nome do evento para gerar nome do arquivo
-   * @returns URL da imagem no Supabase Storage
-   */
   private async processEventImage(
     image: string,
     eventName: string,
   ): Promise<string> {
     this.logger.log('Processando imagem do evento');
 
-    try {
-      // Processa a imagem base64
-      const { buffer, extension, originalName } =
-        await this.imageOptimizerService.processBase64Image(image);
+    const { buffer, extension } =
+      await this.imageOptimizerService.processBase64Image(image);
 
-      // Gera nome baseado no evento com data em formato ISO
-      // Limpa o nome do evento para ser seguro como nome de arquivo
-      const safeEventName = eventName
-        .replace(/[^a-zA-Z0-9\s-]/g, '') // Remove caracteres especiais
-        .replace(/\s+/g, '-') // Substitui espaços por hífen
-        .toLowerCase();
-      // Formata a data ISO removendo caracteres especiais para usar em nome de arquivo
-      const isoDate = new Date()
-        .toISOString()
-        .replace(/[:.]/g, '-')
-        .replace('T', '_')
-        .split('.')[0];
-      const fileName = `${safeEventName}_${isoDate}.${extension}`;
-
-      // Valida a imagem
-      const isValidImage = await this.imageOptimizerService.validateImage(
-        buffer,
-        fileName,
-      );
-
-      if (!isValidImage) {
-        throw new InvalidImageFormatUsecaseException(
-          'image file is not valid or exceeds the maximum allowed size',
-          'Arquivo não é uma imagem válida ou excede o tamanho máximo permitido',
-          CreateEventUseCase.name,
-        );
-      }
-
-      // Otimiza a imagem para webp com tamanho máximo de 300KB para economizar espaço no Supabase
-      const optimizedImage = await this.imageOptimizerService.optimizeImage(
-        buffer,
-        {
-          maxWidth: 1200,
-          maxHeight: 800,
-          quality: 60, // Qualidade mais baixa para menor tamanho
-          format: 'webp',
-          maxFileSize: 300 * 1024, // 300KB - muito menor para economizar espaço
-        },
-      );
-
-      // Substitui a extensão pelo formato otimizado (webp)
-      const finalFileName = fileName.replace(
-        /\.\w+$/,
-        `.${optimizedImage.format}`,
-      );
-
-      // Faz upload para o Supabase Storage
-      const imageUrl = await this.supabaseStorageService.uploadFile({
-        folderName: 'events',
-        fileName: finalFileName,
-        fileBuffer: optimizedImage.buffer,
-        contentType: this.imageOptimizerService.getMimeType(
-          optimizedImage.format,
-        ),
-      });
-
-      // Verifica o espaço usado após o upload
-      try {
-        await this.supabaseStorageService.calculateFolderSize('events');
-      } catch (error) {
-        const err = error as Error;
-        this.logger.warn(
-          `Não foi possível verificar o espaço usado: ${err.message}`,
-        );
-      }
-
-      this.logger.log(`Imagem do evento processada com sucesso: ${imageUrl}`);
-      return imageUrl;
-    } catch (error) {
-      const err = error as Error;
-      this.logger.error(`Erro ao processar imagem do evento: ${err.message}`);
-
-      if (error instanceof InvalidImageFormatUsecaseException) {
-        throw error;
-      }
-
+    // Valida a imagem
+    const fileName = `event_${sanitizeFileName(eventName)}.${extension}`;
+    const isValidImage = await this.imageOptimizerService.validateImage(
+      buffer,
+      fileName,
+    );
+    if (!isValidImage) {
       throw new InvalidImageFormatUsecaseException(
-        'Failed to process event image',
-        'Falha ao processar imagem do evento',
+        'invalid image format',
+        'Formato da imagem inválido',
         CreateEventUseCase.name,
       );
     }
+
+    // Otimiza imagem (ex: converte para webp e reduz tamanho)
+    const optimizedImage = await this.imageOptimizerService.optimizeImage(
+      buffer,
+      IMAGE_OPTIMIZATION_PRESETS.mediumQuality,
+    );
+
+    // Sanitiza o nome do evento para evitar caracteres inválidos no Supabase
+    const sanitizedEventName = sanitizeFileName(eventName || 'evento');
+
+    // Cria nome do arquivo: event + nome do evento + hora formatada
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const formattedDateTime = `${day}-${month}-${year}_${hours}-${minutes}`;
+    const finalFileName = `capa_event_${sanitizedEventName}_${formattedDateTime}.${optimizedImage.format}`;
+
+    // Define a pasta como events
+    const folderName = `events/${sanitizedEventName}`;
+
+    // Faz upload no Supabase
+    const imageUrl = await this.supabaseStorageService.uploadFile({
+      folderName: folderName,
+      fileName: finalFileName,
+      fileBuffer: optimizedImage.buffer,
+      contentType: this.imageOptimizerService.getMimeType(
+        optimizedImage.format,
+      ),
+    });
+
+    return imageUrl;
   }
 }

@@ -1,4 +1,8 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import {
+  UserInfo,
+  UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import type { CreateUserInput } from 'src/usecases/web/user/create/create-user.usecase';
 import { CreateUserUsecase } from 'src/usecases/web/user/create/create-user.usecase';
 import type {
@@ -14,14 +18,15 @@ export class CreateUserRoute {
   @Post('create')
   public async handle(
     @Body() request: CreateUserRequest,
-    @Req() req,
+    @UserInfo() user: UserInfoType,
   ): Promise<CreateUserRouteResponse> {
     const input: CreateUserInput = {
       username: request.username,
       password: request.password,
       role: request.role,
+      localityId: request.localityId,
       regionId: request.regionId,
-      requesterRole: req['userRole'],
+      requesterRole: user.userRole,
       email: request.email,
     };
 

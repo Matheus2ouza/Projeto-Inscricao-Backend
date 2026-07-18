@@ -1,8 +1,8 @@
 export type UpdateGuestInscriptionRequest = {
   id: string;
-  guestName?: string;
-  guestEmail?: string;
-  guestLocality?: string;
+  localityId?: string;
+  name?: string;
+  email?: string;
   phone?: string;
 };
 

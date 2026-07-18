@@ -10,6 +10,7 @@ export type FindUserInput = {
 export type FindUserOutput = {
   id: string;
   username: string;
+  email?: string;
   role: string;
   createdAt: Date;
 };
@@ -31,6 +32,7 @@ export class FindUserUsecase implements Usecase<FindUserInput, FindUserOutput> {
     const output: FindUserOutput = {
       id: anUser.getId(),
       username: anUser.getUsername(),
+      email: anUser.getEmail(),
       role: anUser.getRole(),
       createdAt: anUser.getCreatedAt(),
     };

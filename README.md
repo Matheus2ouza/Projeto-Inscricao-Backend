@@ -83,7 +83,7 @@ Busca um evento específico pelo ID.
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
-  paymentEneble: boolean;
+  paymentenable: boolean;
   createdAt: Date;
   updatedAt: Date;
   regionName: string;

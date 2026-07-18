@@ -5,7 +5,7 @@ import {
   CategoryExpense,
   PaymentMethod,
 } from 'generated/prisma';
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';

@@ -7,7 +7,7 @@ import {
   PaymentMethod,
   TicketSaleStatus,
 } from 'generated/prisma';
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';

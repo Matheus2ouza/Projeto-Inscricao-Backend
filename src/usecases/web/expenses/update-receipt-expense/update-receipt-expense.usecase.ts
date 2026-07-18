@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CategoryExpense } from 'generated/prisma';
 import { EventExpenses } from 'src/domain/entities/event-expenses.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { EventExpensesGateway } from 'src/domain/repositories/event-expenses.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';

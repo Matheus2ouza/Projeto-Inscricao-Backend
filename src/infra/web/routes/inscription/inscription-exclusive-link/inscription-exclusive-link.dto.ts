@@ -2,6 +2,7 @@ import { genderType, InscriptionStatus } from 'generated/prisma';
 
 export type InscriptionExclusiveLinkBody = {
   eventId: string;
+  localityId: string;
   exclusiveInscriptionLink: string;
 
   // Dados do inscrito

@@ -238,9 +238,8 @@ export class SaleTicketUsecase
       ? await this.buildUpdatedCashRegisters(cashEntries)
       : [];
 
-    // Atualizar o evento em memória
-    event.incrementAmountCollected(saleTotalValue);
-    event.incrementAmountNetValueCollected(saleTotalValue);
+    event.addCollectedAmount(saleTotalValue);
+    event.addNetValueCollected(saleTotalValue);
 
     // REMOVIDO: Geração do PDF
     // Agora apenas geramos os códigos de barras

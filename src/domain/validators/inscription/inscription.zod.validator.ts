@@ -1,5 +1,5 @@
 import { InscriptionStatus } from 'generated/prisma';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { DomainException } from 'src/domain/shared/exceptions/domain.exception';
 import { ValidatorDomainException } from 'src/domain/shared/exceptions/validator-domain.exception';
 import { Validator } from 'src/domain/shared/validators/validator';
@@ -39,6 +39,7 @@ export class InscriptionZodValidator implements Validator<Inscription> {
   private getInscriptionZodSchema() {
     const zodSchema = z.object({
       accountId: z.uuid().optional(),
+      localityId: z.uuid().optional(),
       eventId: z.uuid(),
       //Dados do guest
       guestEmail: z.string().optional(),
@@ -50,19 +51,10 @@ export class InscriptionZodValidator implements Validator<Inscription> {
       isGuest: z.boolean().optional(),
       responsible: z
         .string()
-        .min(1, 'O responsavel pela inscrição é obrigatório'),
+        .min(1, 'O responsável pela inscrição é obrigatório'),
       email: z.string().optional(),
       phone: z.string().optional(),
-      status: z.enum(
-        [
-          InscriptionStatus.PENDING,
-          InscriptionStatus.PAID,
-          InscriptionStatus.CANCELLED,
-          InscriptionStatus.UNDER_REVIEW,
-          InscriptionStatus.EXPIRED,
-        ],
-        'Informe um status válido',
-      ),
+      status: z.enum(InscriptionStatus, { error: 'Informe um status válido' }),
       exclusiveLinkId: z.uuid().optional(),
     });
 

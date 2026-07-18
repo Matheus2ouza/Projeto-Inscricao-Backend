@@ -93,10 +93,6 @@ pids
 # TypeScript cache
 *.tsbuildinfo
 
-# Prisma
-prisma/migrations
-prisma/seed.ts
-
 # Generated files (keep Prisma generated files)
 # generated
 

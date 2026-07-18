@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type CreateMembersInput = {
-  accountId: string;
+  localityId: string;
   name: string;
   preferredName?: string;
   cpf?: string;
@@ -29,7 +29,7 @@ export class CreateMembersUsecase
 
   async execute(input: CreateMembersInput): Promise<CreateMembersOutput> {
     const accountParticipant = AccountParticipant.create({
-      accountId: input.accountId,
+      localityId: input.localityId,
       name: input.name,
       preferredName: input.preferredName,
       cpf: input.cpf,

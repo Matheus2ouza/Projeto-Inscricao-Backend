@@ -21,13 +21,13 @@ export class InscriptionExclusiveLinkRoute {
   ): Promise<InscriptionExclusiveLinkResponse> {
     const input: InscriptionExclusiveLinkInput = {
       eventId: body.eventId,
+      localityId: body.localityId,
       exclusiveInscriptionLink: body.exclusiveInscriptionLink,
       guestName: body.name,
       guestEmail: body.email,
       cpf: body.cpf,
       gender: body.gender,
       phone: body.phone,
-      guestLocality: body.guestLocality,
       birthDate: body.birthDate,
       observation: body.observation,
       typeInscriptionId: body.typeInscriptionId,

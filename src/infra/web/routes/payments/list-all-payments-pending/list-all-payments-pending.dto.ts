@@ -1,3 +1,5 @@
+import { PaymentMode } from 'generated/prisma';
+
 export type ListAllPaymentsPendingRequest = {
   accountId: string;
   eventId: string;
@@ -7,7 +9,7 @@ export type ListAllPaymentsPendingRequest = {
 
 export type ListAllPaymentsPendingResponse = {
   inscriptions: Inscriptions[];
-  allowCard?: boolean;
+  allowedPaymentModes: PaymentMode[];
   total: number;
   page: number;
   pageCount: number;

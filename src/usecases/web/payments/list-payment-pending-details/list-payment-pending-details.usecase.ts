@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMode } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
@@ -16,7 +17,7 @@ export type ListPaymentPendingDetailsOutput = {
   inscription: Inscription;
   participant: Participant[];
   payments: Payment[];
-  allowCard: boolean;
+  allowedPaymentModes: PaymentMode[];
   totalParticipant: number;
   totalPayment: number;
   page: number;
@@ -128,7 +129,7 @@ export class ListPaymentPendingDetailsUsecase
       inscription: inscriptionData,
       participant: participantData,
       payments: paymentData,
-      allowCard: event?.getAllowCard() || false,
+      allowedPaymentModes: event?.getAllowedPaymentModes() ?? [PaymentMode.PIX],
       totalParticipant,
       totalPayment,
       page: safePage,

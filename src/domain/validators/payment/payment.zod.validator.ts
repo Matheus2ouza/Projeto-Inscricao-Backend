@@ -3,6 +3,7 @@ import { Payment } from 'src/domain/entities/payment.entity';
 import { DomainException } from 'src/domain/shared/exceptions/domain.exception';
 import { ValidatorDomainException } from 'src/domain/shared/exceptions/validator-domain.exception';
 import { Validator } from 'src/domain/shared/validators/validator';
+import { ZodUtils } from 'src/shared/utils/zod-utils';
 import z from 'zod';
 
 export class PaymentZodValidator implements Validator<Payment> {
@@ -17,11 +18,11 @@ export class PaymentZodValidator implements Validator<Payment> {
       this.getPaymentZodSchema().parse(input);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const messages = error.issues.map((issue) => issue.message).join(', ');
-
+        const userMessage = ZodUtils.formatZodError(error);
+        const logMessage = ZodUtils.formatZodErrorForLog(error, input);
         throw new ValidatorDomainException(
-          `Error while validating payment ${input.getId()}: ${messages}`,
-          `${messages}`,
+          `Error while validating payment ${input.getId()}: ${logMessage}`,
+          `${userMessage}`,
           PaymentZodValidator.name,
         );
       }
@@ -60,9 +61,17 @@ export class PaymentZodValidator implements Validator<Payment> {
         },
       ),
       totalValue: z
-        .number()
+        .number({ error: 'O valor pago tem que ser um numero valido' })
         .positive({ message: 'O valor total deve ser maior que zero' }),
-      imageUrl: z.string({ message: 'imagem é inválida' }).optional(),
+      imageUrls: z
+        .array(
+          z
+            .string()
+            .refine((i) => i.startsWith('payment') && i.endsWith('webp'), {
+              error: 'Formato do comprovante invalido',
+            }),
+        )
+        .max(3, { error: 'Limite máximo de comprovantes atingido' }),
       createdAt: z.date({ message: 'createdAt é inválido' }),
       updatedAt: z.date({ message: 'updatedAt é inválido' }),
     });

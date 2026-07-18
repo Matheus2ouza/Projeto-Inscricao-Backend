@@ -7,25 +7,14 @@ export type FindBySlugEventRequest = {
 export type FindBySlugEventResponse = {
   id: string;
   name: string;
-  quantityParticipants: number;
-  amountCollected: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   image?: string;
-  logoUrl?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   allowedInscriptionModes: InscriptionMode[];
-  paymentEnebled: boolean;
-  allowCard?: boolean;
-  createdAt: Date;
+  createdAt: Date | string;
   regionName: string;
-  responsibles: Responsible[];
-};
-
-export type Responsible = {
-  id: string;
-  name: string;
 };

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { EventWithImageUrl } from 'src/infra/web/routes/region/find-all-paginated/find-all-paginated-regions.dto';

@@ -378,7 +378,7 @@ export class GenerateXlsxLocalityUsecase
           return Promise.all(
             participantsNormalArray.map(async (pn) => {
               const account = await this.accountGateway.findById(
-                pn.getAccountId(),
+                pn.getLocalityId(),
               );
 
               const typeInscription =

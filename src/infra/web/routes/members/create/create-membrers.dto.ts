@@ -1,7 +1,7 @@
 import { genderType, ShirtSize, ShirtType } from 'generated/prisma';
 
-export type CreateMembersRequest = {
-  accountId: string;
+export type CreateMembersBody = {
+  localityId: string;
   name: string;
   preferredName?: string;
   cpf?: string;

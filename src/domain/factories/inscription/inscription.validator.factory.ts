@@ -1,4 +1,4 @@
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { Validator } from 'src/domain/shared/validators/validator';
 import { InscriptionZodValidator } from 'src/domain/validators/inscription/inscription.zod.validator';
 

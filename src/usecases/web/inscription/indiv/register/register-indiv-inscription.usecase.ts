@@ -1,24 +1,29 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEvent as AccountParticipantInEventEntity } from 'src/domain/entities/account-participant-in-event.entity';
-import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription.entity';
+import { Inscription as InscriptionEntity } from 'src/domain/entities/inscription/inscription.entity';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventResponsibleGateway } from 'src/domain/repositories/event-responsible.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { InscriptionEmailHandler } from 'src/infra/services/mail/handlers/inscription/inscription-email.handler';
 import { InscriptionEmailData } from 'src/infra/services/mail/types/inscription/inscription-email.types';
+import { getMissingRequiredFields } from 'src/shared/utils/participant-fields-completeness.util';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { TypeInscriptionNotFoundUsecaseException } from 'src/usecases/web/exceptions/inscription/indiv/type-inscription-not-found-usecase.exception';
+import { LocalityNotFoundUsecaseException } from 'src/usecases/web/exceptions/locality/locality-not-found.usecase.exception';
 import { MemberAlreadyInscribedUsecaseException } from 'src/usecases/web/exceptions/members/member-already-inscriptibed.usecase.exception';
 import { MemberNotFoundUsecaseException } from 'src/usecases/web/exceptions/members/member-not-found.usecase.exception';
+import { MissingRequiredParticipantFieldsUsecaseException } from 'src/usecases/web/exceptions/participants/missing-required-participant-fields.usecase.exception';
 
 export type RegisterIndivInscriptionUsecaseInput = {
   accountId: string;
+  localityId: string;
   eventId: string;
   responsible: string;
   email?: string;
@@ -46,6 +51,7 @@ export class RegisterIndivInscriptionUsecase
   private readonly logger = new Logger(RegisterIndivInscriptionUsecase.name);
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly typeInscriptionGateway: TypeInscriptionGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
@@ -65,6 +71,16 @@ export class RegisterIndivInscriptionUsecase
       throw new EventNotFoundUsecaseException(
         `attempt to create individual inscription for event: ${input.eventId} but it was not found`,
         'Evento não encontrado',
+        RegisterIndivInscriptionUsecase.name,
+      );
+    }
+
+    const locality = await this.localityGateway.findById(input.localityId);
+
+    if (!locality) {
+      throw new LocalityNotFoundUsecaseException(
+        `Tentativa de criar uma inscrição mas a localidade informada ${input.localityId} é invalida`,
+        `Localidade não encontrada ou invalida`,
         RegisterIndivInscriptionUsecase.name,
       );
     }
@@ -97,6 +113,23 @@ export class RegisterIndivInscriptionUsecase
       );
     }
 
+    // 3. Checar se o membro tem os campos exigidos por esse evento
+    const participantFieldsConfig = eventExists.getParticipantFieldsConfig();
+    const missingFields = getMissingRequiredFields(participantFieldsConfig, {
+      cpf: accountParticipantExists.getCpf(),
+      preferredName: accountParticipantExists.getPreferredName(),
+      shirtSize: accountParticipantExists.getShirtSize(),
+      shirtType: accountParticipantExists.getShirtType(),
+    });
+
+    if (missingFields.length > 0) {
+      throw new MissingRequiredParticipantFieldsUsecaseException(
+        `attempt to create individual inscription for member: ${input.member.accountParticipantId} but it is missing required fields for event ${input.eventId}: ${missingFields.join(', ')}`,
+        `Complete o cadastro do membro com os campos obrigatórios: ${missingFields.join(', ')}`,
+        RegisterIndivInscriptionUsecase.name,
+      );
+    }
+
     // 4. Verificar tipo de inscrição
     const typeInscription = await this.typeInscriptionGateway.findById(
       input.member.typeInscriptionId,
@@ -117,6 +150,7 @@ export class RegisterIndivInscriptionUsecase
 
     // 6. Criar inscrição
     const inscription = InscriptionEntity.create({
+      localityId: input.localityId,
       accountId: input.accountId,
       eventId: input.eventId,
       responsible: input.responsible,
@@ -167,7 +201,6 @@ export class RegisterIndivInscriptionUsecase
       this.logger.log(
         `Iniciando envio de e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}`,
       );
-      // Buscar dados do evento
       const event = await this.eventGateway.findById(eventId);
       if (!event) {
         this.logger.warn(
@@ -176,11 +209,9 @@ export class RegisterIndivInscriptionUsecase
         return;
       }
 
-      // Buscar responsáveis do evento
       const eventResponsibles =
         await this.eventResponsibleGateway.findByEventId(eventId);
 
-      // Buscar dados dos usuários responsáveis
       const responsibleUsers = await Promise.all(
         eventResponsibles.map(async (responsible) => {
           const user = await this.userGateway.findById(
@@ -195,7 +226,6 @@ export class RegisterIndivInscriptionUsecase
         }),
       );
 
-      // Verificar se a inscrição possui um ID de conta associado
       const accountId = inscription.getAccountId();
       if (!accountId) {
         this.logger.warn(
@@ -204,10 +234,8 @@ export class RegisterIndivInscriptionUsecase
         return;
       }
 
-      // Buscar dados da conta que fez a inscrição
       const accountUser = await this.userGateway.findById(accountId);
 
-      // Prepara dados para o e-mail
       const emailData: InscriptionEmailData = {
         eventName: event.getName(),
         eventImageUrl: event.getImageUrl(),
@@ -233,7 +261,6 @@ export class RegisterIndivInscriptionUsecase
         `Erro ao enviar e-mail de notificação de inscrição individual ${inscription.getId()} para o evento ${eventId}: ${err.message}`,
         err.stack,
       );
-      // Não lançar exceção para não interromper o fluxo principal
     }
   }
 }

@@ -1,3 +1,4 @@
+import { PaymentMethod } from 'generated/prisma';
 import type { ComponentType } from 'react';
 import { GuestExpiredEmailData } from '../types/inscription/guest-expired-email.types';
 import type { GuestInscriptionEmailData } from '../types/inscription/guest-inscription-email.types';
@@ -7,6 +8,7 @@ import type {
 } from '../types/inscription/inscription-email.types';
 import type { InscriptionStatusEmailData } from '../types/inscription/inscription-status-email.types';
 import type { PaymentEmailData } from '../types/payment/payment-email.types';
+import { type PaymentProcessedNotificationEmailData } from '../types/payment/payment-processed-notification-email.types';
 import type { PaymentReceiptUpdateEmailData } from '../types/payment/payment-receipt-update-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
 import type { TicketReleaseEmailData } from '../types/tickets/ticket-release-email.types';
@@ -20,7 +22,7 @@ export interface TemplateDefinition {
   title: string;
   description?: string;
   previewText?: string;
-  loader: () => Promise<{ default: ComponentType<Record<string, unknown>> }>;
+  loader: () => Promise<{ default: ComponentType<any> }>;
   getProps: () => Record<string, unknown>;
 }
 
@@ -90,7 +92,7 @@ const mockPaymentReviewNotificationData =
     eventLocation: 'São Paulo Expo, São Paulo - SP',
     eventStartDate: new Date('2025-04-05T08:00:00Z'),
     eventEndDate: new Date('2025-04-07T18:00:00Z'),
-    paymentValue: 789.7, // Total de 3 inscrições
+    paymentValue: 789.7,
     paymentDate: new Date('2025-03-18T10:30:00Z'),
     paymentMethod: 'PIX',
     accountUsername: 'tech-events-admin',
@@ -117,6 +119,16 @@ const mockPaymentReviewNotificationData =
         totalValue: 239.9,
       },
     ],
+  });
+
+const mockPaymentProcessedNotificationData =
+  (): PaymentProcessedNotificationEmailData => ({
+    paymentId: 'pay_123456',
+    name: 'Marina Costa',
+    email: 'marina.costa@example.com',
+    createdAt: new Date('2025-03-18T14:30:00Z'),
+    value: 789.7,
+    paymentMethod: PaymentMethod.PIX,
   });
 
 const mockPaymentReceiptUpdateData = (): PaymentReceiptUpdateEmailData => ({
@@ -214,6 +226,25 @@ export const templateDefinitions: TemplateDefinition[] = [
       responsibles: mockResponsibles(),
       year: new Date().getFullYear(),
       currentDate: new Date(),
+    }),
+  },
+  {
+    id: 'payment/payment-processed-notification',
+    category: 'payment',
+    title: 'Pagamento processado com sucesso',
+    description:
+      'Notifica o usuário que o pagamento foi processado com sucesso e aguarda aprovação.',
+    previewText: 'Pagamento processado com sucesso!',
+    loader: async () => {
+      const module = await import(
+        '../templates/payment/payment-processed/payment-processed-notification-email.template'
+      );
+      return { default: module.PaymentProcessedNotificationEmail };
+    },
+    getProps: () => ({
+      paymentData: mockPaymentProcessedNotificationData(),
+      actionUrl: 'https://portal.inscricao.dev/inscricao/insc_987654',
+      year: new Date().getFullYear(),
     }),
   },
   {

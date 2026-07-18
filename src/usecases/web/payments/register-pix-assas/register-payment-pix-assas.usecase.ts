@@ -5,7 +5,7 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
@@ -39,11 +39,11 @@ export type RegisterPaymentPixAssasOutput = {
 };
 
 @Injectable()
-export class RegisterPaymentPixAssasUsescase
+export class RegisterPaymentPixAssasUsecase
   implements
     Usecase<RegisterPaymentPixAssasInput, RegisterPaymentPixAssasOutput>
 {
-  private readonly logger = new Logger(RegisterPaymentPixAssasUsescase.name);
+  private readonly logger = new Logger(RegisterPaymentPixAssasUsecase.name);
   public constructor(
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly eventGateway: EventGateway,
@@ -64,7 +64,7 @@ export class RegisterPaymentPixAssasUsescase
       throw new InvalidInscriptionIdUsecaseException(
         `Attempt to pay for registration, but the ID provided is invalid. inscriptionId: ${input.inscriptionId}`,
         'Inscrição não encontrada',
-        RegisterPaymentPixAssasUsescase.name,
+        RegisterPaymentPixAssasUsecase.name,
       );
     }
 
@@ -72,7 +72,7 @@ export class RegisterPaymentPixAssasUsescase
       throw new InscriptionNotReleasedForPaymentUsecaseException(
         `Attempted payment before inscription release id: ${inscription.getId()}`,
         'O pagamento ainda não está liberado para esta inscrição.',
-        RegisterPaymentPixAssasUsescase.name,
+        RegisterPaymentPixAssasUsecase.name,
       );
     }
 
@@ -82,7 +82,7 @@ export class RegisterPaymentPixAssasUsescase
       throw new EventNotFoundUsecaseException(
         `Attempted payment for registration: ${inscription.getId()}, but required data was not found.`,
         `Não foi possível prosseguir com o pagamento pois alguns dados não foram encontrados.`,
-        RegisterPaymentPixAssasUsescase.name,
+        RegisterPaymentPixAssasUsecase.name,
       );
     }
 
@@ -110,7 +110,7 @@ export class RegisterPaymentPixAssasUsescase
       throw new OverpaymentNotAllowedUsecaseException(
         `attempted payment but inscription ${inscription.getId()} has no remaining debt`,
         `Não há valor pendente para esta inscrição`,
-        RegisterPaymentPixAssasUsescase.name,
+        RegisterPaymentPixAssasUsecase.name,
       );
     }
 

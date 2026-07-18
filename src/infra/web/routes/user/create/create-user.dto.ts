@@ -4,6 +4,7 @@ export type CreateUserRequest = {
   username: string;
   password: string;
   role: roleType;
+  localityId: string;
   regionId?: string;
   email: string;
 };

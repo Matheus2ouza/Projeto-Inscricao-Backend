@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AccountParticipant } from '../../entities/account-participant.entity';
+import { AccountParticipant } from '../../entities/account-participant/account-participant.entity';
 import { DomainException } from '../../shared/exceptions/domain.exception';
 import { ValidatorDomainException } from '../../shared/exceptions/validator-domain.exception';
 import { Validator } from '../../shared/validators/validator';
@@ -40,7 +40,7 @@ export class AccountParticipantZodValidator
   private getZodSchema() {
     const zodSchema = z.object({
       id: z.uuid({ message: 'ID deve ser um UUID válido' }),
-      accountId: z.uuid({ message: 'accountId deve ser um UUID válido' }),
+      localityId: z.uuid({ message: 'accountId deve ser um UUID válido' }),
       name: z
         .string()
         .min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),

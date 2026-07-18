@@ -86,9 +86,10 @@ export class PaymentRejectedEmailHandler {
         `E-mail de pagamento reprovado enviado para ${paymentData.responsibleName ?? ''} (${paymentData.responsibleEmail ?? ''})`,
       );
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar e-mail de pagamento reprovado: ${error.message}`,
-        error.stack,
+        `Erro ao enviar e-mail de pagamento reprovado: ${err.message}`,
+        err.stack,
       );
       throw error;
     }

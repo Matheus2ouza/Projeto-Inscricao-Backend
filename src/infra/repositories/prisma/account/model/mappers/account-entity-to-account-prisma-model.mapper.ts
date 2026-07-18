@@ -1,4 +1,4 @@
-import { Account } from 'src/domain/entities/account.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
 import AccountPrismaModel from '../account.prisma.model';
 
 //Conversão de entity para model do prisma
@@ -9,6 +9,7 @@ export class AccountEntityToUserPrismaModelMapper {
       username: user.getUsername(),
       password: user.getPassword(),
       role: user.getRole(),
+      active: user.getActive(),
       createdAt: user.getCreatedAt(),
       updatedAt: user.getUpdatedAt(),
       regionId: user.getRegionId() ?? null,

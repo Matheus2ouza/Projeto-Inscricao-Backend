@@ -169,9 +169,9 @@ export class CreateInscriptionAvulUsecase
       : [];
 
     // Atualizar o evento em memória
-    event.incrementAmountCollected(totalPaymentsValue.toNumber());
-    event.incrementAmountNetValueCollected(totalPaymentsValue.toNumber());
-    event.incrementQuantityParticipants(participants.length);
+    event.addCollectedAmount(totalPaymentsValue.toNumber());
+    event.addNetValueCollected(totalPaymentsValue.toNumber());
+    event.addParticipants(participants.length);
 
     // Executar tudo em transação
     await this.prisma.runInTransaction(async (tx) => {

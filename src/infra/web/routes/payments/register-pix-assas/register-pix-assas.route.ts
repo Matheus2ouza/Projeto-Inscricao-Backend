@@ -2,7 +2,7 @@ import { Controller, Param, Post } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   RegisterPaymentPixAssasInput,
-  RegisterPaymentPixAssasUsescase,
+  RegisterPaymentPixAssasUsecase,
 } from 'src/usecases/web/payments/register-pix-assas/register-payment-pix-assas.usecase';
 import {
   RegisterPaymentPixAssasParams,
@@ -13,7 +13,7 @@ import { RegisterPaymentPixAssasPresenter } from './register-pix-assas.presenter
 @Controller('payments')
 export class RegisterPaymentPixAssasRoute {
   constructor(
-    private readonly registerPaymentPixAssasUsescase: RegisterPaymentPixAssasUsescase,
+    private readonly registerPaymentPixAssasUsescase: RegisterPaymentPixAssasUsecase,
   ) {}
 
   @IsPublic()

@@ -10,13 +10,14 @@ export class FindDetailsGuestInscriptionPresenter {
       status: output.status,
       guestEmail: output.guestEmail,
       guestName: output.guestName,
-      guestLocality: output.guestLocality,
       phone: output.phone,
       createdAt: output.createdAt,
       totalValue: output.totalValue,
       totalPaid: output.totalPaid,
-      participants: output.participants,
+      locality: output.locality,
+      participant: output.participant,
       payments: output.payments,
+      eventConfig: output.eventConfig,
     };
   }
 }

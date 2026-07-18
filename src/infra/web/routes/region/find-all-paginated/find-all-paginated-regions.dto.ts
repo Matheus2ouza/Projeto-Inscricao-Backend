@@ -1,5 +1,5 @@
-import { Account } from 'src/domain/entities/account.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 
 export type FindAllPaginatedRegionRequest = {
   page?: string;

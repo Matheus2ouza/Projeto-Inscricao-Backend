@@ -9,10 +9,13 @@ export interface UploadFileOptions {
 }
 
 export const IMAGE_PRESETS = {
-  thumb: { width: 400, height: 250 },
-  medium: { width: 800, height: 500 },
-  full: { width: 1920, height: 1080 },
-};
+  logo: { width: 500, height: 500 },
+  thumbnail: { width: 400, height: 250 },
+  standard: { width: 800, height: 500 },
+  mediumQuality: { width: 1280, height: 720 },
+  highQuality: { width: 1920, height: 1080 },
+  receipt: { width: 800, height: 800 },
+} satisfies Record<string, { width: number; height: number }>;
 
 @Injectable()
 export class SupabaseStorageService {

@@ -56,9 +56,10 @@ export class PaymentReviewNotificationEmailHandler {
         `E-mails de pagamento em análise enviados para ${responsibles.length} responsável(is) do evento "${paymentData.eventName}"`,
       );
     } catch (error) {
+      const err = error as Error;
       this.logger.error(
-        `Erro ao enviar notificação de pagamento em análise: ${error.message}`,
-        error.stack,
+        `Erro ao enviar notificação de pagamento em análise: ${err.message}`,
+        err.stack,
       );
       throw error;
     }

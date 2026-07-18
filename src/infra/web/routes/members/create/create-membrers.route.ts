@@ -1,11 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
 import {
   CreateMembersInput,
   CreateMembersUsecase,
 } from 'src/usecases/web/members/create/create-membrers.usecase';
 import type {
-  CreateMembersRequest,
+  CreateMembersBody,
   CreateMembersResponse,
 } from './create-membrers.dto';
 import { CreateMembersPresenter } from './create-membrers.presenter';
@@ -18,11 +17,10 @@ export class CreateMembersRoute {
 
   @Post('create')
   public async handle(
-    @Body() body: CreateMembersRequest,
-    @UserId() userId: string,
+    @Body() body: CreateMembersBody,
   ): Promise<CreateMembersResponse> {
     const input: CreateMembersInput = {
-      accountId: userId,
+      localityId: body.localityId,
       name: body.name,
       preferredName: body.preferredName,
       cpf: body.cpf,

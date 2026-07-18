@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AccountLocalityPrismaRepositoryProvider } from './prisma/account-locality/model/account-locality.prisma.repository.provider';
 import { AccountParticipantInEventPrismaRepositoryProvider } from './prisma/account-participant-in-event/model/account-participant-in-event.prisma.repository.provider';
 import { AccountParticipantPrismaRepositoryProvider } from './prisma/account-participant/model/account-participant.prisma.repository.provider';
 import { AccountPrismaRepositoryProvider } from './prisma/account/model/account.prisma.repository.provider';
@@ -15,6 +16,7 @@ import { ExclusiveInscriptionLinkTypePrismaRepositoryProvider } from './prisma/e
 import { ExclusiveInscriptionLinkPrismaRepositoryProvider } from './prisma/exclusive-inscription-link/model/exclusive-inscription-link.prisma.repository.provider';
 import { FinancialMovementPrismaRepositoryProvider } from './prisma/financial-movement/model/financial-movement.repository.provider';
 import { InscriptionPrismaRepositoryProvider } from './prisma/inscription/model/inscription.prisma.repository.provider';
+import { LocalityPrismaRepositoryProvider } from './prisma/locality/model/locality.prisma.repository.provider';
 import { OnSiteParticipantPaymentPrismaRepositoryProvider } from './prisma/on-site-participant-payment/model/on-site-participant-payment.repository.provider';
 import { OnSiteParticipantPrismaRepositoryProvider } from './prisma/on-site-participant/model/on-site-participant.repository.provider';
 import { OnSiteRegistrationPrismaRepositoryProvider } from './prisma/on-site-registration/model/on-site-registration.prisma.repository.provider';
@@ -35,6 +37,10 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
   imports: [PrismaModule],
   providers: [
     AccountPrismaRepositoryProvider,
+
+    // accountLocality
+    AccountLocalityPrismaRepositoryProvider,
+
     AccountParticipantPrismaRepositoryProvider,
     AccountParticipantInEventPrismaRepositoryProvider,
     CashRegisterPrismaRepositoryProvider,
@@ -46,6 +52,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
+    LocalityPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
     PaymentPrismaRepositoryProvider,
     PaymentAllocationPrismaRepositoryProvider,
@@ -67,6 +74,10 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
   ],
   exports: [
     AccountPrismaRepositoryProvider,
+
+    // accountLocality
+    AccountLocalityPrismaRepositoryProvider,
+
     AccountParticipantPrismaRepositoryProvider,
     AccountParticipantInEventPrismaRepositoryProvider,
     CashRegisterPrismaRepositoryProvider,
@@ -78,6 +89,7 @@ import { TypeInscriptionPrismaRepositoryProvider } from './prisma/type-inscripti
     RegionPrismaRepositoryProvider,
     TypeInscriptionPrismaRepositoryProvider,
     InscriptionPrismaRepositoryProvider,
+    LocalityPrismaRepositoryProvider,
     ParticipantPrismaRepositoryProvider,
     PaymentPrismaRepositoryProvider,
     PaymentInstallmentPrismaRepositoryProvider,

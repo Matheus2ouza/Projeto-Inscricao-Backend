@@ -8,7 +8,8 @@ type FooterProps = {
 export const Footer = ({ year }: FooterProps) => (
   <Section style={sectionStyle}>
     <Text style={primaryTextStyle}>
-      Este e-mail foi enviado automaticamente pelo sistema de inscrições.
+      Não responda a esta mensagem. Este e-mail foi enviado por um sistema
+      automático que não processa respostas
     </Text>
     <Text style={supportTextStyle}>
       Em caso de dúvidas, entre em contato com o suporte:{' '}

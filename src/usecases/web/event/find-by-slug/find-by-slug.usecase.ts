@@ -5,7 +5,11 @@ import { EventResponsibleGateway } from 'src/domain/repositories/event-responsib
 import { EventSlugGateway } from 'src/domain/repositories/event-slug.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
+import { RedisService } from 'src/infra/services/redis/redis.service';
+import {
+  IMAGE_PRESETS,
+  SupabaseStorageService,
+} from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/events/event-not-found.usecase.exception';
 import { EventSlugNotFoundUsecaseException } from '../../exceptions/events/event-slug-not-found.usecase.exception';
@@ -17,33 +21,25 @@ export type FindBySlugEventInput = {
 export type FindBySlugEventOutput = {
   id: string;
   name: string;
-  quantityParticipants: number;
-  amountCollected: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   image?: string;
-  logoUrl?: string;
   location?: string;
   longitude?: number | null;
   latitude?: number | null;
   status: statusEvent;
   allowedInscriptionModes: InscriptionMode[];
-  paymentEnebled: boolean;
-  allowCard?: boolean;
-  createdAt: Date;
+  createdAt: Date | string;
   regionName: string;
-  responsibles: Responsible[];
-};
-
-export type Responsible = {
-  id: string;
-  name: string;
 };
 
 @Injectable()
 export class FindBySlugEventUsecase
   implements Usecase<FindBySlugEventInput, FindBySlugEventOutput>
 {
+  private readonly CACHE_TTL = 900; // 15min
+  private readonly CACHE_KEY_PREFIX = 'event:slug:';
+
   public constructor(
     private readonly eventSlugGateway: EventSlugGateway,
     private readonly eventGateway: EventGateway,
@@ -51,11 +47,22 @@ export class FindBySlugEventUsecase
     private readonly userGateway: AccountGateway,
     private readonly regionGateway: RegionGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly redis: RedisService,
   ) {}
 
   public async execute(
     input: FindBySlugEventInput,
   ): Promise<FindBySlugEventOutput> {
+    const cacheKey = this.getCacheKey(input.slug);
+
+    // primeiro tenta buscar no cache
+    const cachedResult = await this.getFromCache(cacheKey);
+
+    if (cachedResult) {
+      return cachedResult;
+    }
+
+    // caso não tenha sucesso em pegar no cache então busca no banco
     const eventSlug = await this.eventSlugGateway.findBySlug(input.slug);
 
     if (!eventSlug) {
@@ -79,7 +86,6 @@ export class FindBySlugEventUsecase
     const region = await this.regionGateway.findById(event.getRegionId());
 
     const imagePath = await this.getPublicUrl(event.getImageUrl());
-    const logoPath = await this.getPublicUrl(event.getLogoUrl());
 
     const responsibles = await this.eventResponsibleGateway.findByEventId(
       event.getId(),
@@ -100,25 +106,54 @@ export class FindBySlugEventUsecase
     const output: FindBySlugEventOutput = {
       id: event.getId(),
       name: event.getName(),
-      quantityParticipants: event.getQuantityParticipants(),
-      amountCollected: event.getAmountCollected(),
       startDate: event.getStartDate(),
       endDate: event.getEndDate(),
       image: imagePath,
-      logoUrl: logoPath,
       location: event.getLocation(),
       longitude: event.getLongitude(),
       latitude: event.getLatitude(),
       status: event.getStatus(),
       allowedInscriptionModes: event.getAllowedInscriptionModes(),
-      paymentEnebled: event.getPaymentEnabled(),
-      allowCard: event.getAllowCard() ?? false,
       createdAt: event.getCreatedAt(),
       regionName: region?.getName() || '',
-      responsibles: responsibleUsers,
     };
 
+    // salva o resultado no cache
+    await this.saveToCache(cacheKey, output);
+
     return output;
+  }
+
+  private async saveToCache(
+    cachekey: string,
+    data: FindBySlugEventOutput,
+  ): Promise<void> {
+    try {
+      await this.redis.setJson(cachekey, data, this.CACHE_TTL);
+    } catch (error) {
+      // Se falhar ao salvar no cache, apenas loga o erro mas não interrompe
+      console.error(
+        FindBySlugEventUsecase.name,
+        'Falha ao tentar salvar em cache os dados do evento',
+        error,
+      );
+    }
+  }
+
+  private async getFromCache(
+    cachekey: string,
+  ): Promise<FindBySlugEventOutput | null> {
+    try {
+      const cached = await this.redis.getJson<FindBySlugEventOutput>(cachekey);
+
+      return cached;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private getCacheKey(slug: string): string {
+    return `${this.CACHE_KEY_PREFIX}${slug}`;
   }
 
   private async getPublicUrl(path?: string): Promise<string> {
@@ -127,7 +162,11 @@ export class FindBySlugEventUsecase
     }
 
     try {
-      return await this.supabaseStorageService.getPublicUrl(path);
+      return await this.supabaseStorageService.getPublicUrl(
+        path,
+        IMAGE_PRESETS.logo,
+        100,
+      );
     } catch {
       return '';
     }

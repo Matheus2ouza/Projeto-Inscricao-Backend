@@ -29,7 +29,7 @@ export const Layout = ({
   year = new Date().getFullYear(),
   headerEyebrow = 'Sistema de Inscrição',
   headerTitle = 'Sistema de Inscrição',
-  headerSubtitle = 'Notificação automática do portal de inscrições',
+  headerSubtitle,
   children,
 }: LayoutProps) => {
   return (

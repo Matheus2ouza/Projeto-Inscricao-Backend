@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { genderType, InscriptionStatus } from 'generated/prisma';
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
-import { AccountParticipantEntityToAccountParticipantPrismaModelMapper as EntityToPrismaModel } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-entity-to-account-participant-prisma-model.mapper';
-import { AccountParticipantPrismaModelToAccountParticipantEntityMapper as PrismaModelToEntity } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-prisma-model-to-account-participant-entity.mapper';
+import { AccountParticipantEntityToAccountParticipantPrismaModelMapper as EntityToPrisma } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-entity-to-account-participant-prisma-model.mapper';
+import { AccountParticipantPrismaModelToAccountParticipantEntityMapper as PrismaToEntity } from 'src/infra/repositories/prisma/account-participant/model/mappers/account-participant-prisma-model-to-account-participant-entity.mapper';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
@@ -15,18 +15,18 @@ export class AccountParticipantPrismaRepository
   async create(
     accountParticipant: AccountParticipant,
   ): Promise<AccountParticipant> {
-    const data = EntityToPrismaModel.map(accountParticipant);
+    const data = EntityToPrisma.map(accountParticipant);
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.create({
         data,
       });
-    return PrismaModelToEntity.map(accountParticipantPrismaModel);
+    return PrismaToEntity.map(accountParticipantPrismaModel);
   }
 
   async update(
     accountParticipant: AccountParticipant,
   ): Promise<AccountParticipant> {
-    const data = EntityToPrismaModel.map(accountParticipant);
+    const data = EntityToPrisma.map(accountParticipant);
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.update({
         where: {
@@ -34,7 +34,7 @@ export class AccountParticipantPrismaRepository
         },
         data,
       });
-    return PrismaModelToEntity.map(accountParticipantPrismaModel);
+    return PrismaToEntity.map(accountParticipantPrismaModel);
   }
 
   //Busca e listagens
@@ -44,7 +44,7 @@ export class AccountParticipantPrismaRepository
         id,
       },
     });
-    return found ? PrismaModelToEntity.map(found) : null;
+    return found ? PrismaToEntity.map(found) : null;
   }
 
   async findByIds(ids: string[]): Promise<AccountParticipant[]> {
@@ -56,17 +56,31 @@ export class AccountParticipantPrismaRepository
           },
         },
       });
-    return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+    return accountParticipantPrismaModel.map(PrismaToEntity.map);
   }
 
   async findAllByAccountId(accountId: string): Promise<AccountParticipant[]> {
     const accountParticipantPrismaModel =
       await this.prisma.accountParticipant.findMany({
         where: {
-          accountId,
+          locality: {
+            accounts: { some: { accountId } },
+          },
         },
       });
-    return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+    return accountParticipantPrismaModel.map(PrismaToEntity.map);
+  }
+
+  public async findAllByLocalityId(
+    localityId: string,
+  ): Promise<AccountParticipant[]> {
+    const found = await this.prisma.accountParticipant.findMany({
+      where: {
+        localityId,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
   }
 
   async findByInscriptionsIds(
@@ -92,19 +106,19 @@ export class AccountParticipantPrismaRepository
       },
     });
 
-    return found.map(PrismaModelToEntity.map);
+    return found.map(PrismaToEntity.map);
   }
 
   async findAll(filter?: { regionId?: string }): Promise<AccountParticipant[]> {
     const found = await this.prisma.accountParticipant.findMany({
       where: {
-        account: {
+        locality: {
           regionId: filter?.regionId,
         },
       },
     });
 
-    return found.map(PrismaModelToEntity.map);
+    return found.map(PrismaToEntity.map);
   }
 
   async findByInscriptionId(
@@ -122,13 +136,13 @@ export class AccountParticipantPrismaRepository
         name: 'asc',
       },
     });
-    return find.map(PrismaModelToEntity.map);
+    return find.map(PrismaToEntity.map);
   }
 
   async findAllPaginated(
     page: number,
     pageSize: number,
-    filter: { accountId?: string },
+    filter: { localityId?: string },
   ): Promise<AccountParticipant[]> {
     const where = this.buildWhereClause(filter);
     const accountParticipantPrismaModel =
@@ -140,7 +154,7 @@ export class AccountParticipantPrismaRepository
           createdAt: 'desc',
         },
       });
-    return accountParticipantPrismaModel.map(PrismaModelToEntity.map);
+    return accountParticipantPrismaModel.map(PrismaToEntity.map);
   }
 
   async findManyByEventId(
@@ -174,11 +188,11 @@ export class AccountParticipantPrismaRepository
         name: sortOrderName,
       },
     });
-    return found.map(PrismaModelToEntity.map);
+    return found.map(PrismaToEntity.map);
   }
 
   //Agregações e contagens
-  async countAllFiltered(filter: { accountId?: string }): Promise<number> {
+  async countAllFiltered(filter: { localityId?: string }): Promise<number> {
     const where = this.buildWhereClause(filter);
     return await this.prisma.accountParticipant.count({
       where,
@@ -270,11 +284,11 @@ export class AccountParticipantPrismaRepository
   }
 
   private buildWhereClause(filter?: {
-    accountId?: string;
+    localityId?: string;
     typeInscriptionId?: string | string[];
     inscriptionStatus?: InscriptionStatus[];
   }) {
-    const { accountId, typeInscriptionId, inscriptionStatus } = filter || {};
+    const { localityId, typeInscriptionId, inscriptionStatus } = filter || {};
 
     const typeInscriptionArray = typeInscriptionId
       ? Array.isArray(typeInscriptionId)
@@ -288,26 +302,23 @@ export class AccountParticipantPrismaRepository
         : [inscriptionStatus]
       : [];
 
+    const hasEventLinkFilter =
+      typeInscriptionArray.length > 0 || inscriptionStatusArray.length > 0;
+
     return {
-      accountId,
-
-      eventLinks: {
-        some: {
-          ...(typeInscriptionArray.length > 0 && {
-            typeInscriptionId: {
-              in: typeInscriptionArray,
-            },
-          }),
-
-          ...(inscriptionStatusArray.length > 0 && {
-            inscription: {
-              status: {
-                in: inscriptionStatusArray,
-              },
-            },
-          }),
+      localityId,
+      ...(hasEventLinkFilter && {
+        eventLinks: {
+          some: {
+            ...(typeInscriptionArray.length > 0 && {
+              typeInscriptionId: { in: typeInscriptionArray },
+            }),
+            ...(inscriptionStatusArray.length > 0 && {
+              inscription: { status: { in: inscriptionStatusArray } },
+            }),
+          },
         },
-      },
+      }),
     };
   }
 }

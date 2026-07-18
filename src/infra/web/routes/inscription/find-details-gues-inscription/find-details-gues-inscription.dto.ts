@@ -2,10 +2,12 @@ import {
   genderType,
   InscriptionStatus,
   PaymentMethod,
+  PaymentMode,
   ShirtSize,
   ShirtType,
   StatusPayment,
 } from 'generated/prisma';
+import { ParticipantFieldsConfig } from 'src/domain/shared/types/participant-fields-config.type';
 
 export type FindDetailsGuestInscriptionRequest = {
   confirmationCode: string;
@@ -16,23 +18,35 @@ export type FindDetailsGuestInscriptionResponse = {
   status: InscriptionStatus;
   guestEmail: string;
   guestName: string;
-  guestLocality: string;
   phone: string;
   createdAt: Date;
   totalValue: number;
   totalPaid: number;
-  participants: Participant[];
+  locality: Locality;
+  participant: Participant;
   payments?: Payment[];
+  eventConfig: EventConfig;
+};
+
+export type EventConfig = {
+  participanteConfig: ParticipantFieldsConfig;
+  allowedPaymentModes: PaymentMode[];
+};
+
+export type Locality = {
+  id: string;
+  name: string;
 };
 
 export type Participant = {
   id: string;
   name: string;
   birthDate: Date;
+  gender: genderType;
   preferredName?: string;
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
-  gender: genderType;
+  cpf: string;
   typeInscription: TypeInscription;
 };
 

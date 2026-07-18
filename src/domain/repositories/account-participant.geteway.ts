@@ -1,5 +1,5 @@
 import { genderType, InscriptionStatus } from 'generated/prisma';
-import { AccountParticipant } from 'src/domain/entities/account-participant.entity';
+import { AccountParticipant } from 'src/domain/entities/account-participant/account-participant.entity';
 
 export abstract class AccountParticipantGateway {
   //CRUD básico
@@ -14,6 +14,9 @@ export abstract class AccountParticipantGateway {
   abstract findById(id: string): Promise<AccountParticipant | null>;
   abstract findByIds(ids: string[]): Promise<AccountParticipant[]>;
   abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
+  abstract findAllByLocalityId(
+    localityId: string,
+  ): Promise<AccountParticipant[]>;
   abstract findByInscriptionsIds(
     inscriptionIds: string[],
     filter: {
@@ -32,7 +35,7 @@ export abstract class AccountParticipantGateway {
     page: number,
     pageSize: number,
     filter: {
-      accountId?: string;
+      localityId?: string;
     },
   ): Promise<AccountParticipant[]>;
   abstract findManyByEventId(
@@ -64,5 +67,5 @@ export abstract class AccountParticipantGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
-  abstract countAllFiltered(filter: { accountId?: string }): Promise<number>;
+  abstract countAllFiltered(filter: { localityId?: string }): Promise<number>;
 }

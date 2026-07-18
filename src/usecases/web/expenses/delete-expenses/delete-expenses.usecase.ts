@@ -66,7 +66,7 @@ export class DeleteExpenseUsecase implements Usecase<DeleteExpenseInput, void> {
     const imageUrls = expense.getImageUrls();
 
     // decrementar o valor gasto do evento (reverter o incremento que foi feito no create)
-    event.decrementAmountSpent(expense.getValue());
+    event.removeSpentAmount(expense.getValue());
 
     // abrir transaction para deletar tudo
     await this.prisma.runInTransaction(async (tx) => {

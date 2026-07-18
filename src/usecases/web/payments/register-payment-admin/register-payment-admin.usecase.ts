@@ -12,7 +12,7 @@ import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entit
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
@@ -198,8 +198,8 @@ export class RegisterPaymentAdminUsecase
       : [];
 
     // atualizar o evento em memória (valores e participantes)
-    event.incrementAmountCollected(payment.getTotalPaid());
-    event.incrementAmountNetValueCollected(payment.getTotalNetValue());
+    event.addCollectedAmount(payment.getTotalPaid());
+    event.addNetValueCollected(payment.getTotalNetValue());
 
     // somar participantes das inscrições que foram pagas
     const paidInscriptionIds = updatedInscriptions
@@ -208,7 +208,7 @@ export class RegisterPaymentAdminUsecase
     const totalParticipantsToAdd =
       await this.sumParticipantsForInscriptions(paidInscriptionIds);
     for (let i = 0; i < totalParticipantsToAdd; i++) {
-      event.incrementParticipantsCount();
+      event.addParticipant();
     }
 
     await this.prisma.runInTransaction(async (tx) => {

@@ -1,7 +1,7 @@
 import { genderType } from 'generated/prisma';
 
 export type FindAllPaginatedMembersRequest = {
-  accountId: string;
+  localityId: string;
   page: number;
   pageSize: number;
 };

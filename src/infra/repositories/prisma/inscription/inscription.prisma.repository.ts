@@ -6,7 +6,7 @@ import {
   PaymentMethod,
   StatusPayment,
 } from 'generated/prisma';
-import { Inscription } from 'src/domain/entities/inscription.entity';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { PrismaService, PrismaTransactionClient } from '../prisma.service';
 import { InscriptionEntityToInscriptionPrismaModelMapper as EntityToPrisma } from './model/mappers/inscription-entity-to-inscription-prisma-model.mapper';

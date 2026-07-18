@@ -1,5 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Body, Controller, Post } from '@nestjs/common';
 import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   loginUserInput,
@@ -16,21 +15,13 @@ export class LoginUserRoute {
   @Post('/login')
   public async handle(
     @Body() request: LoginUserRequest,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<LoginUserResponse> {
     const input: loginUserInput = {
-      username: request.username.trim(),
-      password: request.password.trim(),
+      username: request.username,
+      password: request.password,
     };
 
-    const result = await this.loginUserUsecase.execute(input);
-    const response = LoginUserPresenter.toHttp(result);
-
-    // Retorne role, authToken e refreshToken no body
-    return {
-      authToken: response.authToken,
-      refreshToken: response.refreshToken,
-      user: response.user,
-    };
+    const response = await this.loginUserUsecase.execute(input);
+    return LoginUserPresenter.toHttp(response);
   }
 }

@@ -4,7 +4,7 @@ import { AccountParticipantGateway } from 'src/domain/repositories/account-parti
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllPaginatedMembersInput = {
-  accountId: string;
+  localityId: string;
   page: number;
   pageSize: number;
 };
@@ -45,10 +45,10 @@ export class FindAllPaginatedMembersUsecase
 
     const [members, total] = await Promise.all([
       this.accountParticipantGateway.findAllPaginated(safePage, safePageSize, {
-        accountId: input.accountId,
+        localityId: input.localityId,
       }),
       this.accountParticipantGateway.countAllFiltered({
-        accountId: input.accountId,
+        localityId: input.localityId,
       }),
     ]);
 

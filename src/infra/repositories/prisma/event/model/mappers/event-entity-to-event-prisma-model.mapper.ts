@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { Event } from 'src/domain/entities/event.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import EventPrismaModel from '../event.prisma.model';
 
 export class EventEntityToEventPrismaModelMapper {
@@ -15,6 +15,8 @@ export class EventEntityToEventPrismaModelMapper {
       amountSpent: new Decimal(event.getAmountSpent()),
       status: event.getStatus(),
       allowedInscriptionModes: event.getAllowedInscriptionModes(),
+      allowedPaymentModes: event.getAllowedPaymentModes(),
+      participantFieldsConfig: event.getParticipantFieldsConfig() as any,
       paymentEnabled: event.getPaymentEnabled(),
       ticketEnabled: event.getTicketEnabled() ?? false,
       imageUrl: event.getImageUrl() ?? null,
@@ -23,7 +25,6 @@ export class EventEntityToEventPrismaModelMapper {
       longitude: event.getLongitude() ?? null,
       latitude: event.getLatitude() ?? null,
       regionId: event.getRegionId(),
-      allowCard: event.getAllowCard() ?? false,
       createdAt: event.getCreatedAt(),
       updatedAt: event.getUpdatedAt(),
     };

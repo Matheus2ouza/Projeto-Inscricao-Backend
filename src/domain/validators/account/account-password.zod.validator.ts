@@ -16,7 +16,7 @@ export class AccountPasswordZodValidator implements Validator<string> {
       this.getZodSchema().parse(input);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const message = ZodUtils.FormatZodError(error);
+        const message = ZodUtils.formatZodError(error);
         throw new ValidatorDomainException(
           `Error while validating account password: ${message}`,
           `A senha não cumpre os requisitos minimos`,

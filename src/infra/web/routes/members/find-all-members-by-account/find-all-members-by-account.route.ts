@@ -1,15 +1,11 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { roleType } from 'generated/prisma';
-import {
-  UserInfo,
-  type UserInfoType,
-} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   FindAllMembersByAccountUsecase,
   FindAllMembersByAccountUsecaseInput,
 } from 'src/usecases/web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import type {
-  FindAllMembersByAccountUsecaseRequest,
+  FindAllMembersByAccountUsecaseParam,
+  FindAllMembersByAccountUsecaseQuery,
   FindAllMembersByAccountUsecaseResponse,
 } from './find-all-members-by-account.dto';
 import { FindAllMembersByAccountPresenter } from './find-all-members-by-account.presenter';
@@ -22,14 +18,12 @@ export class FindAllMembersByAccountRoute {
 
   @Get(':eventId/all-names')
   async handle(
-    @Param() param: FindAllMembersByAccountUsecaseRequest,
-    @Query() query: FindAllMembersByAccountUsecaseRequest,
-    @UserInfo() user: UserInfoType,
+    @Param() param: FindAllMembersByAccountUsecaseParam,
+    @Query() query: FindAllMembersByAccountUsecaseQuery,
   ): Promise<FindAllMembersByAccountUsecaseResponse> {
     const input: FindAllMembersByAccountUsecaseInput = {
       eventId: param.eventId,
-      accountId:
-        user.userRole === roleType.USER ? user.userId : query.accountId,
+      localityId: query.localityId,
     };
 
     const response = await this.findAllMembersByAccountUsecase.execute(input);

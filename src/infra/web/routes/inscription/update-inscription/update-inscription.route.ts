@@ -1,4 +1,5 @@
 import { Body, Controller, Param, Put } from '@nestjs/common';
+import { IsPublic } from 'src/infra/web/authenticator/decorators/is-public.decorator';
 import {
   UpdateInscriptionInput,
   UpdateInscriptionUsecase,
@@ -16,6 +17,7 @@ export class UpdateInscriptionRoute {
     private readonly updateInscriptionUsecase: UpdateInscriptionUsecase,
   ) {}
 
+  @IsPublic()
   @Put(':id')
   public async handle(
     @Param() param: UpdateInscriptionParam,
@@ -23,11 +25,11 @@ export class UpdateInscriptionRoute {
   ): Promise<UpdateInscriptionResponse> {
     const input: UpdateInscriptionInput = {
       id: param.id,
-      responsible: body.responsible,
+      localityId: body.localityId,
+      name: body.name,
       phone: body.phone,
       email: body.email,
       observation: body.observation,
-      guestLocality: body.guestLocality,
     };
 
     const response = await this.updateInscriptionUsecase.execute(input);

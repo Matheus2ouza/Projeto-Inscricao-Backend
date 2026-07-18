@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
-import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { JwtService } from 'src/infra/services/jwt/jwt.service';
-import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
 import { CredentialsNoValidUsecaseException } from 'src/usecases/web/exceptions/accounts/credentials-no-valid.usecase.exception';
 
@@ -14,21 +12,6 @@ export type loginUserInput = {
 export type loginUserOutput = {
   authToken: string;
   refreshToken: string;
-  user: User;
-};
-
-export type User = {
-  id: string;
-  username: string;
-  role: string;
-  email: string | null;
-  region: Region | null;
-  image: string | null;
-};
-
-export type Region = {
-  id: string;
-  Name: string;
 };
 
 @Injectable()
@@ -38,15 +21,13 @@ export class LoginUserUsecase
   public constructor(
     private readonly UserGateway: AccountGateway,
     private readonly jwtService: JwtService,
-    private readonly supabaseStorageService: SupabaseStorageService,
-    private readonly regionGateway: RegionGateway,
   ) {}
 
   public async execute({
     username,
     password,
   }: loginUserInput): Promise<loginUserOutput> {
-    const anUser = await this.UserGateway.findByUser(username);
+    const anUser = await this.UserGateway.verifyActiveAccount(username);
 
     if (!anUser) {
       throw new CredentialsNoValidUsecaseException(
@@ -66,40 +47,6 @@ export class LoginUserUsecase
       );
     }
 
-    //Pega o avatar no usuario, caso ele tenha
-    let image: string | null = null;
-    const imagePath = anUser.getImage();
-
-    if (imagePath) {
-      try {
-        const publicUrl =
-          await this.supabaseStorageService.getPublicUrl(imagePath);
-        image = publicUrl || null;
-      } catch (error) {
-        image = null;
-      }
-    }
-
-    //Pega os dados da região caso que o usuario é vinculado, caso ele seja
-    let region: Region | null = null;
-
-    if (anUser.getRole() !== 'SUPER') {
-      const regionId = anUser.getRegionId();
-      if (regionId) {
-        try {
-          const foundRegion = await this.regionGateway.findById(regionId);
-          if (foundRegion) {
-            region = {
-              id: foundRegion.getId(),
-              Name: foundRegion.getName(),
-            };
-          }
-        } catch {
-          region = null;
-        }
-      }
-    }
-
     const authToken = this.jwtService.generateAuthToken(
       anUser.getId(),
       anUser.getRole(),
@@ -110,14 +57,6 @@ export class LoginUserUsecase
     return {
       authToken,
       refreshToken,
-      user: {
-        id: anUser.getId(),
-        username: anUser.getUsername(),
-        role: anUser.getRole(),
-        email: anUser.getEmail() ?? null,
-        region: region,
-        image,
-      },
     };
   }
 }

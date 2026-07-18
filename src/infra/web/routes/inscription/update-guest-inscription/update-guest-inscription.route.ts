@@ -24,9 +24,9 @@ export class UpdateGuestInscriptionRoute {
   ): Promise<UpdateGuestInscriptionResponse> {
     const input: UpdateGuestInscriptionInput = {
       id: param.id,
-      guestName: body.guestName,
-      guestEmail: body.guestEmail,
-      guestLocality: body.guestLocality,
+      localityId: body.localityId,
+      name: body.name,
+      email: body.email,
       phone: body.phone,
     };
 

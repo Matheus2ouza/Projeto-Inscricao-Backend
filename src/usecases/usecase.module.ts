@@ -53,12 +53,14 @@ import { FindEventDateUsecase } from './web/event/find-event-dates/find-event-da
 import { FindAccountWithInscriptionsUsecase } from './web/event/inscription/find-accounts-with-inscriptions.usecase';
 import { FindAllToParticipantsUsecase } from './web/event/participants/find-all-to-participants/find-all-to-participants.usecase';
 import { GeneratePdfSelectedInscriptionUsecase } from './web/event/pdf/generate-pdf-selected-inscriptions/generate-pdf-selected-inscriptions.usecase';
-import { UpdateAllowCardUseCase } from './web/event/update-allow-card/update-allow-card.usecase';
-import { UpdateEventUseCase } from './web/event/update-event/update-event.usecase';
+import { UpdateEventUsecase } from './web/event/update-event/update-event.usecase';
 import { UpdateImageEventUsecase } from './web/event/update-image/update-image-event.usecase';
+import { UpdateInscriptionModeEventUsecase } from './web/event/update-inscription-mode/update-inscription-mode-event.usecase';
 import { UpdateInscriptionEventUsecase } from './web/event/update-inscription/update-inscription-event.usecase';
 import { UpdateLocationEventUsecase } from './web/event/update-location/update-location-event.usecase';
 import { UpdateLogoEventUsecase } from './web/event/update-logo/update-logo.usecase';
+import { UpdateParticipantFieldsConfigUsecase } from './web/event/update-participant-fields-config/update-participant-fields-config.usecase';
+import { UpdatePaymentModeEventUsecase } from './web/event/update-payment-mode/update-payment-mode-event.usecase';
 import { UpdatePaymentEventUsecase } from './web/event/update-payment/update-payment.usecase';
 import { UpdateTicketsSaleUsecase } from './web/event/update-tickets-sale/update-tickets-sale.usecase';
 import { CreateExclusiveInscriptionLinkUsecase } from './web/exclusive-inscription-link/create-exclusive-inscription-link/create-exclusive-inscription-link.usecase';
@@ -96,6 +98,8 @@ import { GenerateXlsxAllInscriptionsUsecase } from './web/inscription/reports/xl
 import { UpdateGuestInscriptionUsecase } from './web/inscription/update-guest-inscription/update-guest-inscription.usecase';
 import { UpdateInscriptionUsecase } from './web/inscription/update-inscription/update-inscription.usecase';
 import { UpdateValidateInscriptionUsecase } from './web/inscription/update-validate-inscription/update-validate-inscription.usecase';
+import { FindAllLocalityUsecase } from './web/locality/find-all-by-event/find-all-locality.usecase';
+import { FindAllLocalityWithAccountUsecase } from './web/locality/find-all-with-account/find-all-with-account.usecase';
 import { CreateMembersUsecase } from './web/members/create/create-membrers.usecase';
 import { FindAllMembersByAccountUsecase } from './web/members/find-all-members-by-account/find-all-members-by-account.usecase';
 import { FindAllPaginatedMembersUsecase } from './web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -126,8 +130,9 @@ import { ListAllReceiptUsecase } from './web/payments/list-all-receipt/list-all-
 import { ListPaymentPendingDetailsUsecase } from './web/payments/list-payment-pending-details/list-payment-pending-details.usecase';
 import { PaymentsDetailsUsecase } from './web/payments/payments-details/payments-details.usecase';
 import { RegisterPaymentCredUsecase } from './web/payments/register-cred/register-payment-cred.usecase';
+import { RegisterPaymentGuestPixUsecase } from './web/payments/register-guest-pix/register-payment-guest-pix.usecase';
 import { RegisterPaymentAdminUsecase } from './web/payments/register-payment-admin/register-payment-admin.usecase';
-import { RegisterPaymentPixAssasUsescase } from './web/payments/register-pix-assas/register-payment-pix-assas.usecase';
+import { RegisterPaymentPixAssasUsecase } from './web/payments/register-pix-assas/register-payment-pix-assas.usecase';
 import { RegisterPaymentPixUsecase } from './web/payments/register-pix/register-payment-pix.usecase';
 import { RejectedPaymentUsecase } from './web/payments/rejected-payment/rejected-payment.usecase';
 import { ReversePaymentUsecase } from './web/payments/reverse-payment/reverse-payment.usecase';
@@ -230,16 +235,22 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllMembersByAccountUsecase,
     FindMemberByIdUsecase,
 
+    // Localities
+    FindAllLocalityUsecase,
+    FindAllLocalityWithAccountUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
-    UpdateEventUseCase,
+    UpdateEventUsecase,
     DeleteEventUsecase,
-    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateLocationEventUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    UpdateInscriptionModeEventUsecase,
+    UpdatePaymentModeEventUsecase,
+    UpdateParticipantFieldsConfigUsecase,
     UpdateTicketsSaleUsecase,
     DeleteImageEventUsecase,
     DeleteLogoEventUsecase,
@@ -340,8 +351,11 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
-    RegisterPaymentPixAssasUsescase,
+    RegisterPaymentPixAssasUsecase,
     CreatePaymentLinkUsecase,
+
+    // Payment - Create guest
+    RegisterPaymentGuestPixUsecase,
 
     // Payment - register admin
     RegisterPaymentAdminUsecase,
@@ -473,17 +487,23 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     FindAllMembersByAccountUsecase,
     FindMemberByIdUsecase,
 
+    // Localities
+    FindAllLocalityUsecase,
+    FindAllLocalityWithAccountUsecase,
+
     // Events - CRUD & Updates
     CreateEventUseCase,
-    UpdateEventUseCase,
+    UpdateEventUsecase,
     DeleteEventUsecase,
-    UpdateAllowCardUseCase,
     UpdateImageEventUsecase,
     UpdateLogoEventUsecase,
     UpdateTicketsSaleUsecase,
     UpdateLocationEventUsecase,
     UpdatePaymentEventUsecase,
     UpdateInscriptionEventUsecase,
+    UpdateInscriptionModeEventUsecase,
+    UpdatePaymentModeEventUsecase,
+    UpdateParticipantFieldsConfigUsecase,
     FindAccountsToCheckInUsecase,
     FindAccountsDetailsUseCase,
     DeleteLogoEventUsecase,
@@ -580,10 +600,13 @@ import { FinalizeExpiredEventsUsecase } from './worker/finalize-expired-events/f
     ListPaymentPendingDetailsUsecase,
     FindPaymentsDatesUsecase,
 
+    // Payment - Create guest
+    RegisterPaymentGuestPixUsecase,
+
     // Payment - Creates
     RegisterPaymentCredUsecase,
     RegisterPaymentPixUsecase,
-    RegisterPaymentPixAssasUsescase,
+    RegisterPaymentPixAssasUsecase,
     CreatePaymentLinkUsecase,
 
     // Payment - register admin

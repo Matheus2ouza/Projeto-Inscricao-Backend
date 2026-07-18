@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from 'src/domain/entities/account.entity';
-import { Event } from 'src/domain/entities/event.entity';
+import { Account } from 'src/domain/entities/account/account.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { Region } from 'src/domain/entities/region.entity';
 import { RegionGateway } from 'src/domain/repositories/region.gateway';
 import { AccountPrismaModelToUserEntityMapper } from '../account/model/mappers/account-prisma-model-to-account-entity.mapper';
@@ -31,9 +31,7 @@ export class RegionPrismaRepository implements RegionGateway {
   }
 
   async findAllNames(): Promise<Region[]> {
-    const found = await this.prisma.regions.findMany({
-      select: { id: true, name: true },
-    });
+    const found = await this.prisma.regions.findMany();
     return found.map(RegionPrismaModelToRegionEntityMapper.map);
   }
 
