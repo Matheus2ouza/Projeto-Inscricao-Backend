@@ -11,6 +11,7 @@ import { RefreshTokenNotValidServiceExceptionFilterProvider } from './filters/in
 import { ServiceExceptionFilterProvider } from './filters/infra/service/server-exception.filter';
 import { RegionIdNotFoundRouteExceptionFilterProvider } from './filters/routes/event/region-id-not-found-route-exception.filter';
 import { AccountParticipantNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account-participant/account-participant-not-found-usecase-exception.filter';
+import { DuplicateMemberUsecaseExceptionFilterProvider } from './filters/usecases/account-participant/duplicate-account-participant-usecase-exception.filter';
 import { AccountNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/account/account-not-found-usecase-exception.filter';
 import { CashRegisterNotFoundUsecaseExceptionFilterProvider } from './filters/usecases/cash-register/cash-register-not-found-usecase-exception.filter';
 import { CredentialsNotValidUsecaseExcepitonFilterProvider } from './filters/usecases/credentials-not-valid-usecase-exception.filter';
@@ -504,6 +505,7 @@ import { WelcomeRoute } from './routes/welcome.route';
 
     // Account Participant
     AccountParticipantNotFoundUsecaseExceptionFilterProvider,
+    DuplicateMemberUsecaseExceptionFilterProvider,
 
     // Cash-Register
     CashRegisterNotFoundUsecaseExceptionFilterProvider,

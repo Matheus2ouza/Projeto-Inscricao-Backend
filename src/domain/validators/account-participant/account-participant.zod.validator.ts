@@ -40,10 +40,17 @@ export class AccountParticipantZodValidator
   private getZodSchema() {
     const zodSchema = z.object({
       id: z.uuid({ message: 'ID deve ser um UUID válido' }),
-      localityId: z.uuid({ message: 'accountId deve ser um UUID válido' }),
+      localityId: z.uuid({ message: 'localityId deve ser um UUID válido' }),
       name: z
         .string()
         .min(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
+      cpf: z
+        .string()
+        .optional()
+        .transform((val) => val?.replace(/\D/g, ''))
+        .refine((val) => !val || val.length === 11, {
+          message: 'CPF deve conter 11 dígitos',
+        }),
       birthDate: z.coerce.date({
         message: 'Data de nascimento deve ser uma data válida',
       }),
