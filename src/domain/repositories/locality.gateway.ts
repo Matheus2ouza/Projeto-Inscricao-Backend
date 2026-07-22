@@ -15,7 +15,14 @@ export abstract class LocalityGateway {
   ): Promise<number>;
 
   // buscas
+  // busca a localidade pelo id
   abstract findById(id: string): Promise<Locality | null>;
+  // busca múltiplas localidades pelo um array de ids
+  abstract findByIds(ids: string[]): Promise<Locality[]>;
   abstract findByAccountId(accountId: string): Promise<Locality[]>;
+  abstract findByAccountIdAndLocalities(
+    accountId: string,
+    localityIds?: string[],
+  ): Promise<Locality[]>;
   abstract findAll(): Promise<Locality[]>;
 }
