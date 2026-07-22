@@ -55,7 +55,7 @@ export class FindAllMembersByAccountUsecase
       this.eventGateway.findById(input.eventId),
       this.localityGateway.findByAccountIdAndLocalities(
         input.accountId,
-        localityFilter,
+        input.localityId,
       ),
     ]);
 
