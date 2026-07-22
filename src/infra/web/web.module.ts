@@ -487,10 +487,12 @@ import { WelcomeRoute } from './routes/welcome.route';
     CredentialsNotValidUsecaseExcepitonFilterProvider,
     UserAlreadyExistsUsecaseExceptionFilterProvider,
     AccountNotFoundUsecaseExceptionFilterProvider,
-    UserNotAllowedToCreateUserUsecaseExceptionFilterProvider,
     AuthTokenNotValidServiceExceptionFilterProvider,
     ServiceExceptionFilterProvider,
     RefreshTokenNotValidServiceExceptionFilterProvider,
+
+    // User
+    UserNotAllowedToCreateUserUsecaseExceptionFilterProvider,
 
     // Locality
     LocalityNotFoundUsecaseExceptionFilterProvider,
