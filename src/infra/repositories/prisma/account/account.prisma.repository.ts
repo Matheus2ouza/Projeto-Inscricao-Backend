@@ -102,13 +102,6 @@ export class AccountPrismaRepository implements AccountGateway {
       skip,
       take: pageSize,
       orderBy: { createdAt: 'desc' },
-      include: {
-        region: {
-          select: {
-            name: true,
-          },
-        },
-      },
     });
 
     return models.map(PrismaToEntity.map);

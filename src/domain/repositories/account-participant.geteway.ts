@@ -14,8 +14,14 @@ export abstract class AccountParticipantGateway {
   abstract findById(id: string): Promise<AccountParticipant | null>;
   abstract findByIds(ids: string[]): Promise<AccountParticipant[]>;
   abstract findAllByAccountId(accountId: string): Promise<AccountParticipant[]>;
+  abstract findAllByAccountIds(
+    accountIds: string[],
+  ): Promise<AccountParticipant[]>;
   abstract findAllByLocalityId(
     localityId: string,
+  ): Promise<AccountParticipant[]>;
+  abstract findAllByLocalityIds(
+    localityIds: string[],
   ): Promise<AccountParticipant[]>;
   abstract findByInscriptionsIds(
     inscriptionIds: string[],
