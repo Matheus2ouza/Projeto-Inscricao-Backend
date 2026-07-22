@@ -4,9 +4,9 @@ export type CreateUserRequest = {
   username: string;
   password: string;
   role: roleType;
-  localityId: string;
+  localityIds: string[];
   regionId?: string;
-  email: string;
+  email?: string;
 };
 
 export type CreateUserRouteResponse = {
