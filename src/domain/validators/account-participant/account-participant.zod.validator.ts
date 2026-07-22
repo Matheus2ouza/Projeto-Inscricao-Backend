@@ -1,3 +1,4 @@
+import { ZodUtils } from 'src/shared/utils/zod-utils';
 import { z } from 'zod';
 import { AccountParticipant } from '../../entities/account-participant/account-participant.entity';
 import { DomainException } from '../../shared/exceptions/domain.exception';
@@ -18,11 +19,12 @@ export class AccountParticipantZodValidator
       this.getZodSchema().parse(input);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const messages = error.issues.map((issue) => issue.message).join(', ');
+        const userMessage = ZodUtils.formatZodError(error);
+        const logMessage = ZodUtils.formatZodErrorForLog(error, input);
 
         throw new ValidatorDomainException(
-          `Error while validating account participant ${input.getId()}: ${messages}`,
-          `${messages}`,
+          `Error while validating account participant ${input.getId()}: ${logMessage}`,
+          `${userMessage}`,
           AccountParticipantZodValidator.name,
         );
       }

@@ -18,10 +18,11 @@ export class AccountZodValidator implements Validator<Account> {
       this.getZodSchema().parse(input);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const message = ZodUtils.formatZodError(error);
+        const userMessage = ZodUtils.formatZodError(error);
+        const logMessage = ZodUtils.formatZodErrorForLog(error, input);
         throw new ValidatorDomainException(
-          `Error while validating user ${input.getId()}: ${message}`,
-          `Dados para criação da conta invalidos`,
+          `Error while validating user ${input.getId()}: ${logMessage}`,
+          `${userMessage}`,
           AccountZodValidator.name,
         );
       }
