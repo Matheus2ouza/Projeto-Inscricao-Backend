@@ -91,13 +91,11 @@ export class LocalityPrismaRepository implements LocalityGateway {
 
   public async findByAccountIdAndLocalities(
     accountId: string,
-    localityIds?: string[],
+    localityId?: string,
   ): Promise<Locality[]> {
-    const hasLocalityFilter = !!localityIds?.length;
-
     const found = await this.prisma.localities.findMany({
       where: {
-        ...(hasLocalityFilter && { id: { in: localityIds } }),
+        id: localityId,
         accounts: {
           some: {
             accountId,
