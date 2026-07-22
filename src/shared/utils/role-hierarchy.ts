@@ -5,7 +5,7 @@ export enum RoleTypeHierarchy {
   USER = 'USER',
 }
 
-const roleWeight: Record<RoleTypeHierarchy, number> = {
+export const ROLE_HIERARCHY: Record<RoleTypeHierarchy, number> = {
   [RoleTypeHierarchy.SUPER]: 4,
   [RoleTypeHierarchy.ADMIN]: 3,
   [RoleTypeHierarchy.MANAGER]: 2,
@@ -17,5 +17,5 @@ export function canActOn(
   roleA: RoleTypeHierarchy,
   roleB: RoleTypeHierarchy,
 ): boolean {
-  return roleWeight[roleA] >= roleWeight[roleB];
+  return ROLE_HIERARCHY[roleA] >= ROLE_HIERARCHY[roleB];
 }

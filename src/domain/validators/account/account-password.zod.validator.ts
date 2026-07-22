@@ -35,7 +35,12 @@ export class AccountPasswordZodValidator implements Validator<string> {
   }
 
   private getZodSchema() {
-    const zodSchema = z.string().min(6);
+    const zodSchema = z
+      .string()
+      .min(6, { error: 'Senha do usuário não atinge o mínimo de 6 caracteres' })
+      .max(30, {
+        error: 'Senha do usuário ultrapassou o limite máximo de 30 caracteres',
+      });
 
     return zodSchema;
   }

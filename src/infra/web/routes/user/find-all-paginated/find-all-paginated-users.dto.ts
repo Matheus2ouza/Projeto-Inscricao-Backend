@@ -4,15 +4,17 @@ export type FindAllPaginatedUsersRequest = {
 };
 
 export type FindAllPaginatedUsersResponse = {
-  users: {
-    id: string;
-    username: string;
-    role: string;
-    createdAt: Date;
-    updatedAt: Date;
-    regionName: string | undefined;
-  }[];
+  users: User[];
   total: number;
   page: number;
   pageCount: number;
+};
+
+export type User = {
+  id: string;
+  username: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  regionName?: string;
 };

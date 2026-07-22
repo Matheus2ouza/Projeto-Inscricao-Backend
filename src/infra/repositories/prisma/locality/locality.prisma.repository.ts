@@ -63,6 +63,18 @@ export class LocalityPrismaRepository implements LocalityGateway {
     return found ? PrismaToEntity.map(found) : null;
   }
 
+  public async findByIds(ids: string[]): Promise<Locality[]> {
+    const found = await this.prisma.localities.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   public async findByAccountId(accountId: string): Promise<Locality[]> {
     const found = await this.prisma.localities.findMany({
       where: {
@@ -77,8 +89,30 @@ export class LocalityPrismaRepository implements LocalityGateway {
     return found.map(PrismaToEntity.map);
   }
 
+  public async findByAccountIdAndLocalities(
+    accountId: string,
+    localityIds?: string[],
+  ): Promise<Locality[]> {
+    const hasLocalityFilter = !!localityIds?.length;
+
+    const found = await this.prisma.localities.findMany({
+      where: {
+        ...(hasLocalityFilter && { id: { in: localityIds } }),
+        accounts: {
+          some: {
+            accountId,
+          },
+        },
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
   public async findAll(): Promise<Locality[]> {
-    const found = await this.prisma.localities.findMany();
+    const found = await this.prisma.localities.findMany({
+      orderBy: { name: 'asc' },
+    });
     return found.map(PrismaToEntity.map);
   }
 }

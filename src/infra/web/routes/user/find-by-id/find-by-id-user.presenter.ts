@@ -8,7 +8,7 @@ export class FindByIdUserPresenter {
       username: output.username,
       email: output.email,
       role: output.role,
-      createdAt: output.createdAt,
+      regionId: output.regionId,
     };
 
     return response;

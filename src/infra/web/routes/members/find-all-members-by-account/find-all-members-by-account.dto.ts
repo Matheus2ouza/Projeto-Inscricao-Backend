@@ -1,4 +1,4 @@
-import { ShirtSize, ShirtType } from 'generated/prisma';
+import { ShirtSize, ShirtType, UF } from 'generated/prisma';
 
 export type FindAllMembersByAccountUsecaseParam = {
   eventId: string;
@@ -20,4 +20,11 @@ export type FindAllMembersByAccountUsecaseResponse = {
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   registered: boolean;
+  locality?: Locality;
 }[];
+
+type Locality = {
+  id: string;
+  name: string;
+  uf: UF;
+};

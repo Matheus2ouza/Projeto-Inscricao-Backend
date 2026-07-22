@@ -71,12 +71,43 @@ export class AccountParticipantPrismaRepository
     return accountParticipantPrismaModel.map(PrismaToEntity.map);
   }
 
+  public async findAllByAccountIds(
+    accountIds: string[],
+  ): Promise<AccountParticipant[]> {
+    const accountParticipantPrismaModel =
+      await this.prisma.accountParticipant.findMany({
+        where: {
+          locality: {
+            accounts: { some: { accountId: { in: accountIds } } },
+          },
+        },
+      });
+    return accountParticipantPrismaModel.map(PrismaToEntity.map);
+  }
+
   public async findAllByLocalityId(
     localityId: string,
   ): Promise<AccountParticipant[]> {
     const found = await this.prisma.accountParticipant.findMany({
       where: {
         localityId,
+      },
+    });
+
+    return found.map(PrismaToEntity.map);
+  }
+
+  public async findAllByLocalityIds(
+    localityIds: string[],
+  ): Promise<AccountParticipant[]> {
+    const found = await this.prisma.accountParticipant.findMany({
+      where: {
+        localityId: {
+          in: localityIds,
+        },
+      },
+      orderBy: {
+        name: 'asc',
       },
     });
 

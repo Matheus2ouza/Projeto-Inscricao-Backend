@@ -1,5 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { Roles } from 'src/infra/web/authenticator/decorators/roles.decorator';
 import { UserInfo } from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import { RoleTypeHierarchy } from 'src/shared/utils/role-hierarchy';
 import {
   FindAllPaginatedUsersInput,
   FindAllPaginatedUsersUsecase,
@@ -16,6 +18,7 @@ export class FindAllPaginatedUsersRoute {
     private readonly findAllPaginatedUsersUsecase: FindAllPaginatedUsersUsecase,
   ) {}
 
+  @Roles(RoleTypeHierarchy.MANAGER)
   @Get()
   public async handle(
     @Query() query: FindAllPaginatedUsersRequest,
