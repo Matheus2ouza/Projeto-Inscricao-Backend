@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { Response } from 'express';
+import { ExceptionUtils } from 'src/shared/utils/exception-utils';
 import { UserNotAllowedToCreateUserUsecaseException } from 'src/usecases/web/exceptions/accounts/user-not-allowed-to-create-user.usecase.exception';
 
 @Catch(UserNotAllowedToCreateUserUsecaseException)
@@ -18,14 +19,13 @@ export class UserNotAllowedToCreateUserUsecaseExceptionFilter
   ) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    response.status(HttpStatus.FORBIDDEN).json({
-      statusCode: HttpStatus.FORBIDDEN,
-      message: exception.message,
-      timeStamp: new Date().toISOString(),
-    });
+
+    const status = HttpStatus.BAD_REQUEST;
+    const aResponseData = ExceptionUtils.buildErrorResponse(exception, status);
+
+    response.status(status).json(aResponseData);
   }
 }
-
 export const UserNotAllowedToCreateUserUsecaseExceptionFilterProvider = {
   provide: APP_FILTER,
   useClass: UserNotAllowedToCreateUserUsecaseExceptionFilter,
