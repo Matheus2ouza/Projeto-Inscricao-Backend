@@ -15,6 +15,7 @@ export class FindAllMembersByAccountPresenter {
       shirtSize: o.shirtSize,
       shirtType: o.shirtType,
       registered: o.registered,
+      locality: o.locality,
     }));
   }
 }

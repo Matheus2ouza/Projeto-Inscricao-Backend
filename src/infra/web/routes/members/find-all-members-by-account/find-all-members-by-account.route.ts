@@ -1,5 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
+  UserInfo,
+  UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import {
   FindAllMembersByAccountUsecase,
   FindAllMembersByAccountUsecaseInput,
 } from 'src/usecases/web/members/find-all-members-by-account/find-all-members-by-account.usecase';
@@ -20,8 +24,10 @@ export class FindAllMembersByAccountRoute {
   async handle(
     @Param() param: FindAllMembersByAccountUsecaseParam,
     @Query() query: FindAllMembersByAccountUsecaseQuery,
+    @UserInfo() user: UserInfoType,
   ): Promise<FindAllMembersByAccountUsecaseResponse> {
     const input: FindAllMembersByAccountUsecaseInput = {
+      accountId: user.userId,
       eventId: param.eventId,
       localityId: query.localityId,
     };

@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { ShirtSize, ShirtType } from 'generated/prisma';
+import { ShirtSize, ShirtType, UF } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
-import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
-import { RegionGateway } from 'src/domain/repositories/region.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { Usecase } from 'src/usecases/usecase';
 
 export type FindAllMembersByAccountUsecaseInput = {
+  accountId: string;
   eventId: string;
-  localityId: string;
+  localityId?: string;
 };
 
 export type FindAllMembersByAccountUsecaseOutput = {
@@ -22,7 +22,14 @@ export type FindAllMembersByAccountUsecaseOutput = {
   shirtSize?: ShirtSize;
   shirtType?: ShirtType;
   registered: boolean;
+  locality?: Locality;
 }[];
+
+type Locality = {
+  id: string;
+  name: string;
+  uf: UF;
+};
 
 @Injectable()
 export class FindAllMembersByAccountUsecase
@@ -33,9 +40,8 @@ export class FindAllMembersByAccountUsecase
     >
 {
   constructor(
-    private readonly accountGateway: AccountGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly eventGateway: EventGateway,
-    private readonly regionGateway: RegionGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
   ) {}
@@ -43,16 +49,36 @@ export class FindAllMembersByAccountUsecase
   async execute(
     input: FindAllMembersByAccountUsecaseInput,
   ): Promise<FindAllMembersByAccountUsecaseOutput> {
-    const event = await this.eventGateway.findById(input.eventId);
+    const localityFilter = input.localityId ? [input.localityId] : [];
+
+    const [event, localities] = await Promise.all([
+      this.eventGateway.findById(input.eventId),
+      this.localityGateway.findByAccountIdAndLocalities(
+        input.accountId,
+        localityFilter,
+      ),
+    ]);
 
     if (!event) {
       return [];
     }
 
+    const localityIds = localities.map((l) => l.getId());
+
+    if (localityIds.length === 0) {
+      return [];
+    }
+
+    const localitiesById = new Map(
+      localities.map((locality) => [locality.getId(), locality]),
+    );
+
     const membersArray =
-      await this.accountParticipantGateway.findAllByLocalityId(
-        input.localityId,
-      );
+      await this.accountParticipantGateway.findAllByLocalityIds(localityIds);
+
+    if (membersArray.length === 0) {
+      return [];
+    }
 
     const membersIds = membersArray.map((m) => m.getId());
 
@@ -66,18 +92,27 @@ export class FindAllMembersByAccountUsecase
       alreadyRegistered.map((r) => r.getAccountParticipantId()),
     );
 
-    const output = membersArray.map((member) => ({
-      id: member.getId(),
-      name: member.getName(),
-      cpf: member.getCpf(),
-      preferredName: member.getPreferredName(),
-      birthDate: member.getBirthDate(),
-      gender: member.getGender(),
-      shirtSize: member.getShirtSize(),
-      shirtType: member.getShirtType(),
-      registered: registeredIds.has(member.getId()),
-    }));
+    return membersArray.map((member) => {
+      const locality = localitiesById.get(member.getLocalityId());
 
-    return output;
+      return {
+        id: member.getId(),
+        name: member.getName(),
+        cpf: member.getCpf(),
+        preferredName: member.getPreferredName(),
+        birthDate: member.getBirthDate(),
+        gender: member.getGender(),
+        shirtSize: member.getShirtSize(),
+        shirtType: member.getShirtType(),
+        registered: registeredIds.has(member.getId()),
+        locality: locality
+          ? {
+              id: locality.getId(),
+              name: locality.getName(),
+              uf: locality.getUf(),
+            }
+          : undefined,
+      };
+    });
   }
 }
