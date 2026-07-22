@@ -1,5 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import {
+  UserInfo,
+  UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
+import {
   FindAllPaginatedMembersInput,
   FindAllPaginatedMembersUsecase,
 } from 'src/usecases/web/members/find-all-paginated/find-all-paginated-members.usecase';
@@ -17,9 +21,11 @@ export class FindAllPaginatedMembersRoute {
 
   @Get()
   public async handle(
+    @UserInfo() user: UserInfoType,
     @Query() query: FindAllPaginatedMembersRequest,
   ): Promise<FindAllPaginatedMembersResponse> {
     const input: FindAllPaginatedMembersInput = {
+      accountId: user.userId,
       localityId: query.localityId,
       page: query.page,
       pageSize: query.pageSize,

@@ -22,7 +22,7 @@ export abstract class LocalityGateway {
   abstract findByAccountId(accountId: string): Promise<Locality[]>;
   abstract findByAccountIdAndLocalities(
     accountId: string,
-    localityIds?: string[],
+    localityId?: string,
   ): Promise<Locality[]>;
   abstract findAll(): Promise<Locality[]>;
 }

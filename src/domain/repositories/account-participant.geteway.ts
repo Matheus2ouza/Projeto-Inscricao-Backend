@@ -41,7 +41,7 @@ export abstract class AccountParticipantGateway {
     page: number,
     pageSize: number,
     filter: {
-      localityId?: string;
+      localityIds?: string[];
     },
   ): Promise<AccountParticipant[]>;
   abstract findManyByEventId(
@@ -73,5 +73,7 @@ export abstract class AccountParticipantGateway {
     eventId: string,
     gender: genderType,
   ): Promise<number>;
-  abstract countAllFiltered(filter: { localityId?: string }): Promise<number>;
+  abstract countAllFiltered(filter: {
+    localityIds?: string[];
+  }): Promise<number>;
 }
