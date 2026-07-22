@@ -173,7 +173,7 @@ export class AccountParticipantPrismaRepository
   async findAllPaginated(
     page: number,
     pageSize: number,
-    filter: { localityId?: string },
+    filter: { localityIds?: string[] },
   ): Promise<AccountParticipant[]> {
     const where = this.buildWhereClause(filter);
     const accountParticipantPrismaModel =
@@ -223,7 +223,7 @@ export class AccountParticipantPrismaRepository
   }
 
   //Agregações e contagens
-  async countAllFiltered(filter: { localityId?: string }): Promise<number> {
+  async countAllFiltered(filter: { localityIds?: string[] }): Promise<number> {
     const where = this.buildWhereClause(filter);
     return await this.prisma.accountParticipant.count({
       where,
@@ -315,11 +315,13 @@ export class AccountParticipantPrismaRepository
   }
 
   private buildWhereClause(filter?: {
-    localityId?: string;
+    localityIds?: string[];
     typeInscriptionId?: string | string[];
     inscriptionStatus?: InscriptionStatus[];
   }) {
-    const { localityId, typeInscriptionId, inscriptionStatus } = filter || {};
+    const { localityIds, typeInscriptionId, inscriptionStatus } = filter || {};
+
+    const localityIdsArray = localityIds ?? [];
 
     const typeInscriptionArray = typeInscriptionId
       ? Array.isArray(typeInscriptionId)
@@ -337,7 +339,9 @@ export class AccountParticipantPrismaRepository
       typeInscriptionArray.length > 0 || inscriptionStatusArray.length > 0;
 
     return {
-      localityId,
+      ...(localityIdsArray.length > 0 && {
+        localityId: { in: localityIdsArray },
+      }),
       ...(hasEventLinkFilter && {
         eventLinks: {
           some: {
