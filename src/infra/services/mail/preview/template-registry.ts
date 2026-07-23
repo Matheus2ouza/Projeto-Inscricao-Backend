@@ -1,5 +1,9 @@
 import { PaymentMethod } from 'generated/prisma';
 import type { ComponentType } from 'react';
+import { Event } from 'src/domain/entities/event/event.entity.js';
+import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
+import { Payment } from 'src/domain/entities/payment.entity';
+import type { PaymentApprovedEmailProps } from '../templates/payment/payment-approved/index.js';
 import { GuestExpiredEmailData } from '../types/inscription/guest-expired-email.types';
 import type { GuestInscriptionEmailData } from '../types/inscription/guest-inscription-email.types';
 import type {
@@ -7,7 +11,6 @@ import type {
   InscriptionEmailData,
 } from '../types/inscription/inscription-email.types';
 import type { InscriptionStatusEmailData } from '../types/inscription/inscription-status-email.types';
-import type { PaymentEmailData } from '../types/payment/payment-email.types';
 import { type PaymentProcessedNotificationEmailData } from '../types/payment/payment-processed-notification-email.types';
 import type { PaymentReceiptUpdateEmailData } from '../types/payment/payment-receipt-update-email.types';
 import type { PaymentReviewNotificationEmailData } from '../types/payment/payment-review-notification-email.types';
@@ -26,21 +29,6 @@ export interface TemplateDefinition {
   getProps: () => Record<string, unknown>;
 }
 
-const mockPaymentData = (
-  overrides: Partial<PaymentEmailData> = {},
-): PaymentEmailData => ({
-  paymentId: 'pay_123456',
-  inscriptionId: 'insc_987654',
-  eventId: 'event_001',
-  eventName: 'Congresso de Tecnologia 2025',
-  responsibleName: 'Marina Costa',
-  responsibleEmail: 'marina.costa@example.com',
-  paymentValue: 259.9,
-  paymentDate: new Date('2025-03-18T10:30:00Z'),
-  rejectionReason: 'Transação não autorizada pelo emissor.',
-  ...overrides,
-});
-
 const mockResponsibles = (): EventResponsibleEmailData[] => [
   {
     id: 'resp-001',
@@ -53,6 +41,92 @@ const mockResponsibles = (): EventResponsibleEmailData[] => [
     email: 'eduardo.pereira@example.com',
   },
 ];
+
+import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
+
+// ... outros mocks ...
+
+const mockPaymentApprovedData = (): PaymentApprovedEmailProps => {
+  // Mock do Event
+  const mockEvent = {
+    getId: () => 'event_001',
+    getName: () => 'Congresso de Tecnologia 2025',
+    getDescription: () => 'O maior congresso de tecnologia do Brasil',
+    getStartDate: () => new Date('2025-04-05T08:00:00Z'),
+    getEndDate: () => new Date('2025-04-07T18:00:00Z'),
+    getLocation: () => 'São Paulo Expo, São Paulo - SP',
+  } as unknown as Event;
+
+  // Mock do Payment
+  const mockPayment = {
+    getId: () => 'pay_123456',
+    getTotalValue: () => 789.7,
+    getCreatedAt: () => new Date('2025-03-18T14:30:00Z'),
+    getGuestName: () => 'Marina Costa',
+    getGuestEmail: () => 'marina.costa@example.com',
+    getIsGuest: () => false,
+  } as unknown as Payment;
+
+  // Mock das Inscriptions
+  const mockInscriptions = [
+    {
+      getId: () => 'insc_987654',
+      getResponsible: () => 'Marina Costa',
+      getTotalValue: () => 259.9,
+      getCreatedAt: () => new Date('2025-03-18T10:30:00Z'),
+      getConfirmationCode: () => 'abc123-def456-ghi789',
+    },
+    {
+      getId: () => 'insc_987655',
+      getResponsible: () => 'João Silva',
+      getTotalValue: () => 289.9,
+      getCreatedAt: () => new Date('2025-03-18T11:30:00Z'),
+      getConfirmationCode: () => 'jkl012-mno345-pqr678',
+    },
+    {
+      getId: () => 'insc_987656',
+      getResponsible: () => 'Ana Santos',
+      getTotalValue: () => 239.9,
+      getCreatedAt: () => new Date('2025-03-18T12:30:00Z'),
+      getConfirmationCode: () => 'stu901-vwx234-yz567',
+    },
+  ] as unknown as Inscription[];
+
+  // Mock das Allocations (alocações do pagamento)
+  const mockAllocations = [
+    {
+      getId: () => 'alloc_001',
+      getInscriptionId: () => 'insc_987654',
+      getValue: () => 259.9,
+      getCreatedAt: () => new Date('2025-03-18T10:30:00Z'),
+      getPaymentId: () => 'pay_123456',
+    },
+    {
+      getId: () => 'alloc_002',
+      getInscriptionId: () => 'insc_987655',
+      getValue: () => 289.9,
+      getCreatedAt: () => new Date('2025-03-18T11:30:00Z'),
+      getPaymentId: () => 'pay_123456',
+    },
+    {
+      getId: () => 'alloc_003',
+      getInscriptionId: () => 'insc_987656',
+      getValue: () => 239.9,
+      getCreatedAt: () => new Date('2025-03-18T12:30:00Z'),
+      getPaymentId: () => 'pay_123456',
+    },
+  ] as unknown as PaymentAllocation[];
+
+  return {
+    event: mockEvent,
+    payment: mockPayment,
+    inscriptions: mockInscriptions,
+    allocations: mockAllocations,
+    actionUrl:
+      process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
+    year: new Date().getFullYear(),
+  };
+};
 
 const mockInscriptionData = (): InscriptionEmailData => ({
   eventName: 'Congresso de Tecnologia 2025',
@@ -174,20 +248,15 @@ export const templateDefinitions: TemplateDefinition[] = [
     id: 'payment/payment-approved',
     category: 'payment',
     title: 'Pagamento aprovado',
-    description: 'Confirmação de pagamento com detalhes do pedido.',
-    previewText: 'Pagamento confirmado com sucesso.',
+    description: 'Confirmação de pagamento com lista de inscrições.',
+    previewText: 'Pagamento aprovado com sucesso!',
     loader: async () => {
       const module = await import(
         '../templates/payment/payment-approved/index.js'
       );
       return { default: module.PaymentApprovedEmail };
     },
-    getProps: () => ({
-      paymentData: mockPaymentData({ rejectionReason: undefined }),
-      loginUrl:
-        process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
-      year: new Date().getFullYear(),
-    }),
+    getProps: () => mockPaymentApprovedData(),
   },
   {
     id: 'payment/payment-rejected',
@@ -202,7 +271,7 @@ export const templateDefinitions: TemplateDefinition[] = [
       return { default: module.PaymentRejectedEmail };
     },
     getProps: () => ({
-      paymentData: mockPaymentData(),
+      paymentData: mockPaymentApprovedData(),
       loginUrl:
         process.env.FRONTEND_LOGIN_URL ?? 'https://portal.inscricao.dev/login',
       year: new Date().getFullYear(),

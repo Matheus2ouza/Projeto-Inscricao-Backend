@@ -10,6 +10,10 @@ export abstract class PaymentAllocationGateway {
     tx: PrismaTransactionClient,
   ): Promise<PaymentAllocation>;
   abstract createMany(payments: PaymentAllocation[]): Promise<void>;
+  abstract createManyTx(
+    payments: PaymentAllocation[],
+    tx: PrismaTransactionClient,
+  ): Promise<void>;
   abstract deleteMany(paymentId: string): Promise<void>;
 
   // Buscas e listagens

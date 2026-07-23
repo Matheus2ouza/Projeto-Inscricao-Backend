@@ -11,12 +11,12 @@ import { Decimal } from 'generated/prisma/runtime/library';
 import { CashRegisterEntry } from 'src/domain/entities/cash-register-entry.entity';
 import { CashRegisterEvent } from 'src/domain/entities/cash-register-event.entity';
 import { CashRegister } from 'src/domain/entities/cash-register.entity';
+import { Event } from 'src/domain/entities/event/event.entity';
 import { FinancialMovement } from 'src/domain/entities/financial-movement';
 import { Inscription } from 'src/domain/entities/inscription/inscription.entity';
 import { PaymentAllocation } from 'src/domain/entities/payment-allocation.entity';
 import { PaymentInstallment } from 'src/domain/entities/payment-installment.entity';
 import { Payment } from 'src/domain/entities/payment.entity';
-import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { CashRegisterEntryGateway } from 'src/domain/repositories/cash-register-entry.gateway';
 import { CashRegisterEventGateway } from 'src/domain/repositories/cash-register-event.gateway';
 import { CashRegisterGateway } from 'src/domain/repositories/cash-register.gateway';
@@ -31,11 +31,6 @@ import { PaymentApprovedEmailHandler } from 'src/infra/services/mail/handlers/pa
 import { Usecase } from 'src/usecases/usecase';
 import { EventNotFoundUsecaseException } from '../../exceptions/events/event-not-found.usecase.exception';
 import { PaymentNotFoundUsecaseException } from '../../exceptions/payment/payment-not-found.usecase.exception';
-
-type ResponsibleContact = {
-  name: string;
-  email: string;
-};
 
 export type ApprovePaymentInput = {
   paymentId: string;
@@ -60,7 +55,6 @@ export class ApprovePaymentUsecase
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly paymentInstallmentGateway: PaymentInstallmentGateway,
     private readonly inscriptionGateway: InscriptionGateway,
-    private readonly accountGateway: AccountGateway,
     private readonly cashRegisterEventGateway: CashRegisterEventGateway,
     private readonly cashRegisterEntryGateway: CashRegisterEntryGateway,
     private readonly cashRegisterGateway: CashRegisterGateway,
@@ -69,6 +63,7 @@ export class ApprovePaymentUsecase
   ) {}
 
   async execute(input: ApprovePaymentInput): Promise<ApprovePaymentOutput> {
+    // Busca o pagamento e valida sua existência
     const payment = await this.paymentGateway.findById(input.paymentId);
 
     if (!payment) {
@@ -79,6 +74,7 @@ export class ApprovePaymentUsecase
       );
     }
 
+    // Busca o evento relacionado ao pagamento
     const event = await this.eventGateway.findById(payment.getEventId());
 
     if (!event) {
@@ -89,17 +85,21 @@ export class ApprovePaymentUsecase
       );
     }
 
+    // Busca alocações do pagamento e caixas do evento em paralelo
     const [allocations, cashRegisterEvents] = await Promise.all([
       this.paymentAllocationGateway.findByPaymentId(payment.getId()),
       this.cashRegisterEventGateway.findByEventId(payment.getEventId()),
     ]);
 
+    // Cria movimento financeiro e parcela do pagamento
     const { financialMovement, paymentInstallment } =
       this.buildApprovalFinancialData(payment);
 
+    // Atualiza os valores arrecadados do evento
     event.addCollectedAmount(paymentInstallment.getValue());
     event.addNetValueCollected(paymentInstallment.getNetValue());
 
+    // Aprova o pagamento se estiver totalmente pago e ainda não aprovado
     if (
       payment.getStatus() !== StatusPayment.APPROVED &&
       payment.isFullyPaid()
@@ -107,21 +107,23 @@ export class ApprovePaymentUsecase
       payment.approve(input.accountId);
     }
 
-    // prepara inscrições (leituras + mutações de domínio, sem escrita)
+    // Prepara inscrições para liberação apenas se o pagamento estiver totalmente pago
     const inscriptionsToRelease = payment.isFullyPaid()
       ? await this.prepareInscriptionsToRelease(allocations)
       : [];
 
+    // Calcula total de participantes das inscrições liberadas
     const totalParticipantsToAdd = inscriptionsToRelease.reduce(
       (sum, { participantCount }) => sum + participantCount,
       0,
     );
 
+    // Adiciona os participantes ao evento
     for (let i = 0; i < totalParticipantsToAdd; i += 1) {
       event.addParticipants(totalParticipantsToAdd);
     }
 
-    // prepara entradas do caixa (leituras + montagem, sem escrita)
+    // Prepara as entradas de caixa baseadas nos caixas do evento
     const cashRegisterEntries =
       cashRegisterEvents.length > 0
         ? this.buildCashRegisterEntries(
@@ -132,23 +134,31 @@ export class ApprovePaymentUsecase
           )
         : [];
 
+    // Atualiza os saldos dos caixas com os valores das entradas
     const updatedCashRegisters =
       cashRegisterEntries.length > 0
         ? await this.buildUpdatedCashRegisters(cashRegisterEntries)
         : [];
 
-    // todas as escritas dentro da transaction
+    // Executa todas as operações de escrita em uma transação para garantir consistência
     await this.prisma.runInTransaction(async (tx) => {
+      // Cria movimento financeiro e parcela
       await this.financialMovementGateway.createTx(financialMovement, tx);
       await this.paymentInstallmentGateway.createTx(paymentInstallment, tx);
 
+      // Atualiza inscrições liberadas
       if (inscriptionsToRelease.length > 0) {
         const inscriptions = inscriptionsToRelease.map(
           ({ inscription }) => inscription,
         );
-        await this.inscriptionGateway.updateManyTx(inscriptions, tx);
+        await Promise.all(
+          inscriptions.map((inscription) =>
+            this.inscriptionGateway.updateTx(inscription, tx),
+          ),
+        );
       }
 
+      // Cria entradas de caixa e atualiza saldos
       if (cashRegisterEntries.length > 0) {
         await this.cashRegisterEntryGateway.createManyTx(
           cashRegisterEntries,
@@ -161,11 +171,13 @@ export class ApprovePaymentUsecase
         );
       }
 
+      // Atualiza evento e pagamento
       await this.eventGateway.updateTx(event, tx);
       await this.paymentGateway.updateTx(payment, tx);
     });
 
-    await this.sendApprovedEmailForAllocations(payment, allocations);
+    // Envia emails de confirmação para os responsáveis pelas inscrições
+    await this.sendApprovedEmailForAllocations(event, payment, allocations);
 
     return {
       id: payment.getId(),
@@ -173,6 +185,7 @@ export class ApprovePaymentUsecase
     };
   }
 
+  // Cria movimento financeiro de receita e a parcela correspondente do pagamento
   private buildApprovalFinancialData(payment: Payment): {
     financialMovement: FinancialMovement;
     paymentInstallment: PaymentInstallment;
@@ -204,6 +217,7 @@ export class ApprovePaymentUsecase
     return { financialMovement, paymentInstallment };
   }
 
+  // Constrói entradas de caixa para cada caixa associado ao evento
   private buildCashRegisterEntries(
     cashRegisterEvents: CashRegisterEvent[],
     payment: Payment,
@@ -227,6 +241,7 @@ export class ApprovePaymentUsecase
     );
   }
 
+  // Agrupa valores por caixa e atualiza o saldo de cada um
   private async buildUpdatedCashRegisters(
     entries: CashRegisterEntry[],
   ): Promise<CashRegister[]> {
@@ -256,6 +271,7 @@ export class ApprovePaymentUsecase
     return results.filter((cr): cr is CashRegister => cr !== null);
   }
 
+  // Prepara inscrições para serem marcadas como pagas
   private async prepareInscriptionsToRelease(
     allocations: PaymentAllocation[],
   ): Promise<{ inscription: Inscription; participantCount: number }[]> {
@@ -268,6 +284,7 @@ export class ApprovePaymentUsecase
 
       if (!inscription) continue;
 
+      // Verifica se a inscrição ainda não está totalmente paga
       if (
         inscription.getTotalPaid() < inscription.getTotalValue() ||
         inscription.getStatus() === InscriptionStatus.PAID
@@ -275,6 +292,7 @@ export class ApprovePaymentUsecase
         continue;
       }
 
+      // Marca a inscrição como paga
       inscription.inscriptionPaid();
 
       const participantCount = await this.inscriptionGateway.countParticipants(
@@ -289,84 +307,51 @@ export class ApprovePaymentUsecase
     return results;
   }
 
+  // Envia emails de aprovação para os responsáveis pelas inscrições
+  // No ApprovePaymentUsecase
   private async sendApprovedEmailForAllocations(
+    event: Event,
     payment: Payment,
     allocations: PaymentAllocation[],
   ): Promise<void> {
-    const inscriptionIds = this.getUniqueInscriptionIds(allocations);
-
-    if (inscriptionIds.length === 0) {
+    if (allocations.length === 0) {
+      this.logger.warn(
+        `Nenhuma alocação encontrada para o pagamento ${payment.getId()}`,
+      );
       return;
     }
 
-    const baseResponsible = await this.resolveResponsibleFromPayment(payment);
+    if (!payment.getGuestEmail()) {
+      this.logger.warn(
+        `Email do responsável não encontrado para pagamento ${payment.getId()}`,
+      );
+      return;
+    }
+
+    // Buscar todas as inscrições relacionadas às alocações
+    const inscriptionIds = this.getUniqueInscriptionIds(allocations);
+    const inscriptions: Inscription[] = [];
 
     for (const inscriptionId of inscriptionIds) {
-      const responsible = await this.resolveResponsibleForInscription(
-        inscriptionId,
-        baseResponsible,
-      );
-
-      if (!responsible.email) {
-        this.logger.warn(
-          `Email do responsável não encontrado para pagamento ${payment.getId()} (Inscrição: ${inscriptionId})`,
-        );
-        continue;
+      const inscription = await this.inscriptionGateway.findById(inscriptionId);
+      if (inscription) {
+        inscriptions.push(inscription);
       }
-
-      this.logger.log(
-        `Enviando email de aprovação de pagamento para ${responsible.email} (Inscrição: ${inscriptionId})`,
-      );
-
-      await this.paymentApprovedEmailHandler.sendPaymentApprovedEmail({
-        paymentId: payment.getId(),
-        inscriptionId,
-        eventId: payment.getEventId(),
-        responsibleName: responsible.name,
-        responsibleEmail: responsible.email,
-        paymentValue: payment.getTotalValue(),
-        paymentDate: new Date(),
-      });
     }
+
+    this.logger.log(
+      `Enviando email de aprovação de pagamento para ${payment.getGuestEmail()} com ${allocations.length} alocações`,
+    );
+
+    await this.paymentApprovedEmailHandler.sendPaymentApprovedEmail({
+      event,
+      payment,
+      inscriptions,
+      allocations, // Passando as alocações completas
+    });
   }
 
-  private async resolveResponsibleFromPayment(
-    payment: Payment,
-  ): Promise<ResponsibleContact> {
-    if (payment.getIsGuest()) {
-      return {
-        name: payment.getGuestName() || '',
-        email: payment.getGuestEmail() || '',
-      };
-    }
-
-    const accountId = payment.getAccountId();
-    if (!accountId) {
-      return { name: '', email: '' };
-    }
-
-    const account = await this.accountGateway.findById(accountId);
-    return {
-      name: account?.getUsername() || '',
-      email: account?.getEmail() || '',
-    };
-  }
-
-  private async resolveResponsibleForInscription(
-    inscriptionId: string,
-    baseResponsible: ResponsibleContact,
-  ): Promise<ResponsibleContact> {
-    if (baseResponsible.name && baseResponsible.email) {
-      return baseResponsible;
-    }
-
-    const inscription = await this.inscriptionGateway.findById(inscriptionId);
-    return {
-      name: baseResponsible.name || inscription?.getResponsible() || '',
-      email: baseResponsible.email || inscription?.getEmail() || '',
-    };
-  }
-
+  // Extrai IDs únicos de inscrições das alocações
   private getUniqueInscriptionIds(allocations: PaymentAllocation[]): string[] {
     return [
       ...new Set(

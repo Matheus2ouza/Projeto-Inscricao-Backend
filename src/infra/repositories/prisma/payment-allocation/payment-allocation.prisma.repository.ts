@@ -33,6 +33,14 @@ export class PaymentAllocationPrismaRepository
     await this.prisma.paymentAllocation.createMany({ data });
   }
 
+  async createManyTx(
+    payments: PaymentAllocation[],
+    tx: PrismaTransactionClient,
+  ): Promise<void> {
+    const data = payments.map(EntityToPrisma.map);
+    await tx.paymentAllocation.createMany({ data });
+  }
+
   async deleteMany(paymentId: string): Promise<void> {
     await this.prisma.paymentAllocation.deleteMany({
       where: {

@@ -3,7 +3,7 @@ import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
 import { RedisService } from 'src/infra/services/redis/redis.service';
 import { MailService } from '../../mail.service';
-import { PaymentEmailData } from '../../types/payment/payment-email.types';
+import { PaymentEmailData } from '../../types/payment/payment-rejected-email.types';
 
 @Injectable()
 export class PaymentRejectedEmailHandler {

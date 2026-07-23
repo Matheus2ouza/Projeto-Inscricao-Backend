@@ -169,9 +169,12 @@ export class RegisterPaymentGuestPixUsecase
       value: payment.getTotalValue(),
     });
 
+    inscription.incrementeValuePaid(paymentAllocation.getValue());
+
     await this.prisma.runInTransaction(async (tx) => {
       await this.paymentGateway.createTx(payment, tx);
       await this.paymentAllocationGateway.createTx(paymentAllocation, tx);
+      await this.inscriptionGateway.updateTx(inscription, tx);
     });
 
     // Notificação aos responsáveis do evento
