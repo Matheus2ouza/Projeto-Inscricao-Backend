@@ -314,15 +314,15 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     page: number,
     pageSize: number,
     eventId: string,
-    accountId: string,
-    filter: { status: InscriptionStatus },
+    filter: { localityIds?: string[]; status: InscriptionStatus },
   ): Promise<Inscription[]> {
     const skip = (page - 1) * pageSize;
+    const where = this.buildWhereClauseInscription(filter);
     const found = await this.prisma.inscription.findMany({
       where: {
-        eventId: eventId,
-        accountId,
-        status: filter.status,
+        eventId,
+        ...where,
+        isGuest: false,
       },
       skip,
       take: pageSize,
@@ -651,12 +651,14 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return count;
   }
 
-  async countTotal(eventId: string, accountId: string): Promise<number> {
+  async countTotal(eventId: string, localityIds?: string[]): Promise<number> {
+    const where = this.buildWhereClauseInscription({ localityIds });
     const count = await this.prisma.inscription.count({
       where: {
         eventId,
-        accountId,
+        ...where,
         status: 'PENDING',
+        isGuest: false,
       },
     });
     return count;
@@ -857,36 +859,6 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return count;
   }
 
-  // Atualizações de status e valor
-  async updateStatus(
-    id: string,
-    status: InscriptionStatus,
-  ): Promise<Inscription> {
-    const aModel = await this.prisma.inscription.update({
-      where: { id },
-      data: { status: status },
-    });
-
-    return PrismaToEntity.map(aModel);
-  }
-
-  async paidRegistration(id: string): Promise<Inscription> {
-    const aModel = await this.prisma.inscription.update({
-      where: { id },
-      data: { status: 'PAID' },
-    });
-
-    return PrismaToEntity.map(aModel);
-  }
-
-  async updateValue(id: string, value: number): Promise<Inscription> {
-    const aModel = await this.prisma.inscription.update({
-      where: { id },
-      data: { totalValue: value },
-    });
-    return PrismaToEntity.map(aModel);
-  }
-
   async decrementValue(id: string, value: number): Promise<Inscription> {
     const aModel = await this.prisma.inscription.update({
       where: { id },
@@ -1036,6 +1008,4 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : undefined,
     };
   }
-
-  // PDF
 }

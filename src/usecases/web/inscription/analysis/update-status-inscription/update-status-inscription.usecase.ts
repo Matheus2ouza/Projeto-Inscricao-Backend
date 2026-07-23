@@ -28,31 +28,28 @@ export class UpdateStatusInscriptionUsecase
     private readonly inscriptionStatusEmailHandler: InscriptionStatusEmailHandler,
   ) {}
 
-  async execute(
-    input: UpdateStatusInscriptionInput,
-  ): Promise<UpdateStatusInscriptionOutput> {
-    const inscription = await this.inscriptionGateway.findById(
-      input.inscriptionId,
-    );
+  async execute({
+    inscriptionId,
+    statusInscription,
+  }: UpdateStatusInscriptionInput): Promise<UpdateStatusInscriptionOutput> {
+    const inscription = await this.inscriptionGateway.findById(inscriptionId);
 
     if (!inscription) {
       throw new InscriptionNotFoundUsecaseException(
-        `attempt to search for registration data for analysis but the registration was not found, id: ${input.inscriptionId}`,
+        `attempt to search for registration data for analysis but the registration was not found, id: ${inscriptionId}`,
         `Inscrição não encontrada`,
         UpdateStatusInscriptionUsecase.name,
       );
     }
 
-    const newInscriptionStatus = await this.inscriptionGateway.updateStatus(
-      input.inscriptionId,
-      input.statusInscription,
-    );
+    inscription.setStatus(statusInscription);
+    await this.inscriptionGateway.update(inscription);
 
-    await this.notifyResponsible(newInscriptionStatus);
+    await this.notifyResponsible(inscription);
 
     const output: UpdateStatusInscriptionOutput = {
-      id: newInscriptionStatus.getId(),
-      status: newInscriptionStatus.getStatus(),
+      id: inscription.getId(),
+      status: inscription.getStatus(),
     };
     return output;
   }

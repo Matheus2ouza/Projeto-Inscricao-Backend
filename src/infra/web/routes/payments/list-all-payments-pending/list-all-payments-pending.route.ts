@@ -1,11 +1,15 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { UserId } from 'src/infra/web/authenticator/decorators/user-id.decorator';
+import {
+  UserInfo,
+  UserInfoType,
+} from 'src/infra/web/authenticator/decorators/user-info.decorator';
 import {
   ListAllPaymentsPendingInput,
   ListAllPaymentsPendingUsecase,
 } from 'src/usecases/web/payments/list-all-payments-pending/list-all-payments-pending.usecase';
 import type {
-  ListAllPaymentsPendingRequest,
+  ListAllPaymentsPendingParam,
+  ListAllPaymentsPendingQuery,
   ListAllPaymentsPendingResponse,
 } from './list-all-payments-pending.dto';
 import { ListAllPaymentsPendingPresenter } from './list-all-payments-pending.presenter';
@@ -18,13 +22,14 @@ export class ListAllPaymentsPendingRoute {
 
   @Get(':eventId/list/pending')
   async handle(
-    @Param() param: ListAllPaymentsPendingRequest,
-    @Query() query: ListAllPaymentsPendingRequest,
-    @UserId() accountId: string,
+    @Param() param: ListAllPaymentsPendingParam,
+    @Query() query: ListAllPaymentsPendingQuery,
+    @UserInfo() user: UserInfoType,
   ): Promise<ListAllPaymentsPendingResponse> {
     const input: ListAllPaymentsPendingInput = {
       eventId: param.eventId,
-      accountId,
+      localityId: query.localityId,
+      accountId: user.userId,
       page: query.page,
       pageSize: query.pageSize,
     };
