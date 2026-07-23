@@ -97,13 +97,14 @@ export class PaymentPrismaRepository implements PaymentGateway {
     page: number,
     pageSize: number,
     filter?: {
-      accountId?: string;
+      localityIds?: string[];
       status?: StatusPayment[];
+      isGuest?: boolean;
       methodPayment?: PaymentMethod[];
     },
   ): Promise<Payment[]> {
     const skip = (page - 1) * pageSize;
-    const where = this.buildWhereClauseEvent(filter);
+    const where = this.buildWhereClause(filter);
     const found = await this.prisma.payment.findMany({
       skip,
       take: pageSize,
@@ -185,12 +186,13 @@ export class PaymentPrismaRepository implements PaymentGateway {
   async countAllFiltered(
     eventId: string,
     filters: {
-      accountId?: string;
+      localityIds?: string[];
       status?: StatusPayment[];
-      paymentMethod?: PaymentMethod[];
+      isGuest?: boolean;
+      methodPayment?: PaymentMethod[];
     },
   ): Promise<number> {
-    const where = this.buildWhereClauseEvent(filters);
+    const where = this.buildWhereClause(filters);
     const count = await this.prisma.payment.count({
       where: {
         eventId,
@@ -214,7 +216,7 @@ export class PaymentPrismaRepository implements PaymentGateway {
     });
   }
 
-  private buildWhereClauseEvent(filter?: {
+  private buildWhereClausePayment(filter?: {
     accountId?: string;
     status?: StatusPayment[];
     methodPayment?: PaymentMethod[];
@@ -233,20 +235,18 @@ export class PaymentPrismaRepository implements PaymentGateway {
 
   async countAllOrdered(
     eventId: string,
-    accountId?: string,
+    isGuest?: boolean,
+    localityIds?: string[],
   ): Promise<PaymentsSummary> {
+    const where = this.buildWhereClause({ localityIds });
     const count = await this.prisma.payment.groupBy({
       by: ['status'],
       where: {
         eventId,
-        accountId,
+        ...where,
       },
-      _count: {
-        _all: true,
-      },
-      _sum: {
-        totalValue: true,
-      },
+      _count: { _all: true },
+      _sum: { totalValue: true },
     });
 
     return {
@@ -268,24 +268,18 @@ export class PaymentPrismaRepository implements PaymentGateway {
 
   async countTotalPaid(
     eventId: string,
-    filter: {
-      limitTime?: string;
-    },
+    filter: { limitTime?: string },
     accountId?: string,
   ): Promise<number> {
-    const where = this.buildWhereClause(filter);
+    const where = this.buildWhereClause({ ...filter, accountId });
     const result = await this.prisma.payment.aggregate({
       where: {
-        accountId,
         eventId,
         status: StatusPayment.APPROVED,
         ...where,
       },
-      _sum: {
-        totalValue: true,
-      },
+      _sum: { totalValue: true },
     });
-
     return Number(result._sum.totalValue ?? 0);
   }
 
@@ -294,21 +288,15 @@ export class PaymentPrismaRepository implements PaymentGateway {
     filter: { limitTime?: string },
     accountId?: string,
   ): Promise<number> {
-    const where = this.buildWhereClause(filter);
+    const where = this.buildWhereClause({ ...filter, accountId });
     const result = await this.prisma.payment.aggregate({
       where: {
-        accountId,
         eventId,
-        status: {
-          in: [StatusPayment.UNDER_REVIEW],
-        },
+        status: { in: [StatusPayment.UNDER_REVIEW] },
         ...where,
       },
-      _sum: {
-        totalValue: true,
-      },
+      _sum: { totalValue: true },
     });
-
     return Number(result._sum.totalValue ?? 0);
   }
 
@@ -367,11 +355,45 @@ export class PaymentPrismaRepository implements PaymentGateway {
   }
 
   // Métodos privados
-  private buildWhereClause(filters: { limitTime?: string }) {
-    const { limitTime } = filters || {};
+  private buildWhereClause(filters?: {
+    accountId?: string;
+    status?: StatusPayment[];
+    isGuest?: boolean;
+    methodPayment?: PaymentMethod[];
+    localityIds?: string[];
+    limitTime?: string;
+  }) {
+    const {
+      accountId,
+      status,
+      isGuest,
+      methodPayment,
+      localityIds,
+      limitTime,
+    } = filters || {};
+
+    const localityIdsArray = localityIds ?? [];
 
     return {
-      limitTime,
+      ...(accountId && { accountId }),
+      ...(status && status.length > 0 && { status: { in: status } }),
+      ...(methodPayment &&
+        methodPayment.length > 0 && {
+          methodPayment: { in: methodPayment },
+        }),
+      isGuest,
+      ...(localityIdsArray.length > 0 && {
+        allocations: {
+          some: {
+            inscription: {
+              localityId: { in: localityIdsArray },
+            },
+          },
+        },
+      }),
+      ...(limitTime && {
+        createdAt: { gte: new Date(limitTime) },
+      }),
     };
   }
 }

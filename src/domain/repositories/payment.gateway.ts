@@ -35,8 +35,9 @@ export abstract class PaymentGateway {
     page: number,
     pageSize: number,
     filter?: {
-      accountId?: string;
+      localityIds?: string[];
       status?: StatusPayment[];
+      isGuest?: boolean;
       methodPayment?: PaymentMethod[];
     },
   ): Promise<Payment[]>;
@@ -53,8 +54,9 @@ export abstract class PaymentGateway {
   abstract countAllFiltered(
     eventId: string,
     filters?: {
-      accountId?: string;
+      localityIds?: string[];
       status?: StatusPayment[];
+      isGuest?: boolean;
       paymentMethod?: PaymentMethod[];
     },
   ): Promise<number>;
@@ -63,7 +65,8 @@ export abstract class PaymentGateway {
   ): Promise<number>;
   abstract countAllOrdered(
     eventId: string,
-    accountId?: string,
+    isGuest?: boolean,
+    localityIds?: string[],
   ): Promise<PaymentsSummary>;
   abstract countTotalPaid(
     eventId: string,
