@@ -119,7 +119,7 @@ export class ApprovePaymentUsecase
     );
 
     // Adiciona os participantes ao evento
-    for (let i = 0; i < totalParticipantsToAdd; i += 1) {
+    if (totalParticipantsToAdd > 0) {
       event.addParticipants(totalParticipantsToAdd);
     }
 
