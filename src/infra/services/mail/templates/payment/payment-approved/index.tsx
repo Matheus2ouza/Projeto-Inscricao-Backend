@@ -12,7 +12,7 @@ export type PaymentApprovedEmailProps = {
   payment: Payment;
   inscriptions: Inscription[]; // Inscrições para referência
   allocations: PaymentAllocation[]; // Alocações com os valores
-  actionUrl: string;
+  actionUrl?: string | null;
   year?: number;
 };
 

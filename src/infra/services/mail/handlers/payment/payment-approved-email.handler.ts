@@ -53,7 +53,8 @@ export class PaymentApprovedEmailHandler {
           event,
           payment,
           inscriptions,
-          redirectionUrl,
+          allocations,
+          actionUrl: redirectionUrl,
           year: new Date().getFullYear(),
         },
       });
