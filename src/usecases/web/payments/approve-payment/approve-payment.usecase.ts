@@ -347,7 +347,7 @@ export class ApprovePaymentUsecase
       event,
       payment,
       inscriptions,
-      allocations, // Passando as alocações completas
+      allocations,
     });
   }
 
