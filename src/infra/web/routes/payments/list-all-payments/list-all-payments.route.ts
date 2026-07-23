@@ -7,7 +7,8 @@ import {
   ListAllPaymentsUseCase,
 } from 'src/usecases/web/payments/list-all-payments/list-all-payments.usecase';
 import type {
-  ListAllPaymentsRequest,
+  ListAllPaymentsParam,
+  ListAllPaymentsQuery,
   ListAllPaymentsResponse,
 } from './list-all-payments.dto';
 import { ListAllPaymentsPresenter } from './list-all-payments.presenter';
@@ -20,14 +21,24 @@ export class ListAllPaymentsRoute {
 
   @Get(':eventId/list')
   async handle(
-    @Param() param: ListAllPaymentsRequest,
-    @UserInfo() userInfo: UserInfoType,
-    @Query() query: ListAllPaymentsRequest,
+    @Param() param: ListAllPaymentsParam,
+    @UserInfo() user: UserInfoType,
+    @Query() query: ListAllPaymentsQuery,
   ): Promise<ListAllPaymentsResponse> {
+    const isGuestFilter =
+      query.isGuest === undefined
+        ? undefined
+        : query.isGuest === false || query.isGuest === 'false'
+          ? false
+          : query.isGuest === true || query.isGuest === 'true'
+            ? true
+            : undefined;
+
     const input: ListAllPaymentsInput = {
       eventId: param.eventId,
-      accountId:
-        userInfo.userRole === roleType.USER ? userInfo.userId : undefined,
+      localityId: query.localityId,
+      accountId: user.userRole === roleType.USER ? user.userId : undefined,
+      isGuest: user.userRole !== roleType.USER ? isGuestFilter : false,
       page: query.page,
       pageSize: query.pageSize,
     };

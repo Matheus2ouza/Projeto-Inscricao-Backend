@@ -95,6 +95,6 @@ export abstract class ParticipantGateway {
   ): Promise<number>;
   abstract countParticipantsByEventId(
     eventId: string,
-    userId?: string,
+    localityIds?: string[],
   ): Promise<number>;
 }

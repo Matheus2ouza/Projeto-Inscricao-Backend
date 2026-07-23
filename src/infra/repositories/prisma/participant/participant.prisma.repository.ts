@@ -335,13 +335,15 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
 
   async countParticipantsByEventId(
     eventId: string,
-    userId?: string,
+    localityIds?: string[],
   ): Promise<number> {
+    const where = this.buildWhereClauseParticipant({ localityIds });
     const count = await this.prisma.participant.count({
       where: {
+        ...where,
         inscription: {
+          ...where.inscription,
           eventId,
-          accountId: userId,
           isGuest: true,
         },
       },
@@ -350,10 +352,13 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
   }
 
   private buildWhereClauseParticipant(filter?: {
-    inscriptionStatus?: string | InscriptionStatus[];
+    localityIds?: string[];
+    inscriptionStatus?: InscriptionStatus | InscriptionStatus[];
     typeInscriptionId?: string | string[];
   }) {
-    const { inscriptionStatus, typeInscriptionId } = filter || {};
+    const { localityIds, inscriptionStatus, typeInscriptionId } = filter || {};
+
+    const localityIdsArray = localityIds ?? [];
 
     const inscriptionStatusArray = inscriptionStatus
       ? Array.isArray(inscriptionStatus)
@@ -369,6 +374,11 @@ export class ParticipantPrismaRepository implements ParticipantGateway {
 
     return {
       inscription: {
+        ...(localityIdsArray.length > 0 && {
+          localityId: {
+            in: localityIdsArray,
+          },
+        }),
         status:
           inscriptionStatusArray.length > 0
             ? { in: inscriptionStatusArray }

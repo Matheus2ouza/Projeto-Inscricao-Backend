@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { PaymentAllocationGateway } from 'src/domain/repositories/payment-allocation.gateway';
 import { PaymentGateway } from 'src/domain/repositories/payment.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
@@ -8,7 +9,9 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type ListAllPaymentsInput = {
   eventId: string;
+  localityId?: string;
   accountId?: string;
+  isGuest?: string | boolean;
   page: number;
   pageSize: number;
 };
@@ -49,40 +52,49 @@ export class ListAllPaymentsUseCase
 {
   constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly paymentGateway: PaymentGateway,
     private readonly paymentAllocationGateway: PaymentAllocationGateway,
     private readonly supabaseStorageService: SupabaseStorageService,
   ) {}
 
-  public async execute(
-    input: ListAllPaymentsInput,
-  ): Promise<ListAllPaymentsOutput> {
-    const safePage = Math.max(1, Math.floor(input.page || 1));
-    const safePageSize = Math.max(
-      1,
-      Math.min(20, Math.floor(input.pageSize || 20)),
-    );
+  public async execute({
+    eventId,
+    localityId,
+    accountId,
+    isGuest,
+    page,
+    pageSize,
+  }: ListAllPaymentsInput): Promise<ListAllPaymentsOutput> {
+    const safePage = Math.max(1, Math.floor(page || 1));
+    const safePageSize = Math.max(1, Math.min(20, Math.floor(pageSize || 20)));
 
-    const event = await this.eventGateway.findById(input.eventId);
+    const event = await this.eventGateway.findById(eventId);
 
     if (!event) {
       throw new EventNotFoundUsecaseException(
-        `Event not found when searching with eventId: ${input.eventId} in ${ListAllPaymentsUseCase.name}`,
+        `Event not found when searching with eventId: ${eventId} in ${ListAllPaymentsUseCase.name}`,
         `Evento não encontrado ou invalido`,
         ListAllPaymentsUseCase.name,
       );
     }
 
+    let isGuestValue: boolean | undefined = undefined;
+    if (isGuest === false) {
+      isGuestValue = false;
+    }
+
+    const localityIds = await this.seachLocalitiesToUser(accountId, localityId);
+
     const [summary, payments, total] = await Promise.all([
-      this.paymentGateway.countAllOrdered(input.eventId, input.accountId),
-      this.paymentGateway.findAllPaginated(
-        input.eventId,
-        safePage,
-        safePageSize,
-        { accountId: input.accountId },
-      ),
-      this.paymentGateway.countAllFiltered(input.eventId, {
-        accountId: input.accountId,
+      this.paymentGateway.countAllOrdered(eventId, isGuestValue, localityIds),
+      this.paymentGateway.findAllPaginated(eventId, safePage, safePageSize, {
+        localityIds,
+        isGuest: isGuestValue,
+      }),
+      this.paymentGateway.countAllFiltered(eventId, {
+        localityIds,
+        isGuest: isGuestValue,
       }),
     ]);
 
@@ -140,5 +152,17 @@ export class ListAllPaymentsUseCase
     } catch {
       return [];
     }
+  }
+
+  private async seachLocalitiesToUser(
+    userId?: string,
+    localityId?: string,
+  ): Promise<string[]> {
+    const localities = await this.localityGateway.findByAccountIdAndLocality(
+      userId,
+      localityId,
+    );
+
+    return localities.map((l) => l.getId());
   }
 }
