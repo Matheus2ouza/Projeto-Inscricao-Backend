@@ -1,6 +1,6 @@
 import { Button, Hr, Section, Text } from '@react-email/components';
 import React from 'react';
-import type { PaymentEmailData } from '../../../types/payment/payment-email.types';
+import { PaymentEmailData } from '../../../types/payment/payment-rejected-email.types';
 import { Layout } from '../../shared/Layout';
 
 export type PaymentRejectedEmailProps = {

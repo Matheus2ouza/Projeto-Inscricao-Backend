@@ -168,12 +168,10 @@ export class RegisterPaymentPixUsecase
       imageUrls: [imagePath],
     });
 
-    await this.paymentGateway.create(payment);
-
     // Alocação do valor + incremento do totalPaid
     let remainingValue = input.value;
     const allocations: PaymentAllocation[] = [];
-    const increments: { inscriptionId: string; value: number }[] = [];
+    const inscriptionsToUpdate: Inscription[] = [];
 
     for (const inscription of inscriptionsEntities) {
       const remainingInscriptionDebt = Math.max(
@@ -194,19 +192,19 @@ export class RegisterPaymentPixUsecase
           }),
         );
 
-        increments.push({
-          inscriptionId: inscription.getId(),
-          value: allocationValue,
-        });
+        inscription.incrementeValuePaid(allocationValue);
+        inscriptionsToUpdate.push(inscription);
 
         remainingValue -= allocationValue;
         if (remainingValue <= 0) break;
       }
     }
 
-    // Criação das alocações
-    await this.paymentAllocationGateway.createMany(allocations);
-    await this.inscriptionGateway.incrementTotalPaidMany(increments);
+    await this.prisma.runInTransaction(async (tx) => {
+      await this.paymentGateway.createTx(payment, tx);
+      await this.paymentAllocationGateway.createManyTx(allocations, tx);
+      await this.inscriptionGateway.updateManyTx(inscriptionsToUpdate, tx);
+    });
 
     // Notificação aos responsáveis do evento (opcional)
     if (inscriptionsEntities.length > 0) {
@@ -214,12 +212,7 @@ export class RegisterPaymentPixUsecase
         event,
         payment,
         inscriptionsEntities,
-      ).catch((error) => {
-        this.logger.error(
-          `(BG) Erro ao enviar email de pagamento ${payment.getId()}: ${error.message}`,
-          error,
-        );
-      });
+      );
     }
     // Notificação de pagamento processado com sucesso
     void this.notifyPaymentProcessed(event, payment, inscriptionsEntities);
