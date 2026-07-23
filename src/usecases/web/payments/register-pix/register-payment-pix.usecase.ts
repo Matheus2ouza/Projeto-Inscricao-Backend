@@ -201,9 +201,16 @@ export class RegisterPaymentPixUsecase
     }
 
     await this.prisma.runInTransaction(async (tx) => {
+      // cria o pagamento
       await this.paymentGateway.createTx(payment, tx);
+      // cria as alocações
       await this.paymentAllocationGateway.createManyTx(allocations, tx);
-      await this.inscriptionGateway.updateManyTx(inscriptionsToUpdate, tx);
+      // atualiza as inscrições
+      await Promise.all(
+        inscriptionsToUpdate.map((inscription) =>
+          this.inscriptionGateway.updateTx(inscription, tx),
+        ),
+      );
     });
 
     // Notificação aos responsáveis do evento (opcional)
