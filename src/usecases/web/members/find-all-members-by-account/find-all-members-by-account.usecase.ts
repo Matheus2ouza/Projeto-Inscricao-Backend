@@ -49,11 +49,9 @@ export class FindAllMembersByAccountUsecase
   async execute(
     input: FindAllMembersByAccountUsecaseInput,
   ): Promise<FindAllMembersByAccountUsecaseOutput> {
-    const localityFilter = input.localityId ? [input.localityId] : [];
-
     const [event, localities] = await Promise.all([
       this.eventGateway.findById(input.eventId),
-      this.localityGateway.findByAccountIdAndLocalities(
+      this.localityGateway.findByAccountIdAndLocality(
         input.accountId,
         input.localityId,
       ),

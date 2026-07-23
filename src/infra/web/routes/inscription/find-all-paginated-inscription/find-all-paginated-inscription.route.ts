@@ -45,6 +45,7 @@ export class FindAllPaginatedInscriptionsRoute {
     const input: FindAllPaginatedInscriptionInput = {
       eventId: param.eventId,
       userId: user.userRole === roleType.USER ? user.userId : undefined,
+      localityId: query.localityId,
       status: query.status,
       isGuest: user.userRole !== roleType.USER ? isGuestFilter : false,
       orderByCreatedAt: query.orderByCreatedAt || 'desc',

@@ -45,7 +45,7 @@ export class FindAllPaginatedMembersUsecase
       Math.min(20, Math.floor(input.pageSize || 20)),
     );
 
-    const localities = await this.localityGateway.findByAccountIdAndLocalities(
+    const localities = await this.localityGateway.findByAccountIdAndLocality(
       input.accountId,
       input.localityId,
     );

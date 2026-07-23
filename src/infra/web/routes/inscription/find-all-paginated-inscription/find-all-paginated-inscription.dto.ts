@@ -5,6 +5,7 @@ export type FindAllPaginatedInscriptionParams = {
 };
 
 export type FindAllPaginatedInscriptionQuery = {
+  localityId?: string;
   status: InscriptionStatus[];
   isGuest?: string | boolean;
   orderByCreatedAt?: 'asc' | 'desc';

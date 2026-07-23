@@ -3,6 +3,7 @@ import { InscriptionStatus } from 'generated/prisma';
 import { AccountParticipantInEventGateway } from 'src/domain/repositories/account-participant-in-event.gateway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
 import { Usecase } from 'src/usecases/usecase';
@@ -10,6 +11,7 @@ import { EventNotFoundUsecaseException } from 'src/usecases/web/exceptions/event
 
 export type FindAllPaginatedInscriptionInput = {
   eventId: string;
+  localityId?: string;
   userId?: string;
   status: InscriptionStatus[];
   isGuest?: string | boolean;
@@ -57,6 +59,7 @@ export class FindAllPaginatedInscriptionsUsecase
 {
   public constructor(
     private readonly eventGateway: EventGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly inscriptionGateway: InscriptionGateway,
     private readonly accountParticipantInEventGateway: AccountParticipantInEventGateway,
     private readonly participantGateway: ParticipantGateway,
@@ -82,6 +85,11 @@ export class FindAllPaginatedInscriptionsUsecase
       );
     }
 
+    const localityIds = await this.seachLocalitiesToUser(
+      input.userId,
+      input.localityId,
+    );
+
     let isGuest: boolean | undefined = undefined;
     if (input.isGuest === false) {
       isGuest = false;
@@ -90,9 +98,9 @@ export class FindAllPaginatedInscriptionsUsecase
     const { startDate, endDate } = this.getDateRangeFromPeriod(input.period);
 
     const filters = {
+      localityIds: localityIds,
       status: input.status,
       isGuest,
-      accountId: input.userId,
       orderByCreatedAt: input.orderByCreatedAt,
       orderByResponsible: input.orderByResponsible,
       startDate,
@@ -114,22 +122,33 @@ export class FindAllPaginatedInscriptionsUsecase
     const totalParticipantsNormal =
       await this.accountParticipantInEventGateway.countParticipantsByEventId(
         event.getId(),
-        input.userId,
+        localityIds,
       );
 
+    let totalParticipantsGuest: number = 0;
     // Contagem de participantes de convidados
-    const totalParticipantsGuest =
-      await this.participantGateway.countParticipantsByEventId(
-        event.getId(),
-        input.userId,
-      );
+    if (isGuest) {
+      totalParticipantsGuest =
+        await this.participantGateway.countParticipantsByEventId(
+          event.getId(),
+          localityIds,
+        );
+    }
 
     // Total de participantes para retornar na resposta
     const totalParticipants = totalParticipantsNormal + totalParticipantsGuest;
 
     const [totalPaid, totalDue] = await Promise.all([
-      this.inscriptionGateway.countTotalPaid(event.getId(), input.userId),
-      this.inscriptionGateway.countTotalDue(event.getId(), input.userId),
+      this.inscriptionGateway.countTotalPaid(
+        event.getId(),
+        isGuest,
+        localityIds,
+      ),
+      this.inscriptionGateway.countTotalDue(
+        event.getId(),
+        isGuest,
+        localityIds,
+      ),
     ]);
 
     const imagePath = await this.getPublicUrlOrEmpty(event.getImageUrl());
@@ -181,6 +200,18 @@ export class FindAllPaginatedInscriptionsUsecase
     };
 
     return output;
+  }
+
+  private async seachLocalitiesToUser(
+    userId?: string,
+    localityId?: string,
+  ): Promise<string[]> {
+    const localities = await this.localityGateway.findByAccountIdAndLocality(
+      userId,
+      localityId,
+    );
+
+    return localities.map((l) => l.getId());
   }
 
   private async getPublicUrlOrEmpty(path?: string): Promise<string> {
