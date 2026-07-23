@@ -1,8 +1,11 @@
 import { PaymentMode } from 'generated/prisma';
 
-export type ListAllPaymentsPendingRequest = {
-  accountId: string;
+export type ListAllPaymentsPendingParam = {
   eventId: string;
+};
+
+export type ListAllPaymentsPendingQuery = {
+  localityId?: string;
   page: number;
   pageSize: number;
 };

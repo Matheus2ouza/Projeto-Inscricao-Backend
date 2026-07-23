@@ -374,6 +374,16 @@ export class Inscription extends Entity {
     this.touch();
   }
 
+  public incrementeTotalValue(value: number): void {
+    this.totalValue += value;
+    this.touch();
+  }
+
+  public decrementTotalValue(value: number): void {
+    this.totalValue -= value;
+    this.touch();
+  }
+
   public incrementeValuePaid(value: number): void {
     this.totalPaid += value;
     this.touch();

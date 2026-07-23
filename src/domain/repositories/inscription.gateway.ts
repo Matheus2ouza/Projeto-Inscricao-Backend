@@ -140,8 +140,8 @@ export abstract class InscriptionGateway {
     page: number,
     pageSize: number,
     eventId: string,
-    accountId: string,
     filter: {
+      localityIds?: string[];
       status: InscriptionStatus;
     },
   ): Promise<Inscription[]>;
@@ -258,7 +258,7 @@ export abstract class InscriptionGateway {
   abstract countInscriptionsWithPayments(eventId: string): Promise<number>;
 
   // Conta o total de inscrições pendentes de uma conta em um evento
-  abstract countTotal(eventId: string, accountId: string): Promise<number>;
+  abstract countTotal(eventId: string, localityIds?: string[]): Promise<number>;
 
   // Conta todas as inscrições de um evento como guest
   abstract countAllGuestByEvent(eventId: string): Promise<number>;
@@ -313,19 +313,6 @@ export abstract class InscriptionGateway {
   abstract countByExclusiveLinkIds(
     exclusiveLinkId: string[],
   ): Promise<Record<string, number>>;
-
-  // Atualizações de status e valor
-  // Atualiza o status de uma inscrição
-  abstract updateStatus(
-    id: string,
-    status: InscriptionStatus,
-  ): Promise<Inscription>;
-
-  // Marca uma inscrição como paga
-  abstract paidRegistration(id: string): Promise<Inscription>;
-
-  // Atualiza o valor total de uma inscrição
-  abstract updateValue(id: string, value: number): Promise<Inscription>;
 
   // Decrementa o valor total de uma inscrição (Update do saldo devedor)
   abstract decrementValue(id: string, value: number): Promise<Inscription>;
