@@ -1,6 +1,11 @@
-export type ListAllPaymentsRequest = {
+export type ListAllPaymentsParam = {
   eventId: string;
+};
+
+export type ListAllPaymentsQuery = {
+  localityId?: string;
   accountId: string;
+  isGuest?: string | boolean;
   page: number;
   pageSize: number;
 };
