@@ -231,13 +231,16 @@ export class AccountParticipantInEventPrismaRepository
 
   async countParticipantsByEventId(
     eventId: string,
-    userId?: string,
+    localityIds?: string[],
   ): Promise<number> {
+    const where = this.buildWhereClauseAccountParticipantInEvent({
+      localityIds,
+    });
     const count = await this.prisma.accountParticipantInEvent.count({
       where: {
         inscription: {
+          ...where.inscription,
           eventId,
-          accountId: userId,
           isGuest: false,
         },
       },
@@ -259,5 +262,23 @@ export class AccountParticipantInEventPrismaRepository
         },
       },
     });
+  }
+
+  private buildWhereClauseAccountParticipantInEvent(filter?: {
+    localityIds?: string[];
+  }) {
+    const { localityIds } = filter || {};
+
+    const localityIdsArray = localityIds ?? [];
+
+    return {
+      inscription: {
+        ...(localityIdsArray.length > 0 && {
+          localityId: {
+            in: localityIdsArray,
+          },
+        }),
+      },
+    };
   }
 }

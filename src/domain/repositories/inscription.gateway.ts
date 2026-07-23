@@ -153,9 +153,9 @@ export abstract class InscriptionGateway {
     page: number,
     pageSize: number,
     filters?: {
+      localityIds?: string[];
       status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
-      accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
       startDate?: string;
@@ -205,6 +205,7 @@ export abstract class InscriptionGateway {
   abstract countAll(
     eventId: string,
     filters: {
+      localityIds?: string[];
       status?: InscriptionStatus[];
       isGuest?: boolean;
       startDate?: string;
@@ -291,11 +292,19 @@ export abstract class InscriptionGateway {
     gender: genderType,
   ): Promise<number>;
 
-  // Conta o total de inscrições pagas, usa o accountId como filtro opcional caso deseja somente de uma conta específica
-  abstract countTotalPaid(eventId: string, accountId?: string): Promise<number>;
+  // Conta o total de inscrições pagas, usa o localityId como filtro opcional caso deseja somente de uma conta específica
+  abstract countTotalPaid(
+    eventId: string,
+    isGuest?: boolean,
+    localityIds?: string[],
+  ): Promise<number>;
 
-  // Conta o total de inscrições devedoras, usa o accountId como filtro opcional caso deseja somente de uma conta específica
-  abstract countTotalDue(eventId: string, accountId?: string): Promise<number>;
+  // Conta o total de inscrições devedoras, usa o localityId como filtro opcional caso deseja somente de uma conta específica
+  abstract countTotalDue(
+    eventId: string,
+    isGuest?: boolean,
+    localityIds?: string[],
+  ): Promise<number>;
 
   // contagem de inscrições referete a somente um exclusive link
   abstract countByExclusiveLinkId(exclusiveLinkId: string): Promise<number>;

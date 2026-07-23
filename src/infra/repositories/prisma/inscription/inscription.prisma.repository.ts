@@ -337,9 +337,9 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     page: number,
     pageSize: number,
     filters?: {
+      localityIds?: string[];
       status?: InscriptionStatus | InscriptionStatus[];
       isGuest?: boolean;
-      accountId?: string;
       orderByCreatedAt?: 'asc' | 'desc';
       orderByResponsible?: 'asc' | 'desc';
       startDate?: string;
@@ -534,6 +534,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   async countAll(
     eventId: string,
     filters: {
+      localityIds?: string[];
       status?: InscriptionStatus[];
       isGuest?: boolean;
       startDate?: string;
@@ -701,13 +702,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return uniqueAccountIds.size;
   }
 
-  async countTotalPaid(eventId: string, accountId?: string): Promise<number> {
-    const where = this.buildWhereClauseInscription({ accountId });
+  async countTotalPaid(
+    eventId: string,
+    isGuest?: boolean,
+    localityIds?: string[],
+  ): Promise<number> {
+    const where = this.buildWhereClauseInscription({ localityIds });
 
     const result = await this.prisma.inscription.aggregate({
       where: {
         eventId,
         ...where,
+        isGuest,
       },
       _sum: {
         totalPaid: true,
@@ -717,13 +723,18 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     return Number(result._sum.totalPaid || 0);
   }
 
-  async countTotalDue(eventId: string, accountId?: string): Promise<number> {
-    const where = this.buildWhereClauseInscription({ accountId });
+  async countTotalDue(
+    eventId: string,
+    isGuest?: boolean,
+    localityIds?: string[],
+  ): Promise<number> {
+    const where = this.buildWhereClauseInscription({ localityIds });
 
     const result = await this.prisma.inscription.aggregate({
       where: {
         ...where,
         eventId,
+        isGuest,
         status: where.status ?? {
           in: [
             InscriptionStatus.PENDING,
@@ -934,6 +945,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
   }
 
   private buildWhereClauseInscription(filters?: {
+    localityIds?: string[];
     status?: InscriptionStatus | InscriptionStatus[];
     statusPayment?: StatusPayment | StatusPayment[];
     methodPayment?: PaymentMethod | PaymentMethod[];
@@ -944,6 +956,7 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
     responsible?: string;
   }) {
     const {
+      localityIds,
       status,
       statusPayment,
       methodPayment,
@@ -953,6 +966,8 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
       accountId,
       responsible,
     } = filters || {};
+
+    const localityIdsArray = localityIds ?? [];
 
     const statusArray = status
       ? Array.isArray(status)
@@ -1007,6 +1022,9 @@ export class InscriptionPrismaRepository implements InscriptionGateway {
         : undefined;
 
     return {
+      ...(localityIdsArray.length > 0 && {
+        localityId: { in: localityIdsArray },
+      }),
       status:
         statusArray && statusArray.length > 0 ? { in: statusArray } : undefined,
       isGuest,

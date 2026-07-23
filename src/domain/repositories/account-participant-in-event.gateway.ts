@@ -85,7 +85,7 @@ export abstract class AccountParticipantInEventGateway {
   // Conta o número de participantes por evento
   abstract countParticipantsByEventId(
     eventId: string,
-    userId?: string,
+    localityIds?: string[],
   ): Promise<number>;
   // Conta o número de participantes por evento e gênero
   abstract countParticipantsByEventIdAndGender(
