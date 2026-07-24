@@ -353,15 +353,15 @@ export class SaleTicketUsecase
     }>,
   ): string[] {
     const barcodes: string[] = [];
-    const timestamp = Date.now().toString().slice(-6);
-    const saleIdNum = saleId.replace(/\D/g, '').slice(-6);
+    const timestamp = Date.now().toString().slice(-3);
+    const saleIdNum = saleId.replace(/\D/g, '').slice(-5);
 
     for (const item of items) {
-      const ticketIdNum = item.ticketId.replace(/\D/g, '').slice(-4);
+      const ticketIdNum = item.ticketId.replace(/\D/g, '').slice(-3);
 
       for (let i = 0; i < item.quantity; i++) {
-        const sequence = (i + 1).toString().padStart(2, '0');
-        // Formato: SALE_ID(6) + TICKET_ID(4) + SEQUENCE(2) + TIMESTAMP(6) = 18 caracteres
+        const sequence = (i + 1).toString().padStart(2, '0'); // 2 dígitos
+        // Formato: SALE_ID(5) + TICKET_ID(3) + SEQUENCE(2) + TIMESTAMP(3) = 13 caracteres
         const barcode = `${saleIdNum}${ticketIdNum}${sequence}${timestamp}`;
         barcodes.push(barcode);
       }

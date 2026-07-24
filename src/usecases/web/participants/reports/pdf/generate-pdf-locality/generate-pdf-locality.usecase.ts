@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import archiver from 'archiver';
 import axios from 'axios';
 import { InscriptionStatus } from 'generated/prisma';
+import sharp from 'sharp';
 import { AccountParticipantGateway } from 'src/domain/repositories/account-participant.geteway';
 import { AccountGateway } from 'src/domain/repositories/account.geteway';
 import { EventGateway } from 'src/domain/repositories/event.gateway';
 import { InscriptionGateway } from 'src/domain/repositories/inscription.gateway';
+import { LocalityGateway } from 'src/domain/repositories/locality.gateway';
 import { ParticipantGateway } from 'src/domain/repositories/participant.gateway';
 import { TypeInscriptionGateway } from 'src/domain/repositories/type-inscription.gateway';
 import { SupabaseStorageService } from 'src/infra/services/supabase/supabase-storage.service';
-import { canonicalLocality } from 'src/shared/utils/locality';
 import { ParticipantsByLocalityPdfGenerator } from 'src/shared/utils/pdfs/participants/participants-by-locality-pdf.generator';
 import { ParticipantsByLocalitySummarizedPdfGenerator } from 'src/shared/utils/pdfs/participants/participants-by-locality-summarized-pdf.generator';
 import { Usecase } from 'src/usecases/usecase';
@@ -59,6 +60,7 @@ export class GeneratePdfLocalityUsecase
   constructor(
     private readonly eventGateway: EventGateway,
     private readonly inscriptionGateway: InscriptionGateway,
+    private readonly localityGateway: LocalityGateway,
     private readonly accountGateway: AccountGateway,
     private readonly accountParticipantGateway: AccountParticipantGateway,
     private readonly participantGateway: ParticipantGateway,
@@ -101,16 +103,37 @@ export class GeneratePdfLocalityUsecase
       ),
     );
 
+    // localidade agora vem da inscrição, resolvida em lote
+    const localityIds = [
+      ...new Set(
+        inscriptions
+          .map((i) => i.getLocalityId())
+          .filter((id): id is string => !!id),
+      ),
+    ];
+
+    const localities = await this.localityGateway.findByIds(localityIds);
+    const localityNameById = new Map(
+      localities.map((l) => [l.getId(), l.getName()] as const),
+    );
+
+    const localityByInscriptionId = new Map(
+      inscriptions.map((i) => {
+        const id = i.getLocalityId();
+        return [i.getId(), (id && localityNameById.get(id)) || '-'] as const;
+      }),
+    );
+
     const rowsNormal = await this.fetchNormalParticipants(
       inscriptions,
-      filters,
+      localityByInscriptionId,
     );
 
     const rowsGuest = await this.fetchGuestParticipants(
       inscriptionIds,
-      inscriptions,
       filters,
       phoneByInscriptionId,
+      localityByInscriptionId,
     );
 
     // Unir, ordenar por localidade e nome, e indexar
@@ -267,9 +290,12 @@ export class GeneratePdfLocalityUsecase
         responseType: 'arraybuffer',
       });
 
-      const base64Image = Buffer.from(response.data).toString('base64');
-      // Keep the same data-uri approach used in other PDF usecases.
-      return `data:image/jpeg;base64,${base64Image}`;
+      // normaliza qualquer formato para PNG, garantindo compatibilidade com pdfmake
+      const pngBuffer = await sharp(Buffer.from(response.data))
+        .png()
+        .toBuffer();
+
+      return `data:image/png;base64,${pngBuffer.toString('base64')}`;
     } catch {
       return '';
     }
@@ -419,7 +445,7 @@ export class GeneratePdfLocalityUsecase
 
   private async fetchNormalParticipants(
     inscriptions: any[],
-    filters: any,
+    localityByInscriptionId: Map<string, string>,
   ): Promise<Array<any>> {
     const rowsNormal = (
       await Promise.all(
@@ -429,12 +455,11 @@ export class GeneratePdfLocalityUsecase
               inscription.getId(),
             );
 
+          const locality =
+            localityByInscriptionId.get(inscription.getId()) ?? '-';
+
           return Promise.all(
             participantsNormalArray.map(async (pn) => {
-              const account = await this.accountGateway.findById(
-                pn.getLocalityId(),
-              );
-
               const typeInscription =
                 await this.typeInscriptionGateway.findTypeInscriptionByAccountParticipantInEventId(
                   pn.getId(),
@@ -443,7 +468,7 @@ export class GeneratePdfLocalityUsecase
               return {
                 name: pn.getName(),
                 preferredName: pn.getPreferredName(),
-                locality: account?.getUsername() ?? '-',
+                locality,
                 age: this.calculateAge(pn.getBirthDate()),
                 phone: inscription.getPhone(),
                 shirtSize: pn.getShirtSize(),
@@ -463,22 +488,15 @@ export class GeneratePdfLocalityUsecase
 
   private async fetchGuestParticipants(
     inscriptionIds: string[],
-    inscriptions: any[],
     filters: any,
     phoneByInscriptionId: Map<string, string>,
+    localityByInscriptionId: Map<string, string>,
   ): Promise<Array<any>> {
     const participantsGuest =
       await this.participantGateway.findByInscriptionsIds(
         inscriptionIds,
         filters,
       );
-
-    const localityByInscriptionId = new Map(
-      inscriptions.map((inscription) => {
-        const canonical = canonicalLocality(inscription.getGuestLocality());
-        return [inscription.getId(), canonical || '-'] as const;
-      }),
-    );
 
     const rowsGuest = await Promise.all(
       participantsGuest.map(async (pg) => {
